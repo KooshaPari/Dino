@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <!-- DINO game install path - update if your game is elsewhere -->
+    <GameDir>G:\SteamLibrary\steamapps\common\Diplomacy is Not an Option</GameDir>
+    <ManagedDir>$(GameDir)\Diplomacy is Not an Option_Data\Managed</ManagedDir>
+    <PluginsDir>$(GameDir)\Diplomacy is Not an Option_Data\Plugins\x86_64</PluginsDir>
+
+    <!-- BepInEx paths (after BepInEx is installed) -->
+    <BepInExDir>$(GameDir)\BepInEx</BepInExDir>
+    <EcsPluginsDir>$(BepInExDir)\ecs_plugins</EcsPluginsDir>
+
+    <!-- Common settings -->
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+</Project>

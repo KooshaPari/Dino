@@ -1,0 +1,113 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>DINOForge.Runtime</AssemblyName>
+    <RootNamespace>DINOForge.Runtime</RootNamespace>
+    <Description>DINOForge runtime plugin - BepInEx bootstrap, ECS introspection, entity dumper</Description>
+
+    <!-- Don't copy deps to output - BepInEx and Unity provide them at runtime -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+
+    <!-- Deploy built DLL to BepInEx ecs_plugins -->
+    <OutputPath>$(EcsPluginsDir)</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+  </PropertyGroup>
+
+  <!-- BepInEx core - referenced from game install (not on NuGet) -->
+  <ItemGroup>
+    <Reference Include="BepInEx">
+      <HintPath>$(BepInExDir)\core\BepInEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(BepInExDir)\core\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Game assemblies - referenced directly from install -->
+  <ItemGroup>
+    <!-- Unity ECS / DOTS -->
+    <Reference Include="Unity.Entities">
+      <HintPath>$(ManagedDir)\Unity.Entities.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Entities.Hybrid">
+      <HintPath>$(ManagedDir)\Unity.Entities.Hybrid.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Transforms">
+      <HintPath>$(ManagedDir)\Unity.Transforms.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Collections">
+      <HintPath>$(ManagedDir)\Unity.Collections.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Mathematics">
+      <HintPath>$(ManagedDir)\Unity.Mathematics.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Burst">
+      <HintPath>$(ManagedDir)\Unity.Burst.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Jobs">
+      <HintPath>$(ManagedDir)\Unity.Jobs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Scenes">
+      <HintPath>$(ManagedDir)\Unity.Scenes.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Localization">
+      <HintPath>$(ManagedDir)\Unity.Localization.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Unity Engine -->
+    <Reference Include="UnityEngine">
+      <HintPath>$(ManagedDir)\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(ManagedDir)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(ManagedDir)\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Game DLLs -->
+    <Reference Include="DNO.Main">
+      <HintPath>$(ManagedDir)\DNO.Main.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(ManagedDir)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Door407.Core.Runtime">
+      <HintPath>$(ManagedDir)\Door407.Core.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Door407.Integrations.Runtime">
+      <HintPath>$(ManagedDir)\Door407.Integrations.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Newtonsoft.Json (bundled with game) -->
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(ManagedDir)\Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

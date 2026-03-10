@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>DINOForge.Tools.DumpTools</AssemblyName>
+    <RootNamespace>DINOForge.Tools.DumpTools</RootNamespace>
+    <Description>CLI tools for analyzing DINOForge entity dumps</Description>
+  </PropertyGroup>
+
+  <!-- Wrapped dependencies (ADR-008) -->
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" Version="0.*" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.*" />
+  </ItemGroup>
+
+</Project>
