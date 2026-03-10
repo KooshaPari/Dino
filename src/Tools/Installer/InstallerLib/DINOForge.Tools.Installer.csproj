@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>DINOForge.Tools.Installer</AssemblyName>
+    <RootNamespace>DINOForge.Tools.Installer</RootNamespace>
+    <Description>Installer library for detecting Steam/DINO paths and verifying DINOForge installations</Description>
+  </PropertyGroup>
+
+</Project>

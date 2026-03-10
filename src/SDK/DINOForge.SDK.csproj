@@ -7,11 +7,15 @@
     <Description>DINOForge SDK - public mod API, registries, schemas, pack loaders</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="DINOForge.Tests" />
+  </ItemGroup>
+
   <!-- Wrapped dependencies (ADR-008: wrap, don't handroll) -->
   <ItemGroup>
     <PackageReference Include="YamlDotNet" Version="16.*" />
     <PackageReference Include="Newtonsoft.Json" Version="13.*" />
-    <PackageReference Include="NJsonSchema" Version="11.*" />
+    <PackageReference Include="NJsonSchema" Version="10.*" />
     <PackageReference Include="AssetsTools.NET" Version="3.0.4" />
   </ItemGroup>
 

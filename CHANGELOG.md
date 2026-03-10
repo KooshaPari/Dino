@@ -44,6 +44,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `VanillaCatalog`: runtime scanner classifying vanilla entities into registry IDs
 - `AssetSwapSystem`: skeleton for total conversion asset replacement
 
+#### M5: Example Packs
+- `warfare-modern`: 26 units (West vs Classic Enemy), 16 weapons, 10 waves
+- `warfare-starwars`: 26 units (Republic vs CIS), 19 weapons, 10 waves
+- `warfare-guerrilla`: 13 units (Guerrilla), 13 weapons, 10 waves
+
+#### M6: In-Game Mod Menu & HMR
+- `ModMenuOverlay`: F10-toggled IMGUI window with pack list, enable/disable toggles, status bar
+- `ModSettingsPanel`: BepInEx ConfigEntry wrapper with auto-discovered settings UI
+- `PackFileWatcher`: FileSystemWatcher-based HMR with 500ms debounce, thread-safe reload
+- `HotReloadResult`: immutable result type (Success/Failure/Partial)
+- `HotReloadBridge`: connects SDK HMR to BepInEx logger and ECS runtime
+- UI Domain Plugin: `UIPlugin`, `MenuManager`, `HUDInjectionSystem` stubs
+
+#### M7: Installer & Universe Bible System
+- `Install-DINOForge.ps1`: PowerShell installer (auto-detect Steam, download BepInEx, --Dev flag)
+- `install.sh`: Bash installer for Linux/Steam Deck
+- `SteamLocator`: finds DINO install via Windows registry + libraryfolders.vdf parsing
+- `InstallVerifier`: validates BepInEx, Runtime DLL, packs directory
+- `UniverseBible`: per-theme metadata container (era, taxonomy, crosswalk, naming, style)
+- `CrosswalkDictionary`: bidirectional vanilla↔themed entity mapping with wildcard patterns
+- `FactionTaxonomy`: faction hierarchy with alignment, archetype, sub-factions, unit rosters
+- `NamingGuide`: per-faction naming rules (prefix/suffix/pattern/overrides)
+- `StyleGuide`: color palettes, audio themes, architecture styles per faction
+- `UniverseLoader`: loads UniverseBible from YAML directory structure
+- `PackGenerator`: generates complete mod pack from UniverseBible + faction selection
+- `universe-bible.json` schema for validation
+- Example universes: `star-wars-clone-wars/` and `modern-warfare/`
+
 #### M4: Warfare Domain Plugin
 - `ArchetypeRegistry`: 3 faction archetypes (Order, Industrial Swarm, Asymmetric)
 - `DoctrineEngine`: applies modifier chains (archetype + doctrine), validates stat bounds
@@ -53,6 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `WarfarePlugin`: entry point with full pack validation
 
 ### Fixed
+- `PackCompiler` CLI updated for System.CommandLine 2.0.3 API (SetAction, mutable collections)
 - `YamlSchemaConverter`: fixed YAML-to-JSON conversion to properly coerce scalar types
 - `NoAllocReadOnlyCollection` IEnumerable cast error in SystemEnumerator and DebugOverlay
 - MonoBehaviour lifecycle incompatibility with DINO's ECS-first architecture

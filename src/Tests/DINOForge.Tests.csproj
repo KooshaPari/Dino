@@ -9,18 +9,20 @@
 
   <!-- Wrapped test dependencies (ADR-008) -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.*" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Include="xunit" Version="2.*" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.*">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.*">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="FluentAssertions" Version="8.*" />
+    <PackageReference Include="FluentAssertions" Version="6.*" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SDK\DINOForge.SDK.csproj" />
     <ProjectReference Include="..\Domains\Warfare\DINOForge.Domains.Warfare.csproj" />
+    <ProjectReference Include="..\Domains\UI\DINOForge.Domains.UI.csproj" />
+    <ProjectReference Include="..\Tools\Installer\InstallerLib\DINOForge.Tools.Installer.csproj" />
   </ItemGroup>
 
 </Project>

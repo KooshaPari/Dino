@@ -1,6 +1,5 @@
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,60 +13,71 @@ namespace DINOForge.Tools.PackCompiler
     {
         static async Task<int> Main(string[] args)
         {
-            var packPathArg = new Argument<string>("pack-path", "Path to the pack directory");
-            var outputOption = new Option<string?>(new[] { "--output", "-o" }, "Output directory for the bundled pack");
+            var packPathArg = new Argument<string>("pack-path") { Description = "Path to the pack directory" };
+            var outputOption = new Option<string?>("--output", "-o") { Description = "Output directory for the bundled pack" };
 
             // Validate command
-            var validateCommand = new Command("validate", "Validate a pack directory")
+            var validateCommand = new Command("validate") { Description = "Validate a pack directory" };
+            validateCommand.Arguments.Add(packPathArg);
+            validateCommand.SetAction(parseResult =>
             {
-                packPathArg
-            };
-            validateCommand.SetHandler((packPath) => ValidatePack(packPath), packPathArg);
+                string packPath = parseResult.GetValue(packPathArg)!;
+                ValidatePack(packPath);
+            });
 
             // Build command
-            var buildCommand = new Command("build", "Validate and bundle a pack directory")
+            var buildPackPathArg = new Argument<string>("pack-path") { Description = "Path to the pack directory" };
+            var buildCommand = new Command("build") { Description = "Validate and bundle a pack directory" };
+            buildCommand.Arguments.Add(buildPackPathArg);
+            buildCommand.Options.Add(outputOption);
+            buildCommand.SetAction(parseResult =>
             {
-                packPathArg,
-                outputOption
-            };
-            buildCommand.SetHandler((packPath, outputDir) => BuildPack(packPath, outputDir), packPathArg, outputOption);
+                string packPath = parseResult.GetValue(buildPackPathArg)!;
+                string? outputDir = parseResult.GetValue(outputOption);
+                BuildPack(packPath, outputDir);
+            });
 
             // Assets command group
-            var assetsCommand = new Command("assets", "Inspect and validate Unity asset bundles");
+            var assetsCommand = new Command("assets") { Description = "Inspect and validate Unity asset bundles" };
 
-            var gameDirArg = new Argument<string>("game-dir", "Game installation directory");
-            var assetsListCommand = new Command("list", "List all game asset bundles")
+            var gameDirArg = new Argument<string>("game-dir") { Description = "Game installation directory" };
+            var assetsListCommand = new Command("list") { Description = "List all game asset bundles" };
+            assetsListCommand.Arguments.Add(gameDirArg);
+            assetsListCommand.SetAction(parseResult =>
             {
-                gameDirArg
-            };
-            assetsListCommand.SetHandler((gameDir) => AssetsListBundles(gameDir), gameDirArg);
+                string gameDir = parseResult.GetValue(gameDirArg)!;
+                AssetsListBundles(gameDir);
+            });
 
-            var bundlePathArg = new Argument<string>("bundle-path", "Path to a .bundle file");
-            var assetsInspectCommand = new Command("inspect", "List assets in a bundle")
+            var bundlePathArg = new Argument<string>("bundle-path") { Description = "Path to a .bundle file" };
+            var assetsInspectCommand = new Command("inspect") { Description = "List assets in a bundle" };
+            assetsInspectCommand.Arguments.Add(bundlePathArg);
+            assetsInspectCommand.SetAction(parseResult =>
             {
-                bundlePathArg
-            };
-            assetsInspectCommand.SetHandler((bundlePath) => AssetsInspect(bundlePath), bundlePathArg);
+                string bundlePath = parseResult.GetValue(bundlePathArg)!;
+                AssetsInspect(bundlePath);
+            });
 
-            var modBundlePathArg = new Argument<string>("mod-bundle-path", "Path to a mod .bundle file");
-            var assetsValidateCommand = new Command("validate", "Validate a mod asset bundle")
+            var modBundlePathArg = new Argument<string>("mod-bundle-path") { Description = "Path to a mod .bundle file" };
+            var assetsValidateCommand = new Command("validate") { Description = "Validate a mod asset bundle" };
+            assetsValidateCommand.Arguments.Add(modBundlePathArg);
+            assetsValidateCommand.SetAction(parseResult =>
             {
-                modBundlePathArg
-            };
-            assetsValidateCommand.SetHandler((modBundlePath) => AssetsValidate(modBundlePath), modBundlePathArg);
+                string modBundlePath = parseResult.GetValue(modBundlePathArg)!;
+                AssetsValidate(modBundlePath);
+            });
 
-            assetsCommand.AddCommand(assetsListCommand);
-            assetsCommand.AddCommand(assetsInspectCommand);
-            assetsCommand.AddCommand(assetsValidateCommand);
+            assetsCommand.Subcommands.Add(assetsListCommand);
+            assetsCommand.Subcommands.Add(assetsInspectCommand);
+            assetsCommand.Subcommands.Add(assetsValidateCommand);
 
-            var rootCommand = new RootCommand("DINOForge PackCompiler - Validate and bundle content packs")
-            {
-                validateCommand,
-                buildCommand,
-                assetsCommand
-            };
+            var rootCommand = new RootCommand("DINOForge PackCompiler - Validate and bundle content packs");
+            rootCommand.Subcommands.Add(validateCommand);
+            rootCommand.Subcommands.Add(buildCommand);
+            rootCommand.Subcommands.Add(assetsCommand);
 
-            return await rootCommand.InvokeAsync(args);
+            ParseResult parseResultObj = rootCommand.Parse(args);
+            return await parseResultObj.InvokeAsync();
         }
 
         private static void ValidatePack(string packPath)
@@ -78,14 +88,12 @@ namespace DINOForge.Tools.PackCompiler
                 AnsiConsole.MarkupLine($"Pack Path: {packPath}");
                 AnsiConsole.WriteLine();
 
-                // Check if directory exists
                 if (!Directory.Exists(packPath))
                 {
                     AnsiConsole.MarkupLine("[bold red]Error:[/] Pack directory not found");
                     Environment.Exit(1);
                 }
 
-                // Check for pack.yaml
                 string manifestPath = Path.Combine(packPath, "pack.yaml");
                 if (!File.Exists(manifestPath))
                 {
@@ -93,12 +101,10 @@ namespace DINOForge.Tools.PackCompiler
                     Environment.Exit(1);
                 }
 
-                // Load and validate manifest
                 AnsiConsole.MarkupLine("[yellow]Loading manifest...[/]");
                 var loader = new PackLoader();
                 var manifest = loader.LoadFromFile(manifestPath);
 
-                // Display manifest information
                 AnsiConsole.MarkupLine("[bold]Manifest Fields:[/]");
                 var table = new Table();
                 table.AddColumn("Field");
@@ -122,7 +128,6 @@ namespace DINOForge.Tools.PackCompiler
                 AnsiConsole.Write(table);
                 AnsiConsole.WriteLine();
 
-                // Scan for content files
                 AnsiConsole.MarkupLine("[bold]Content Files:[/]");
                 var contentTable = new Table();
                 contentTable.AddColumn("Type");
@@ -174,14 +179,12 @@ namespace DINOForge.Tools.PackCompiler
                     AnsiConsole.MarkupLine($"Output Directory: {outputDir}");
                 AnsiConsole.WriteLine();
 
-                // Check if directory exists
                 if (!Directory.Exists(packPath))
                 {
                     AnsiConsole.MarkupLine("[bold red]Error:[/] Pack directory not found");
                     Environment.Exit(1);
                 }
 
-                // Check for pack.yaml
                 string manifestPath = Path.Combine(packPath, "pack.yaml");
                 if (!File.Exists(manifestPath))
                 {
@@ -189,17 +192,14 @@ namespace DINOForge.Tools.PackCompiler
                     Environment.Exit(1);
                 }
 
-                // Validate manifest
                 AnsiConsole.MarkupLine("[yellow]Validating manifest...[/]");
                 var loader = new PackLoader();
                 var manifest = loader.LoadFromFile(manifestPath);
-                AnsiConsole.MarkupLine($"[green]✓[/] Manifest valid: {manifest.Name} v{manifest.Version}");
+                AnsiConsole.MarkupLine($"[green]v[/] Manifest valid: {manifest.Name} v{manifest.Version}");
                 AnsiConsole.WriteLine();
 
-                // Determine output path
                 string finalOutputDir = outputDir ?? Path.Combine(Directory.GetCurrentDirectory(), $"{manifest.Id}-{manifest.Version}");
 
-                // Create output directory
                 if (Directory.Exists(finalOutputDir))
                 {
                     AnsiConsole.MarkupLine($"[yellow]Clearing existing output directory...[/]");
@@ -316,12 +316,10 @@ namespace DINOForge.Tools.PackCompiler
                 using var service = new AssetService(Path.GetDirectoryName(modBundlePath) ?? ".");
                 AssetValidationResult result = service.ValidateModBundle(modBundlePath);
 
-                // Unity version
                 AnsiConsole.MarkupLine($"Unity Version: [bold]{Markup.Escape(result.UnityVersion)}[/]");
                 AnsiConsole.MarkupLine($"Expected: [bold]{AssetService.ExpectedUnityVersion}.x[/]");
                 AnsiConsole.WriteLine();
 
-                // Errors
                 if (result.Errors.Count > 0)
                 {
                     AnsiConsole.MarkupLine("[bold red]Validation Errors:[/]");
@@ -332,7 +330,6 @@ namespace DINOForge.Tools.PackCompiler
                     AnsiConsole.WriteLine();
                 }
 
-                // Assets summary
                 if (result.Assets.Count > 0)
                 {
                     var typeCounts = result.Assets
