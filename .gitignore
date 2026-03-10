@@ -45,3 +45,6 @@ dumps/
 # Pack build artifacts
 packs/**/build/
 packs/**/dist/
+
+node_modules/
+

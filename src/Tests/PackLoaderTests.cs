@@ -132,5 +132,169 @@ loads:
             Action act = () => _loader.LoadFromFile("/nonexistent/path/pack.yaml");
             act.Should().Throw<System.IO.FileNotFoundException>();
         }
+
+        // ── Edge Cases ───────────────────────────────────────────────────
+
+        [Fact]
+        public void LoadFromString_EmptyString_Throws()
+        {
+            Action act = () => _loader.LoadFromString("");
+            act.Should().Throw<Exception>();
+        }
+
+        [Fact]
+        public void LoadFromString_WhitespaceOnly_Throws()
+        {
+            Action act = () => _loader.LoadFromString("   \n  \n  ");
+            act.Should().Throw<Exception>();
+        }
+
+        [Fact]
+        public void LoadFromString_UnknownFields_IgnoredGracefully()
+        {
+            string yaml = @"
+id: unknown-fields-pack
+name: Unknown Fields Pack
+version: 0.1.0
+author: Test
+type: content
+unknown_field_1: some value
+another_unknown:
+  nested: true
+  values:
+    - a
+    - b
+";
+            PackManifest manifest = _loader.LoadFromString(yaml);
+
+            manifest.Id.Should().Be("unknown-fields-pack");
+            manifest.Name.Should().Be("Unknown Fields Pack");
+        }
+
+        [Fact]
+        public void LoadFromString_UnicodePackName_ParsesCorrectly()
+        {
+            string yaml = @"
+id: unicode-pack
+name: '\u6E2C\u8A66\u30D1\u30C3\u30AF \u2605\u2606\u2605'
+version: 0.1.0
+author: Test
+type: content
+";
+            PackManifest manifest = _loader.LoadFromString(yaml);
+
+            manifest.Id.Should().Be("unicode-pack");
+            manifest.Name.Should().NotBeNullOrEmpty();
+        }
+
+        [Fact]
+        public void LoadFromString_VeryLongFieldValues_ParsesCorrectly()
+        {
+            string longName = new string('A', 500);
+            string longDesc = new string('B', 2000);
+            string yaml = $@"
+id: long-values
+name: {longName}
+version: 0.1.0
+author: Test
+type: content
+description: {longDesc}
+";
+            PackManifest manifest = _loader.LoadFromString(yaml);
+
+            manifest.Name.Should().HaveLength(500);
+            manifest.Description.Should().HaveLength(2000);
+        }
+
+        [Fact]
+        public void LoadFromString_NestedLoads_MultipleContentTypes()
+        {
+            string yaml = @"
+id: multi-loads
+name: Multi Loads Pack
+version: 0.1.0
+author: Test
+type: total_conversion
+loads:
+  factions:
+    - factions/republic
+    - factions/cis
+  units:
+    - units/infantry
+    - units/vehicles
+  buildings:
+    - buildings/military
+    - buildings/economy
+  weapons:
+    - weapons/blasters
+  doctrines:
+    - doctrines/elite
+  wave_templates:
+    - waves/campaign
+  scenarios:
+    - scenarios/main
+";
+            PackManifest manifest = _loader.LoadFromString(yaml);
+
+            manifest.Loads.Should().NotBeNull();
+            manifest.Loads!.Factions.Should().HaveCount(2);
+            manifest.Loads!.Units.Should().HaveCount(2);
+            manifest.Loads!.Buildings.Should().HaveCount(2);
+            manifest.Loads!.Weapons.Should().HaveCount(1);
+            manifest.Loads!.Doctrines.Should().HaveCount(1);
+            manifest.Loads!.WaveTemplates.Should().HaveCount(1);
+            manifest.Loads!.Scenarios.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void LoadFromString_VersionFormats_Accepted()
+        {
+            string yaml = @"
+id: version-test
+name: Version Test
+version: 1.2.3
+author: Test
+type: content
+";
+            PackManifest manifest = _loader.LoadFromString(yaml);
+            manifest.Version.Should().Be("1.2.3");
+        }
+
+        [Fact]
+        public void LoadFromString_MissingVersion_Throws()
+        {
+            string yaml = @"
+id: no-version
+name: No Version
+author: Test
+type: content
+version: ''
+";
+            Action act = () => _loader.LoadFromString(yaml);
+            act.Should().Throw<InvalidOperationException>()
+                .WithMessage("*version*");
+        }
+
+        [Fact]
+        public void LoadFromString_OverridesSection_ParsesCorrectly()
+        {
+            string yaml = @"
+id: override-pack
+name: Override Pack
+version: 0.1.0
+author: Test
+type: balance
+overrides:
+  units:
+    - overrides/units
+  stats:
+    - overrides/balance
+";
+            PackManifest manifest = _loader.LoadFromString(yaml);
+
+            manifest.Overrides.Should().NotBeNull();
+            manifest.Overrides!.Units.Should().HaveCount(1);
+            manifest.Overrides!.Stats.Should().HaveCount(1);
+        }
     }
 }

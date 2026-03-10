@@ -156,6 +156,255 @@ army:
                 string.Join("; ", result.Errors));
         }
 
+        // ── Weapon Schema ─────────────────────────────────────────────────
+
+        [Fact]
+        public void ValidWeapon_PassesValidation()
+        {
+            string yaml = @"
+id: test-rifle
+display_name: Test Rifle
+weapon_class: rifle
+damage_type: kinetic
+base_damage: 20
+range: 30
+rate_of_fire: 1.5
+projectile_id: bullet-1
+aoe_radius: 0
+";
+
+            ValidationResult result = _validator.Validate("weapon", yaml);
+            result.IsValid.Should().BeTrue(
+                because: "a valid weapon should pass. Errors: {0}",
+                string.Join("; ", result.Errors));
+        }
+
+        [Fact]
+        public void InvalidWeapon_MissingId_Fails()
+        {
+            string yaml = @"
+display_name: No ID Weapon
+";
+
+            ValidationResult result = _validator.Validate("weapon", yaml);
+            result.IsValid.Should().BeFalse();
+        }
+
+        // ── Projectile Schema ────────────────────────────────────────────
+
+        [Fact]
+        public void ValidProjectile_PassesValidation()
+        {
+            string yaml = @"
+id: test-projectile
+display_name: Test Projectile
+speed: 50
+damage: 15
+aoe_radius: 0
+";
+
+            ValidationResult result = _validator.Validate("projectile", yaml);
+            result.IsValid.Should().BeTrue(
+                because: "a valid projectile should pass. Errors: {0}",
+                string.Join("; ", result.Errors));
+        }
+
+        [Fact]
+        public void InvalidProjectile_MissingDisplayName_Fails()
+        {
+            string yaml = @"
+id: no-name-projectile
+";
+
+            ValidationResult result = _validator.Validate("projectile", yaml);
+            result.IsValid.Should().BeFalse();
+        }
+
+        // ── Doctrine Schema ──────────────────────────────────────────────
+
+        [Fact]
+        public void ValidDoctrine_PassesValidation()
+        {
+            string yaml = @"
+id: test-doctrine
+display_name: Test Doctrine
+description: A test doctrine
+faction_archetype: order
+modifiers:
+  armor: 1.1
+  speed: 0.9
+";
+
+            ValidationResult result = _validator.Validate("doctrine", yaml);
+            result.IsValid.Should().BeTrue(
+                because: "a valid doctrine should pass. Errors: {0}",
+                string.Join("; ", result.Errors));
+        }
+
+        [Fact]
+        public void InvalidDoctrine_MissingId_Fails()
+        {
+            string yaml = @"
+display_name: No ID Doctrine
+";
+
+            ValidationResult result = _validator.Validate("doctrine", yaml);
+            result.IsValid.Should().BeFalse();
+        }
+
+        // ── Skill Schema ────────────────────────────────────────────────
+
+        [Fact]
+        public void ValidSkill_PassesValidation()
+        {
+            string yaml = @"
+id: test-heal
+display_name: Heal
+skill_class: heal
+target_type: single_ally
+cooldown: 10
+range: 5
+effects:
+  - stat: health
+    modifier_type: flat
+    value: 50
+";
+
+            ValidationResult result = _validator.Validate("skill", yaml);
+            result.IsValid.Should().BeTrue(
+                because: "a valid skill should pass. Errors: {0}",
+                string.Join("; ", result.Errors));
+        }
+
+        [Fact]
+        public void InvalidSkill_MissingSkillClass_Fails()
+        {
+            string yaml = @"
+id: test-skill
+display_name: Missing Class
+target_type: self
+";
+
+            ValidationResult result = _validator.Validate("skill", yaml);
+            result.IsValid.Should().BeFalse();
+        }
+
+        // ── Wave Schema ─────────────────────────────────────────────────
+
+        [Fact]
+        public void ValidWave_PassesValidation()
+        {
+            string yaml = @"
+id: test-wave-1
+display_name: Wave 1
+wave_number: 1
+delay_seconds: 30
+is_final_wave: false
+spawn_groups:
+  - unit_id: skeleton
+    count: 50
+    spawn_delay: 0.1
+";
+
+            ValidationResult result = _validator.Validate("wave", yaml);
+            result.IsValid.Should().BeTrue(
+                because: "a valid wave should pass. Errors: {0}",
+                string.Join("; ", result.Errors));
+        }
+
+        [Fact]
+        public void InvalidWave_MissingDisplayName_Fails()
+        {
+            string yaml = @"
+id: bad-wave
+";
+
+            ValidationResult result = _validator.Validate("wave", yaml);
+            result.IsValid.Should().BeFalse();
+        }
+
+        // ── Squad Schema ────────────────────────────────────────────────
+
+        [Fact]
+        public void ValidSquad_PassesValidation()
+        {
+            string yaml = @"
+id: test-squad
+display_name: Test Squad
+unit_id: archer
+min_size: 5
+max_size: 30
+default_formation: line
+formation_spacing: 1.5
+color_primary: '#FF0000'
+behavior_tags:
+  - defensive
+  - hold_position
+";
+
+            ValidationResult result = _validator.Validate("squad", yaml);
+            result.IsValid.Should().BeTrue(
+                because: "a valid squad should pass. Errors: {0}",
+                string.Join("; ", result.Errors));
+        }
+
+        [Fact]
+        public void InvalidSquad_MissingUnitId_Fails()
+        {
+            string yaml = @"
+id: test-squad
+display_name: Test Squad
+";
+
+            ValidationResult result = _validator.Validate("squad", yaml);
+            result.IsValid.Should().BeFalse();
+        }
+
+        // ── Boundary Value Tests ─────────────────────────────────────────
+
+        [Fact]
+        public void Unit_EmptyStringId_FailsValidation()
+        {
+            string yaml = @"
+id: ''
+display_name: Empty ID
+unit_class: CoreLineInfantry
+faction_id: test
+";
+
+            ValidationResult result = _validator.Validate("unit", yaml);
+            result.IsValid.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Manifest_EmptyStringId_FailsValidation()
+        {
+            string yaml = @"
+id: ''
+name: Empty ID Pack
+version: 0.1.0
+author: Test
+type: content
+";
+
+            ValidationResult result = _validator.Validate("pack-manifest", yaml);
+            result.IsValid.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Building_ValidMinimal_PassesValidation()
+        {
+            string yaml = @"
+id: minimal-building
+display_name: Minimal Building
+";
+
+            ValidationResult result = _validator.Validate("building", yaml);
+            result.IsValid.Should().BeTrue(
+                because: "minimal building should pass. Errors: {0}",
+                string.Join("; ", result.Errors));
+        }
+
         /// <summary>
         /// Walks up from the test assembly output directory to find the schemas/ directory.
         /// </summary>

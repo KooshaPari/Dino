@@ -1,0 +1,28 @@
+# Modern Warfare Pack
+# West vs Classic Enemy - modern military themed total conversion
+
+id: warfare-modern
+name: Modern Warfare
+version: 0.1.0
+framework_version: ">=0.1.0"
+author: DINOForge
+description: Modern military themed conversion featuring Western Alliance vs Classic Enemy forces
+type: total_conversion
+
+depends_on: []
+conflicts_with:
+  - warfare-starwars
+
+loads:
+  factions:
+    - factions
+  units:
+    - units
+  weapons:
+    - weapons
+  buildings:
+    - buildings
+  doctrines:
+    - doctrines
+  wave_templates:
+    - waves

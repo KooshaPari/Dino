@@ -8,21 +8,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+#### M0: Reverse-Engineering Harness
+- BepInEx 5.4.23.5 runtime plugin targeting `netstandard2.0`
+- ECS `DumpSystem` (SystemBase) that survives MonoBehaviour destruction
+- `EntityDumper`: serializes worlds, archetypes, component types, entity samples to JSON
+- `SystemEnumerator`: enumerates all registered ECS systems with metadata
+- `DebugOverlay`: F9 IMGUI overlay showing live ECS world state
+- First gameplay dump: 45,776 entities across 6 worlds, 500K lines of data
+
+#### M2: Generic Mod SDK
+- `PackManifest` + `PackLoader`: YAML manifest parsing via YamlDotNet
+- `PackDependencyResolver`: Kahn's algorithm for topological sort, conflict detection
+- `NJsonSchemaValidator`: schema validation wrapping NJsonSchema
+- `Registry<T>`: generic typed registry with layered overrides (BaseGame → Framework → DomainPlugin → Pack)
+- `RegistryManager`: typed registries for Units, Buildings, Factions, Weapons, Projectiles, Doctrines, Skills, Waves, Squads
+- Content models: UnitDefinition, FactionDefinition, WeaponDefinition, ProjectileDefinition, DoctrineDefinition, BuildingDefinition, SkillDefinition, WaveDefinition, SquadDefinition
+- `ContentLoader`: orchestrates pack loading from directory to registry
+- 10 JSON schemas (pack-manifest, unit, faction, weapon, projectile, doctrine, building, skill, wave, squad)
+- Example pack: `packs/example-balance/` with units, buildings, factions
+
+#### M3: Dev Tooling
+- `PackCompiler` CLI: `validate`, `build`, `assets list/inspect/validate` commands
+- `DumpTools` CLI: `list`, `analyze`, `components`, `systems`, `namespaces` for offline dump analysis
+
+#### Asset Pipeline
+- AssetsTools.NET 3.0.4 integration for asset bundle reading/writing
+- `AssetService`: ListBundles, ListAssets, ExtractAsset, ValidateModBundle
+- `AddressablesCatalog`: parses DINO's Addressables catalog.json (492 entries)
+
+#### ECS Bridge
+- `ComponentMap`: 30+ mappings between DINO ECS components and SDK model fields
+- `EntityQueries`: helper queries for player units, enemy units, buildings by class/type
+- `StatModifierSystem`: ECS system for applying mod stat changes (Override/Add/Multiply)
+- `VanillaCatalog`: runtime scanner classifying vanilla entities into registry IDs
+- `AssetSwapSystem`: skeleton for total conversion asset replacement
+
+#### M4: Warfare Domain Plugin
+- `ArchetypeRegistry`: 3 faction archetypes (Order, Industrial Swarm, Asymmetric)
+- `DoctrineEngine`: applies modifier chains (archetype + doctrine), validates stat bounds
+- `UnitRoleValidator`: validates faction rosters against 11 required role slots
+- `WaveComposer`: generates wave sequences with tier-based unit selection + difficulty scaling
+- `BalanceCalculator`: power rating formula, faction comparison, balance assessment
+- `WarfarePlugin`: entry point with full pack validation
+
+### Fixed
+- `YamlSchemaConverter`: fixed YAML-to-JSON conversion to properly coerce scalar types
+- `NoAllocReadOnlyCollection` IEnumerable cast error in SystemEnumerator and DebugOverlay
+- MonoBehaviour lifecycle incompatibility with DINO's ECS-first architecture
+
+## [0.1.0] - 2026-03-10
+
+### Added
 - Initial project structure and documentation foundation
 - PRD defining DINOForge as a general-purpose DINO mod platform
-- ADR-001: Agent-driven development model
-- ADR-002: Declarative-first architecture (5-layer content model)
-- ADR-003: Pack system design with manifest schema
-- ADR-004: Registry model for all extensible domains
-- ADR-005: ECS integration strategy (ECS-native over Harmony)
-- ADR-006: Domain plugin architecture
-- ADR-007: Observability as first-class feature
-- ADR-008: Wrap, don't handroll (prefer existing libs over custom code)
+- ADR-001 through ADR-008 (agent-driven dev, declarative arch, pack system, registry model, ECS integration, domain plugins, observability, wrap-don't-handroll)
 - Warfare domain specification with faction archetypes and unit role matrix
-- Combat model specification with unit classes, weapon classes, defense tags
-- CLAUDE.md agent governance document with build-vs-wrap decision rule
-- DINO game technical notes (Mono runtime, BepInEx ECS setup, game systems)
-- Modding DX/UX reference analysis (Factorio, RimWorld, Satisfactory patterns)
+- CLAUDE.md agent governance document
 - Pack manifest, faction, and unit YAML schemas
 - Module ownership map and extension point documentation
-- Worklog tracking project progress

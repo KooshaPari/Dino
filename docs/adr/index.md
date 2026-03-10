@@ -1,0 +1,25 @@
+# Architecture Decision Records
+
+ADRs document significant architectural decisions made during DINOForge development.
+
+## Index
+
+| ADR | Title | Status |
+|-----|-------|--------|
+| [ADR-001](./ADR-001-agent-driven-development.md) | Agent-Driven Development Model | Accepted |
+| [ADR-002](./ADR-002-declarative-first-architecture.md) | Declarative-First Architecture | Accepted |
+| [ADR-003](./ADR-003-pack-system-design.md) | Pack System Design | Accepted |
+| [ADR-004](./ADR-004-registry-model.md) | Registry Model | Accepted |
+| [ADR-005](./ADR-005-ecs-integration-strategy.md) | ECS Integration Strategy | Accepted |
+| [ADR-006](./ADR-006-domain-plugin-architecture.md) | Domain Plugin Architecture | Accepted |
+| [ADR-007](./ADR-007-observability-first.md) | Observability First | Accepted |
+| [ADR-008](./ADR-008-wrap-dont-handroll.md) | Wrap, Don't Handroll | Accepted |
+
+## Format
+
+Each ADR follows the standard format:
+
+- **Status**: Proposed, Accepted, Deprecated, Superseded
+- **Context**: What is the issue?
+- **Decision**: What was decided?
+- **Consequences**: What are the implications?

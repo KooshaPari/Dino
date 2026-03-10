@@ -143,5 +143,160 @@ load_order: {loadOrder}
             result.IsSuccess.Should().BeFalse();
             result.Errors[0].Should().Contain("ircular");
         }
+
+        // ── Edge Cases ───────────────────────────────────────────────────
+
+        [Fact]
+        public void ComputeLoadOrder_DiamondDependency_Resolves()
+        {
+            // A depends on B and C, both B and C depend on D
+            PackManifest d = MakePack("d", loadOrder: 10);
+            PackManifest b = MakePack("b", dependsOn: new[] { "d" }, loadOrder: 20);
+            PackManifest c = MakePack("c", dependsOn: new[] { "d" }, loadOrder: 20);
+            PackManifest a = MakePack("a", dependsOn: new[] { "b", "c" }, loadOrder: 30);
+            var packs = new List<PackManifest> { a, b, c, d };
+
+            DependencyResult result = _resolver.ComputeLoadOrder(packs);
+
+            result.IsSuccess.Should().BeTrue();
+            var ids = result.LoadOrder.Select(p => p.Id).ToList();
+            ids.IndexOf("d").Should().BeLessThan(ids.IndexOf("b"));
+            ids.IndexOf("d").Should().BeLessThan(ids.IndexOf("c"));
+            ids.IndexOf("b").Should().BeLessThan(ids.IndexOf("a"));
+            ids.IndexOf("c").Should().BeLessThan(ids.IndexOf("a"));
+        }
+
+        [Fact]
+        public void ComputeLoadOrder_LongChainDependency_Resolves()
+        {
+            // A -> B -> C -> D -> E
+            PackManifest e = MakePack("e", loadOrder: 10);
+            PackManifest d = MakePack("d", dependsOn: new[] { "e" }, loadOrder: 20);
+            PackManifest c = MakePack("c", dependsOn: new[] { "d" }, loadOrder: 30);
+            PackManifest b = MakePack("b", dependsOn: new[] { "c" }, loadOrder: 40);
+            PackManifest a = MakePack("a", dependsOn: new[] { "b" }, loadOrder: 50);
+            var packs = new List<PackManifest> { a, c, e, b, d }; // deliberately shuffled
+
+            DependencyResult result = _resolver.ComputeLoadOrder(packs);
+
+            result.IsSuccess.Should().BeTrue();
+            var ids = result.LoadOrder.Select(p => p.Id).ToList();
+            ids.Should().Equal("e", "d", "c", "b", "a");
+        }
+
+        [Fact]
+        public void ComputeLoadOrder_SelfDependency_FailsOrHandled()
+        {
+            PackManifest self = MakePack("self-dep", dependsOn: new[] { "self-dep" });
+            var packs = new List<PackManifest> { self };
+
+            DependencyResult result = _resolver.ComputeLoadOrder(packs);
+
+            // Self-dependency creates a cycle - should be detected
+            result.IsSuccess.Should().BeFalse();
+        }
+
+        [Fact]
+        public void DetectConflicts_BidirectionalConflicts_BothDetected()
+        {
+            // Alpha conflicts with beta AND beta conflicts with alpha
+            PackManifest alpha = MakePack("alpha", conflictsWith: new[] { "beta" });
+            PackManifest beta = MakePack("beta", conflictsWith: new[] { "alpha" });
+            var active = new List<PackManifest> { alpha, beta };
+
+            var conflicts = _resolver.DetectConflicts(active);
+
+            // Should detect conflicts from both directions
+            conflicts.Should().HaveCountGreaterOrEqualTo(2);
+        }
+
+        [Fact]
+        public void CheckFrameworkCompatibility_EmptyFrameworkVersion_ReturnsTrue()
+        {
+            PackManifest pack = MakePack("compat-test");
+            pack.GetType().GetProperty("FrameworkVersion")!.SetValue(pack, "");
+
+            bool result = _resolver.CheckFrameworkCompatibility(pack, "0.1.0");
+
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void CheckFrameworkCompatibility_ExactMatch_ReturnsTrue()
+        {
+            string yaml = @"
+id: compat
+name: Compat
+version: 0.1.0
+author: Test
+type: content
+framework_version: '0.1.0'
+";
+            PackManifest pack = _loader.LoadFromString(yaml);
+
+            bool result = _resolver.CheckFrameworkCompatibility(pack, "0.1.0");
+
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void CheckFrameworkCompatibility_VersionWithPrefix_StripsPrefix()
+        {
+            string yaml = @"
+id: compat
+name: Compat
+version: 0.1.0
+author: Test
+type: content
+framework_version: '>=0.2.0'
+";
+            PackManifest pack = _loader.LoadFromString(yaml);
+
+            bool result = _resolver.CheckFrameworkCompatibility(pack, "0.2.0");
+
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void ComputeLoadOrder_ThreePackCircle_Fails()
+        {
+            PackManifest a = MakePack("a", dependsOn: new[] { "c" });
+            PackManifest b = MakePack("b", dependsOn: new[] { "a" });
+            PackManifest c = MakePack("c", dependsOn: new[] { "b" });
+            var packs = new List<PackManifest> { a, b, c };
+
+            DependencyResult result = _resolver.ComputeLoadOrder(packs);
+
+            result.IsSuccess.Should().BeFalse();
+        }
+
+        [Fact]
+        public void ComputeLoadOrder_EmptyList_Succeeds()
+        {
+            var packs = new List<PackManifest>();
+
+            DependencyResult result = _resolver.ComputeLoadOrder(packs);
+
+            result.IsSuccess.Should().BeTrue();
+            result.LoadOrder.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ResolveDeps_TransitiveDependency_AllIncluded()
+        {
+            // addon depends on core, core depends on engine
+            PackManifest engine = MakePack("engine", loadOrder: 10);
+            PackManifest core = MakePack("core", dependsOn: new[] { "engine" }, loadOrder: 20);
+            PackManifest addon = MakePack("addon", dependsOn: new[] { "core" }, loadOrder: 30);
+            var available = new List<PackManifest> { engine, core, addon };
+
+            DependencyResult result = _resolver.ResolveDependencies(available, addon);
+
+            result.IsSuccess.Should().BeTrue();
+            var ids = result.LoadOrder.Select(p => p.Id).ToList();
+            ids.Should().Contain("engine");
+            ids.Should().Contain("core");
+            ids.Should().Contain("addon");
+        }
     }
 }
