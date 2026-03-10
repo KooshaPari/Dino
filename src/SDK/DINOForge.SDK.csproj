@@ -12,6 +12,7 @@
     <PackageReference Include="YamlDotNet" Version="16.*" />
     <PackageReference Include="Newtonsoft.Json" Version="13.*" />
     <PackageReference Include="NJsonSchema" Version="10.*" />
+    <PackageReference Include="AssetsTools.NET" Version="3.0.4" />
   </ItemGroup>
 
 </Project>

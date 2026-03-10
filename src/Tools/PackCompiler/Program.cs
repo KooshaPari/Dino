@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Spectre.Console;
 using DINOForge.SDK;
+using DINOForge.SDK.Assets;
 
 namespace DINOForge.Tools.PackCompiler
 {
@@ -31,10 +32,39 @@ namespace DINOForge.Tools.PackCompiler
             };
             buildCommand.SetHandler((packPath, outputDir) => BuildPack(packPath, outputDir), packPathArg, outputOption);
 
+            // Assets command group
+            var assetsCommand = new Command("assets", "Inspect and validate Unity asset bundles");
+
+            var gameDirArg = new Argument<string>("game-dir", "Game installation directory");
+            var assetsListCommand = new Command("list", "List all game asset bundles")
+            {
+                gameDirArg
+            };
+            assetsListCommand.SetHandler((gameDir) => AssetsListBundles(gameDir), gameDirArg);
+
+            var bundlePathArg = new Argument<string>("bundle-path", "Path to a .bundle file");
+            var assetsInspectCommand = new Command("inspect", "List assets in a bundle")
+            {
+                bundlePathArg
+            };
+            assetsInspectCommand.SetHandler((bundlePath) => AssetsInspect(bundlePath), bundlePathArg);
+
+            var modBundlePathArg = new Argument<string>("mod-bundle-path", "Path to a mod .bundle file");
+            var assetsValidateCommand = new Command("validate", "Validate a mod asset bundle")
+            {
+                modBundlePathArg
+            };
+            assetsValidateCommand.SetHandler((modBundlePath) => AssetsValidate(modBundlePath), modBundlePathArg);
+
+            assetsCommand.AddCommand(assetsListCommand);
+            assetsCommand.AddCommand(assetsInspectCommand);
+            assetsCommand.AddCommand(assetsValidateCommand);
+
             var rootCommand = new RootCommand("DINOForge PackCompiler - Validate and bundle content packs")
             {
                 validateCommand,
-                buildCommand
+                buildCommand,
+                assetsCommand
             };
 
             return await rootCommand.InvokeAsync(args);
@@ -188,6 +218,168 @@ namespace DINOForge.Tools.PackCompiler
                 AnsiConsole.MarkupLine($"[bold red]Build failed:[/] {ex.Message}");
                 Environment.Exit(1);
             }
+        }
+
+        private static void AssetsListBundles(string gameDir)
+        {
+            try
+            {
+                AnsiConsole.MarkupLine("[bold blue]Asset Bundle List[/]");
+                AnsiConsole.MarkupLine($"Game Directory: {gameDir}");
+                AnsiConsole.WriteLine();
+
+                using var service = new AssetService(gameDir);
+                var bundles = service.ListBundles();
+
+                if (bundles.Count == 0)
+                {
+                    AnsiConsole.MarkupLine("[yellow]No bundles found. Check that the game directory is correct.[/]");
+                    return;
+                }
+
+                var table = new Table();
+                table.AddColumn("Bundle");
+                table.AddColumn(new TableColumn("Size").RightAligned());
+                table.AddColumn(new TableColumn("Assets").RightAligned());
+
+                foreach (BundleInfo bundle in bundles)
+                {
+                    string sizeStr = FormatBytes(bundle.SizeBytes);
+                    table.AddRow(
+                        Markup.Escape(bundle.Name),
+                        sizeStr,
+                        bundle.AssetCount.ToString());
+                }
+
+                AnsiConsole.Write(table);
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine($"[dim]Total: {bundles.Count} bundle(s)[/]");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[bold red]Error:[/] {Markup.Escape(ex.Message)}");
+                Environment.Exit(1);
+            }
+        }
+
+        private static void AssetsInspect(string bundlePath)
+        {
+            try
+            {
+                AnsiConsole.MarkupLine("[bold blue]Asset Bundle Inspection[/]");
+                AnsiConsole.MarkupLine($"Bundle: {Markup.Escape(bundlePath)}");
+                AnsiConsole.WriteLine();
+
+                using var service = new AssetService(Path.GetDirectoryName(bundlePath) ?? ".");
+                var assets = service.ListAssets(bundlePath);
+
+                if (assets.Count == 0)
+                {
+                    AnsiConsole.MarkupLine("[yellow]No assets found in bundle.[/]");
+                    return;
+                }
+
+                var table = new Table();
+                table.AddColumn("Name");
+                table.AddColumn("Type");
+                table.AddColumn(new TableColumn("PathID").RightAligned());
+                table.AddColumn(new TableColumn("Size").RightAligned());
+
+                foreach (AssetInfo asset in assets)
+                {
+                    table.AddRow(
+                        Markup.Escape(asset.Name),
+                        Markup.Escape(asset.TypeName),
+                        asset.PathId.ToString(),
+                        FormatBytes(asset.SizeBytes));
+                }
+
+                AnsiConsole.Write(table);
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine($"[dim]Total: {assets.Count} asset(s)[/]");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[bold red]Error:[/] {Markup.Escape(ex.Message)}");
+                Environment.Exit(1);
+            }
+        }
+
+        private static void AssetsValidate(string modBundlePath)
+        {
+            try
+            {
+                AnsiConsole.MarkupLine("[bold blue]Mod Bundle Validation[/]");
+                AnsiConsole.MarkupLine($"Bundle: {Markup.Escape(modBundlePath)}");
+                AnsiConsole.WriteLine();
+
+                using var service = new AssetService(Path.GetDirectoryName(modBundlePath) ?? ".");
+                AssetValidationResult result = service.ValidateModBundle(modBundlePath);
+
+                // Unity version
+                AnsiConsole.MarkupLine($"Unity Version: [bold]{Markup.Escape(result.UnityVersion)}[/]");
+                AnsiConsole.MarkupLine($"Expected: [bold]{AssetService.ExpectedUnityVersion}.x[/]");
+                AnsiConsole.WriteLine();
+
+                // Errors
+                if (result.Errors.Count > 0)
+                {
+                    AnsiConsole.MarkupLine("[bold red]Validation Errors:[/]");
+                    foreach (string error in result.Errors)
+                    {
+                        AnsiConsole.MarkupLine($"  [red]x[/] {Markup.Escape(error)}");
+                    }
+                    AnsiConsole.WriteLine();
+                }
+
+                // Assets summary
+                if (result.Assets.Count > 0)
+                {
+                    var typeCounts = result.Assets
+                        .GroupBy(a => a.TypeName)
+                        .OrderByDescending(g => g.Count());
+
+                    var table = new Table();
+                    table.AddColumn("Asset Type");
+                    table.AddColumn(new TableColumn("Count").RightAligned());
+
+                    foreach (var group in typeCounts)
+                    {
+                        table.AddRow(Markup.Escape(group.Key), group.Count().ToString());
+                    }
+
+                    AnsiConsole.Write(table);
+                    AnsiConsole.WriteLine();
+                }
+
+                if (result.IsValid)
+                {
+                    AnsiConsole.MarkupLine("[bold green]Validation passed![/]");
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine("[bold red]Validation failed.[/]");
+                    Environment.Exit(1);
+                }
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[bold red]Error:[/] {Markup.Escape(ex.Message)}");
+                Environment.Exit(1);
+            }
+        }
+
+        private static string FormatBytes(long bytes)
+        {
+            string[] suffixes = { "B", "KB", "MB", "GB" };
+            int order = 0;
+            double size = bytes;
+            while (size >= 1024 && order < suffixes.Length - 1)
+            {
+                order++;
+                size /= 1024;
+            }
+            return $"{size:0.##} {suffixes[order]}";
         }
 
         private static void CopyDirectory(string sourceDir, string destDir)

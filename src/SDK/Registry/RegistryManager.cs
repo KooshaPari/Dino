@@ -10,6 +10,9 @@ namespace DINOForge.SDK.Registry
         public IRegistry<WeaponDefinition> Weapons { get; }
         public IRegistry<ProjectileDefinition> Projectiles { get; }
         public IRegistry<DoctrineDefinition> Doctrines { get; }
+        public IRegistry<SkillDefinition> Skills { get; }
+        public IRegistry<WaveDefinition> Waves { get; }
+        public IRegistry<SquadDefinition> Squads { get; }
 
         public RegistryManager()
         {
@@ -19,6 +22,9 @@ namespace DINOForge.SDK.Registry
             Weapons     = new Registry<WeaponDefinition>();
             Projectiles = new Registry<ProjectileDefinition>();
             Doctrines   = new Registry<DoctrineDefinition>();
+            Skills      = new Registry<SkillDefinition>();
+            Waves       = new Registry<WaveDefinition>();
+            Squads      = new Registry<SquadDefinition>();
         }
     }
 }

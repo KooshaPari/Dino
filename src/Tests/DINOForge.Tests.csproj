@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SDK\DINOForge.SDK.csproj" />
+    <ProjectReference Include="..\Domains\Warfare\DINOForge.Domains.Warfare.csproj" />
   </ItemGroup>
 
 </Project>
