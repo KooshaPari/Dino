@@ -53,13 +53,16 @@ namespace DINOForge.Runtime
 
             try
             {
-                IEnumerable<ComponentSystemBase> systems = world.Systems;
+                // NoAllocReadOnlyCollection cannot be cast to IEnumerable<T> (throws NotSupportedException)
+                // Use index-based access instead
+                var systems = world.Systems;
                 int count = 0;
 
                 List<JObject> systemList = new List<JObject>();
 
-                foreach (ComponentSystemBase system in systems)
+                for (int i = 0; i < systems.Count; i++)
                 {
+                    ComponentSystemBase system = systems[i];
                     Type systemType = system.GetType();
 
                     JObject sysObj = new JObject

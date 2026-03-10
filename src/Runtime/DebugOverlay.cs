@@ -96,8 +96,11 @@ namespace DINOForge.Runtime
 
                 try
                 {
-                    foreach (ComponentSystemBase system in world.Systems.Take(30))
+                    var systems = world.Systems;
+                    int limit = Math.Min(systems.Count, 30);
+                    for (int i = 0; i < limit; i++)
                     {
+                        ComponentSystemBase system = systems[i];
                         string status = system.Enabled ? "ON" : "OFF";
                         GUILayout.Label($"  [{status}] {system.GetType().Name}");
                     }
