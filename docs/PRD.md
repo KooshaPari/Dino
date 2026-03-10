@@ -252,15 +252,16 @@ Where actual mods live. Mostly declarative and content-driven.
 
 ## 11. Milestone Roadmap
 
-| # | Milestone | Description |
-|---|-----------|-------------|
-| M0 | Reverse-Engineering Harness | Install BepInEx, confirm `ecs_plugins`, test plugin, dump entities |
-| M1 | Runtime Scaffold | Bootstrap plugin, version detection, logging, ECS introspection, debug overlay |
-| M2 | Generic Mod SDK | Pack manifest format, registry system, schema validation, override model |
-| M3 | Dev Tooling | Pack compiler, validator CLI, test harness, diff tools, diagnostics |
-| M4 | Warfare Domain Plugin | Factions, doctrines, unit classes, weapons, waves, defenses |
-| M5 | First Example Packs | West vs Classic Enemy, then Republic vs CIS, then Guerrilla |
-| M6 | Content Polish | Signature structures, better models, faction audio, campaign wrappers |
+| # | Milestone | Description | Status |
+|---|-----------|-------------|--------|
+| M0 | Reverse-Engineering Harness | Install BepInEx, confirm plugin loading, test plugin, dump entities | Done |
+| M1 | Runtime Scaffold | Bootstrap plugin, version detection, logging, ECS introspection, debug overlay | Done |
+| M2 | Generic Mod SDK | Pack manifest format, registry system, schema validation, override model, dependency resolver | In Progress |
+| M3 | Dev Tooling | Pack compiler CLI, validator CLI, test harness, diff tools, diagnostics | In Progress |
+| M3.5 | QA Harness | BepInEx QA plugin with IPC (named pipe/WebSocket), external test driver, ECS state assertions, CI-runnable integration tests | Planned |
+| M4 | Warfare Domain Plugin | Factions, doctrines, unit classes, weapons, waves, defenses | Planned |
+| M5 | First Example Packs | West vs Classic Enemy, then Republic vs CIS, then Guerrilla | Planned |
+| M6 | Content Polish | Signature structures, better models, faction audio, campaign wrappers | Planned |
 
 ---
 

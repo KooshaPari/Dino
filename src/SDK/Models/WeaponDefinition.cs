@@ -1,0 +1,52 @@
+using YamlDotNet.Serialization;
+
+namespace DINOForge.SDK.Models
+{
+    /// <summary>
+    /// Strongly-typed representation of a DINOForge weapon definition (weapons/*.yaml).
+    /// </summary>
+    public class WeaponDefinition
+    {
+        [YamlMember(Alias = "id")]
+        public string Id { get; set; } = "";
+
+        [YamlMember(Alias = "display_name")]
+        public string DisplayName { get; set; } = "";
+
+        /// <summary>
+        /// Weapon class identifier (e.g. rifle, cannon, missile, melee).
+        /// </summary>
+        [YamlMember(Alias = "weapon_class")]
+        public string? WeaponClass { get; set; }
+
+        /// <summary>
+        /// Damage type (e.g. kinetic, explosive, energy, melee).
+        /// </summary>
+        [YamlMember(Alias = "damage_type")]
+        public string? DamageType { get; set; }
+
+        [YamlMember(Alias = "base_damage")]
+        public float BaseDamage { get; set; } = 0f;
+
+        [YamlMember(Alias = "range")]
+        public float Range { get; set; } = 0f;
+
+        /// <summary>
+        /// Attacks per second.
+        /// </summary>
+        [YamlMember(Alias = "rate_of_fire")]
+        public float RateOfFire { get; set; } = 1.0f;
+
+        /// <summary>
+        /// Projectile definition ID used by this weapon.
+        /// </summary>
+        [YamlMember(Alias = "projectile_id")]
+        public string? ProjectileId { get; set; }
+
+        /// <summary>
+        /// Area-of-effect blast radius in world units. 0 = no AoE.
+        /// </summary>
+        [YamlMember(Alias = "aoe_radius")]
+        public float AoeRadius { get; set; } = 0f;
+    }
+}

@@ -9,8 +9,8 @@
     <!-- Don't copy deps to output - BepInEx and Unity provide them at runtime -->
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
 
-    <!-- Deploy built DLL to BepInEx ecs_plugins -->
-    <OutputPath>$(EcsPluginsDir)</OutputPath>
+    <!-- Deploy built DLL to BepInEx plugins (standard Chainloader path) -->
+    <OutputPath>$(BepInExDir)\plugins</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
