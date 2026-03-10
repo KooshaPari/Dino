@@ -1,0 +1,173 @@
+# DINOForge - CLAUDE.md
+
+## Project Overview
+
+**DINOForge** is a general-purpose mod platform and agent-oriented development scaffold for **Diplomacy is Not an Option (DINO)**. It is a **mod operating system**, not a single mod.
+
+- **Game**: Diplomacy is Not an Option (Unity ECS, BepInEx-compatible)
+- **Architecture**: Polyrepo-hexagonal, declarative-first, agent-driven
+- **Language**: C# (.NET), YAML/JSON schemas, CLI tooling
+- **Mod Loader**: BepInEx + custom ECS plugin loader (`BepInEx/ecs_plugins/`)
+
+## Build Commands
+
+```bash
+# Build
+dotnet build src/DINOForge.sln
+
+# Test
+dotnet test src/DINOForge.sln --verbosity normal
+
+# Lint
+dotnet format src/DINOForge.sln --verify-no-changes
+
+# Validate packs
+dotnet run --project src/Tools/PackCompiler -- validate packs/
+
+# Package a mod pack
+dotnet run --project src/Tools/PackCompiler -- build packs/<pack-name>
+```
+
+## Repository Structure
+
+```
+DINOForge/
+  src/
+    Runtime/           # Low-level bootstrap, ECS detection, hooks, version compat
+    SDK/               # Public mod API - registries, schemas, pack loaders
+    Schemas/           # All pack schemas and validators (JSON Schema / YAML)
+    Registries/        # Unit/building/projectile/effect/AI registration systems
+    Domains/
+      Warfare/         # Warfare domain plugin (factions, doctrines, combat)
+      Economy/         # Economy domain plugin
+      Scenario/        # Scenario/campaign domain plugin
+      UI/              # UI/UX domain plugin
+    Tools/
+      PackCompiler/    # CLI: validate, build, diff, package packs
+      Inspector/       # In-game debug overlay and entity inspector
+      DumpTools/       # Entity/component/prefab dump utilities
+    Debug/             # Hot reload, logging surfaces, diagnostics
+    Tests/             # Unit, integration, pack validation, BDD specs
+  packs/               # Official content packs and example mods
+    example-balance/
+    warfare-modern/
+    warfare-starwars/
+  schemas/             # Canonical JSON/YAML schema definitions
+  docs/                # All project documentation
+  manifests/           # System contracts, ownership maps, extension points
+```
+
+## Agent Governance
+
+### Agents MUST:
+- Work through manifests and registries
+- Use generators/templates for new content
+- Update docs/contracts when changing public surfaces
+- Add tests for new public APIs
+- Log failure modes explicitly
+- Keep features pack-based when possible
+- Run `dotnet test` before considering work complete
+
+### Agents MUST NOT:
+- **Handroll what a library already solves** - always search for existing packages first
+- Patch runtime internals unless assigned runtime-layer work
+- Invent new registry patterns casually
+- Duplicate schemas
+- Bypass validators
+- Hardcode content IDs in engine glue
+- Add undocumented extension points
+- Skip tests
+- Merge without compatibility checks
+
+## Legal Move Classes (Agent Operations)
+
+Agents should reduce all work to one of these forms:
+- `create schema` - new data shape definition
+- `extend registry` - add entries to existing registry
+- `add content pack` - new pack with manifest
+- `patch mapping` - update vanilla-to-mod mapping
+- `write validator` - new validation rule
+- `add test fixture` - new test case
+- `add debug view` - new diagnostic surface
+- `add migration` - version compatibility migration
+- `add compatibility rule` - cross-pack conflict rule
+- `add documentation manifest` - update docs
+
+## Code Style
+
+- C# 12+ with nullable reference types enabled
+- `async/await` over raw Tasks
+- XML doc comments on all public APIs
+- Immutable data models preferred
+- Registry pattern for all extensible domains
+- No `var` for non-obvious types
+- Meaningful names over comments
+
+## Key Design Principles
+
+1. **Wrap, don't handroll** - Use established libraries/tools and wrap them. Never build from scratch what a proven package already solves. Prefer thin wrappers and adapters over custom implementations. This is a vibecoding-only environment: maximize feature coverage and minimize risk by standing on existing shoulders.
+2. **Framework before content** - platform first, themed mods second
+3. **Declarative before imperative** - YAML/JSON manifests over C# patches
+4. **Stable abstraction over unstable internals** - isolate ECS glue
+5. **Agent-first repo design** - optimize for autonomous agent dev
+6. **Observability is first-class** - logs, overlays, reports, validators
+7. **Domain extensibility** - warfare is first plugin, not the only one
+8. **Compatibility-aware packaging** - explicit deps, conflicts, versions
+9. **Graceful degradation** - fail loudly with fallbacks
+
+## Build vs Wrap Decision Rule
+
+**ALWAYS prefer** (in order):
+1. Direct use of an existing library/tool as-is
+2. Thin wrapper / adapter around an existing library
+3. Composition of multiple existing libraries
+4. Modified fork of an existing library (last resort before handroll)
+
+**ONLY handroll when**:
+- No existing solution covers the need (e.g. DINO-specific ECS glue)
+- Wrapping would be more complex than a simple implementation
+- The scope is tiny and self-contained (< 50 lines)
+
+**Rationale**: This is a fully agent-driven (vibecoding) environment. Agents produce more reliable output when integrating proven code than when generating novel implementations. Handrolled code has higher defect rates, lacks community testing, and creates maintenance burden that agents handle poorly without human review. Every handrolled component is a liability; every wrapped dependency is borrowed reliability.
+
+### Concrete Examples
+
+| Need | DO | DON'T |
+|------|----|-------|
+| YAML/JSON schema validation | Use JsonSchema.Net or NJsonSchema | Write custom validator |
+| Pack dependency resolution | Use NuGet's resolver or Semver.NET | Write custom semver solver |
+| Logging | Use Serilog or NLog via BepInEx | Write custom logger |
+| CLI tooling | Use System.CommandLine or Spectre.Console | Write custom arg parser |
+| Config management | Use BepInEx ConfigurationManager | Write custom config system |
+| ECS introspection | Wrap Unity.Entities reflection APIs | Write custom reflection |
+| File watching / hot reload | Use FileSystemWatcher | Write custom polling loop |
+| Serialization | Use YamlDotNet + System.Text.Json | Write custom parsers |
+| Diffing | Use DiffPlex or similar | Write custom diff engine |
+| Testing | Use xUnit + FluentAssertions + Moq | Write custom test framework |
+
+## Pack System
+
+Every mod is a pack with explicit metadata:
+```yaml
+id: example-pack
+name: Example Pack
+version: 0.1.0
+framework_version: ">=0.1.0 <1.0.0"
+author: DINOForge Agents
+type: content  # content | balance | ruleset | total_conversion | utility
+depends_on: []
+conflicts_with: []
+loads:
+  factions: []
+  units: []
+  buildings: []
+```
+
+## Testing Philosophy
+
+- **BDD-first**: Behavior specs define acceptance criteria before implementation
+- **SDD**: Schema-driven development - schemas validate before runtime
+- **TDD**: Unit tests for all public API surfaces
+- Property-based tests for balance/combat model validation
+- Pack validation tests (schema, references, completeness)
+- Integration tests against mock ECS runtime

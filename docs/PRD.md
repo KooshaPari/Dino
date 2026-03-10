@@ -1,0 +1,303 @@
+# DINOForge - Product Requirements Document
+
+**Version**: 0.1.0
+**Status**: Draft
+**Created**: 2026-03-09
+**Author**: kooshapari + Agent Org
+
+---
+
+## 0. Document Purpose
+
+This document defines the product and architecture foundation for **DINOForge**, a general-purpose mod platform and agent-oriented development scaffold for **Diplomacy is Not an Option (DINO)**.
+
+It is intentionally broader than a single warfare mod. The goal is to create a reusable framework that can support:
+
+- Warfare total conversions (Star Wars, Modern, Futuristic)
+- Balance mods
+- Content packs
+- Wave/AI mods
+- Scenario mods
+- UI/QoL mods
+- Debugging and introspection tools
+- Future domain-specific mod extensions
+
+---
+
+## 1. Executive Summary
+
+### 1.1 Product Name
+
+**DINOForge**
+
+### 1.2 Product Definition
+
+DINOForge is a **general mod runtime, SDK, pack system, and tooling platform** for DINO, built for **agent-driven development** first.
+
+It is not just a mod. It is a **mod operating system** for this game.
+
+### 1.3 Why This Exists
+
+DINO modding requires nontrivial reverse engineering and ECS-aware patching. There is no polished official mod SDK. Ad hoc mod development is brittle, repetitive, and poor for long-term iteration.
+
+The intended development model is **agent-driven**: the human acts as product owner, tester, design director, and failure reporter. Agents handle all coding.
+
+This means the system must be designed for:
+- Rigid abstractions
+- Declarative schemas
+- Machine-checkable contracts
+- Validation pipelines
+- Debug surfaces
+- Deterministic extension points
+
+### 1.4 Strategic Outcome
+
+The first major use case is a **warfare domain plugin** supporting modern and Star Wars themed conversions. The platform itself supports broader mod classes.
+
+**Target end state:**
+> New DINO mods can be created primarily by defining validated pack manifests, schemas, mappings, and assets through the DINOForge SDK and toolchain, with minimal or no fresh reverse engineering.
+
+---
+
+## 2. Vision
+
+### 2.1 Vision Statement
+
+Create the canonical mod platform for DINO that transforms brittle one-off reverse-engineered hacks into a structured, extensible, testable, agent-operable ecosystem.
+
+### 2.2 Product Principles
+
+1. **Wrap, don't handroll** - Use established libraries/tools and wrap them. Never build from scratch what a proven package already solves. This is a vibecoding-only environment: agents produce more reliable output integrating proven code than generating novel implementations. Every handrolled component is a liability; every wrapped dependency is borrowed reliability.
+2. **Framework before content** - The first product is the platform, not the themed mod.
+3. **Declarative before imperative** - Prefer pack manifests, schemas, mappings, and registries over custom patch code.
+4. **Stable abstraction over unstable internals** - Low-level engine glue must be isolated from mod authoring surfaces.
+5. **Agent-first repository design** - The codebase and docs must optimize for autonomous agent development.
+6. **Observability is a first-class feature** - Runtime must explain itself through logs, overlays, reports, validators.
+7. **Domain extensibility** - Warfare is the first domain plugin, not the only one.
+8. **Compatibility-aware packaging** - Mods must be packs with explicit dependencies, conflicts, versions.
+9. **Graceful degradation** - Missing assets/broken mappings fail loudly with fallbacks where safe.
+
+---
+
+## 3. Users
+
+### Primary User
+- The mod platform owner / product director using agent-driven development
+
+### Secondary Users
+- Autonomous coding agents
+- Validation/diagnosis agents
+- Content-authoring agents
+- Future technical contributors
+
+### Tertiary Users
+- End-users who install packs or total conversions built on DINOForge
+
+---
+
+## 4. User Needs
+
+### Product Owner Needs
+- Request features in natural language
+- Avoid reading source code
+- Receive clear diagnostics when things fail
+- Iterate on gameplay, balance, and theming quickly
+- Add new mod concepts without fresh reverse engineering each time
+
+### Agent Needs
+- Clear public APIs
+- Typed schemas
+- Examples and templates
+- Deterministic build/test flows
+- Bounded ownership areas
+- Machine-readable contracts
+- Debugging tools and reports
+
+### End-User Needs
+- Install packs safely
+- Understand compatibility and conflicts
+- Get stable gameplay behavior
+- Receive understandable errors when packs fail
+
+---
+
+## 5. Goals
+
+| ID | Goal |
+|----|------|
+| G1 | General mod framework - reusable runtime + SDK + pack system |
+| G2 | Agent-safe development surface - declarative definitions + stable SDK |
+| G3 | Runtime observability - logs, overlays, inspectors, validation reports |
+| G4 | Domain plugins - modular extensions (warfare, economy, UI, scenarios) |
+| G5 | Pack-based delivery - installable, composable packs with metadata |
+| G6 | Low-level change isolation - engine/ECS breakage confined to runtime layer |
+
+---
+
+## 6. Non-Goals
+
+| ID | Non-Goal |
+|----|----------|
+| NG1 | Perfect official-grade SDK parity |
+| NG2 | Full automation of every conceivable mod on day one |
+| NG3 | Full custom asset pipeline at v1 |
+| NG4 | Human-code-review-first workflows |
+
+---
+
+## 7. Core Functional Requirements
+
+### FR1. Runtime Bootstrap
+Initialize inside DINO and establish version-aware runtime integration via BepInEx + `ecs_plugins` loader.
+
+### FR2. Runtime Introspection
+Provide access to discovered systems, entities, components, resources, or equivalent game structures.
+
+### FR3. Stable SDK Layer
+Expose high-level extension interfaces for defining mods without requiring direct low-level runtime patching for common cases.
+
+### FR4. Registry System
+Support registries for core extensible domains:
+- Units, Buildings, Weapons, Projectiles, Effects
+- Audio Packs, UI Skins, Doctrines, Factions
+- Wave Templates, Behaviors, Scenario Scripts
+- Tech Nodes, Localization Bundles
+
+### FR5. Pack Manifest System
+Support installable pack manifests with:
+- id, version, dependencies, conflicts
+- framework_version compatibility range
+- load order hints
+- content declarations
+
+### FR6. Schema Validation
+Validate pack schemas, dependency graphs, asset references, and ECS registration conflicts before game boot.
+
+### FR7. Pack Compiler
+Build tool that validates schema, resolves references, checks missing assets, checks circular deps, builds pack artifacts, emits compatibility metadata.
+
+### FR8. Domain Plugin Architecture
+Support modular domain extensions that add domain-specific registries, schemas, and behaviors without modifying core.
+
+### FR9. Debug and Diagnostics
+Provide runtime logs, in-game debug overlay, entity dump tools, and validation reports.
+
+### FR10. Content Override Model
+Support layered content overrides: base game -> framework defaults -> domain plugin -> pack overrides.
+
+---
+
+## 8. Supported Mod Classes
+
+| Category | Description |
+|----------|-------------|
+| Content | Units, buildings, projectiles, effects, icons, names, localization, audio, tech tree |
+| Balance | Stats, costs, spawn sizes, upgrade tuning, HP/armor/accuracy/fire rate, economy rates |
+| Ruleset | Research requirements, build prereqs, wave timings, victory/loss, population, factions |
+| AI/Wave | Enemy composition, attack priorities, target selection, escalation logic, event scripting |
+| UI/UX | HUD elements, tooltips, overlays, debug inspectors, minimap, faction themes |
+| Scenario | Mission scripting, map conditions, scripted events, starting states, faction matchups |
+| Utility | Profiler, entity inspector, hot reload, content diff, compatibility checker, save analyzer |
+
+---
+
+## 9. Three-Product Architecture
+
+### Product A - Runtime / Hook Layer
+Low-level engine glue. Most brittle, fewest agents should touch.
+- Boot into DINO
+- Locate systems/entities/components/assets
+- Expose safe patch points
+- Handle version checks and rollback/fallback
+- Expose debug and diagnostics
+
+### Product B - Mod API / Domain SDK
+The real scaffold. Where trivial modding becomes possible.
+- High-level mod definition interfaces
+- Hide engine internals
+- Provide schemas, registries, validators, pack loaders
+- Support multiple mod classes
+
+### Product C - Mod Packs / Content Packs
+Where actual mods live. Mostly declarative and content-driven.
+- Warfare modern pack, warfare Star Wars pack
+- Balance packs, economy packs
+- QoL/UI packs, debug packs
+
+---
+
+## 10. First-Use-Case: Warfare Domain
+
+### Faction Archetypes (3 mechanical families)
+
+| Archetype | Traits | Used By |
+|-----------|--------|---------|
+| Order | Strong line infantry, reliable DPS, better defenses, higher unit cost | Republic, West |
+| Industrial Swarm | Larger numbers, cheaper core, expendable, strong siege | CIS, Classic West Enemy |
+| Asymmetric | Light units, mobility, ambush, raid pressure, structure harassment | Guerrilla West Enemy |
+
+### Theme Packs
+
+| Pack | Factions | Theme |
+|------|----------|-------|
+| Republic vs CIS | Galactic Republic, CIS | Star Wars Clone Wars |
+| West vs Enemies | West, Classic West Enemy, Guerrilla West Enemy | Modern Warfare |
+
+### Implementation Order
+1. West vs Classic West Enemy (easiest, proves framework)
+2. Republic vs CIS (harder art/audio, proves theme-skin abstraction)
+3. West vs Guerrilla Enemy (asymmetry, hardest balance)
+
+---
+
+## 11. Milestone Roadmap
+
+| # | Milestone | Description |
+|---|-----------|-------------|
+| M0 | Reverse-Engineering Harness | Install BepInEx, confirm `ecs_plugins`, test plugin, dump entities |
+| M1 | Runtime Scaffold | Bootstrap plugin, version detection, logging, ECS introspection, debug overlay |
+| M2 | Generic Mod SDK | Pack manifest format, registry system, schema validation, override model |
+| M3 | Dev Tooling | Pack compiler, validator CLI, test harness, diff tools, diagnostics |
+| M4 | Warfare Domain Plugin | Factions, doctrines, unit classes, weapons, waves, defenses |
+| M5 | First Example Packs | West vs Classic Enemy, then Republic vs CIS, then Guerrilla |
+| M6 | Content Polish | Signature structures, better models, faction audio, campaign wrappers |
+
+---
+
+## 12. Technical Risks
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| ECS patch fragility | Game updates break hooks | Isolate hook points, version gate, component dumps |
+| Performance collapse | Harmony path costs perf | ECS-native modding, batch stat application, cache queries |
+| Asset pipeline pain | Model import blocked | Treat models as optional, build around text/icons/VFX/stats first |
+| Asymmetry imbalance | Guerrilla faction broken | Build peer warfare first, add insurgent after baseline balance |
+| No official API docs | Discovery is manual | Build own introspection tools, maintain component dumps |
+
+---
+
+## 13. Success Criteria
+
+> A new mod can be created mostly by editing validated pack files and running the toolchain, without new reverse engineering.
+
+If every mod still needs runtime surgery, the framework failed.
+
+---
+
+## 14. Reference Models
+
+Best modding DX/UX to emulate:
+
+| System | What to Copy |
+|--------|-------------|
+| Factorio | API shape, manifests, dependency/version handling, distribution |
+| RimWorld | Split between declarative content and imperative code patches |
+| Satisfactory/BepInEx | Mod loaders, plugin bootstrap, community tooling |
+| Minecraft Bedrock | Pack schemas, folder conventions, generation/validation |
+| UEFN/Roblox | End-to-end creation pipeline concept |
+
+**What NOT to copy:**
+- Raw BepInEx "drop DLL in plugins and pray"
+- Undocumented patch soup
+- Hidden load order rules
+- Discord-as-documentation

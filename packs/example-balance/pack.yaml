@@ -1,0 +1,21 @@
+# Example Balance Pack
+# Demonstrates a simple stat-adjustment mod using the DINOForge pack system
+
+id: example-balance-tweak
+name: Example Balance Tweak
+version: 0.1.0
+framework_version: ">=0.1.0 <1.0.0"
+author: DINOForge Examples
+type: balance
+description: Example pack demonstrating balance overrides
+
+depends_on: []
+conflicts_with: []
+
+overrides:
+  stats:
+    - vanilla_archer_damage
+    - vanilla_swordsman_hp
+
+# This pack modifies base game unit stats for demonstration purposes
+# Real balance packs would include full stat override tables

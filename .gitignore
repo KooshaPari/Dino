@@ -1,0 +1,47 @@
+# Build outputs
+bin/
+obj/
+out/
+build/
+*.dll
+*.exe
+*.pdb
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+*.csproj.user
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Secrets
+.env
+.env.*
+credentials.json
+*.key
+*.pem
+
+# NuGet
+packages/
+*.nupkg
+
+# Unity
+Library/
+Temp/
+Logs/
+UserSettings/
+
+# BepInEx working files
+BepInEx/cache/
+
+# Debug dumps
+dumps/
+*.dump
+
+# Pack build artifacts
+packs/**/build/
+packs/**/dist/
