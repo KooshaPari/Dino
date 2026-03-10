@@ -44,6 +44,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `VanillaCatalog`: runtime scanner classifying vanilla entities into registry IDs
 - `AssetSwapSystem`: skeleton for total conversion asset replacement
 
+#### M4: Warfare Domain Plugin
+- `ArchetypeRegistry`: 3 faction archetypes (Order, Industrial Swarm, Asymmetric)
+- `DoctrineEngine`: applies modifier chains (archetype + doctrine), validates stat bounds
+- `UnitRoleValidator`: validates faction rosters against 11 required role slots
+- `WaveComposer`: generates wave sequences with tier-based unit selection + difficulty scaling
+- `BalanceCalculator`: power rating formula, faction comparison, balance assessment
+- `WarfarePlugin`: entry point with full pack validation
+
 #### M5: Example Packs
 - `warfare-modern`: 26 units (West vs Classic Enemy), 16 weapons, 10 waves
 - `warfare-starwars`: 26 units (Republic vs CIS), 19 weapons, 10 waves
@@ -72,19 +80,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `universe-bible.json` schema for validation
 - Example universes: `star-wars-clone-wars/` and `modern-warfare/`
 
-#### M4: Warfare Domain Plugin
-- `ArchetypeRegistry`: 3 faction archetypes (Order, Industrial Swarm, Asymmetric)
-- `DoctrineEngine`: applies modifier chains (archetype + doctrine), validates stat bounds
-- `UnitRoleValidator`: validates faction rosters against 11 required role slots
-- `WaveComposer`: generates wave sequences with tier-based unit selection + difficulty scaling
-- `BalanceCalculator`: power rating formula, faction comparison, balance assessment
-- `WarfarePlugin`: entry point with full pack validation
+#### Dev Tooling
+- `make deploy`: one-command build + deploy Runtime to game directory
+- `make deploy-packs`: sync pack YAML files to game packs directory
+- `make watch`: auto-rebuild on source changes
+- `.claude/commands/deploy.sh`: agent-accessible deploy command
+- Runtime auto-deploys to `BepInEx/plugins/` on build (OutputPath in csproj)
 
 ### Fixed
 - `PackCompiler` CLI updated for System.CommandLine 2.0.3 API (SetAction, mutable collections)
 - `YamlSchemaConverter`: fixed YAML-to-JSON conversion to properly coerce scalar types
 - `NoAllocReadOnlyCollection` IEnumerable cast error in SystemEnumerator and DebugOverlay
 - MonoBehaviour lifecycle incompatibility with DINO's ECS-first architecture
+- Runtime now references SDK for HotReload bridge integration
 
 ## [0.1.0] - 2026-03-10
 
@@ -96,3 +104,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLAUDE.md agent governance document
 - Pack manifest, faction, and unit YAML schemas
 - Module ownership map and extension point documentation
+
+[Unreleased]: https://github.com/KooshaPari/Dino/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/KooshaPari/Dino/releases/tag/v0.1.0

@@ -7,13 +7,20 @@
     <Description>DINOForge runtime plugin - BepInEx bootstrap, ECS introspection, entity dumper</Description>
 
     <!-- Don't copy deps to output - BepInEx and Unity provide them at runtime -->
-    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
     <!-- Deploy built DLL to BepInEx plugins (standard Chainloader path) -->
     <OutputPath>$(BepInExDir)\plugins</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
+
+  <!-- SDK reference for HotReload bridge and content loading -->
+  <ItemGroup>
+    <ProjectReference Include="..\SDK\DINOForge.SDK.csproj">
+      <Private>true</Private>
+    </ProjectReference>
+  </ItemGroup>
 
   <!-- BepInEx core - referenced from game install (not on NuGet) -->
   <ItemGroup>

@@ -10,41 +10,71 @@ jobs:
     name: Governance Checks
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Check CLAUDE.md exists
         run: |
           if [ ! -f CLAUDE.md ] || [ ! -s CLAUDE.md ]; then
-            echo "ERROR: CLAUDE.md missing or empty"
+            echo "::error::CLAUDE.md missing or empty — required by agent governance"
             exit 1
           fi
+          echo "CLAUDE.md: OK"
 
       - name: Check AGENTS.md exists
         run: |
           if [ ! -f AGENTS.md ] || [ ! -s AGENTS.md ]; then
-            echo "ERROR: AGENTS.md missing or empty"
+            echo "::error::AGENTS.md missing or empty — required by agent governance"
             exit 1
           fi
+          echo "AGENTS.md: OK"
 
-      - name: Check CHANGELOG.md updated (non-docs PRs)
+      - name: Check CHANGELOG.md updated
         run: |
-          # Skip check for docs-only PRs
-          if git diff --name-only origin/main...HEAD | grep -qv "^docs/\|^\.github/"; then
-            if ! git diff origin/main...HEAD | grep -q "^+.*#\|^+.*-\|^+.*## \["; then
-              echo "WARNING: CHANGELOG.md may not have been updated"
-              # Continue anyway (warning only)
+          # Skip for docs-only or CI-only PRs
+          NON_DOCS=$(git diff --name-only origin/main...HEAD | grep -cv "^docs/\|^\.github/\|^\.claude/" || true)
+          if [ "$NON_DOCS" -gt 0 ]; then
+            if ! git diff --name-only origin/main...HEAD | grep -q "CHANGELOG.md"; then
+              echo "::error::CHANGELOG.md was not updated. All non-docs changes must be documented."
+              exit 1
             fi
           fi
+          echo "CHANGELOG.md: OK"
 
-      - name: Check public C# types have XML doc comments
+      - name: Check public types have XML doc comments
         run: |
-          # Find public classes/interfaces/structs without doc comments
-          MISSING=$(grep -r "^\s*public\s\+\(class\|interface\|struct\|record\|enum\)" src/ \
-            --include="*.cs" | wc -l)
-          if [ "$MISSING" -gt 0 ]; then
-            echo "WARNING: Found $MISSING public types without obvious doc checks"
-            echo "Run 'dotnet format' and review public API documentation"
+          # Find public classes/interfaces/structs/records missing /// summary
+          VIOLATIONS=0
+          while IFS= read -r file; do
+            # Get line numbers of public type declarations
+            grep -n "^\s*public\s\+\(class\|interface\|struct\|record\|enum\)" "$file" | while IFS=: read -r line_num line_content; do
+              # Check if the line above has a /// comment
+              prev_line=$((line_num - 1))
+              if [ "$prev_line" -gt 0 ]; then
+                prev=$(sed -n "${prev_line}p" "$file")
+                if ! echo "$prev" | grep -q "///"; then
+                  echo "::warning file=$file,line=$line_num::Missing XML doc comment: $line_content"
+                  VIOLATIONS=$((VIOLATIONS + 1))
+                fi
+              fi
+            done
+          done < <(find src/ -name "*.cs" -not -path "*/obj/*" -not -path "*/bin/*")
+          if [ "$VIOLATIONS" -gt 5 ]; then
+            echo "::error::Too many public types without XML doc comments ($VIOLATIONS). Add /// <summary> comments."
+            exit 1
           fi
+          echo "XML doc comments: OK (violations: $VIOLATIONS)"
+
+      - name: Check conventional commit format
+        run: |
+          # Verify PR title follows conventional commits
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          if ! echo "$PR_TITLE" | grep -qE "^(feat|fix|docs|test|perf|refactor|chore|ci|build|style)(\(.+\))?!?: .+"; then
+            echo "::error::PR title must follow conventional commits format: type(scope): description"
+            exit 1
+          fi
+          echo "Conventional commit title: OK"
 
       - name: Summary
         if: success()
-        run: echo "Governance checks passed"
+        run: echo "All governance checks passed"

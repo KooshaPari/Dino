@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 
 namespace DINOForge.Tools.Installer
@@ -101,6 +102,7 @@ namespace DINOForge.Tools.Installer
         /// <summary>
         /// Finds Steam path on Windows via registry.
         /// </summary>
+        [SupportedOSPlatform("windows")]
         internal static string? FindSteamPathWindows()
         {
             // Try 64-bit registry view first
