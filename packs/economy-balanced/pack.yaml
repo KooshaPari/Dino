@@ -1,0 +1,19 @@
+# Economy Balanced Pack
+# Provides standard and boosted economy profiles with basic trade routes
+
+id: economy-balanced
+name: Economy Balanced
+version: 0.1.0
+framework_version: ">=0.1.0 <1.0.0"
+author: DINOForge Agents
+type: balance
+description: Balanced economy profiles and trade routes for standard gameplay
+
+depends_on: []
+conflicts_with: []
+
+loads:
+  economy_profiles:
+    - profiles
+  trade_routes:
+    - trade

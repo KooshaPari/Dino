@@ -23,6 +23,8 @@
     <ProjectReference Include="..\Domains\Warfare\DINOForge.Domains.Warfare.csproj" />
     <ProjectReference Include="..\Domains\UI\DINOForge.Domains.UI.csproj" />
     <ProjectReference Include="..\Tools\Installer\InstallerLib\DINOForge.Tools.Installer.csproj" />
+    <ProjectReference Include="..\Domains\Economy\DINOForge.Domains.Economy.csproj" />
+    <ProjectReference Include="..\Domains\Scenario\DINOForge.Domains.Scenario.csproj" />
   </ItemGroup>
 
 </Project>

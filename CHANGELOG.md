@@ -52,6 +52,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `BalanceCalculator`: power rating formula, faction comparison, balance assessment
 - `WarfarePlugin`: entry point with full pack validation
 
+#### Economy Domain Plugin
+- `EconomyPlugin`: entry point with production, trade, balance, and validation subsystems
+- `ResourceRate`: resource production/consumption rate model with 5 valid types
+- `EconomyProfile`: per-faction economy profile (starting resources, multipliers, trade modifiers)
+- `TradeRoute`: resource conversion routes with exchange rates, cooldowns, and transaction limits
+- `ProductionCalculator`: calculates faction production from buildings, workers, and profile modifiers
+- `TradeEngine`: evaluates trade route profitability, suggests optimal trades for resource deficits
+- `EconomyBalanceCalculator` + `EconomyBalanceReport`: per-faction economy balance analysis
+- `EconomyValidator`: validates profiles, trade routes, resource references, circular dependencies
+- `economy-profile.schema.json` schema for validation
+- Example pack: `packs/economy-balanced/` with standard/abundance profiles and trade routes
+
+#### Scenario Domain Plugin
+- `ScenarioPlugin`: entry point with runner, validator, and difficulty scaler subsystems
+- `ScenarioDefinition`: core model with difficulty, objectives, waves, conditions, scripted events
+- `VictoryCondition`: 6 types (SurviveWaves, DestroyTarget, ReachPopulation, AccumulateResource, TimeSurvival, Custom)
+- `DefeatCondition`: 5 types (CommandCenterDestroyed, PopulationZero, TimeExpired, ResourceDepleted, Custom)
+- `ScriptedEvent` + `EventAction`: trigger-based event system with 6 trigger types and 8 action types
+- `ScenarioRunner`: evaluates game state against conditions, fires scripted events with dedup tracking
+- `GameState`: game state snapshot for condition evaluation
+- `DifficultyScaler`: scales resources (Easy 1.5x → Nightmare 0.5x) and wave intensity with aggression factors
+- `ScenarioValidator`: validates factions, conditions, events, resources, wave counts
+- `scenario.schema.json` schema for validation
+- Example pack: `packs/scenario-tutorial/` with defense tutorial, survival challenge, resource race
+
 #### M5: Example Packs
 - `warfare-modern`: 26 units (West vs Classic Enemy), 16 weapons, 10 waves
 - `warfare-starwars`: 26 units (Republic vs CIS), 19 weapons, 10 waves

@@ -1,0 +1,17 @@
+# Scenario Tutorial Pack
+# Contains introductory scenarios for learning DINOForge mechanics
+
+id: scenario-tutorial
+name: Scenario Tutorial Pack
+version: 0.1.0
+framework_version: ">=0.1.0 <1.0.0"
+author: DINOForge Agents
+type: content
+description: Tutorial and example scenarios demonstrating defense, survival, and economy gameplay
+
+depends_on: []
+conflicts_with: []
+
+loads:
+  scenarios:
+    - scenarios
