@@ -36,8 +36,14 @@ namespace DINOForge.Tests
                 Tier = 2,
                 Stats = new UnitStats
                 {
-                    Hp = 100f, Damage = 15f, Armor = 5f, Range = 10f,
-                    Speed = 3.5f, Accuracy = 0.8f, FireRate = 1.2f, Morale = 90f,
+                    Hp = 100f,
+                    Damage = 15f,
+                    Armor = 5f,
+                    Range = 10f,
+                    Speed = 3.5f,
+                    Accuracy = 0.8f,
+                    FireRate = 1.2f,
+                    Morale = 90f,
                     Cost = new ResourceCost { Food = 50, Wood = 30, Iron = 10, Stone = 5, Gold = 2, Population = 1 }
                 },
                 Weapon = "standard-rifle",

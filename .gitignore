@@ -48,3 +48,5 @@ packs/**/dist/
 
 node_modules/
 
+src/Tests/TestResults/
+docs/.vitepress/dist/

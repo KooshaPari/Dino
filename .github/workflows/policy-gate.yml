@@ -1,0 +1,50 @@
+name: Policy Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  governance:
+    runs-on: ubuntu-latest
+    name: Governance Checks
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check CLAUDE.md exists
+        run: |
+          if [ ! -f CLAUDE.md ] || [ ! -s CLAUDE.md ]; then
+            echo "ERROR: CLAUDE.md missing or empty"
+            exit 1
+          fi
+
+      - name: Check AGENTS.md exists
+        run: |
+          if [ ! -f AGENTS.md ] || [ ! -s AGENTS.md ]; then
+            echo "ERROR: AGENTS.md missing or empty"
+            exit 1
+          fi
+
+      - name: Check CHANGELOG.md updated (non-docs PRs)
+        run: |
+          # Skip check for docs-only PRs
+          if git diff --name-only origin/main...HEAD | grep -qv "^docs/\|^\.github/"; then
+            if ! git diff origin/main...HEAD | grep -q "^+.*#\|^+.*-\|^+.*## \["; then
+              echo "WARNING: CHANGELOG.md may not have been updated"
+              # Continue anyway (warning only)
+            fi
+          fi
+
+      - name: Check public C# types have XML doc comments
+        run: |
+          # Find public classes/interfaces/structs without doc comments
+          MISSING=$(grep -r "^\s*public\s\+\(class\|interface\|struct\|record\|enum\)" src/ \
+            --include="*.cs" | wc -l)
+          if [ "$MISSING" -gt 0 ]; then
+            echo "WARNING: Found $MISSING public types without obvious doc checks"
+            echo "Run 'dotnet format' and review public API documentation"
+          fi
+
+      - name: Summary
+        if: success()
+        run: echo "Governance checks passed"

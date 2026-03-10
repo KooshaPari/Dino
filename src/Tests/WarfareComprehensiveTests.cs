@@ -92,7 +92,8 @@ namespace DINOForge.Tests
             UnitStats baseStats = CreateBaseStats();
             var zeroDoctrine = new DoctrineDefinition
             {
-                Id = "zero", DisplayName = "Zero",
+                Id = "zero",
+                DisplayName = "Zero",
                 Modifiers = new Dictionary<string, float>
                 {
                     { "hp", 0f }, { "damage", 0f }, { "armor", 0f },
@@ -116,7 +117,8 @@ namespace DINOForge.Tests
             UnitStats baseStats = CreateBaseStats();
             var tenxDoctrine = new DoctrineDefinition
             {
-                Id = "tenx", DisplayName = "10x",
+                Id = "tenx",
+                DisplayName = "10x",
                 Modifiers = new Dictionary<string, float>
                 {
                     { "hp", 10f }, { "damage", 10f }, { "speed", 10f }
@@ -168,7 +170,8 @@ namespace DINOForge.Tests
             UnitStats baseStats = CreateBaseStats();
             var doctrine = new DoctrineDefinition
             {
-                Id = "unknown", DisplayName = "Unknown",
+                Id = "unknown",
+                DisplayName = "Unknown",
                 Modifiers = new Dictionary<string, float> { { "unknown_stat", 2.0f } }
             };
 
@@ -185,7 +188,8 @@ namespace DINOForge.Tests
             UnitStats baseStats = CreateBaseStats();
             var doctrine = new DoctrineDefinition
             {
-                Id = "empty", DisplayName = "Empty",
+                Id = "empty",
+                DisplayName = "Empty",
                 Modifiers = new Dictionary<string, float>()
             };
 
@@ -207,7 +211,8 @@ namespace DINOForge.Tests
             };
             var doctrine = new DoctrineDefinition
             {
-                Id = "cheap", DisplayName = "Cheap",
+                Id = "cheap",
+                DisplayName = "Cheap",
                 Modifiers = new Dictionary<string, float> { { "cost", 0.5f } }
             };
 
@@ -291,7 +296,9 @@ namespace DINOForge.Tests
                 Id = "free-unit",
                 Stats = new UnitStats
                 {
-                    Hp = 100f, Damage = 10f, Speed = 5f,
+                    Hp = 100f,
+                    Damage = 10f,
+                    Speed = 5f,
                     Cost = new ResourceCost() // all zero
                 }
             };
@@ -310,15 +317,20 @@ namespace DINOForge.Tests
                 Id = "trooper",
                 Stats = new UnitStats
                 {
-                    Hp = 100f, Damage = 20f, Armor = 10f, Speed = 5f,
-                    Accuracy = 0.7f, FireRate = 1.0f,
+                    Hp = 100f,
+                    Damage = 20f,
+                    Armor = 10f,
+                    Speed = 5f,
+                    Accuracy = 0.7f,
+                    FireRate = 1.0f,
                     Cost = new ResourceCost { Food = 50 }
                 }
             };
             FactionArchetype order = _archetypes.GetArchetype("order");
             var doctrine = new DoctrineDefinition
             {
-                Id = "blitz", DisplayName = "Blitz",
+                Id = "blitz",
+                DisplayName = "Blitz",
                 Modifiers = new Dictionary<string, float> { { "damage", 1.5f } }
             };
 
@@ -408,7 +420,8 @@ namespace DINOForge.Tests
         {
             var wave = new WaveDefinition
             {
-                Id = "test", WaveNumber = 1,
+                Id = "test",
+                WaveNumber = 1,
                 SpawnGroups = new List<SpawnGroup>
                 {
                     new SpawnGroup { UnitId = "a", Count = 100 },
@@ -554,10 +567,17 @@ namespace DINOForge.Tests
                 Faction = new FactionInfo { Id = "test" },
                 Roster = new FactionRoster
                 {
-                    CheapInfantry = ci, LineInfantry = li, EliteInfantry = ei,
-                    AntiArmor = aa, SupportWeapon = sw, Recon = sc,
-                    LightVehicle = lv, HeavyVehicle = hv, Artillery = art,
-                    HeroCommander = hero, SpikeUnit = spike
+                    CheapInfantry = ci,
+                    LineInfantry = li,
+                    EliteInfantry = ei,
+                    AntiArmor = aa,
+                    SupportWeapon = sw,
+                    Recon = sc,
+                    LightVehicle = lv,
+                    HeavyVehicle = hv,
+                    Artillery = art,
+                    HeroCommander = hero,
+                    SpikeUnit = spike
                 }
             };
         }

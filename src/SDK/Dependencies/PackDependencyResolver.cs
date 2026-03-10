@@ -11,7 +11,7 @@ namespace DINOForge.SDK.Dependencies
         public DependencyResult ResolveDependencies(IEnumerable<PackManifest> available, PackManifest target)
         {
             var availableList = available.ToList();
-            var availableIds  = new HashSet<string>(availableList.Select(p => p.Id), StringComparer.OrdinalIgnoreCase);
+            var availableIds = new HashSet<string>(availableList.Select(p => p.Id), StringComparer.OrdinalIgnoreCase);
 
             var missing = target.DependsOn
                 .Where(dep => !availableIds.Contains(dep))
@@ -32,8 +32,8 @@ namespace DINOForge.SDK.Dependencies
         public IReadOnlyList<string> DetectConflicts(IEnumerable<PackManifest> active)
         {
             var activeList = active.ToList();
-            var activeIds  = new HashSet<string>(activeList.Select(p => p.Id), StringComparer.OrdinalIgnoreCase);
-            var errors     = new List<string>();
+            var activeIds = new HashSet<string>(activeList.Select(p => p.Id), StringComparer.OrdinalIgnoreCase);
+            var errors = new List<string>();
 
             foreach (var pack in activeList)
             {
@@ -53,7 +53,7 @@ namespace DINOForge.SDK.Dependencies
             var packById = packList.ToDictionary(p => p.Id, StringComparer.OrdinalIgnoreCase);
 
             // Build in-degree map and adjacency list (dep -> dependents).
-            var inDegree   = packList.ToDictionary(p => p.Id, _ => 0, StringComparer.OrdinalIgnoreCase);
+            var inDegree = packList.ToDictionary(p => p.Id, _ => 0, StringComparer.OrdinalIgnoreCase);
             var dependents = packList.ToDictionary(
                 p => p.Id,
                 _ => new List<string>(),

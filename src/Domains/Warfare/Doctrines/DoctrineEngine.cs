@@ -169,7 +169,7 @@ namespace DINOForge.Domains.Warfare.Doctrines
                     stats.Cost.Iron = (int)(stats.Cost.Iron * multiplier);
                     stats.Cost.Gold = (int)(stats.Cost.Gold * multiplier);
                     break;
-                // Unknown modifiers are silently ignored (extensibility)
+                    // Unknown modifiers are silently ignored (extensibility)
             }
         }
     }

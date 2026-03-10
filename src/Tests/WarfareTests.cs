@@ -513,20 +513,23 @@ namespace DINOForge.Tests
             var registry = new Registry<UnitDefinition>();
             registry.Register("u1", new UnitDefinition
             {
-                Id = "u1", FactionId = "alpha",
+                Id = "u1",
+                FactionId = "alpha",
                 Stats = new UnitStats { Hp = 100, Damage = 10, Speed = 5, Cost = new ResourceCost { Food = 30 } }
             }, RegistrySource.Pack, "test");
 
             registry.Register("u2", new UnitDefinition
             {
-                Id = "u2", FactionId = "alpha",
+                Id = "u2",
+                FactionId = "alpha",
                 Stats = new UnitStats { Hp = 150, Damage = 15, Speed = 4, Cost = new ResourceCost { Food = 40 } }
             }, RegistrySource.Pack, "test");
 
             // Different faction, should not be included
             registry.Register("u3", new UnitDefinition
             {
-                Id = "u3", FactionId = "beta",
+                Id = "u3",
+                FactionId = "beta",
                 Stats = new UnitStats { Hp = 200, Damage = 20, Speed = 3, Cost = new ResourceCost { Food = 60 } }
             }, RegistrySource.Pack, "test");
 

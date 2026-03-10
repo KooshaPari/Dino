@@ -16,15 +16,15 @@ namespace DINOForge.SDK.Registry
 
         public RegistryManager()
         {
-            Units       = new Registry<UnitDefinition>();
-            Buildings   = new Registry<BuildingDefinition>();
-            Factions    = new Registry<FactionDefinition>();
-            Weapons     = new Registry<WeaponDefinition>();
+            Units = new Registry<UnitDefinition>();
+            Buildings = new Registry<BuildingDefinition>();
+            Factions = new Registry<FactionDefinition>();
+            Weapons = new Registry<WeaponDefinition>();
             Projectiles = new Registry<ProjectileDefinition>();
-            Doctrines   = new Registry<DoctrineDefinition>();
-            Skills      = new Registry<SkillDefinition>();
-            Waves       = new Registry<WaveDefinition>();
-            Squads      = new Registry<SquadDefinition>();
+            Doctrines = new Registry<DoctrineDefinition>();
+            Skills = new Registry<SkillDefinition>();
+            Waves = new Registry<WaveDefinition>();
+            Squads = new Registry<SquadDefinition>();
         }
     }
 }
