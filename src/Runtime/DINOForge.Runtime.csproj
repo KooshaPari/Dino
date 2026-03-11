@@ -6,13 +6,17 @@
     <RootNamespace>DINOForge.Runtime</RootNamespace>
     <Description>DINOForge runtime plugin - BepInEx bootstrap, ECS introspection, entity dumper</Description>
 
-    <!-- Copy SDK and its dependencies alongside Runtime DLL for deployment -->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <!-- Detect if the DINO game is installed by checking for UnityEngine.dll -->
+    <GameInstalled Condition="Exists('$(ManagedDir)\UnityEngine.dll')">true</GameInstalled>
+    <GameInstalled Condition="!Exists('$(ManagedDir)\UnityEngine.dll')">false</GameInstalled>
 
-    <!-- Deploy built DLL to BepInEx plugins (standard Chainloader path) -->
-    <OutputPath>$(BepInExDir)\plugins</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <!-- Copy SDK and its dependencies alongside Runtime DLL for deployment (game install only) -->
+    <CopyLocalLockFileAssemblies Condition="'$(GameInstalled)' == 'true'">true</CopyLocalLockFileAssemblies>
+
+    <!-- Deploy built DLL to BepInEx plugins when game is installed; else default bin/ -->
+    <OutputPath Condition="'$(GameInstalled)' == 'true'">$(BepInExDir)\plugins</OutputPath>
+    <AppendTargetFrameworkToOutputPath Condition="'$(GameInstalled)' == 'true'">false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath Condition="'$(GameInstalled)' == 'true'">false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
 
   <!-- SDK reference for HotReload bridge and content loading -->
@@ -22,8 +26,8 @@
     </ProjectReference>
   </ItemGroup>
 
-  <!-- BepInEx core - referenced from game install (not on NuGet) -->
-  <ItemGroup>
+  <!-- BepInEx core - only when game is installed -->
+  <ItemGroup Condition="'$(GameInstalled)' == 'true'">
     <Reference Include="BepInEx">
       <HintPath>$(BepInExDir)\core\BepInEx.dll</HintPath>
       <Private>false</Private>
@@ -34,8 +38,8 @@
     </Reference>
   </ItemGroup>
 
-  <!-- Game assemblies - referenced directly from install -->
-  <ItemGroup>
+  <!-- Game assemblies - only when game is installed -->
+  <ItemGroup Condition="'$(GameInstalled)' == 'true'">
     <!-- Unity ECS / DOTS -->
     <Reference Include="Unity.Entities">
       <HintPath>$(ManagedDir)\Unity.Entities.dll</HintPath>
@@ -123,6 +127,34 @@
       <HintPath>$(ManagedDir)\Newtonsoft.Json.dll</HintPath>
       <Private>false</Private>
     </Reference>
+  </ItemGroup>
+
+  <!--
+    When game is not installed (CI / SDK-only builds), exclude all source files
+    that use Unity ECS, BepInEx, or game-specific namespaces. Only pure-C# bridge
+    utilities (VanillaArchetypeMapper, UnitSpawnRequest, OverrideApplicator) compile.
+  -->
+  <ItemGroup Condition="'$(GameInstalled)' == 'false'">
+    <Compile Remove="Plugin.cs" />
+    <Compile Remove="DebugOverlay.cs" />
+    <Compile Remove="DumpSystem.cs" />
+    <Compile Remove="EntityDumper.cs" />
+    <Compile Remove="SystemEnumerator.cs" />
+    <Compile Remove="ModPlatform.cs" />
+    <Compile Remove="Bridge\OverrideApplicator.cs" />
+    <Compile Remove="Bridge\AssetSwapSystem.cs" />
+    <Compile Remove="Bridge\ComponentMap.cs" />
+    <Compile Remove="Bridge\ComponentMapping.cs" />
+    <Compile Remove="Bridge\EntityQueries.cs" />
+    <Compile Remove="Bridge\GameBridgeServer.cs" />
+    <Compile Remove="Bridge\PackUnitSpawner.cs" />
+    <Compile Remove="Bridge\ResourceReader.cs" />
+    <Compile Remove="Bridge\StatModifierSystem.cs" />
+    <Compile Remove="Bridge\VanillaCatalog.cs" />
+    <Compile Remove="Bridge\MainThreadDispatcher.cs" />
+    <Compile Remove="HotReload\HotReloadBridge.cs" />
+    <Compile Remove="UI\ModMenuOverlay.cs" />
+    <Compile Remove="UI\ModSettingsPanel.cs" />
   </ItemGroup>
 
   <!-- SDK project reference - provides pack loading, registries, schemas -->
