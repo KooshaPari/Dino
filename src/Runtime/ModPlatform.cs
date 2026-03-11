@@ -376,6 +376,11 @@ namespace DINOForge.Runtime
                         msg => _log.LogInfo(msg));
                     _log.LogInfo($"[ModPlatform] Re-applied {overrideCount} stat override(s) after hot reload.");
 
+                    if (_contentLoader != null && _contentLoader.LoadedOverrides.Count > 0)
+                    {
+                        OverrideApplicator.ApplyStatOverrides(_contentLoader.LoadedOverrides, msg => _log.LogInfo(msg));
+                    }
+
                     // Tell StatModifierSystem to re-process
                     StatModifierSystem.Reapply();
                 }

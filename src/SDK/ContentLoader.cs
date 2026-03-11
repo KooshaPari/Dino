@@ -346,49 +346,89 @@ namespace DINOForge.SDK
 
         /// <summary>
         /// Deserializes YAML content to the appropriate model type and registers it.
+        /// Supports both single-object YAML files and array (list) YAML files.
         /// </summary>
         private void RegisterContent(string yamlContent, string contentType, PackManifest manifest)
         {
             switch (contentType.ToLowerInvariant())
             {
                 case "units":
-                    UnitDefinition unit = _deserializer.Deserialize<UnitDefinition>(yamlContent);
-                    _registryManager.Units.Register(unit.Id, unit, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    RegisterItems<UnitDefinition>(
+                        yamlContent,
+                        (u) => _registryManager.Units.Register(u.Id, u, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
                     break;
 
                 case "buildings":
-                    BuildingDefinition building = _deserializer.Deserialize<BuildingDefinition>(yamlContent);
-                    _registryManager.Buildings.Register(building.Id, building, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    RegisterItems<BuildingDefinition>(
+                        yamlContent,
+                        (b) => _registryManager.Buildings.Register(b.Id, b, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
                     break;
 
                 case "factions":
-                    FactionDefinition faction = _deserializer.Deserialize<FactionDefinition>(yamlContent);
-                    _registryManager.Factions.Register(faction.Faction.Id, faction, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    RegisterItems<FactionDefinition>(
+                        yamlContent,
+                        (f) => _registryManager.Factions.Register(f.Faction.Id, f, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
                     break;
 
                 case "weapons":
-                    WeaponDefinition weapon = _deserializer.Deserialize<WeaponDefinition>(yamlContent);
-                    _registryManager.Weapons.Register(weapon.Id, weapon, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    RegisterItems<WeaponDefinition>(
+                        yamlContent,
+                        (w) => _registryManager.Weapons.Register(w.Id, w, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
                     break;
 
                 case "projectiles":
-                    ProjectileDefinition projectile = _deserializer.Deserialize<ProjectileDefinition>(yamlContent);
-                    _registryManager.Projectiles.Register(projectile.Id, projectile, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    RegisterItems<ProjectileDefinition>(
+                        yamlContent,
+                        (p) => _registryManager.Projectiles.Register(p.Id, p, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
                     break;
 
                 case "doctrines":
-                    DoctrineDefinition doctrine = _deserializer.Deserialize<DoctrineDefinition>(yamlContent);
-                    _registryManager.Doctrines.Register(doctrine.Id, doctrine, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    RegisterItems<DoctrineDefinition>(
+                        yamlContent,
+                        (d) => _registryManager.Doctrines.Register(d.Id, d, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
                     break;
 
                 case "stats":
-                    StatOverrideDefinition statOverride = _deserializer.Deserialize<StatOverrideDefinition>(yamlContent);
-                    _loadedOverrides.Add(statOverride);
+                    RegisterItems<StatOverrideDefinition>(
+                        yamlContent,
+                        (s) => _loadedOverrides.Add(s));
                     break;
 
                 default:
                     _log($"[ContentLoader] Unknown content type '{contentType}', skipping.");
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Deserializes YAML content as either a <see cref="List{T}"/> or a single <typeparamref name="T"/>,
+        /// then invokes <paramref name="register"/> for each item.
+        /// </summary>
+        private void RegisterItems<T>(string yamlContent, Action<T> register) where T : class
+        {
+            // Try list deserialization first (handles array YAML files like warfare packs)
+            try
+            {
+                List<T>? items = _deserializer.Deserialize<List<T>>(yamlContent);
+                if (items != null && items.Count > 0)
+                {
+                    foreach (T item in items)
+                    {
+                        register(item);
+                    }
+                    return;
+                }
+            }
+            catch
+            {
+                // Fall through to single-object deserialization
+            }
+
+            // Fall back to single-object deserialization
+            T single = _deserializer.Deserialize<T>(yamlContent);
+            if (single != null)
+            {
+                register(single);
             }
         }
     }

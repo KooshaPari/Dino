@@ -1,0 +1,192 @@
+name: Tag Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 0.5.0)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Is this a pre-release?'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  tag-and-release:
+    name: Bump Version & Create Tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------------------------------------------------------------
+      # Validate the version input
+      # ---------------------------------------------------------------
+      - name: Validate version format
+        shell: bash
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$'; then
+            echo "ERROR: Version '$VERSION' does not match semver format (e.g. 0.5.0 or 0.5.0-rc.1)"
+            exit 1
+          fi
+          echo "Version format valid: $VERSION"
+
+      # ---------------------------------------------------------------
+      # Update VERSION file
+      # ---------------------------------------------------------------
+      - name: Update VERSION file
+        shell: bash
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          echo "$VERSION" > VERSION
+          echo "Updated VERSION to: $VERSION"
+          cat VERSION
+
+      # ---------------------------------------------------------------
+      # Update CHANGELOG.md: replace [Unreleased] heading with
+      # the versioned heading and today's date, then add a new
+      # empty [Unreleased] section above it.
+      # ---------------------------------------------------------------
+      - name: Update CHANGELOG.md
+        shell: bash
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          TODAY=$(date -u +%Y-%m-%d)
+          CHANGELOG="CHANGELOG.md"
+
+          if [ ! -f "$CHANGELOG" ]; then
+            echo "CHANGELOG.md not found, creating skeleton"
+            cat > "$CHANGELOG" << 'SKELETON'
+          # Changelog
+
+          All notable changes to DINOForge will be documented in this file.
+
+          The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+          and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+          ## [Unreleased]
+
+          SKELETON
+          fi
+
+          # Replace the first ## [Unreleased] heading with the versioned heading
+          # and prepend a new [Unreleased] section
+          python3 - "$CHANGELOG" "$VERSION" "$TODAY" << 'PYEOF'
+          import sys
+          import re
+
+          changelog_path = sys.argv[1]
+          version = sys.argv[2]
+          today = sys.argv[3]
+
+          with open(changelog_path, 'r', encoding='utf-8') as f:
+              content = f.read()
+
+          unreleased_pattern = re.compile(r'^## \[Unreleased\].*$', re.MULTILINE)
+
+          new_unreleased_section = "## [Unreleased]\n"
+          versioned_heading = f"## [{version}] - {today}"
+
+          # Replace the first [Unreleased] heading with the versioned one,
+          # then prepend a fresh [Unreleased] section.
+          if unreleased_pattern.search(content):
+              content = unreleased_pattern.sub(versioned_heading, content, count=1)
+              # Find where the versioned heading starts and insert [Unreleased] before it
+              insert_pos = content.find(versioned_heading)
+              content = content[:insert_pos] + new_unreleased_section + "\n" + content[insert_pos:]
+          else:
+              # No [Unreleased] found; prepend new sections after the header block
+              header_end = content.find('\n## ')
+              if header_end == -1:
+                  content = content + f"\n{new_unreleased_section}\n## [{version}] - {today}\n"
+              else:
+                  content = (content[:header_end] +
+                             f"\n\n{new_unreleased_section}\n\n## [{version}] - {today}" +
+                             content[header_end:])
+
+          with open(changelog_path, 'w', encoding='utf-8') as f:
+              f.write(content)
+
+          print(f"CHANGELOG.md updated: [Unreleased] -> [{version}] - {today}")
+          PYEOF
+
+          echo "CHANGELOG.md after update (first 40 lines):"
+          head -40 "$CHANGELOG"
+
+      # ---------------------------------------------------------------
+      # Commit the VERSION + CHANGELOG changes
+      # ---------------------------------------------------------------
+      - name: Configure git
+        shell: bash
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit version bump
+        shell: bash
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          git add VERSION CHANGELOG.md
+          git diff --cached --stat
+
+          if git diff --cached --quiet; then
+            echo "Nothing to commit — VERSION and CHANGELOG.md already up to date."
+          else
+            git commit -m "chore: release v${VERSION}
+
+          - Bump VERSION to ${VERSION}
+          - Move [Unreleased] entries to [${VERSION}] in CHANGELOG.md"
+          fi
+
+      - name: Push commit
+        shell: bash
+        run: git push origin HEAD:main
+
+      # ---------------------------------------------------------------
+      # Create and push the git tag — this triggers release.yml
+      # ---------------------------------------------------------------
+      - name: Create and push tag
+        shell: bash
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          TAG="v${VERSION}"
+
+          # Fail if tag already exists
+          if git ls-remote --tags origin "$TAG" | grep -q "$TAG"; then
+            echo "ERROR: Tag $TAG already exists on remote."
+            exit 1
+          fi
+
+          git tag -a "$TAG" -m "DINOForge $TAG"
+          git push origin "$TAG"
+
+          echo "Tag $TAG created and pushed — release.yml will now trigger."
+
+      # ---------------------------------------------------------------
+      # Summary
+      # ---------------------------------------------------------------
+      - name: Print summary
+        shell: bash
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          PRERELEASE="${{ github.event.inputs.prerelease }}"
+          echo "## Release dispatched" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | \`v${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Pre-release | ${PRERELEASE} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag | \`v${VERSION}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Triggered workflow | \`release.yml\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The [release workflow](../actions/workflows/release.yml) will now build, test, and publish the GitHub Release." >> $GITHUB_STEP_SUMMARY
