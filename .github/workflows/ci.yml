@@ -51,6 +51,8 @@ jobs:
         with:
           files: ./test-results/**/coverage.cobertura.xml
           fail_ci_if_error: false
+          # Configure CODECOV_TOKEN secret in repository settings for authenticated uploads
+          # This enables better coverage tracking and historical comparisons
 
       - name: Publish test report
         uses: dorny/test-reporter@v1

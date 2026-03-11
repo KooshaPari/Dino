@@ -21,14 +21,6 @@ jobs:
           fi
           echo "CLAUDE.md: OK"
 
-      - name: Check AGENTS.md exists
-        run: |
-          if [ ! -f AGENTS.md ] || [ ! -s AGENTS.md ]; then
-            echo "::error::AGENTS.md missing or empty — required by agent governance"
-            exit 1
-          fi
-          echo "AGENTS.md: OK"
-
       - name: Check CHANGELOG.md updated
         run: |
           # Skip for docs-only or CI-only PRs

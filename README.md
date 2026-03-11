@@ -1,5 +1,8 @@
 # DINOForge
 
+[![CI](https://github.com/KooshaPari/Dino/actions/workflows/ci.yml/badge.svg)](https://github.com/KooshaPari/Dino/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/KooshaPari/Dino/branch/main/graph/badge.svg)](https://codecov.io/gh/KooshaPari/Dino)
+
 **General-purpose mod platform for [Diplomacy is Not an Option](https://store.steampowered.com/app/1272320/Diplomacy_is_Not_an_Option/).**
 
 DINOForge is a mod operating system, not a single mod. It provides the framework, registries, schemas, and tooling for building any type of mod — from simple balance tweaks to full total conversion packs.
