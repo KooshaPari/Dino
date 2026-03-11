@@ -1,40 +1,271 @@
-# DINOForge Agents
+# DINOForge — Agent Collaboration Guide
 
-Agent definitions for the DINOForge mod platform.
+## Quick Start for New Agents
 
-## Agents
+1. Read CLAUDE.md (governance, build commands, architecture)
+2. Run `dotnet build src/DINOForge.sln` to verify your environment
+3. Run `dotnet test src/DINOForge.sln` — all tests must pass before any commit
+4. Check your assigned domain in the Agent Roster below
 
-### runtime-specialist
-- **Domain**: `src/Runtime/`, ECS Bridge, BepInEx integration
-- **Skills**: Unity ECS, BepInEx, Harmony, C# netstandard2.0
-- **Owns**: Plugin.cs, DumpSystem, EntityDumper, SystemEnumerator, DebugOverlay, Bridge/*
+## Agent Roster & Domain Ownership
 
-### sdk-architect
-- **Domain**: `src/SDK/`, registries, schemas, content pipeline
-- **Skills**: C# design patterns, schema validation, YAML/JSON, NuGet packaging
-- **Owns**: Registry/*, Models/*, Validation/*, ContentLoader, PackManifest, Assets/*
+| Agent Role | Domain | Key Files | Can Modify |
+|-----------|--------|-----------|-----------|
+| runtime-specialist | ECS bridge, BepInEx | src/Runtime/ | Plugin.cs, Bridge/*, HotReload/*, DebugOverlay, ModPlatform.cs |
+| sdk-architect | Registry, SDK, schemas | src/SDK/ | Registry/*, Models/*, Validation/*, Assets/*, Dependencies/*, Universe/* |
+| warfare-designer | Warfare domain, balance | src/Domains/Warfare/ | Archetypes/*, Doctrines/*, Roles/*, Waves/*, Balance/* |
+| pack-builder | Content packs, YAML | packs/ | packs/**/*, any pack.yaml |
+| toolsmith | CLI tools, PackCompiler | src/Tools/ | PackCompiler/*, DumpTools/*, Cli/*, McpServer/* |
+| qa-engineer | Tests, CI/CD | src/Tests/, .github/ | Tests/**, workflows/*, test fixtures |
+| docs-curator | Documentation, VitePress | docs/ | docs/**, CHANGELOG.md, README.md, AGENTS.md |
 
-### warfare-designer
-- **Domain**: `src/Domains/Warfare/`, faction balance, combat model
-- **Skills**: Game design, balance math, domain modeling
-- **Owns**: Archetypes/*, Doctrines/*, Roles/*, Waves/*, Balance/*
+## Decision Tree: What To Do First
 
-### pack-builder
-- **Domain**: `packs/`, content authoring, schema compliance
-- **Skills**: YAML authoring, game design, faction theming
-- **Owns**: packs/*, schemas/*
+```
+Start task
+│
+├─ "Where does this change live?"
+│   ├─ Game engine glue → src/Runtime/ (runtime-specialist)
+│   ├─ Data model or registry → src/SDK/ (sdk-architect)
+│   ├─ Domain logic → src/Domains/<Domain>/ (domain specialist)
+│   ├─ Pack content → packs/ (pack-builder)
+│   ├─ CLI / tooling / MCP → src/Tools/ (toolsmith)
+│   ├─ Tests → src/Tests/ (qa-engineer)
+│   └─ Documentation → docs/ or CHANGELOG.md (docs-curator)
+│
+├─ "Does a schema exist for this data shape?"
+│   ├─ Yes → validate against it before writing
+│   └─ No → create schema first (create schema legal move)
+│
+├─ "Does a library solve this?"
+│   ├─ Yes → wrap it (ADR-008: wrap-don't-handroll)
+│   └─ No → handroll only if < 50 lines and self-contained
+│
+└─ "Will this affect public API?"
+    ├─ Yes → update .claude/contracts/ and docs
+    └─ No → proceed with implementation
+```
 
-### toolsmith
-- **Domain**: `src/Tools/`, CLI tooling, dev experience
-- **Skills**: CLI design, Spectre.Console, System.CommandLine
-- **Owns**: PackCompiler/*, DumpTools/*
+## Handoff Protocol
 
-### qa-engineer
-- **Domain**: `src/Tests/`, quality assurance, CI/CD
-- **Skills**: xUnit, FluentAssertions, test design, CI workflows
-- **Owns**: Tests/*, .github/workflows/*
+When completing work, always:
+1. Run `dotnet test src/DINOForge.sln` — verify 0 failures
+2. Run `dotnet format src/DINOForge.sln --verify-no-changes`
+3. Update CHANGELOG.md [Unreleased] section (see Keep a Changelog format)
+4. Commit with descriptive message + `Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>`
+5. `git push origin main`
 
-### docs-curator
-- **Domain**: `docs/`, documentation site, ADRs
-- **Skills**: VitePress, Mermaid, technical writing
-- **Owns**: docs/*, CHANGELOG.md, README.md
+## Parallel Agent Coordination
+
+- Always `git pull --rebase origin main` before starting work
+- Never modify files another agent owns (see roster above)
+- If conflict: take the newer version, preserve both agents' intent
+- Announce file ownership in commit message: "Owned by: runtime-specialist"
+- Use atomic commits — one logical change per commit
+
+## Available Slash Commands
+
+| Command | Purpose | Owner |
+|---------|---------|-------|
+| `/new-pack <id> [type]` | Scaffold a new content pack | pack-builder |
+| `/add-unit <pack> <id> <class>` | Add unit to pack | pack-builder |
+| `/spawn-unit <pack:unit> [x] [z]` | Test unit spawner (requires game running) | toolsmith |
+| `/check-ci` | Run full CI locally | qa-engineer |
+| `/status` | Project health summary | toolsmith |
+| `/release <version>` | Guided release workflow | docs-curator |
+| `/validate` | Validate all packs | toolsmith |
+| `/test` | Run all tests | qa-engineer |
+| `/build-all` | Build all solutions | qa-engineer |
+
+## Key Invariants (Never Violate)
+
+1. **All tests must pass before any commit to main** — run `dotnet test src/DINOForge.sln` locally
+2. **Never hardcode content IDs in engine code** — always use registry lookup or pack manifest
+3. **Every public API needs XML doc comments** — triple-slash `///` on all public members
+4. **Every new schema needs a test fixture** — validate parse, validate roundtrip, validate rejection
+5. **Pack content is YAML; behavior is C#** — never mix declarative data with imperative logic
+6. **Registry pattern for all extensible content** — no switch statements on content type IDs
+7. **Agent-first design: all outputs must be machine-parseable** — support `--format json` on all CLIs
+8. **Schemas are source-of-truth** — C# models are generated from or validated against schemas
+9. **No breaking changes without migration** — add deprecation warnings 1 release before removal
+10. **Commit message must reference domain/feature** — e.g., "feat(warfare): add wave scripting system"
+
+## MCP Server Tools (Available in Claude Code)
+
+The DINOForge MCP server provides 13 game tools when connected via `dinoforge` MCP server config:
+
+### Query Tools
+- `game_status` — Check if game is running and mods loaded
+- `list_packs` — List all loaded content packs with versions
+- `query_entity` — Inspect a specific ECS entity (ID, components, values)
+- `list_units` — Enumerate all registered units with stats
+- `list_systems` — List active ECS systems and their state
+- `get_component` — Get component value on a specific entity
+- `get_registry` — Dump entire registry contents (units, buildings, factions, etc.)
+- `get_logs` — Read dinoforge_debug.log from game process
+
+### Control Tools
+- `spawn_unit` — Request unit spawn at world position (uses PackUnitSpawner.RequestSpawnStatic)
+- `apply_override` — Apply a stat override at runtime (health, armor, cost, etc.)
+- `reload_packs` — Trigger hot module replacement on all packs
+- `dump_world` — Dump current ECS world state (entity count, component distribution)
+- `run_scenario` — Trigger a scenario definition (requires scenario pack loaded)
+
+### Usage
+Tools are available when:
+1. Game is running with BepInEx and DINOForge Runtime plugin loaded
+2. MCP server is started via `dotnet run --project src/Tools/McpServer`
+3. Claude Code connects via `.claude/mcp-servers.json` config
+
+## Legal Move Classes (Ref: CLAUDE.md)
+
+Agents should reduce all work to one of these forms:
+- `create schema` — new data shape definition
+- `extend registry` — add entries to existing registry
+- `add content pack` — new pack with manifest
+- `patch mapping` — update vanilla-to-mod mapping
+- `write validator` — new validation rule
+- `add test fixture` — new test case
+- `add debug view` — new diagnostic surface
+- `add migration` — version compatibility migration
+- `add compatibility rule` — cross-pack conflict rule
+- `add documentation manifest` — update docs
+
+## Code Style Checklist
+
+Before committing, verify:
+- [ ] C# 12+ with nullable reference types enabled (`#nullable enable`)
+- [ ] `async/await` over raw Tasks
+- [ ] XML doc comments on all public APIs (triple-slash `///`)
+- [ ] Immutable data models preferred (records, init properties)
+- [ ] Registry pattern for all extensible content — no switch statements on IDs
+- [ ] No `var` for non-obvious types (explicit types improve readability)
+- [ ] Meaningful names over inline comments
+- [ ] All tests pass locally
+- [ ] No merge conflicts in committed code
+
+## File Ownership Map
+
+### Runtime Layer (runtime-specialist)
+```
+src/Runtime/
+├── Plugin.cs                 # BepInEx entry point
+├── ModPlatform.cs            # Game lifecycle hooks
+├── Bridge/
+│   ├── ComponentMap.cs       # Vanilla ↔ mod component mapping
+│   ├── EntityQueries.cs      # ECS query helpers
+│   ├── StatModifierSystem.cs # Runtime stat override system
+│   └── VanillaCatalog.cs     # Vanilla unit/building data
+├── HotReload/
+│   ├── HotReloadBridge.cs    # File watcher and reload trigger
+│   └── ModuleState.cs        # Per-pack reload state
+└── UI/
+    └── DebugOverlay.cs       # In-game F10 menu
+```
+
+### SDK Layer (sdk-architect)
+```
+src/SDK/
+├── Registry/
+│   ├── TypedRegistry.cs      # Generic registry base
+│   ├── UnitRegistry.cs
+│   ├── BuildingRegistry.cs
+│   └── FactionsRegistry.cs
+├── Models/
+│   ├── Unit.cs
+│   ├── Building.cs
+│   ├── Faction.cs
+│   └── *.cs                  # Data models
+├── Validation/
+│   ├── SchemaValidator.cs
+│   └── PackValidator.cs
+├── Assets/
+│   ├── AddressablesCatalog.cs
+│   └── AssetSwapService.cs
+├── Dependencies/
+│   └── DependencyResolver.cs
+└── ContentLoader.cs
+```
+
+### Domain Plugins (domain specialists)
+```
+src/Domains/Warfare/
+├── Archetypes/               # Unit archetypes (infantry, ranged, etc.)
+├── Doctrines/                # Combat doctrines and bonuses
+├── Roles/                     # Unit role system
+├── Waves/                     # Wave scripting and spawning
+└── Balance/                   # Balance parameters and formulas
+```
+
+### Tooling Layer (toolsmith)
+```
+src/Tools/
+├── PackCompiler/
+│   ├── PackCompiler.cs       # Main validation/build logic
+│   └── *.cs                  # Pack processing pipeline
+├── DumpTools/
+│   └── *.cs                  # Entity/component analysis
+├── McpServer/
+│   ├── McpServer.cs          # MCP protocol handler
+│   ├── GameBridge.cs         # Game communication
+│   └── Tools/                # Tool implementations (13 tools)
+└── Cli/
+    └── *.cs                  # CLI commands
+```
+
+### Tests (qa-engineer)
+```
+src/Tests/
+├── Unit/                     # Unit tests (< 100ms each)
+├── Integration/              # Integration tests
+├── Fixtures/                 # Test data and mocks
+└── *.Tests.csproj
+```
+
+### Documentation (docs-curator)
+```
+docs/                         # VitePress site
+CHANGELOG.md                  # Keep a Changelog format
+README.md                     # Project root readme
+AGENTS.md                     # This file
+```
+
+## Troubleshooting
+
+### My tests are failing
+1. Run `dotnet clean src/DINOForge.sln && dotnet build src/DINOForge.sln`
+2. Check if game is running — some integration tests require it
+3. Verify no uncommitted changes interfere: `git status`
+4. Ask qa-engineer to validate test environment
+
+### I modified a file I don't own
+1. Check the ownership map above
+2. Request permission in a comment
+3. Revert your changes if unauthorized
+4. File a task for the domain owner
+
+### Schema validation is failing
+1. Run `dotnet run --project src/Tools/PackCompiler -- validate packs/`
+2. Check CHANGELOG.md for recent schema changes
+3. Ask sdk-architect for schema clarification
+4. Never bypass validators with `#pragma`
+
+### I need to add an MCP tool
+1. Add tool definition to `src/Tools/McpServer/Tools/`
+2. Register in McpServer.cs
+3. Add integration test in `src/Tests/Integration/`
+4. Update this AGENTS.md under "MCP Server Tools"
+5. Notify qa-engineer to add CI coverage
+
+## Contact & Escalation
+
+For questions about:
+- **Runtime/ECS**: Ask runtime-specialist
+- **SDK/Registries**: Ask sdk-architect
+- **Warfare/Balance**: Ask warfare-designer
+- **Pack authoring**: Ask pack-builder
+- **CLI/Tools/MCP**: Ask toolsmith
+- **Tests/CI**: Ask qa-engineer
+- **Docs/CHANGELOG**: Ask docs-curator
+
+Default escalation: Check MEMORY.md for project context, then file an issue on GitHub.

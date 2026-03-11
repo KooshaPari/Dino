@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "dinoforge": {
+      "command": "dotnet",
+      "args": ["run", "--project", "src/Tools/McpServer/DINOForge.Tools.McpServer.csproj"],
+      "description": "DINOForge game bridge MCP server — provides 13 tools for querying and controlling the running DINO game instance"
+    }
+  }
+}
