@@ -31,6 +31,16 @@ namespace DINOForge.SDK
         public IReadOnlyList<StatOverrideDefinition> LoadedOverrides => _loadedOverrides;
 
         /// <summary>
+        /// Errors from the last load operation.
+        /// </summary>
+        public IReadOnlyList<string> LastLoadErrors { get; private set; } = new List<string>().AsReadOnly();
+
+        /// <summary>
+        /// Number of errors from the last load operation.
+        /// </summary>
+        public int LastLoadErrorCount => LastLoadErrors.Count;
+
+        /// <summary>
         /// Mapping from content type keys (as used in pack.yaml loads section)
         /// to the schema name used for validation.
         /// </summary>
@@ -125,6 +135,7 @@ namespace DINOForge.SDK
 
             if (errors.Count > 0)
             {
+                LastLoadErrors = errors.AsReadOnly();
                 return ContentLoadResult.Partial(
                     new List<string> { manifest.Id }.AsReadOnly(),
                     errors.AsReadOnly());
@@ -216,6 +227,7 @@ namespace DINOForge.SDK
 
             if (errors.Count > 0)
             {
+                LastLoadErrors = errors.AsReadOnly();
                 return ContentLoadResult.Partial(loadedPacks.AsReadOnly(), errors.AsReadOnly());
             }
 
