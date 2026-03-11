@@ -34,13 +34,19 @@ namespace DINOForge.Runtime.Bridge
         /// </summary>
         public string? FilterComponentType { get; }
 
+        /// <summary>
+        /// Number of times this modification has been retried after initial failure.
+        /// </summary>
+        public int RetryCount { get; }
+
         public StatModification(string sdkPath, float value,
-            ModifierMode mode = ModifierMode.Override, string? filterComponentType = null)
+            ModifierMode mode = ModifierMode.Override, string? filterComponentType = null, int retryCount = 0)
         {
             SdkPath = sdkPath ?? throw new ArgumentNullException(nameof(sdkPath));
             Value = value;
             Mode = mode;
             FilterComponentType = filterComponentType;
+            RetryCount = retryCount;
         }
     }
 
@@ -89,7 +95,17 @@ namespace DINOForge.Runtime.Bridge
         /// Minimum frames to wait before applying modifications.
         /// Gives the game time to fully initialize entity data.
         /// </summary>
-        private const int MinFrameDelay = 300; // ~5 seconds at 60fps
+        private const int MinFrameDelay = 1800; // ~30 seconds at 60fps (entities spawn around frame 1200)
+
+        /// <summary>
+        /// Frames to wait between retry attempts.
+        /// </summary>
+        private const int RetryFrameDelay = 600; // ~10 seconds at 60fps
+
+        /// <summary>
+        /// Maximum number of retries for failed modifications.
+        /// </summary>
+        private const int MaxRetries = 3;
 
         /// <summary>
         /// Queue a stat modification for application on the next update cycle.
@@ -167,6 +183,7 @@ namespace DINOForge.Runtime.Bridge
 
             int successCount = 0;
             int failCount = 0;
+            List<StatModification> retryQueue = new List<StatModification>();
 
             foreach (StatModification mod in batch)
             {
@@ -174,19 +191,59 @@ namespace DINOForge.Runtime.Bridge
                 {
                     bool result = ApplyModification(mod);
                     if (result)
+                    {
                         successCount++;
+                    }
                     else
+                    {
                         failCount++;
+                        // Queue for retry if retries remain
+                        if (mod.RetryCount < MaxRetries)
+                        {
+                            StatModification retryMod = new StatModification(
+                                mod.SdkPath, mod.Value, mod.Mode, mod.FilterComponentType, mod.RetryCount + 1);
+                            retryQueue.Add(retryMod);
+                            WriteDebug($"Queuing retry {retryMod.RetryCount}/{MaxRetries} for {mod.SdkPath}");
+                        }
+                        else
+                        {
+                            WriteDebug($"Max retries exhausted for {mod.SdkPath}");
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     WriteDebug($"StatModifierSystem: Failed to apply {mod.SdkPath}: {ex.Message}");
                     failCount++;
+                    // Queue for retry if retries remain
+                    if (mod.RetryCount < MaxRetries)
+                    {
+                        StatModification retryMod = new StatModification(
+                            mod.SdkPath, mod.Value, mod.Mode, mod.FilterComponentType, mod.RetryCount + 1);
+                        retryQueue.Add(retryMod);
+                        WriteDebug($"Queuing retry {retryMod.RetryCount}/{MaxRetries} for {mod.SdkPath} after exception");
+                    }
                 }
             }
 
-            WriteDebug($"StatModifierSystem: Applied {successCount}, failed {failCount}");
-            _applied = true;
+            WriteDebug($"StatModifierSystem: Applied {successCount}, failed {failCount}, queued {retryQueue.Count} for retry");
+
+            // Re-queue failed modifications for retry
+            if (retryQueue.Count > 0)
+            {
+                lock (_pendingModifications)
+                {
+                    foreach (StatModification retryMod in retryQueue)
+                    {
+                        _pendingModifications.Enqueue(retryMod);
+                    }
+                }
+                // Don't disable - we have pending retries
+            }
+            else
+            {
+                _applied = true;
+            }
         }
 
         private bool ApplyModification(StatModification mod)

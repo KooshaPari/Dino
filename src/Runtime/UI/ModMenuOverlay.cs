@@ -13,18 +13,19 @@ namespace DINOForge.Runtime.UI
     public class ModMenuOverlay : MonoBehaviour
     {
         private bool _visible;
-        private Rect _windowRect = new Rect(20, 20, 500, 700);
+        private Rect _windowRect = new Rect(20, 20, 500, 600);
         private Vector2 _packListScroll;
-        private Vector2 _errorListScroll;
         private int _selectedPackIndex = -1;
         private string _statusMessage = "";
         private int _errorCount;
-        private bool _showErrors;
 
         private readonly List<PackDisplayInfo> _packs = new List<PackDisplayInfo>();
 
         /// <summary>Callback invoked when the user clicks the Reload Packs button.</summary>
         public Action? OnReloadRequested;
+
+        /// <summary>Callback invoked when a pack is toggled enabled/disabled (packId, isEnabled).</summary>
+        public Action<string, bool>? OnPackToggled;
 
         /// <summary>Whether the overlay is currently visible.</summary>
         public bool IsVisible => _visible;
@@ -106,13 +107,6 @@ namespace DINOForge.Runtime.UI
 
             GUILayout.Space(8);
 
-            // Errors section (collapsible)
-            if (_errorCount > 0)
-            {
-                DrawErrorsSection();
-                GUILayout.Space(8);
-            }
-
             // Reload button
             if (GUILayout.Button("Reload Packs", GUILayout.Height(30)))
             {
@@ -166,6 +160,7 @@ namespace DINOForge.Runtime.UI
                 if (newEnabled != pack.IsEnabled)
                 {
                     _packs[i] = pack.WithEnabled(newEnabled);
+                    OnPackToggled?.Invoke(pack.Id, newEnabled);
                 }
 
                 // Pack name (highlight selected)
@@ -242,50 +237,12 @@ namespace DINOForge.Runtime.UI
                 GUILayout.Space(4);
                 Color oldColor = GUI.color;
                 GUI.color = Color.red;
-                GUILayout.Label("Pack Errors:");
+                GUILayout.Label("Errors:");
                 foreach (string error in pack.Errors)
                 {
-                    string truncated = error.Length > 80 ? error.Substring(0, 77) + "..." : error;
-                    GUILayout.Label($"  • {truncated}");
+                    GUILayout.Label($"  - {error}");
                 }
                 GUI.color = oldColor;
-            }
-
-            GUILayout.EndVertical();
-        }
-
-        private void DrawErrorsSection()
-        {
-            GUILayout.BeginVertical("box");
-
-            _showErrors = GUILayout.Toggle(_showErrors, $"Errors ({_errorCount})", GUILayout.Height(20));
-
-            if (_showErrors)
-            {
-                _errorListScroll = GUILayout.BeginScrollView(_errorListScroll, GUILayout.Height(150));
-
-                Color oldColor = GUI.color;
-                GUI.color = Color.red;
-
-                // Collect all errors from all packs
-                foreach (PackDisplayInfo pack in _packs)
-                {
-                    if (pack.Errors.Count == 0) continue;
-
-                    foreach (string error in pack.Errors)
-                    {
-                        // Format: "[pack-id] error message (truncated if long)"
-                        string display = $"[{pack.Id}] {error}";
-                        if (display.Length > 100)
-                            display = display.Substring(0, 97) + "...";
-
-                        GUILayout.Label(display);
-                    }
-                }
-
-                GUI.color = oldColor;
-
-                GUILayout.EndScrollView();
             }
 
             GUILayout.EndVertical();
@@ -327,7 +284,7 @@ namespace DINOForge.Runtime.UI
         /// <summary>Pack conflict IDs.</summary>
         public IReadOnlyList<string> Conflicts { get; }
 
-        /// <summary>Errors specific to this pack (if any).</summary>
+        /// <summary>Pack-specific error messages.</summary>
         public IReadOnlyList<string> Errors { get; }
 
         /// <summary>

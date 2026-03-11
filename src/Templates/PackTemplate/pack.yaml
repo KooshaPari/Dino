@@ -1,0 +1,15 @@
+id: PACK_ID
+name: PACK_NAME
+version: 0.1.0
+framework_version: ">=0.3.0 <1.0.0"
+author: PACK_AUTHOR
+type: PACK_TYPE
+description: |
+  PACK_NAME — a DINOForge mod pack.
+  Replace this with your pack description.
+depends_on: []
+conflicts_with: []
+loads:
+  units: []
+  buildings: []
+  factions: []

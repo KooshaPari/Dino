@@ -4,11 +4,26 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>DINOForge.SDK</AssemblyName>
     <RootNamespace>DINOForge.SDK</RootNamespace>
-    <Description>DINOForge SDK - public mod API, registries, schemas, pack loaders</Description>
+    <Description>DINOForge mod platform SDK for Diplomacy is Not an Option. Provides registries, content models, pack loading, and schema validation for mod authors.</Description>
+    <PackageId>DINOForge.SDK</PackageId>
+    <PackageVersion>0.3.0</PackageVersion>
+    <Authors>KooshaPari</Authors>
+    <PackageTags>dinoforge;gamemod;diplomacy-is-not-an-option;bepinex;unity-ecs</PackageTags>
+    <PackageProjectUrl>https://github.com/KooshaPari/Dino</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/KooshaPari/Dino</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="DINOForge.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Condition="Exists('..\..\README.md')" />
   </ItemGroup>
 
   <!-- Wrapped dependencies (ADR-008: wrap, don't handroll) -->
@@ -17,6 +32,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.*" />
     <PackageReference Include="NJsonSchema" Version="10.*" />
     <PackageReference Include="AssetsTools.NET" Version="3.0.4" />
+    <PackageReference Include="System.Text.Json" Version="8.*" />
   </ItemGroup>
 
 </Project>

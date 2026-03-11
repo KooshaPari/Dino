@@ -1,0 +1,312 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # ---------------------------------------------------------------
+      # Extract version metadata from the tag
+      # ---------------------------------------------------------------
+      - name: Extract version from tag
+        id: version
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $version = $tag.TrimStart('v')
+          $isPreRelease = $false
+          if ($version -match '-(rc|beta|alpha)') {
+            $isPreRelease = $true
+          }
+          "VERSION=$version"     | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "TAG=$tag"             | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "IS_PRERELEASE=$isPreRelease" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Write-Host "Version: $version | Tag: $tag | Pre-release: $isPreRelease"
+
+      # ---------------------------------------------------------------
+      # Restore & build the CI solution (no game DLLs required)
+      # ---------------------------------------------------------------
+      - name: Restore dependencies
+        run: dotnet restore src/DINOForge.CI.sln
+
+      - name: Build CI solution (Release)
+        run: dotnet build src/DINOForge.CI.sln -c Release --no-restore --verbosity minimal
+
+      # ---------------------------------------------------------------
+      # Run tests — must pass before packaging
+      # ---------------------------------------------------------------
+      - name: Run tests
+        run: >
+          dotnet test src/DINOForge.CI.sln
+          --no-build
+          -c Release
+          --logger "trx;LogFileName=test-results.trx"
+          --results-directory ./test-results
+          --verbosity normal
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: ./test-results/*.trx
+          retention-days: 14
+
+      # ---------------------------------------------------------------
+      # Pack and publish NuGet packages
+      # SETUP REQUIRED: Add NUGET_API_KEY secret in GitHub repo Settings → Secrets
+      # Get your API key from https://www.nuget.org/account/apikeys
+      # ---------------------------------------------------------------
+      - name: Pack SDK NuGet package
+        run: |
+          dotnet pack src/SDK/DINOForge.SDK.csproj -c Release `
+            -p:PackageVersion=${{ steps.version.outputs.VERSION }} `
+            --output staging/nuget/
+        shell: pwsh
+
+      - name: Pack Templates NuGet package
+        run: |
+          dotnet pack src/Templates/DINOForge.Templates.csproj -c Release `
+            -p:PackageVersion=${{ steps.version.outputs.VERSION }} `
+            --output staging/nuget/
+        shell: pwsh
+
+      - name: Publish to NuGet.org
+        if: ${{ !steps.version.outputs.IS_PRERELEASE == 'true' }}
+        run: |
+          dotnet nuget push staging/nuget/*.nupkg `
+            --api-key ${{ secrets.NUGET_API_KEY }} `
+            --source https://api.nuget.org/v3/index.json `
+            --skip-duplicate
+        shell: pwsh
+
+      - name: Publish pre-release to NuGet.org
+        if: ${{ steps.version.outputs.IS_PRERELEASE == 'true' }}
+        run: |
+          dotnet nuget push staging/nuget/*.nupkg `
+            --api-key ${{ secrets.NUGET_API_KEY }} `
+            --source https://api.nuget.org/v3/index.json `
+            --skip-duplicate
+        shell: pwsh
+
+      # ---------------------------------------------------------------
+      # Build the GUI Installer (net8.0-windows, self-contained EXE)
+      # ---------------------------------------------------------------
+      - name: Build Installer EXE
+        shell: pwsh
+        run: |
+          dotnet publish src/Tools/Installer/GUI/DINOForge.Installer.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -o staging/installer `
+            --verbosity minimal
+
+      # ---------------------------------------------------------------
+      # Publish SDK and Bridge.Protocol to staging/plugin
+      # These are the DLLs that go into BepInEx/plugins
+      # ---------------------------------------------------------------
+      - name: Publish SDK DLL
+        shell: pwsh
+        run: |
+          dotnet build src/SDK/DINOForge.SDK.csproj `
+            -c Release `
+            --no-restore `
+            -p:OutputPath="$((Get-Location).Path)/staging/plugin" `
+            -p:AppendTargetFrameworkToOutputPath=false `
+            -p:AppendRuntimeIdentifierToOutputPath=false `
+            --verbosity minimal
+
+      - name: Publish Bridge.Protocol DLL
+        shell: pwsh
+        run: |
+          dotnet build src/Bridge/Protocol/DINOForge.Bridge.Protocol.csproj `
+            -c Release `
+            --no-restore `
+            -p:OutputPath="$((Get-Location).Path)/staging/plugin" `
+            -p:AppendTargetFrameworkToOutputPath=false `
+            -p:AppendRuntimeIdentifierToOutputPath=false `
+            --verbosity minimal
+
+      # ---------------------------------------------------------------
+      # Note: DINOForge.Runtime.dll requires the DINO game assemblies
+      # (BepInEx, Unity.Entities, DNO.Main, etc.) which are not present
+      # in CI. The Runtime DLL must be built locally against a game install.
+      # We include a README_RUNTIME.txt in the release explaining this.
+      # ---------------------------------------------------------------
+      - name: Write runtime build notice
+        shell: pwsh
+        run: |
+          $notice = @"
+          DINOForge.Runtime.dll - Local Build Required
+          =============================================
+          DINOForge.Runtime.dll cannot be built in CI because it depends on
+          game assemblies (BepInEx, Unity.Entities, DNO.Main, Assembly-CSharp)
+          that are only available in a local DINO game installation.
+
+          To build the Runtime DLL locally:
+            1. Install Diplomacy is Not an Option via Steam
+            2. Install BepInEx 5.4.23.5 into the game directory
+            3. Update Directory.Build.props with your GameDir path
+            4. Run: dotnet build src/Runtime/DINOForge.Runtime.csproj -c Release
+            5. The DLL will be output to BepInEx/plugins/ in your game directory
+
+          All other DLLs (SDK, Bridge.Protocol) are included in this release
+          and should be placed alongside DINOForge.Runtime.dll in BepInEx/plugins/.
+          "@
+          $notice | Out-File -FilePath staging/plugin/README_RUNTIME.txt -Encoding utf8
+
+      # ---------------------------------------------------------------
+      # Assemble the full release package in staging/
+      # ---------------------------------------------------------------
+      - name: Assemble release staging directory
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+
+          # Plugin directory is already populated - keep as-is
+          Write-Host "Plugin staging contents:"
+          Get-ChildItem staging/plugin | Format-Table Name, Length
+
+          # Copy scripts
+          New-Item -ItemType Directory -Force -Path staging/scripts | Out-Null
+          Copy-Item src/Tools/Installer/Install-DINOForge.ps1 staging/scripts/ -ErrorAction SilentlyContinue
+          Copy-Item src/Tools/Installer/install.sh staging/scripts/ -ErrorAction SilentlyContinue
+
+          # Copy packs directory
+          if (Test-Path packs) {
+            Copy-Item packs staging/packs -Recurse -Force
+          }
+
+          # Copy schemas directory
+          if (Test-Path schemas) {
+            Copy-Item schemas staging/schemas -Recurse -Force
+          }
+
+          # Copy root docs
+          Copy-Item README.md staging/ -ErrorAction SilentlyContinue
+          Copy-Item CHANGELOG.md staging/ -ErrorAction SilentlyContinue
+          Copy-Item LICENSE staging/ -ErrorAction SilentlyContinue
+
+          Write-Host "Staging directory structure:"
+          Get-ChildItem staging -Recurse | Select-Object FullName | Format-Table -AutoSize
+
+      # ---------------------------------------------------------------
+      # Create ZIP archive
+      # ---------------------------------------------------------------
+      - name: Create release ZIP
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          $zipName = "DINOForge-v$version-windows.zip"
+
+          Compress-Archive -Path staging/* -DestinationPath $zipName -Force
+          Write-Host "Created archive: $zipName"
+          $size = (Get-Item $zipName).Length / 1MB
+          Write-Host ("Archive size: {0:F2} MB" -f $size)
+
+          # Save zip name as output via env file
+          "ZIP_NAME=$zipName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      # ---------------------------------------------------------------
+      # Extract CHANGELOG section for the release body
+      # ---------------------------------------------------------------
+      - name: Extract changelog section
+        id: changelog
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          $changelogPath = "CHANGELOG.md"
+          $body = ""
+
+          if (Test-Path $changelogPath) {
+            $lines = Get-Content $changelogPath
+            $inSection = $false
+            $sectionLines = [System.Collections.Generic.List[string]]::new()
+
+            foreach ($line in $lines) {
+              # Match heading like ## [0.5.0] or ## [0.5.0] - 2026-03-11
+              # Also match ## [Unreleased] when version matches a dev/pre-release tag
+              if ($line -match "^## \[$([regex]::Escape($version))\]") {
+                $inSection = $true
+                continue
+              }
+              if ($inSection -and $line -match "^## \[") {
+                break
+              }
+              if ($inSection) {
+                $sectionLines.Add($line)
+              }
+            }
+
+            if ($sectionLines.Count -eq 0) {
+              # Fallback: use the [Unreleased] section
+              $inSection = $false
+              $sectionLines = [System.Collections.Generic.List[string]]::new()
+              foreach ($line in $lines) {
+                if ($line -match "^## \[Unreleased\]") {
+                  $inSection = $true
+                  continue
+                }
+                if ($inSection -and $line -match "^## \[") {
+                  break
+                }
+                if ($inSection) {
+                  $sectionLines.Add($line)
+                }
+              }
+              if ($sectionLines.Count -gt 0) {
+                $sectionLines.Insert(0, "_Release notes from [Unreleased] section — version heading not yet updated in CHANGELOG._")
+                $sectionLines.Insert(1, "")
+              }
+            }
+
+            $body = ($sectionLines | Where-Object { $_ -ne $null }) -join "`n"
+          }
+
+          if ([string]::IsNullOrWhiteSpace($body)) {
+            $body = "See [CHANGELOG.md](CHANGELOG.md) for full details."
+          }
+
+          # Write to a temp file to avoid multiline env var issues
+          $body | Out-File -FilePath release-notes.md -Encoding utf8
+          Write-Host "Release notes extracted ($($body.Length) chars)"
+
+      # ---------------------------------------------------------------
+      # Publish GitHub Release
+      # ---------------------------------------------------------------
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: DINOForge ${{ github.ref_name }}
+          body_path: release-notes.md
+          prerelease: ${{ steps.version.outputs.IS_PRERELEASE }}
+          draft: false
+          files: |
+            ${{ env.ZIP_NAME }}
+            staging/nuget/*.nupkg
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

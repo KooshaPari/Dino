@@ -26,6 +26,7 @@ export default withMermaid(
 
       nav: [
         { text: 'Guide', link: '/guide/getting-started' },
+        { text: 'Packs', link: '/packs' },
         { text: 'Concepts', link: '/concepts/architecture' },
         { text: 'Warfare', link: '/warfare/overview' },
         { text: 'Reference', link: '/reference/schemas' },
@@ -39,6 +40,7 @@ export default withMermaid(
             { text: 'What is DINOForge?', link: '/' },
             { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'Quick Start', link: '/guide/quick-start' },
+            { text: 'Pack Registry', link: '/packs' },
           ],
         },
         {

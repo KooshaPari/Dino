@@ -290,6 +290,22 @@ namespace DINOForge.Runtime
                 _log.LogError($"[ModPlatform] Stat override application failed: {ex.Message}");
             }
 
+            // Apply YAML stat overrides
+            try
+            {
+                if (_contentLoader.LoadedOverrides.Count > 0)
+                {
+                    int statOverrideCount = OverrideApplicator.ApplyStatOverrides(
+                        _contentLoader.LoadedOverrides,
+                        msg => _log.LogInfo(msg));
+                    _log.LogInfo($"[ModPlatform] {statOverrideCount} YAML stat override(s) enqueued.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] YAML stat override application failed: {ex.Message}");
+            }
+
             // Update UI
             UpdateUI(result);
 
@@ -360,6 +376,11 @@ namespace DINOForge.Runtime
                         msg => _log.LogInfo(msg));
                     _log.LogInfo($"[ModPlatform] Re-applied {overrideCount} stat override(s) after hot reload.");
 
+                    if (_contentLoader != null && _contentLoader.LoadedOverrides.Count > 0)
+                    {
+                        OverrideApplicator.ApplyStatOverrides(_contentLoader.LoadedOverrides, msg => _log.LogInfo(msg));
+                    }
+
                     // Tell StatModifierSystem to re-process
                     StatModifierSystem.Reapply();
                 }
@@ -412,13 +433,6 @@ namespace DINOForge.Runtime
                                 }
                             }
 
-                            // Get errors specific to this pack
-                            IReadOnlyList<string> packErrors = new List<string>().AsReadOnly();
-                            if (result.ErrorsByPack.TryGetValue(manifest.Id, out var errors))
-                            {
-                                packErrors = errors;
-                            }
-
                             packInfos.Add(new PackDisplayInfo(
                                 id: manifest.Id,
                                 name: manifest.Name,
@@ -430,7 +444,7 @@ namespace DINOForge.Runtime
                                 isEnabled: isLoaded,
                                 dependencies: manifest.DependsOn.AsReadOnly(),
                                 conflicts: manifest.ConflictsWith.AsReadOnly(),
-                                errors: packErrors));
+                                errors: new List<string>().AsReadOnly()));
                         }
                         catch (Exception ex)
                         {
@@ -467,6 +481,7 @@ namespace DINOForge.Runtime
             if (_modMenuOverlay != null)
             {
                 _modMenuOverlay.OnReloadRequested = OnReloadRequested;
+                _modMenuOverlay.OnPackToggled = OnPackToggled;
             }
         }
 
@@ -495,6 +510,18 @@ namespace DINOForge.Runtime
             {
                 _log.LogError($"[ModPlatform] Reload failed: {ex.Message}");
                 _modMenuOverlay?.SetStatus($"Reload failed: {ex.Message}", 1);
+            }
+        }
+
+        /// <summary>
+        /// Handles pack toggle events from the UI overlay.
+        /// </summary>
+        private void OnPackToggled(string packId, bool enabled)
+        {
+            _log.LogInfo($"[ModPlatform] Pack '{packId}' toggled: enabled={enabled}");
+            if (!enabled)
+            {
+                _log.LogInfo("[ModPlatform] Runtime pack disable is not yet supported. Changes will apply on next reload.");
             }
         }
 
