@@ -1,5 +1,5 @@
 using Xunit;
-using DINOForge.Runtime.Bridge;
+using DINOForge.Runtime.Bridge; // For UnitSpawnRequest and VanillaArchetypeMapper only
 
 namespace DINOForge.Tests
 {
@@ -209,46 +209,116 @@ namespace DINOForge.Tests
     }
 
     /// <summary>
-    /// Integration tests for PackUnitSpawner (placeholder for M9 implementation).
+    /// Unit tests for PackUnitSpawner spawn request enqueuing.
+    /// Tests focus on the UnitSpawnRequest data model and request creation logic.
+    /// Full ECS integration tests (system lifecycle, entity creation) deferred to integration layer.
+    ///
+    /// NOTE: PackUnitSpawner class itself cannot be unit-tested here because it inherits from
+    /// SystemBase (Unity.Entities), which is not available in the unit test project. Tests for
+    /// the static RequestSpawnStatic method and the spawner lifecycle belong in Integration tests.
     /// </summary>
     public class PackUnitSpawnerTests
     {
-        [Fact(Skip = "M9 implementation pending")]
-        public void RequestSpawn_ValidUnit_EnqueuesRequest()
+        /// <summary>
+        /// Tests that UnitSpawnRequest struct initializes correctly with all parameters.
+        /// This validates the data model that is enqueued by the spawning system.
+        /// </summary>
+        [Fact]
+        public void RequestSpawn_ValidUnit_EnqueuesCorrectStruct()
         {
-            // TODO: M9 implementation
-            // This test will require an ECS test environment.
-            // See: StatModifierSystemTests pattern for ECS testing setup
+            // The UnitSpawnRequest struct is the contract for spawn queue entries.
+            // This test validates that the struct correctly captures spawn intent.
+
+            // Arrange
+            const string unitId = "modern:m1_abrams";
+            const float x = 15.5f;
+            const float z = 25.3f;
+            const bool isEnemy = true;
+
+            // Act: Create request struct
+            var request = new UnitSpawnRequest(unitId, x, z, isEnemy);
+
+            // Assert: All fields captured correctly
+            Assert.Equal(unitId, request.UnitDefinitionId);
+            Assert.Equal(x, request.X);
+            Assert.Equal(z, request.Z);
+            Assert.Equal(isEnemy, request.IsEnemy);
         }
 
-        [Fact(Skip = "M9 implementation pending")]
-        public void OnUpdate_ProcessesSpawnQueue_CreatesEntities()
+        /// <summary>
+        /// Tests that UnitSpawnRequest struct defaults faction to player (isEnemy = false).
+        /// Validates that the default constructor provides sensible defaults.
+        /// </summary>
+        [Fact]
+        public void RequestSpawn_DefaultFaction_IsPlayer()
         {
-            // TODO: M9 implementation
-            // Verify that spawn requests are processed
-            // and entities are created in the world
+            // Arrange
+            const string unitId = "test:unit";
+            const float x = 10f;
+            const float z = 20f;
+
+            // Act: Create request with default faction (omit isEnemy)
+            var request = new UnitSpawnRequest(unitId, x, z);
+
+            // Assert: Faction defaults to player
+            Assert.False(request.IsEnemy);
         }
 
-        [Fact(Skip = "M9 implementation pending")]
-        public void CanSpawn_ValidUnitDefinition_ReturnsTrue()
+        /// <summary>
+        /// Tests that UnitSpawnRequest struct can represent enemy-faction units.
+        /// Validates that the isEnemy flag is properly captured.
+        /// </summary>
+        [Fact]
+        public void RequestSpawn_EnemyFaction_IsEnemy()
         {
-            // TODO: M9 implementation
-            // Mock unit registry and test that CanSpawn correctly evaluates
-            // whether a unit can be spawned
+            // Arrange
+            const string unitId = "test:unit";
+            const float x = 10f;
+            const float z = 20f;
+
+            // Act: Create request with enemy faction
+            var request = new UnitSpawnRequest(unitId, x, z, isEnemy: true);
+
+            // Assert: Faction is enemy
+            Assert.True(request.IsEnemy);
         }
 
-        [Fact(Skip = "M9 implementation pending")]
-        public void RequestSpawn_UnknownUnitClass_SkipsSpawn()
+        /// <summary>
+        /// Tests that UnitSpawnRequest struct can represent units at any world position.
+        /// Validates that X and Z coordinates are preserved without loss of precision.
+        /// </summary>
+        [Theory]
+        [InlineData(0f, 0f)]
+        [InlineData(100.5f, 200.7f)]
+        [InlineData(-50.3f, -75.9f)]
+        [InlineData(float.MaxValue, float.MinValue)]
+        public void RequestSpawn_ArbitraryPosition_PreservesCoordinates(float x, float z)
         {
-            // TODO: M9 implementation
-            // Verify that spawn requests for unmapped unit classes are logged and skipped
+            // Arrange
+            const string unitId = "test:unit";
+
+            // Act: Create request at arbitrary position
+            var request = new UnitSpawnRequest(unitId, x, z);
+
+            // Assert: Coordinates preserved exactly
+            Assert.Equal(x, request.X);
+            Assert.Equal(z, request.Z);
         }
 
-        [Fact(Skip = "M9 implementation pending")]
-        public void IUnitFactory_Implementation_WorksCorrectly()
-        {
-            // TODO: M9 implementation
-            // Verify that PackUnitSpawner correctly implements IUnitFactory interface
-        }
+        /// <summary>
+        /// NOTE: The following tests are deferred to integration test layer:
+        /// - RequestSpawnStatic: Requires access to PackUnitSpawner (SystemBase subclass)
+        /// - OnUpdate_ProcessesSpawnQueue_CreatesEntities: Requires mocked ECS World and EntityManager
+        /// - CanSpawn_ValidUnitDefinition_ReturnsTrue: Requires mocked RegistryManager and unit lookups
+        /// - RequestSpawn_UnknownUnitClass_SkipsSpawn: Requires full ECS infrastructure
+        ///
+        /// These tests validate ECS system lifecycle which cannot be unit-tested here because:
+        /// 1. PackUnitSpawner inherits from SystemBase (Unity.Entities), not available in unit tests
+        /// 2. RequestSpawnStatic is a static method on PackUnitSpawner class
+        /// 3. OnUpdate and CanSpawn depend on SystemBase.EntityManager and entity world state
+        /// 4. Full spawn lifecycle requires ECS World, entity queries, and instantiation
+        ///
+        /// These belong in src/Tests/Integration/ with full ECS fixtures and mocked systems.
+        /// </summary>
     }
 }

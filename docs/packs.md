@@ -23,6 +23,11 @@ import { data as registry } from './.vitepress/registry.data.ts'
 
 {{ pack.description }}
 
+<div v-if="pack.requires_spawner" style="background:var(--vp-c-warning-soft); border-left:4px solid var(--vp-c-warning); padding:0.75rem; margin:0.5rem 0; border-radius:4px;">
+<strong style="color:var(--vp-c-warning);">⚠️ Requires DINOForge M9+</strong><br/>
+This pack requires the M9 unit spawner system for full functionality. Stat overrides apply immediately; custom units require the spawner system.
+</div>
+
 <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin:0.5rem 0;">
 <span v-for="tag in pack.tags" :key="tag" style="background:var(--vp-c-brand-soft); color:var(--vp-c-brand-1); border-radius:4px; padding:0.1rem 0.5rem; font-size:0.8em;">{{ tag }}</span>
 </div>
@@ -45,6 +50,11 @@ import { data as registry } from './.vitepress/registry.data.ts'
 **Author:** {{ pack.author }} &nbsp;·&nbsp; **Version:** `{{ pack.version }}` &nbsp;·&nbsp; **Type:** `{{ pack.type }}`
 
 {{ pack.description }}
+
+<div v-if="pack.requires_spawner" style="background:var(--vp-c-warning-soft); border-left:4px solid var(--vp-c-warning); padding:0.75rem; margin:0.5rem 0; border-radius:4px;">
+<strong style="color:var(--vp-c-warning);">⚠️ Requires DINOForge M9+</strong><br/>
+This pack requires the M9 unit spawner system for full functionality. Stat overrides apply immediately; custom units require the spawner system.
+</div>
 
 <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin:0.5rem 0;">
 <span v-for="tag in pack.tags" :key="tag" style="background:var(--vp-c-brand-soft); color:var(--vp-c-brand-1); border-radius:4px; padding:0.1rem 0.5rem; font-size:0.8em;">{{ tag }}</span>

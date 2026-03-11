@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+#### M9: Unit Spawning & Wave Injection System
+- M9: **PackUnitSpawner** - clone-and-override ECS system for spawning pack-defined units with full ECS archetype support
+- M9: **FactionSystem** - runtime faction registry and entity tagging via Enemy component marker
+- M9: **WaveInjector** - translates pack wave definitions to timed unit spawn sequences with stagger support
+- M9: **IUnitFactory**, **IFactionSystem**, **IWaveInjector** SDK interfaces for mod extensibility
+- M9: Version compatibility matrix (compat.json, CompatibilityChecker) for pack dependency resolution
+- Pack registry metadata field: `requires_spawner` flag for UI compatibility warnings
+- ModPlatform system registration for all M9 systems with error isolation
+
+### Changed
+
+- Pack registry schema now includes optional `requires_spawner` boolean field
+- Updated warfare pack entries (modern, starwars, guerrilla) to flag M9 dependency
+- Documentation updated to clarify M9+ requirements for total conversion packs
+
 ## [0.5.0] - 2026-03-11
 
 ### Added

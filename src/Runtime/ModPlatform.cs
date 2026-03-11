@@ -197,6 +197,31 @@ namespace DINOForge.Runtime
                 _log.LogError($"[ModPlatform] Failed to register PackUnitSpawner: {ex.Message}");
             }
 
+            // Register the WaveInjector
+            try
+            {
+                world.GetOrCreateSystem<WaveInjector>();
+                WaveInjector.SetRegistryManager(_registryManager!);
+                _log.LogInfo("[ModPlatform] WaveInjector registered.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[ModPlatform] WaveInjector failed: {ex.Message}");
+            }
+
+            // Register the FactionSystem
+            try
+            {
+                world.GetOrCreateSystem<FactionSystem>();
+                if (_registryManager != null)
+                    FactionSystem.InitializeFactions(_registryManager.Factions);
+                _log.LogInfo("[ModPlatform] FactionSystem initialized.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[ModPlatform] FactionSystem failed: {ex.Message}");
+            }
+
             // Build the vanilla entity catalog
             try
             {

@@ -1,7 +1,7 @@
 {
   "$schema": "https://kooshapari.github.io/Dino/registry-schema.json",
   "version": "1",
-  "updated": "2026-03-11",
+  "updated": "2026-03-11T14:30:00Z",
   "packs": [
     {
       "id": "example-balance",
@@ -30,6 +30,7 @@
       "download_url": "https://github.com/KooshaPari/Dino/releases/latest/download/DINOForge-latest-windows.zip",
       "pack_path": "packs/warfare-modern",
       "framework_version": ">=0.3.0",
+      "requires_spawner": true,
       "conflicts_with": ["warfare-starwars"],
       "verified": true,
       "featured": true
@@ -46,6 +47,7 @@
       "download_url": "https://github.com/KooshaPari/Dino/releases/latest/download/DINOForge-latest-windows.zip",
       "pack_path": "packs/warfare-starwars",
       "framework_version": ">=0.3.0",
+      "requires_spawner": true,
       "conflicts_with": ["warfare-modern"],
       "verified": true,
       "featured": true
@@ -62,6 +64,7 @@
       "download_url": "https://github.com/KooshaPari/Dino/releases/latest/download/DINOForge-latest-windows.zip",
       "pack_path": "packs/warfare-guerrilla",
       "framework_version": ">=0.3.0",
+      "requires_spawner": true,
       "verified": true,
       "featured": false
     },
