@@ -1,7 +1,9 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using DINOForge.SDK.Assets;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -9,66 +11,34 @@ using UnityEngine;
 namespace DINOForge.Runtime.Bridge
 {
     /// <summary>
-    /// Describes a pending asset swap: which entities to target and what to replace.
-    /// </summary>
-    public sealed class AssetSwapRequest
-    {
-        /// <summary>
-        /// ECS component type name used to query target entities
-        /// (e.g. "Components.MeleeUnit" to swap all melee unit visuals).
-        /// </summary>
-        public string TargetComponentType { get; }
-
-        /// <summary>
-        /// Path to the AssetBundle containing replacement assets.
-        /// Relative to the mod pack's assets directory.
-        /// </summary>
-        public string AssetBundlePath { get; }
-
-        /// <summary>
-        /// Asset name within the bundle for the replacement mesh. Null to keep original.
-        /// </summary>
-        public string? MeshAssetName { get; set; }
-
-        /// <summary>
-        /// Asset name within the bundle for the replacement material. Null to keep original.
-        /// </summary>
-        public string? MaterialAssetName { get; set; }
-
-        /// <summary>
-        /// Optional filter: only swap if entity also has this component.
-        /// Null means swap all matching entities.
-        /// </summary>
-        public string? FilterComponentType { get; set; }
-
-        public AssetSwapRequest(string targetComponentType, string assetBundlePath)
-        {
-            TargetComponentType = targetComponentType ??
-                throw new ArgumentNullException(nameof(targetComponentType));
-            AssetBundlePath = assetBundlePath ??
-                throw new ArgumentNullException(nameof(assetBundlePath));
-        }
-    }
-
-    /// <summary>
-    /// ECS System that swaps visual assets (meshes, materials, textures) on entities
-    /// based on loaded mod packs. This is the core of total conversion mods.
+    /// ECS System that applies pending asset swaps registered via <see cref="AssetSwapRegistry"/>.
     ///
-    /// Runs in PresentationSystemGroup to modify render data after game logic
-    /// but before the frame is rendered.
+    /// Lifecycle:
+    ///   1. Mod pack loaders call <see cref="AssetSwapRegistry.Register"/> (SDK layer, any thread).
+    ///   2. This system waits <see cref="MinFrameDelay"/> frames for the game world to fully load.
+    ///   3. On each update cycle after the delay, pending swaps are drained from
+    ///      <see cref="AssetSwapRegistry"/>, patched bundles are written to
+    ///      <c>BepInEx/dinoforge_patched_bundles/</c> via <see cref="AssetService.ReplaceAsset"/>,
+    ///      and <see cref="AssetSwapRegistry.MarkApplied"/> is called on success.
+    ///   4. The system also applies RenderMesh visual swaps for ECS entities matching
+    ///      the source asset address - bridging the bundle write path to live entities.
+    ///
+    /// Thread safety:
+    ///   - <see cref="AssetSwapRegistry"/> is thread-safe; this system only reads from the
+    ///     main Unity thread (ECS SystemBase guarantee).
     ///
     /// Architecture notes:
-    ///   - DINO uses Unity's Hybrid Renderer V2 (or similar) for ECS rendering
-    ///   - Visual data is stored in RenderMesh shared components
-    ///   - Asset replacement works by loading a mod AssetBundle and swapping
-    ///     the Mesh/Material references on matched entities
-    ///   - This system processes a queue of AssetSwapRequests and applies them once
+    ///   - DINO uses Unity's Hybrid Renderer V2 (or similar) for ECS rendering.
+    ///   - Visual data is stored in RenderMesh shared components.
+    ///   - Asset replacement works by (a) patching the vanilla bundle file with the mod's bytes
+    ///     and (b) swapping Mesh/Material references on matched entities so the live game sees
+    ///     the new assets without a scene reload.
     ///
     /// Manual testing:
-    ///   1. Build a test AssetBundle with a replacement mesh/material
-    ///   2. Queue a swap via AssetSwapSystem.Enqueue()
-    ///   3. Load game and verify visual change on target entities
-    ///   4. Check BepInEx/dinoforge_debug.log for swap results
+    ///   1. Build a test AssetBundle with a replacement mesh/material.
+    ///   2. Register a swap via <see cref="AssetSwapRegistry.Register"/>.
+    ///   3. Load game and verify visual change on target entities.
+    ///   4. Check <c>BepInEx/dinoforge_debug.log</c> for swap results.
     ///
     /// Entity dump analysis confirms DINO uses Unity.Rendering.RenderMesh shared
     /// components (Hybrid Renderer V1 style). Static environment archetypes show
@@ -78,44 +48,33 @@ namespace DINOForge.Runtime.Bridge
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public class AssetSwapSystem : SystemBase
     {
-        private static readonly Queue<AssetSwapRequest> _pendingSwaps =
-            new Queue<AssetSwapRequest>();
-
         /// <summary>
-        /// Cache of loaded AssetBundles keyed by file path.
+        /// Cache of loaded AssetBundles keyed by file path (used for RenderMesh visual swap).
         /// </summary>
         private readonly Dictionary<string, AssetBundle> _loadedBundles =
             new Dictionary<string, AssetBundle>(StringComparer.OrdinalIgnoreCase);
 
-        private bool _applied;
         private int _frameCount;
 
         /// <summary>
         /// Minimum frames to wait before applying swaps.
         /// Must wait for entities to be fully initialized with render data.
         /// </summary>
-        private const int MinFrameDelay = 600; // ~10 seconds at 60fps
+        private const int MinFrameDelay = 600; // ~10 seconds at 60 fps
 
         /// <summary>
-        /// Queue an asset swap request for processing.
-        /// Thread-safe: can be called from pack loaders on any thread.
+        /// Subdirectory under BepInEx root where patched bundles are written.
         /// </summary>
-        public static void Enqueue(AssetSwapRequest request)
-        {
-            if (request == null) throw new ArgumentNullException(nameof(request));
+        private const string PatchedBundlesDir = "dinoforge_patched_bundles";
 
-            lock (_pendingSwaps)
-            {
-                _pendingSwaps.Enqueue(request);
-            }
-        }
-
+        /// <inheritdoc/>
         protected override void OnCreate()
         {
             base.OnCreate();
             WriteDebug("AssetSwapSystem.OnCreate");
         }
 
+        /// <inheritdoc/>
         protected override void OnUpdate()
         {
             _frameCount++;
@@ -123,159 +82,154 @@ namespace DINOForge.Runtime.Bridge
             if (_frameCount < MinFrameDelay)
                 return;
 
-            List<AssetSwapRequest> batch;
-            lock (_pendingSwaps)
-            {
-                if (_pendingSwaps.Count == 0)
-                {
-                    if (_applied)
-                    {
-                        Enabled = false;
-                    }
-                    return;
-                }
+            IReadOnlyList<AssetSwapRequest> pending = AssetSwapRegistry.GetPending();
+            if (pending.Count == 0)
+                return;
 
-                batch = new List<AssetSwapRequest>();
-                while (_pendingSwaps.Count > 0)
-                {
-                    batch.Add(_pendingSwaps.Dequeue());
-                }
-            }
+            WriteDebug($"AssetSwapSystem: processing {pending.Count} pending swap(s)");
 
-            WriteDebug($"AssetSwapSystem processing {batch.Count} swap requests");
+            string patchDir = Path.Combine(BepInEx.Paths.BepInExRootPath, PatchedBundlesDir);
+            AssetService assetService = new AssetService(BepInEx.Paths.GameRootPath);
 
-            int successCount = 0;
-            int failCount = 0;
+            int succeeded = 0;
+            int failed = 0;
 
-            foreach (AssetSwapRequest request in batch)
+            foreach (AssetSwapRequest request in pending)
             {
                 try
                 {
-                    bool result = ProcessSwap(request);
+                    bool result = ApplySwap(request, patchDir, assetService);
                     if (result)
-                        successCount++;
+                    {
+                        AssetSwapRegistry.MarkApplied(request.AssetAddress);
+                        succeeded++;
+                        WriteDebug($"AssetSwapSystem: swap applied — address='{request.AssetAddress}' " +
+                                   $"asset='{request.AssetName}'");
+                    }
                     else
-                        failCount++;
+                    {
+                        failed++;
+                        WriteDebug($"AssetSwapSystem: swap failed — address='{request.AssetAddress}'");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    WriteDebug($"AssetSwapSystem: Swap failed for {request.TargetComponentType}: {ex.Message}");
-                    failCount++;
+                    failed++;
+                    WriteDebug($"AssetSwapSystem: swap exception for '{request.AssetAddress}': {ex.Message}");
                 }
             }
 
-            WriteDebug($"AssetSwapSystem: {successCount} succeeded, {failCount} failed");
-            _applied = true;
+            assetService.Dispose();
+            WriteDebug($"AssetSwapSystem: batch complete — {succeeded} succeeded, {failed} failed");
         }
 
-        private bool ProcessSwap(AssetSwapRequest request)
+        /// <summary>
+        /// Applies a single asset swap: patches the vanilla bundle on disk and,
+        /// if the mod bundle contains a Unity Mesh or Material, attempts a live
+        /// RenderMesh swap on matched ECS entities.
+        /// </summary>
+        private bool ApplySwap(AssetSwapRequest request, string patchDir, AssetService assetService)
         {
-            // Resolve the target component type
-            ComponentType? targetCt = Bridge.EntityQueries.ResolveComponentType(request.TargetComponentType);
-            if (targetCt == null)
+            // Resolve the mod bundle path (relative paths against BepInEx plugins dir).
+            string modBundleFullPath = ResolveModBundlePath(request.ModBundlePath);
+            if (!File.Exists(modBundleFullPath))
             {
-                WriteDebug($"Cannot resolve target component: {request.TargetComponentType}");
+                WriteDebug($"ApplySwap: mod bundle not found: {modBundleFullPath}");
                 return false;
             }
 
-            // Build query for target entities
-            EntityQueryDesc queryDesc;
-            if (request.FilterComponentType != null)
+            // Extract the replacement asset raw bytes from the mod bundle.
+            byte[]? modAssetBytes = assetService.ExtractAsset(modBundleFullPath, request.AssetName);
+            if (modAssetBytes == null || modAssetBytes.Length == 0)
             {
-                ComponentType? filterCt = Bridge.EntityQueries.ResolveComponentType(request.FilterComponentType);
-                if (filterCt == null)
-                {
-                    WriteDebug($"Cannot resolve filter component: {request.FilterComponentType}");
-                    return false;
-                }
-                queryDesc = new EntityQueryDesc
-                {
-                    All = new[] { targetCt.Value, filterCt.Value }
-                };
+                WriteDebug(
+                    $"ApplySwap: could not extract '{request.AssetName}' from '{modBundleFullPath}'");
+                return false;
+            }
+
+            // Find which vanilla bundle contains the addressed asset via Addressables catalog.
+            IReadOnlyDictionary<string, string> catalog = assetService.ReadCatalog();
+            if (!catalog.TryGetValue(request.AssetAddress, out string? vanillaBundleRelPath)
+                || string.IsNullOrEmpty(vanillaBundleRelPath))
+            {
+                WriteDebug($"ApplySwap: address '{request.AssetAddress}' not found in catalog");
+                return false;
+            }
+
+            string vanillaBundlePath = AddressablesCatalog.ResolveBundlePath(
+                vanillaBundleRelPath, BepInEx.Paths.GameRootPath);
+
+            if (!File.Exists(vanillaBundlePath))
+            {
+                WriteDebug($"ApplySwap: vanilla bundle not found: {vanillaBundlePath}");
+                return false;
+            }
+
+            // Build output path in the patched bundles directory.
+            string patchedFileName = Path.GetFileName(vanillaBundlePath);
+            string outputPath = Path.Combine(patchDir, patchedFileName);
+
+            bool patchResult = assetService.ReplaceAsset(
+                vanillaBundlePath,
+                request.AssetAddress,
+                modAssetBytes,
+                outputPath);
+
+            if (!patchResult)
+            {
+                WriteDebug($"ApplySwap: bundle patch failed for '{request.AssetAddress}' — " +
+                           "attempting in-memory entity swap only");
             }
             else
             {
-                queryDesc = new EntityQueryDesc
-                {
-                    All = new[] { targetCt.Value }
-                };
+                WriteDebug($"ApplySwap: patched bundle written to '{outputPath}'");
             }
 
-            EntityQuery query = EntityManager.CreateEntityQuery(queryDesc);
-            NativeArray<Entity> entities = query.ToEntityArray(Allocator.Temp);
+            // Best-effort live RenderMesh swap on ECS entities.
+            bool entitySwapResult = TrySwapRenderMeshFromBundle(modBundleFullPath, request.AssetName);
+            WriteDebug($"ApplySwap: entity swap result={entitySwapResult} for '{request.AssetAddress}'");
 
-            if (entities.Length == 0)
+            return patchResult || entitySwapResult;
+        }
+
+        /// <summary>
+        /// Attempts to load a Mesh or Material from the mod bundle and apply it to all ECS
+        /// entities carrying a RenderMesh shared component.
+        /// </summary>
+        private bool TrySwapRenderMeshFromBundle(string modBundlePath, string assetName)
+        {
+            AssetBundle? bundle = LoadBundle(modBundlePath);
+            if (bundle == null) return false;
+
+            Mesh? replacementMesh    = bundle.LoadAsset<Mesh>(assetName);
+            Material? replacementMat = bundle.LoadAsset<Material>(assetName);
+
+            if (replacementMesh == null && replacementMat == null)
             {
-                WriteDebug($"No entities matched for swap target: {request.TargetComponentType}");
-                entities.Dispose();
-                query.Dispose();
+                WriteDebug(
+                    $"TrySwapRenderMeshFromBundle: no Mesh/Material named '{assetName}' in bundle");
                 return false;
             }
 
-            WriteDebug($"Found {entities.Length} entities for asset swap");
-
-            // Load the AssetBundle
-            AssetBundle? bundle = LoadBundle(request.AssetBundlePath);
-            if (bundle == null)
-            {
-                WriteDebug($"Failed to load AssetBundle: {request.AssetBundlePath}");
-                entities.Dispose();
-                query.Dispose();
-                return false;
-            }
-
-            // Load replacement assets from bundle
-            Mesh? replacementMesh = null;
-            Material? replacementMaterial = null;
-
-            if (request.MeshAssetName != null)
-            {
-                replacementMesh = bundle.LoadAsset<Mesh>(request.MeshAssetName);
-                if (replacementMesh == null)
-                {
-                    WriteDebug($"Mesh asset not found in bundle: {request.MeshAssetName}");
-                }
-            }
-
-            if (request.MaterialAssetName != null)
-            {
-                replacementMaterial = bundle.LoadAsset<Material>(request.MaterialAssetName);
-                if (replacementMaterial == null)
-                {
-                    WriteDebug($"Material asset not found in bundle: {request.MaterialAssetName}");
-                }
-            }
-
-            if (replacementMesh == null && replacementMaterial == null)
-            {
-                WriteDebug("No replacement assets loaded — nothing to swap");
-                entities.Dispose();
-                query.Dispose();
-                return false;
-            }
-
-            // Apply RenderMesh swap via reflection.
-            // Entity dumps confirm DINO uses Unity.Rendering.RenderMesh (Hybrid Renderer V1).
-            // RenderMesh is a shared component with fields: mesh, material, subMesh, layer.
-            // We use reflection since Unity.Rendering may not be directly referenced.
             Type? renderMeshType = ResolveRenderMeshType();
             if (renderMeshType == null)
             {
-                WriteDebug("Cannot resolve Unity.Rendering.RenderMesh type — " +
-                           "visual swap skipped, entities matched but render path unavailable");
-                entities.Dispose();
-                query.Dispose();
+                WriteDebug("TrySwapRenderMeshFromBundle: Unity.Rendering.RenderMesh type not found");
                 return false;
             }
 
-            int swapCount = 0;
-            MethodInfo? getShared = typeof(EntityManager).GetMethod("GetSharedComponentData",
-                new[] { typeof(Entity) });
+            EntityQuery query = EntityManager.CreateEntityQuery(
+                new EntityQueryDesc { All = new[] { ComponentType.ReadOnly(renderMeshType) } });
+            NativeArray<Entity> entities = query.ToEntityArray(Allocator.Temp);
+
+            MethodInfo? getShared = typeof(EntityManager).GetMethod(
+                "GetSharedComponentData", new[] { typeof(Entity) });
             MethodInfo? setShared = typeof(EntityManager).GetMethod("SetSharedComponentData");
 
             if (getShared == null || setShared == null)
             {
-                WriteDebug("Cannot find GetSharedComponentData/SetSharedComponentData on EntityManager");
+                WriteDebug(
+                    "TrySwapRenderMeshFromBundle: GetSharedComponentData/SetSharedComponentData not found");
                 entities.Dispose();
                 query.Dispose();
                 return false;
@@ -284,9 +238,10 @@ namespace DINOForge.Runtime.Bridge
             MethodInfo genericGet = getShared.MakeGenericMethod(renderMeshType);
             MethodInfo genericSet = setShared.MakeGenericMethod(renderMeshType);
 
-            FieldInfo? meshField = renderMeshType.GetField("mesh");
+            FieldInfo? meshField     = renderMeshType.GetField("mesh");
             FieldInfo? materialField = renderMeshType.GetField("material");
 
+            int swapCount = 0;
             for (int i = 0; i < entities.Length; i++)
             {
                 try
@@ -303,9 +258,9 @@ namespace DINOForge.Runtime.Bridge
                         meshField.SetValue(renderMesh, replacementMesh);
                         changed = true;
                     }
-                    if (replacementMaterial != null && materialField != null)
+                    if (replacementMat != null && materialField != null)
                     {
-                        materialField.SetValue(renderMesh, replacementMaterial);
+                        materialField.SetValue(renderMesh, replacementMat);
                         changed = true;
                     }
 
@@ -317,24 +272,25 @@ namespace DINOForge.Runtime.Bridge
                 }
                 catch (Exception ex)
                 {
-                    WriteDebug($"Failed to swap entity {entities[i].Index}: {ex.Message}");
+                    WriteDebug(
+                        $"TrySwapRenderMeshFromBundle: failed on entity {entities[i].Index}: {ex.Message}");
                 }
             }
 
-            WriteDebug($"Asset swap complete: {swapCount}/{entities.Length} entities swapped " +
-                        $"(mesh={request.MeshAssetName ?? "none"}, " +
-                        $"material={request.MaterialAssetName ?? "none"})");
-
+            WriteDebug($"TrySwapRenderMeshFromBundle: swapped {swapCount}/{entities.Length} entities");
             entities.Dispose();
             query.Dispose();
+
             return swapCount > 0;
         }
+
+        // ------------------------------------------------------------------ helpers
 
         private static Type? _renderMeshType;
         private static bool _renderMeshResolved;
 
         /// <summary>
-        /// Resolve the Unity.Rendering.RenderMesh type from loaded assemblies.
+        /// Resolves the Unity.Rendering.RenderMesh type from loaded assemblies.
         /// DINO uses Hybrid Renderer V1 which provides RenderMesh as a shared component.
         /// </summary>
         private static Type? ResolveRenderMeshType()
@@ -355,21 +311,28 @@ namespace DINOForge.Runtime.Bridge
         }
 
         /// <summary>
-        /// Load an AssetBundle from disk, caching the result.
+        /// Resolves a mod bundle path. Relative paths are joined against the BepInEx plugins dir.
+        /// </summary>
+        private static string ResolveModBundlePath(string path)
+        {
+            return Path.IsPathRooted(path)
+                ? path
+                : Path.Combine(BepInEx.Paths.PluginPath, path);
+        }
+
+        /// <summary>
+        /// Loads an AssetBundle from disk, caching the result.
         /// </summary>
         private AssetBundle? LoadBundle(string path)
         {
             if (_loadedBundles.TryGetValue(path, out AssetBundle? cached))
                 return cached;
 
-            // Resolve relative paths against BepInEx plugins directory
-            string fullPath = Path.IsPathRooted(path)
-                ? path
-                : Path.Combine(BepInEx.Paths.PluginPath, path);
+            string fullPath = ResolveModBundlePath(path);
 
             if (!File.Exists(fullPath))
             {
-                WriteDebug($"AssetBundle not found: {fullPath}");
+                WriteDebug($"LoadBundle: file not found: {fullPath}");
                 return null;
             }
 
@@ -379,32 +342,29 @@ namespace DINOForge.Runtime.Bridge
                 if (bundle != null)
                 {
                     _loadedBundles[path] = bundle;
-                    WriteDebug($"Loaded AssetBundle: {fullPath}");
+                    WriteDebug($"LoadBundle: loaded '{fullPath}'");
                 }
                 return bundle;
             }
             catch (Exception ex)
             {
-                WriteDebug($"Failed to load AssetBundle {fullPath}: {ex.Message}");
+                WriteDebug($"LoadBundle: failed '{fullPath}': {ex.Message}");
                 return null;
             }
         }
 
+        /// <inheritdoc/>
         protected override void OnDestroy()
         {
-            // Unload all cached bundles
             foreach (AssetBundle bundle in _loadedBundles.Values)
             {
-                try
-                {
-                    bundle.Unload(false);
-                }
+                try { bundle.Unload(false); }
                 catch { }
             }
             _loadedBundles.Clear();
 
             base.OnDestroy();
-            WriteDebug("AssetSwapSystem.OnDestroy — bundles unloaded");
+            WriteDebug("AssetSwapSystem.OnDestroy - bundles unloaded");
         }
 
         private static void WriteDebug(string msg)
@@ -413,7 +373,7 @@ namespace DINOForge.Runtime.Bridge
             {
                 string debugLog = Path.Combine(
                     BepInEx.Paths.BepInExRootPath, "dinoforge_debug.log");
-                File.AppendAllText(debugLog, $"[{DateTime.Now}] {msg}\n");
+                File.AppendAllText(debugLog, $"[{DateTime.Now:u}] {msg}\n");
             }
             catch { }
         }
