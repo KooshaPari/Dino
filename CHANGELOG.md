@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Native DINO menu injection** — `NativeMenuInjector` MonoBehaviour scans active UGUI canvases on scene load and injects a "Mods" button adjacent to the Settings button, wired to toggle the DINOForge mod menu overlay
+- **`NativeUiHelper`** — static UGUI utility class with `FindButtonByText`, `CloneButton`, `PositionAfterSibling`, and `SetButtonText`; handles both legacy `UnityEngine.UI.Text` and TMPro via reflection
+- `RuntimeDriver` wires `NativeMenuInjector` after the other UI components; `SetLogger` + `SetModMenuOverlay` wiring points
+
 ### Fixed
 - **CI: remove `./local-packages` from nuget.config** — caused NU1301 failures on every GitHub Actions build
 - **Installer: silent crash after UAC** — added `AppDomain.UnhandledException`, task exception handler, try/catch around Avalonia startup, and native Win32 `MessageBox` crash dialog; crash log written to `%LOCALAPPDATA%\DINOForge\installer-crash.log`

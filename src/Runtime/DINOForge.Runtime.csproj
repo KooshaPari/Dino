@@ -165,6 +165,9 @@
     <Compile Remove="UI\DebugPanel.cs" />
     <Compile Remove="UI\DFCanvas.cs" />
     <Compile Remove="UI\Assets\UiAssets.cs" />
+    <Compile Remove="UI\ModMenuOverlayProxy.cs" />
+    <Compile Remove="Bridge\FactionSystem.cs" />
+    <Compile Remove="Bridge\WaveInjector.cs" />
   </ItemGroup>
 
   <!-- SDK project reference - provides pack loading, registries, schemas -->
@@ -172,6 +175,31 @@
     <ProjectReference Include="..\SDK\DINOForge.SDK.csproj" />
     <ProjectReference Include="..\Bridge\Protocol\DINOForge.Bridge.Protocol.csproj" />
   </ItemGroup>
+
+  <!--
+    Deploy Kenney CC0 UI sprites to BepInEx/plugins/dinoforge-ui-assets/ alongside the DLL.
+    UiAssets.Initialize() at runtime looks for sprites in that directory.
+    If no Kenney assets have been downloaded (src/Runtime/UI/Assets/kenney/ contains only
+    .gitkeep files) the target copies nothing and the plugin falls back to flat colours.
+  -->
+  <Target Name="DeployUiAssets" AfterTargets="Build" Condition="'$(GameInstalled)' == 'true'">
+    <ItemGroup>
+      <KenneyAssetFiles Include="$(MSBuildThisFileDirectory)UI\Assets\kenney\**\*"
+                        Exclude="$(MSBuildThisFileDirectory)UI\Assets\kenney\**\.gitkeep" />
+    </ItemGroup>
+    <MakeDir Directories="$(BepInExDir)\plugins\dinoforge-ui-assets"
+             Condition="'@(KenneyAssetFiles)' != '' And !Exists('$(BepInExDir)\plugins\dinoforge-ui-assets')" />
+    <Copy SourceFiles="@(KenneyAssetFiles)"
+          DestinationFolder="$(BepInExDir)\plugins\dinoforge-ui-assets\%(RecursiveDir)"
+          SkipUnchangedFiles="true"
+          Condition="'@(KenneyAssetFiles)' != ''" />
+    <Message Text="Deployed Kenney UI assets to $(BepInExDir)\plugins\dinoforge-ui-assets"
+             Importance="normal"
+             Condition="'@(KenneyAssetFiles)' != ''" />
+    <Message Text="[UiAssets] No Kenney assets found in UI/Assets/kenney/ — falling back to flat colours. See src/Runtime/UI/Assets/README.md for download instructions."
+             Importance="normal"
+             Condition="'@(KenneyAssetFiles)' == ''" />
+  </Target>
 
   <!-- Deploy packs from repo to game directory -->
   <Target Name="DeployPacks" AfterTargets="Build" Condition="Exists('$(BepInExDir)')">
