@@ -24,8 +24,7 @@ description: |
 type: total_conversion
 
 depends_on: []
-conflicts_with:
-  - warfare-starwars
+conflicts_with: []
 
 loads:
   factions:
