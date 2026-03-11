@@ -164,6 +164,7 @@
     <Compile Remove="UI\UiBuilder.cs" />
     <Compile Remove="UI\DebugPanel.cs" />
     <Compile Remove="UI\DFCanvas.cs" />
+    <Compile Remove="UI\Assets\UiAssets.cs" />
   </ItemGroup>
 
   <!-- SDK project reference - provides pack loading, registries, schemas -->
