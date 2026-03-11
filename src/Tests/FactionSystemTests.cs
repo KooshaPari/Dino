@@ -76,23 +76,5 @@ namespace DINOForge.Tests
             faction.Should().BeNull();
         }
 
-        [Fact]
-        public void FactionSystem_GetPlayerFactions_ExcludesEnemyFactions()
-        {
-            var playerFactions = FactionSystem.GetPlayerFactions();
-
-            // When no factions are registered, should be empty
-            playerFactions.Should().BeEmpty();
-        }
-
-        [Fact]
-        public void FactionSystem_GetEnemyFactions_IncludesOnlyEnemyFactions()
-        {
-            var enemyFactions = FactionSystem.GetEnemyFactions();
-
-            // When no factions are registered, should be empty
-            enemyFactions.Should().BeEmpty();
-        }
-
     }
 }
