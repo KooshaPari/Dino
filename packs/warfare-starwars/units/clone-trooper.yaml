@@ -1,0 +1,23 @@
+id: clone-trooper
+display_name: "Clone Trooper"
+faction_id: galactic-republic
+unit_class: CoreLineInfantry
+tier: 1
+description: "Standard Republic infantry. Disciplined, accurate, and reliable."
+stats:
+  hp: 100
+  damage: 25
+  armor: 15
+  range: 8.0
+  speed: 3.5
+  accuracy: 0.8
+  fire_rate: 1.2
+  morale: 120
+  cost:
+    manpower: 40
+    supply: 5
+defense_tags:
+  - InfantryArmor
+behavior_tags:
+  - HoldLine
+  - AdvanceFire

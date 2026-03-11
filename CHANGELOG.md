@@ -7,7 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Infrastructure & Quality
+- PRD updated to v0.5.0 reflecting current state (M9-M11 complete)
+- ROADMAP updated: M9/M10/M11 complete, M12/M13 in progress, M14/M15 scoped out
+- Current test coverage: 416+ tests (402 unit + 14 integration) with 60%+ enforcement
+- CI/QA infrastructure: MinVer versioning, NetArchTest validation, CycloneDX SBOM, Scorecard security analysis
+- Thunderstore distribution support integrated
+
 ### Added
+
+#### M12: Polyrepo + Submodule Support
+- `dinoforge pack add` — Add pack repositories as git submodules
+- `dinoforge pack list` — List installed pack submodules from .gitmodules
+- `dinoforge pack update` — Update all pack submodules to latest remote versions
+- `dinoforge pack lock` — Generate packs.lock file for reproducible builds
+- `packs.lock` file format: path + commit SHA pairs for exact pack versions
+- PackSubmoduleTests: 5 unit tests for repo name extraction, .gitmodules parsing, lock file format
+- `packs/README.md` — Guide for managing official and community packs
+
+#### M13: Total Conversion Framework
+- `TotalConversionManifest` model for total conversion pack definitions
+- `TotalConversionValidator` with completeness and consistency checks
+- `AssetReplacementEngine` for vanilla → mod asset mapping and fallback resolution
+- `total-conversion.schema.json` JSON Schema for pack validation
+- `PackCompiler validate-tc` command for manifest validation with detailed reporting
+- Example `warfare-starwars` pack (Star Wars: The Clone Wars total conversion)
+- 24+ unit and integration tests for total conversion subsystem
 
 #### Versionize & Release Automation
 - Versionize conventional-commits based version automation workflow

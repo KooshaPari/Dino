@@ -1,9 +1,9 @@
 # DINOForge - Product Requirements Document
 
-**Version**: 0.2.0
+**Version**: 0.5.0
 **Status**: Active
 **Created**: 2026-03-09
-**Updated**: 2026-03-10
+**Updated**: 2026-03-11
 **Author**: kooshapari + Agent Org
 
 ---
@@ -264,20 +264,35 @@ Where actual mods live. Mostly declarative and content-driven.
 | M5 | First Example Packs | West vs Classic Enemy, Republic vs CIS, Guerrilla, economy, scenario | Done |
 | M6 | In-Game Mod Menu & HMR | F10 mod menu overlay, hot module replacement for YAML packs | Done |
 | M7 | Installer & Universe Bible | PowerShell/Bash installer, Universe Bible system, pack generator | Done |
-| M8 | Runtime Integration | ModPlatform orchestrator wiring SDK to Bridge to UI to HMR, end-to-end pack application | In Progress |
+| M8 | Runtime Integration | ModPlatform orchestrator wiring SDK to Bridge to UI to HMR, end-to-end pack application | Done |
+| M9 | Unit Spawner + ECS Integration | PackUnitSpawner, FactionSystem, WaveInjector, VanillaArchetypeMapper | Done |
+| M10 | Pack Registry + Discovery | PackRegistryClient, registry.json, compat.json | Done |
+| M11 | YAML-only Mods | YAML arrays, stat overrides, content loader | Done |
+| M12 | Polyrepo + Submodule Support | dinoforge-packs repo, PackSubmoduleManager, packs.lock | In Progress |
+| M13 | Total Conversion Framework | TotalConversionPlugin, AssetReplacementEngine, VanillaCatalog | In Progress |
 
 ### Current Test Coverage
 
-- **342 tests passing** (328 unit + 14 integration)
-- Tests cover: pack loading, registry system, dependency resolution, schema validation, model serialization, warfare domain, economy domain, scenario domain, hot reload, installer, bridge client, content loader, asset service, mod menu, universe bible, skills/waves/squads
+- **416 tests passing** (402 unit + 14 integration)
+- Tests cover: pack loading, registry system, dependency resolution, schema validation, model serialization, warfare domain, economy domain, scenario domain, hot reload, installer, bridge client, content loader, asset service, mod menu, universe bible, skills/waves/squads, unit spawner, faction system, wave injection
 
 ### Current Project Count
 
-The solution (`src/DINOForge.sln`) contains **17 projects**:
+The solution (`src/DINOForge.sln`) contains **20+ projects**:
 - Runtime, SDK, Bridge.Protocol, Bridge.Client
 - Domains: Warfare, Economy, Scenario, UI
-- Tools: Cli, McpServer, PackCompiler, DumpTools, Installer
+- Tools: Cli, McpServer, PackCompiler, DumpTools, Installer, Templates
 - Tests, Tests.Integration
+- Infrastructure: CI configuration projects (MinVer, NetArchTest, CycloneDX, Scorecard integration)
+
+### Current Release Status
+
+**Version**: 0.5.0 (released 2026-03-11)
+- M9-M11 complete: Unit Spawner, Pack Registry, YAML-only Mods
+- Full CI/QA infrastructure: MinVer versioning, NetArchTest validation, CycloneDX SBOM, Scorecard security analysis, Thunderstore distribution support
+- 416+ tests with 60%+ code coverage enforcement
+- NuGet distribution: DINOForge.SDK published to nuget.org
+- GitHub Actions: automated versioning, release pipeline, dependency scanning
 
 ---
 

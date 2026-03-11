@@ -1,13 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Spectre.Console;
 using DINOForge.SDK;
 using DINOForge.SDK.Assets;
+using DINOForge.SDK.Models;
+using DINOForge.SDK.Validation;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace DINOForge.Tools.PackCompiler
 {
@@ -89,11 +95,56 @@ namespace DINOForge.Tools.PackCompiler
                 GenerateThunderstoreManifest(packPath, author, outputDir ?? "");
             });
 
+            // Validate total conversion command
+            var validateTcCommand = new Command("validate-tc") { Description = "Validate a total conversion pack manifest" };
+            var tcManifestArg = new Argument<string>("manifest") { Description = "Path to total-conversion YAML manifest" };
+            validateTcCommand.Arguments.Add(tcManifestArg);
+            validateTcCommand.SetAction(parseResult =>
+            {
+                string manifestPath = parseResult.GetValue(tcManifestArg)!;
+                ValidateTotalConversion(manifestPath);
+            });
+
+            // Pack subcommand - polyrepo pack management
+            var packCommand = new Command("pack") { Description = "Manage pack repositories and submodules" };
+
+            // pack add - add a pack repo as a git submodule
+            var packAddCommand = new Command("add") { Description = "Add a pack repository as a git submodule" };
+            var repoUrlArg = new Argument<string>("repo-url") { Description = "Git repository URL of the pack" };
+            var packPathOpt = new Option<string?>("--path") { Description = "Local path for the submodule (defaults to packs/<repo-name>)" };
+            packAddCommand.Arguments.Add(repoUrlArg);
+            packAddCommand.Options.Add(packPathOpt);
+            packAddCommand.SetAction(parseResult =>
+            {
+                string repoUrl = parseResult.GetValue(repoUrlArg)!;
+                string? path = parseResult.GetValue(packPathOpt);
+                PackAdd(repoUrl, path ?? "");
+            });
+
+            // pack list - list installed pack submodules
+            var packListCommand = new Command("list") { Description = "List installed pack submodules" };
+            packListCommand.SetAction(_ => PackList());
+
+            // pack update - update all pack submodules
+            var packUpdateCommand = new Command("update") { Description = "Update all pack submodules to latest" };
+            packUpdateCommand.SetAction(_ => PackUpdate());
+
+            // pack lock - generate packs.lock file
+            var packLockCommand = new Command("lock") { Description = "Generate packs.lock for reproducible builds" };
+            packLockCommand.SetAction(_ => PackLock());
+
+            packCommand.Subcommands.Add(packAddCommand);
+            packCommand.Subcommands.Add(packListCommand);
+            packCommand.Subcommands.Add(packUpdateCommand);
+            packCommand.Subcommands.Add(packLockCommand);
+
             var rootCommand = new RootCommand("DINOForge PackCompiler - Validate and bundle content packs");
             rootCommand.Subcommands.Add(validateCommand);
             rootCommand.Subcommands.Add(buildCommand);
+            rootCommand.Subcommands.Add(validateTcCommand);
             rootCommand.Subcommands.Add(thunderstoreCommand);
             rootCommand.Subcommands.Add(assetsCommand);
+            rootCommand.Subcommands.Add(packCommand);
 
             ParseResult parseResultObj = rootCommand.Parse(args);
             return await parseResultObj.InvokeAsync();
@@ -487,6 +538,215 @@ namespace DINOForge.Tools.PackCompiler
                 string destSubDir = Path.Combine(destDir, Path.GetFileName(dir));
                 CopyDirectory(dir, destSubDir);
             }
+        }
+
+        private static void ValidateTotalConversion(string manifestPath)
+        {
+            try
+            {
+                AnsiConsole.MarkupLine("[bold blue]Total Conversion Validator[/]");
+
+                if (!File.Exists(manifestPath))
+                {
+                    AnsiConsole.MarkupLine($"[red]File not found:[/] {manifestPath}");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                var deserializer = new DeserializerBuilder()
+                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                    .IgnoreUnmatchedProperties()
+                    .Build();
+
+                string yaml = File.ReadAllText(manifestPath);
+                var manifest = deserializer.Deserialize<TotalConversionManifest>(yaml);
+
+                if (manifest == null)
+                {
+                    AnsiConsole.MarkupLine("[red]Failed to parse total conversion manifest[/]");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                var result = TotalConversionValidator.Validate(manifest);
+                var unreplaced = TotalConversionValidator.GetUnreplacedFactions(manifest);
+
+                AnsiConsole.MarkupLine($"\n[bold]Pack:[/] {manifest.Name} v{manifest.Version}");
+                AnsiConsole.MarkupLine($"[bold]Author:[/] {manifest.Author}");
+                AnsiConsole.MarkupLine($"[bold]Theme:[/] {manifest.Theme ?? "[dim]<none>[/]"}");
+                AnsiConsole.MarkupLine($"[bold]Singleton:[/] {(manifest.Singleton ? "Yes" : "No")}");
+
+                AnsiConsole.MarkupLine($"\n[bold]Content:[/]");
+                AnsiConsole.MarkupLine($"  Factions: {manifest.Factions.Count}");
+                AnsiConsole.MarkupLine($"  Asset Replacements (total): {manifest.AssetReplacements.Textures.Count + manifest.AssetReplacements.Audio.Count + manifest.AssetReplacements.Ui.Count}");
+                AnsiConsole.MarkupLine($"    - Textures: {manifest.AssetReplacements.Textures.Count}");
+                AnsiConsole.MarkupLine($"    - Audio: {manifest.AssetReplacements.Audio.Count}");
+                AnsiConsole.MarkupLine($"    - UI: {manifest.AssetReplacements.Ui.Count}");
+
+                AnsiConsole.MarkupLine($"\n[bold]Vanilla Replacements:[/]");
+                foreach (var kvp in manifest.ReplacesVanilla)
+                {
+                    var faction = manifest.Factions.FirstOrDefault(f => f.Id == kvp.Value);
+                    string factionName = faction?.Name ?? "[red]<not found>[/]";
+                    AnsiConsole.MarkupLine($"  {kvp.Key} → {kvp.Value} ({factionName})");
+                }
+
+                if (result.IsValid && unreplaced.Count == 0)
+                {
+                    AnsiConsole.MarkupLine($"\n[green]✓ Total conversion '{manifest.Name}' is [bold]valid[/][/]");
+                }
+                else
+                {
+                    if (result.Errors.Count > 0)
+                    {
+                        AnsiConsole.MarkupLine("\n[red]Errors:[/]");
+                        foreach (string e in result.Errors)
+                            AnsiConsole.MarkupLine($"  [red]✗[/] {Markup.Escape(e)}");
+                    }
+
+                    if (unreplaced.Count > 0)
+                        AnsiConsole.MarkupLine($"\n[yellow]Unreplaced vanilla factions:[/] {string.Join(", ", unreplaced)}");
+
+                    if (result.Errors.Count > 0)
+                    {
+                        AnsiConsole.MarkupLine("");
+                        Environment.Exit(1);
+                    }
+                }
+
+                if (result.Warnings.Count > 0)
+                {
+                    AnsiConsole.MarkupLine("\n[yellow]Warnings:[/]");
+                    foreach (string w in result.Warnings)
+                        AnsiConsole.MarkupLine($"  [yellow]⚠[/] {Markup.Escape(w)}");
+                }
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[bold red]Error:[/] {Markup.Escape(ex.Message)}");
+                Environment.Exit(1);
+            }
+        }
+
+        private static void PackAdd(string repoUrl, string path)
+        {
+            // Extract repo name from URL
+            string repoName = repoUrl.TrimEnd('/').Split('/').Last();
+            if (repoName.EndsWith(".git")) repoName = repoName[..^4];
+
+            string submodulePath = string.IsNullOrEmpty(path) ? $"packs/{repoName}" : path;
+
+            AnsiConsole.MarkupLine($"[cyan]Adding pack submodule:[/] {repoUrl} → {submodulePath}");
+
+            int result = RunGit($"submodule add {repoUrl} {submodulePath}");
+            if (result != 0)
+            {
+                AnsiConsole.MarkupLine($"[red]Failed to add submodule. Is this a git repo?[/]");
+                Environment.Exit(1);
+            }
+
+            AnsiConsole.MarkupLine($"[green]✓ Pack added:[/] {submodulePath}");
+            AnsiConsole.MarkupLine("[dim]Run 'pack lock' to update packs.lock[/]");
+        }
+
+        private static void PackList()
+        {
+            // Read .gitmodules
+            string gitmodulesPath = ".gitmodules";
+            if (!File.Exists(gitmodulesPath))
+            {
+                AnsiConsole.MarkupLine("[yellow]No pack submodules found (.gitmodules not present)[/]");
+                return;
+            }
+
+            string content = File.ReadAllText(gitmodulesPath);
+            var lines = content.Split('\n');
+
+            var table = new Table();
+            table.AddColumn("Path");
+            table.AddColumn("URL");
+
+            string currentPath = "", currentUrl = "";
+            foreach (string line in lines)
+            {
+                string trimmed = line.Trim();
+                if (trimmed.StartsWith("path = ")) currentPath = trimmed.Substring(7);
+                else if (trimmed.StartsWith("url = "))
+                {
+                    currentUrl = trimmed.Substring(6);
+                    if (!string.IsNullOrEmpty(currentPath))
+                    {
+                        bool isPack = currentPath.StartsWith("packs/");
+                        if (isPack) table.AddRow(currentPath, currentUrl);
+                        currentPath = "";
+                        currentUrl = "";
+                    }
+                }
+            }
+
+            AnsiConsole.Write(table);
+        }
+
+        private static void PackUpdate()
+        {
+            AnsiConsole.MarkupLine("[cyan]Updating all pack submodules...[/]");
+            int result = RunGit("submodule update --remote --merge packs/");
+            if (result == 0)
+                AnsiConsole.MarkupLine("[green]✓ All packs updated[/]");
+            else
+                AnsiConsole.MarkupLine("[red]Some updates failed[/]");
+        }
+
+        private static void PackLock()
+        {
+            // Read current submodule SHAs
+            string gitmodulesPath = ".gitmodules";
+            if (!File.Exists(gitmodulesPath))
+            {
+                AnsiConsole.MarkupLine("[yellow]No submodules found[/]");
+                return;
+            }
+
+            var lockEntries = new StringBuilder();
+            lockEntries.AppendLine("# packs.lock - generated by dinoforge pack lock");
+            lockEntries.AppendLine($"# Generated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
+            lockEntries.AppendLine();
+
+            // Get submodule status
+            var psi = new ProcessStartInfo("git", "submodule status packs/")
+            {
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            };
+            using var proc = Process.Start(psi);
+            string? status = proc?.StandardOutput.ReadToEnd();
+            proc?.WaitForExit();
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                foreach (string line in status.Split('\n'))
+                {
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+                    string trimmed = line.TrimStart('+', '-', ' ');
+                    string[] parts = trimmed.Split(' ', 2);
+                    if (parts.Length >= 2)
+                        lockEntries.AppendLine($"{parts[1].Split(' ')[0]} {parts[0]}");
+                }
+            }
+
+            File.WriteAllText("packs.lock", lockEntries.ToString());
+            AnsiConsole.MarkupLine("[green]✓ packs.lock generated[/]");
+        }
+
+        private static int RunGit(string args)
+        {
+            var psi = new ProcessStartInfo("git", args)
+            {
+                UseShellExecute = false
+            };
+            using var proc = Process.Start(psi);
+            proc?.WaitForExit();
+            return proc?.ExitCode ?? 1;
         }
     }
 }

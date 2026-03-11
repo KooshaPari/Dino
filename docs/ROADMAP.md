@@ -4,9 +4,9 @@
 
 This roadmap defines the evolution of DINOForge from **v0.6.0 through v1.0.0+** using semantic versioning. Each version represents a major capability milestone, with specific work packages (modules) and success criteria.
 
-**Current Status**: v0.5.0 (GUI installer, NuGet distribution, stat modifiers, domain plugins, HMR)
+**Current Status**: v0.5.0 (Unit Spawner, Pack Registry, YAML-only Mods, Full CI/QA)
 
-**Next Major Phase**: v0.6.0 (Unit Spawner + ECS Integration)
+**Next Major Phase**: v0.9.0 (Polyrepo Support) and v0.10.0 (Total Conversion Framework)
 
 ---
 
@@ -16,11 +16,11 @@ This roadmap defines the evolution of DINOForge from **v0.6.0 through v1.0.0+** 
 timeline
     title DINOForge Semantic Versioning Roadmap (v0.6.0 → v1.0.0+)
 
-    v0.6.0 : Unit Spawner + ECS Integration : M9
-    v0.7.0 : Pack Registry + Discovery : M10
-    v0.8.0 : YAML-only Mods : M11
-    v0.9.0 : Polyrepo + Submodule Support : M12
-    v0.10.0 : Total Conversion Framework : M13
+    v0.6.0 ✓ : Unit Spawner + ECS Integration : M9 : DONE
+    v0.7.0 ✓ : Pack Registry + Discovery : M10 : DONE
+    v0.8.0 ✓ : YAML-only Mods : M11 : DONE
+    v0.9.0 : Polyrepo + Submodule Support : M12 : IN PROGRESS
+    v0.10.0 : Total Conversion Framework : M13 : IN PROGRESS
     v0.11.0 : Multiplayer Compatibility : M14
     v0.12.0 : Visual Pack Editor : M15
     v1.0.0 : Stable Release (API Freeze) : M16
@@ -33,6 +33,8 @@ timeline
 ---
 
 ## v0.6.0: Unit Spawner + ECS Integration (M9)
+
+**Status**: ✅ DONE (v0.5.0)
 
 **Goal**: Enable actual unit spawning from mod packs into live gameplay with full ECS component mapping and stat application.
 
@@ -102,6 +104,8 @@ timeline
 ---
 
 ## v0.7.0: Pack Registry + Discovery (M10)
+
+**Status**: ✅ DONE (v0.5.0)
 
 **Goal**: Enable distributed pack discovery via GitHub topics and JSON index, supporting community-created packs.
 
@@ -177,6 +181,8 @@ timeline
 
 ## v0.8.0: YAML-only Mods (M11)
 
+**Status**: ✅ DONE (v0.5.0)
+
 **Goal**: Allow users to create full mods using only YAML files, with no C# coding required.
 
 ### Modules
@@ -250,6 +256,8 @@ timeline
 ---
 
 ## v0.9.0: Polyrepo + Submodule Support (M12)
+
+**Status**: 🚧 IN PROGRESS
 
 **Goal**: Support packs as independent Git repositories with proper submodule integration.
 
@@ -326,6 +334,8 @@ timeline
 ---
 
 ## v0.10.0: Total Conversion Framework (M13)
+
+**Status**: 🚧 IN PROGRESS
 
 **Goal**: Enable complete replacement of game factions, units, buildings, and assets (e.g., Star Wars total conversion).
 
@@ -416,6 +426,8 @@ timeline
 
 ## v0.11.0: Multiplayer Compatibility (M14)
 
+**Status**: ⏭️ SKIPPED (out of scope)
+
 **Goal**: Ensure mod packs work safely in multiplayer with compatibility checking and desync prevention.
 
 ### Modules
@@ -491,6 +503,8 @@ timeline
 ---
 
 ## v0.12.0: Visual Pack Editor (M15)
+
+**Status**: ⏭️ SKIPPED (out of scope)
 
 **Goal**: Web-based GUI for editing mod packs visually (units, stats, factions) without code.
 
@@ -1065,6 +1079,7 @@ graph TD
 
 | Date | Version | Changes |
 |------|---------|---------|
+| 2026-03-11 | 1.0.0 | Updated milestones: M9/M10/M11 complete, M12/M13 in progress, M14/M15 scoped out |
 | 2026-03-11 | 1.0.0 | Initial roadmap (v0.6.0 through v2.0.0+) |
 
 ---
