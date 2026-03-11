@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net8.0": {
+      "MinVer": {
+        "type": "Direct",
+        "requested": "[5.*, )",
+        "resolved": "5.0.0",
+        "contentHash": "ybkgpQMtt0Fo91l5rYtE3TZtD+Nmy5Ko091xvfXXOosQdMi30XO2EZ2+ShZt89gdu7RMmJqZaJ+e1q6d+6+KNw=="
+      },
+      "Newtonsoft.Json": {
+        "type": "Direct",
+        "requested": "[13.*, )",
+        "resolved": "13.0.4",
+        "contentHash": "pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A=="
+      },
+      "Spectre.Console": {
+        "type": "Direct",
+        "requested": "[0.*, )",
+        "resolved": "0.54.0",
+        "contentHash": "StDXCFayfy0yB1xzUHT2tgEpV1/HFTiS4JgsAQS49EYTfMixSwwucaQs/bIOCwXjWwIQTMuxjUIxcB5XsJkFJA=="
+      }
+    }
+  }
+}
