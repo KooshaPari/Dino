@@ -64,62 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved UI descriptions and help text across all overlays
 - Enhanced error messages throughout ContentLoader pipeline
 
-## [0.4.0] - 2026-03-10
-
-### Added
-
-#### M8: Runtime Integration & IPC Bridge
-- `ModPlatform` orchestrator wiring SDK to Bridge to UI to HMR
-- JSON-RPC IPC bridge protocol for out-of-process communication
-- `GameClient` for external tool communication with game runtime
-- Agent debug layer with MCP server integration (13 game tools)
-- Runtime integration tests and end-to-end scenarios
-
-#### Economy Domain Plugin
-- `EconomyPlugin` with production, trade, balance, and validation subsystems
-- `ResourceRate` model supporting 5 resource types with production/consumption rates
-- `EconomyProfile` per-faction configuration with starting resources and trade modifiers
-- `TradeRoute` system with exchange rates, cooldowns, and transaction limits
-- `ProductionCalculator` for faction resource generation from buildings and workers
-- `TradeEngine` for evaluating trade profitability and suggesting optimal trades
-- `EconomyBalanceCalculator` + `EconomyBalanceReport` for per-faction analysis
-- `EconomyValidator` for profile, route, and dependency validation
-- `economy-profile.schema.json` schema for economy content validation
-- Example pack: `packs/economy-balanced/` with economy profiles and trade routes
-
-#### Scenario Domain Plugin
-- `ScenarioPlugin` with runner, validator, and difficulty scaler subsystems
-- `ScenarioDefinition` model supporting difficulty levels, objectives, waves, and conditions
-- `VictoryCondition` system with 6 condition types (SurviveWaves, DestroyTarget, ReachPopulation, AccumulateResource, TimeSurvival, Custom)
-- `DefeatCondition` system with 5 condition types (CommandCenterDestroyed, PopulationZero, TimeExpired, ResourceDepleted, Custom)
-- `ScriptedEvent` + `EventAction` trigger-based system with 6 trigger types and 8 action types
-- `ScenarioRunner` for evaluating game state and firing scripted events with deduplication
-- `GameState` snapshot model for condition evaluation
-- `DifficultyScaler` supporting Easy (1.5x) to Nightmare (0.5x) resource scaling
-- `ScenarioValidator` for comprehensive scenario validation
-- `scenario.schema.json` schema for scenario content validation
-- Example pack: `packs/scenario-tutorial/` with defense tutorial, survival challenge, resource race
-
-#### Infrastructure & Tooling
-- Justfile with common development commands
-- Global .NET SDK pinning via global.json for CI consistency
-- Enhanced CI/CD pipeline with lint and test gates
-- Policy gate upgrades for stricter validation
-
-### Fixed
-
-- Suppressed CA1416 (Windows API availability) warnings in Installer project
-- Fixed lint issues across all projects for CI compliance
-- Corrected dependency versions in csproj files
-- Resolved CI build consistency issues with SDK version pinning
-
-### Changed
-
-- Reorganized project structure to accommodate domain plugins and IPC bridge
-- Enhanced error handling in domain plugin loaders
-- Improved validation messages in scenario and economy systems
-
-## [0.3.0] - 2026-03-10
+## [0.4.0] - 2026-03-11
 
 ### Added
 
@@ -143,6 +88,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Themed faction definitions with accurate stat distributions
 - Complete unit rosters with role assignments
 
+#### Economy Domain Plugin (Early Preview)
+- `EconomyPlugin` with production, trade, balance, and validation subsystems
+- `ResourceRate` model supporting 5 resource types with production/consumption rates
+- `EconomyProfile` per-faction configuration with starting resources and trade modifiers
+- `TradeRoute` system with exchange rates, cooldowns, and transaction limits
+- `ProductionCalculator` for faction resource generation from buildings and workers
+- `TradeEngine` for evaluating trade profitability and suggesting optimal trades
+- `EconomyBalanceCalculator` + `EconomyBalanceReport` for per-faction analysis
+- `EconomyValidator` for profile, route, and dependency validation
+- `economy-profile.schema.json` schema for economy content validation
+- Example pack: `packs/economy-balanced/` with economy profiles and trade routes
+
+#### Scenario Domain Plugin (Early Preview)
+- `ScenarioPlugin` with runner, validator, and difficulty scaler subsystems
+- `ScenarioDefinition` model supporting difficulty levels, objectives, waves, and conditions
+- `VictoryCondition` system with 6 condition types (SurviveWaves, DestroyTarget, ReachPopulation, AccumulateResource, TimeSurvival, Custom)
+- `DefeatCondition` system with 5 condition types (CommandCenterDestroyed, PopulationZero, TimeExpired, ResourceDepleted, Custom)
+- `ScriptedEvent` + `EventAction` trigger-based system with 6 trigger types and 8 action types
+- `ScenarioRunner` for evaluating game state and firing scripted events with deduplication
+- `GameState` snapshot model for condition evaluation
+- `DifficultyScaler` supporting Easy (1.5x) to Nightmare (0.5x) resource scaling
+- `ScenarioValidator` for comprehensive scenario validation
+- `scenario.schema.json` schema for scenario content validation
+- Example pack: `packs/scenario-tutorial/` with defense tutorial, survival challenge, resource race
+
+### Fixed
+
+- Corrected damage calculation paths for stat modifiers
+- Fixed unit role validation against faction rosters
+- Resolved scenario condition evaluation edge cases
+
+### Changed
+
+- Added early preview tags to Economy and Scenario domain plugins
+- Enhanced wave composition algorithm for difficulty scaling
+
+## [0.3.0] - 2026-03-10
+
+### Added
+
+#### M2: Generic Mod SDK
+- `PackManifest` + `PackLoader`: YAML manifest parsing via YamlDotNet
+- `PackDependencyResolver`: Kahn's algorithm for topological sort, conflict detection
+- `NJsonSchemaValidator`: schema validation wrapping NJsonSchema library
+- `Registry<T>`: generic typed registry with layered overrides (BaseGame → Framework → DomainPlugin → Pack)
+- `RegistryManager`: typed registries for Units, Buildings, Factions, Weapons, Projectiles, Doctrines, Skills, Waves, Squads
+- Content models: UnitDefinition, FactionDefinition, WeaponDefinition, ProjectileDefinition, DoctrineDefinition, BuildingDefinition, SkillDefinition, WaveDefinition, SquadDefinition
+- `ContentLoader`: orchestrates pack loading from directory to registry
+- 10 JSON schemas (pack-manifest, unit, faction, weapon, projectile, doctrine, building, skill, wave, squad)
+- Example pack: `packs/example-balance/` with units, buildings, factions
+- 46 SDK unit tests
+
+#### M3: Dev Tooling
+- `PackCompiler` CLI with commands: `validate`, `build`, `assets list/inspect/validate`
+- `DumpTools` CLI with commands: `list`, `analyze`, `components`, `systems`, `namespaces`
+- Offline dump analysis capabilities with detailed output
+- Spectre.Console-based pretty printing for CLI tools
+
 #### M6: In-Game Mod Menu & Hot Module Replacement
 - `ModMenuOverlay`: F10-toggled IMGUI window with pack list, enable/disable toggles, status bar
 - `ModSettingsPanel`: BepInEx ConfigEntry wrapper with auto-discovered settings UI
@@ -151,6 +154,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `HotReloadBridge`: connects SDK HMR to BepInEx logger and ECS runtime
 - UI Domain Plugin stubs: `UIPlugin`, `MenuManager`, `HUDInjectionSystem`
 - F10 hotkey configuration with toggling support
+
+#### ECS Bridge Layer
+- `ComponentMap`: 30+ mappings between DINO ECS components and SDK model fields
+- `EntityQueries`: helper queries for player units, enemy units, buildings by class/type
+- `StatModifierSystem`: ECS system for applying mod stat changes (Override/Add/Multiply)
+- `VanillaCatalog`: runtime scanner classifying vanilla entities into registry IDs
+- `AssetSwapSystem`: skeleton for total conversion asset replacement
+
+#### Asset Pipeline
+- AssetsTools.NET 3.0.4 integration for asset bundle reading/writing
+- `AssetService`: ListBundles, ListAssets, ExtractAsset, ValidateModBundle
+- `AddressablesCatalog`: parses DINO's Addressables catalog.json (492 entries)
+- Asset validation against game bundle structure
 
 #### M7: Installer & Universe Bible System
 - `Install-DINOForge.ps1`: PowerShell installer with auto-detect Steam, BepInEx download, --Dev flag
@@ -184,6 +200,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Corrected YamlSchemaConverter YAML-to-JSON conversion for proper scalar type coercion
+- Fixed CLI dependency version upgrades for System.CommandLine 2.0.3
 - Corrected `NoAllocReadOnlyCollection` IEnumerable cast error in SystemEnumerator
 - Fixed DebugOverlay accessing `World.Systems` with proper index-only access
 - Resolved MonoBehaviour lifecycle incompatibility (ECS-first architecture)
@@ -192,56 +210,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- SDK now exports high-level APIs hiding ECS internals
+- Registry system supports layered overrides instead of simple replacement
+- Improved validation error messages with context information
 - Reorganized SDK to support domain-specific validation subsystems
 - Enhanced error messages for pack loading and validation failures
 - Improved schema validation error reporting with detailed context
 - Updated all example packs with correct faction definitions
 
-## [0.2.0] - 2025-Q1
+## [0.2.0] - 2026-03-10
 
 ### Added
 
-#### M2: Generic Mod SDK
-- `PackManifest` + `PackLoader`: YAML manifest parsing via YamlDotNet
-- `PackDependencyResolver`: Kahn's algorithm for topological sort, conflict detection
-- `NJsonSchemaValidator`: schema validation wrapping NJsonSchema library
-- `Registry<T>`: generic typed registry with layered overrides (BaseGame → Framework → DomainPlugin → Pack)
-- `RegistryManager`: typed registries for Units, Buildings, Factions, Weapons, Projectiles, Doctrines, Skills, Waves, Squads
-- Content models: UnitDefinition, FactionDefinition, WeaponDefinition, ProjectileDefinition, DoctrineDefinition, BuildingDefinition, SkillDefinition, WaveDefinition, SquadDefinition
-- `ContentLoader`: orchestrates pack loading from directory to registry
-- 10 JSON schemas (pack-manifest, unit, faction, weapon, projectile, doctrine, building, skill, wave, squad)
-- Example pack: `packs/example-balance/` with units, buildings, factions
-- 46 SDK unit tests
+#### M0: Reverse-Engineering Harness
+- BepInEx 5.4.23.5 runtime plugin targeting `netstandard2.0`
+- ECS `DumpSystem` (SystemBase) that survives MonoBehaviour destruction
+- `EntityDumper`: serializes worlds, archetypes, component types, entity samples to JSON
+- `SystemEnumerator`: enumerates all registered ECS systems with metadata
+- `DebugOverlay`: F9 IMGUI overlay showing live ECS world state
+- First gameplay dump: 45,776 entities across 6 worlds, 500K lines of data
+- 6 unit tests for dump infrastructure
 
-#### M3: Dev Tooling
-- `PackCompiler` CLI with commands: `validate`, `build`, `assets list/inspect/validate`
-- `DumpTools` CLI with commands: `list`, `analyze`, `components`, `systems`, `namespaces`
-- Offline dump analysis capabilities with detailed output
-- Spectre.Console-based pretty printing for CLI tools
+#### M1: Runtime Scaffold
+- Bootstrap plugin entry point with proper ECS system registration
+- Version detection and compatibility checks
+- Logging surfaces via BepInEx logger integration
+- ECS introspection and system enumeration
+- Debug overlay foundation for in-game diagnostics
+- Component type discovery and introspection
+- Runtime configuration via BepInEx ConfigFile
 
-#### ECS Bridge Layer
-- `ComponentMap`: 30+ mappings between DINO ECS components and SDK model fields
-- `EntityQueries`: helper queries for player units, enemy units, buildings by class/type
-- `StatModifierSystem`: ECS system for applying mod stat changes (Override/Add/Multiply)
-- `VanillaCatalog`: runtime scanner classifying vanilla entities into registry IDs
-- `AssetSwapSystem`: skeleton for total conversion asset replacement
-
-#### Asset Pipeline
-- AssetsTools.NET 3.0.4 integration for asset bundle reading/writing
-- `AssetService`: ListBundles, ListAssets, ExtractAsset, ValidateModBundle
-- `AddressablesCatalog`: parses DINO's Addressables catalog.json (492 entries)
-- Asset validation against game bundle structure
+#### Project Foundation
+- DINOForge.sln with organized project structure
+- Directory.Build.props with shared MSBuild properties
+- Game path configuration for automated deployment
+- Initial csproj files for Runtime and SDK layers
+- NuGet package references for dependencies (BepInEx, Unity.Entities, etc.)
 
 ### Fixed
 
-- Corrected YamlSchemaConverter YAML-to-JSON conversion for proper scalar type coercion
-- Fixed CLI dependency version upgrades for System.CommandLine 2.0.3
+- Resolved initial ECS introspection challenges with proper system enumeration
 
 ### Changed
 
-- SDK now exports high-level APIs hiding ECS internals
-- Registry system supports layered overrides instead of simple replacement
-- Improved validation error messages with context information
+- Established foundation for polyrepo-hexagonal architecture
 
 ## [0.1.0] - 2024-Q4
 
