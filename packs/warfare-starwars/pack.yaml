@@ -20,11 +20,19 @@ description: |
   - 1 weapon set: blasters and energy weapons
   - Clone Wars wave templates for themed campaigns
 
+  Visual assets: placeholder - community contributions welcome. See assets/ASSET_PIPELINE.md for the
+  TABS-style art guide, free CC0/CC-BY source list (Kenney.nl, PolyPizza, Sketchfab), and Unity
+  2021.3 + Addressables import workflow.
+
   Experience the conflict between biological discipline and mechanical coordination in a galaxy far, far away.
 type: total_conversion
 
 depends_on: []
 conflicts_with: []
+
+assets:
+  manifest: assets/manifest.yaml
+  bundle: assets/warfare-starwars-assets.bundle  # not yet built
 
 loads:
   factions:
