@@ -1,0 +1,213 @@
+#nullable enable
+using System;
+using BepInEx.Logging;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace DINOForge.Runtime.UI
+{
+    /// <summary>
+    /// Root Canvas manager MonoBehaviour for the DINOForge UGUI overlay system.
+    /// Owns the full Canvas hierarchy and all child panels.
+    /// Attach to the DINOForge_Root persistent GameObject.
+    ///
+    /// Canvas hierarchy:
+    /// <code>
+    /// DINOForge_Root
+    ///   └── DFCanvas_Root (Canvas, CanvasScaler, GraphicRaycaster)
+    ///           ├── ModMenuPanel
+    ///           ├── DebugPanel
+    ///           └── HudStrip
+    /// </code>
+    /// </summary>
+    public class DFCanvas : MonoBehaviour
+    {
+        // ── Child panels (public for RuntimeDriver access) ────────────────────────
+
+        /// <summary>The UGUI mod menu panel. Exposes the same API as ModMenuOverlay.</summary>
+        public ModMenuPanel? ModMenuPanel { get; private set; }
+
+        /// <summary>The UGUI debug panel. Replaces DebugOverlayBehaviour.</summary>
+        public DebugPanel? DebugPanel { get; private set; }
+
+        /// <summary>The always-visible HUD strip (top-right corner).</summary>
+        public HudStrip? HudStrip { get; private set; }
+
+        // ── Private state ─────────────────────────────────────────────────────────
+        private ManualLogSource? _log;
+        private Canvas?          _canvas;
+        private bool             _ready;
+
+        // Mouse tracking for HUD hover
+        private RectTransform? _hudStripRt;
+
+        // ── Bootstrap ─────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Initializes DFCanvas and builds the full UGUI hierarchy.
+        /// Must be called from the main thread immediately after AddComponent.
+        /// </summary>
+        /// <param name="log">BepInEx logger for diagnostics.</param>
+        public void Initialize(ManualLogSource log)
+        {
+            _log = log;
+        }
+
+        private void Start()
+        {
+            try
+            {
+                BuildCanvas();
+                _ready = true;
+                _log?.LogInfo("[DFCanvas] UGUI canvas hierarchy built successfully.");
+            }
+            catch (Exception ex)
+            {
+                _log?.LogError($"[DFCanvas] Canvas setup failed: {ex}");
+                _ready = false;
+            }
+        }
+
+        private void BuildCanvas()
+        {
+            // Canvas root child object
+            GameObject canvasGo = new GameObject("DFCanvas_Root");
+            canvasGo.transform.SetParent(gameObject.transform, false);
+
+            // Canvas component
+            _canvas = canvasGo.AddComponent<Canvas>();
+            _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            _canvas.sortingOrder = 100;
+
+            // CanvasScaler — scale with screen size, reference 1920x1080
+            CanvasScaler scaler = canvasGo.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.matchWidthOrHeight = 0.5f;
+
+            // GraphicRaycaster for pointer events
+            canvasGo.AddComponent<GraphicRaycaster>();
+
+            Transform canvasRoot = canvasGo.transform;
+
+            // Build HUD strip first (always visible, no panel ownership)
+            GameObject hudGo = new GameObject("HudStripHost", typeof(RectTransform));
+            hudGo.transform.SetParent(canvasRoot, false);
+            HudStrip = hudGo.AddComponent<HudStrip>();
+            HudStrip.Build(canvasRoot);
+            HudStrip.OnClicked = ToggleModMenu;
+            _hudStripRt = hudGo.GetComponent<RectTransform>();
+
+            // Build mod menu panel
+            GameObject menuGo = new GameObject("ModMenuPanelHost", typeof(RectTransform));
+            menuGo.transform.SetParent(canvasRoot, false);
+            ModMenuPanel = menuGo.AddComponent<ModMenuPanel>();
+            ModMenuPanel.Build(canvasRoot);
+
+            // Build debug panel
+            GameObject debugGo = new GameObject("DebugPanelHost", typeof(RectTransform));
+            debugGo.transform.SetParent(canvasRoot, false);
+            DebugPanel = debugGo.AddComponent<DebugPanel>();
+            DebugPanel.Build(canvasRoot);
+        }
+
+        // ── Input handling ────────────────────────────────────────────────────────
+
+        private void Update()
+        {
+            if (!_ready) return;
+
+            if (Input.GetKeyDown(KeyCode.F10))
+                ToggleModMenu();
+
+            if (Input.GetKeyDown(KeyCode.F9))
+                ToggleDebug();
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+                HideAll();
+
+            // HUD strip hover detection
+            UpdateHudHover();
+        }
+
+        private void UpdateHudHover()
+        {
+            if (HudStrip == null || _canvas == null) return;
+
+            // Find the HudStrip RectTransform (it adds the panel directly to canvasRoot)
+            // Use RectTransformUtility for accurate screen-space hit testing
+            Transform canvasRoot = _canvas.transform;
+            RectTransform? stripRt = canvasRoot.Find("HudStrip")?.GetComponent<RectTransform>();
+            if (stripRt == null) return;
+
+            Vector2 localPoint;
+            bool over = RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                stripRt,
+                Input.mousePosition,
+                null, // overlay canvas — no camera needed
+                out localPoint)
+                && stripRt.rect.Contains(localPoint);
+
+            HudStrip.SetHovered(over);
+        }
+
+        // ── Show/Hide API ─────────────────────────────────────────────────────────
+
+        /// <summary>Shows the mod menu panel.</summary>
+        public void ShowModMenu()
+        {
+            if (_ready) ModMenuPanel?.Show();
+        }
+
+        /// <summary>Hides the mod menu panel.</summary>
+        public void HideModMenu()
+        {
+            if (_ready) ModMenuPanel?.Hide();
+        }
+
+        /// <summary>Toggles the mod menu panel.</summary>
+        public void ToggleModMenu()
+        {
+            if (!_ready) return;
+            if (ModMenuPanel == null) return;
+
+            if (ModMenuPanel.IsVisible) ModMenuPanel.Hide();
+            else ModMenuPanel.Show();
+        }
+
+        /// <summary>Shows the debug panel.</summary>
+        public void ShowDebug()
+        {
+            if (_ready) DebugPanel?.Show();
+        }
+
+        /// <summary>Hides the debug panel.</summary>
+        public void HideDebug()
+        {
+            if (_ready) DebugPanel?.Hide();
+        }
+
+        /// <summary>Toggles the debug panel.</summary>
+        public void ToggleDebug()
+        {
+            if (!_ready) return;
+            if (DebugPanel == null) return;
+
+            if (DebugPanel.IsVisible) DebugPanel.Hide();
+            else DebugPanel.Show();
+        }
+
+        /// <summary>Hides all panels.</summary>
+        public void HideAll()
+        {
+            HideModMenu();
+            HideDebug();
+        }
+
+        /// <summary>Displays a toast notification on the HUD strip.</summary>
+        public void ShowToast(string message, ToastType type)
+        {
+            HudStrip?.ShowToast(message, type);
+        }
+    }
+}

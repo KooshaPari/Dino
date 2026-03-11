@@ -1,0 +1,598 @@
+#nullable enable
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace DINOForge.Runtime.UI
+{
+    /// <summary>
+    /// UGUI mod menu panel. Replaces the legacy IMGUI ModMenuOverlay.
+    /// Layout: header bar | split (pack list / detail pane) | footer.
+    /// Exposes the same public API as <see cref="ModMenuOverlay"/> so ModPlatform
+    /// does not need changes.
+    /// </summary>
+    public class ModMenuPanel : MonoBehaviour
+    {
+        // ── Public API surface (mirrors ModMenuOverlay) ──────────────────────────
+        /// <summary>Callback invoked when the user clicks Reload Packs.</summary>
+        public Action? OnReloadRequested;
+
+        /// <summary>Callback invoked when a pack is toggled (packId, isEnabled).</summary>
+        public Action<string, bool>? OnPackToggled;
+
+        /// <summary>Whether this panel is currently visible.</summary>
+        public bool IsVisible => _canvasGroup != null && _canvasGroup.alpha > 0.01f;
+
+        // ── Panel layout constants ────────────────────────────────────────────────
+        private const float PanelWidth      = 680f;
+        private const float PanelHeight     = 560f;
+        private const float HeaderHeight    = 44f;
+        private const float FooterHeight    = 44f;
+        private const float ListWidth       = 220f;
+        private const float ItemHeight      = 40f;
+        private const float AnimDuration    = 0.15f;
+
+        // ── State ────────────────────────────────────────────────────────────────
+        private readonly List<PackDisplayInfo> _packs = new List<PackDisplayInfo>();
+        private int  _selectedPackIndex = -1;
+        private string _statusMessage   = "";
+        private int  _errorCount;
+
+        // ── Animation ────────────────────────────────────────────────────────────
+        private CanvasGroup? _canvasGroup;
+        private RectTransform? _panelRt;
+        private float _animT;          // 0 = fully hidden, 1 = fully visible
+        private bool  _targetVisible;
+
+        // ── UI references ────────────────────────────────────────────────────────
+        private Text?       _headerStatusText;
+        private RectTransform? _listContent;
+        private GameObject?    _detailPane;
+        private Text?       _detailName;
+        private Text?       _detailMeta;
+        private Text?       _detailDesc;
+        private Text?       _detailDeps;
+        private Text?       _detailConflicts;
+        private Text?       _detailLoadOrder;
+
+        // ── Bootstrap ────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Builds the full UGUI hierarchy. Call from DFCanvas.Start() on the main thread.
+        /// </summary>
+        /// <param name="canvasRoot">Root canvas transform to attach to.</param>
+        public void Build(Transform canvasRoot)
+        {
+            // Root panel — centered
+            GameObject rootGo = UiBuilder.MakePanel(canvasRoot, "ModMenuPanel",
+                UiBuilder.BgDeep, new Vector2(PanelWidth, PanelHeight));
+            RectTransform rootRt = rootGo.GetComponent<RectTransform>();
+            rootRt.anchorMin = new Vector2(0.5f, 0.5f);
+            rootRt.anchorMax = new Vector2(0.5f, 0.5f);
+            rootRt.pivot     = new Vector2(0.5f, 0.5f);
+            rootRt.anchoredPosition = new Vector2(300f, 0f); // slide-in offset start
+
+            _panelRt = rootRt;
+            _canvasGroup = UiBuilder.EnsureCanvasGroup(rootGo);
+            _canvasGroup.alpha = 0f;
+            _canvasGroup.interactable = false;
+            _canvasGroup.blocksRaycasts = false;
+
+            BuildHeader(rootGo.transform);
+            BuildBody(rootGo.transform);
+            BuildFooter(rootGo.transform);
+        }
+
+        // ── Public API ────────────────────────────────────────────────────────────
+
+        /// <summary>Replaces the pack list and refreshes the UI.</summary>
+        public void SetPacks(IEnumerable<PackDisplayInfo> packs)
+        {
+            _packs.Clear();
+            _packs.AddRange(packs);
+            _selectedPackIndex = _packs.Count > 0 ? 0 : -1;
+            RebuildPackList();
+            RefreshDetail();
+        }
+
+        /// <summary>Updates the header status text.</summary>
+        public void SetStatus(string message, int errorCount = 0)
+        {
+            _statusMessage = message;
+            _errorCount    = errorCount;
+            if (_headerStatusText != null)
+            {
+                _headerStatusText.text = BuildStatusLine();
+                _headerStatusText.color = errorCount > 0 ? UiBuilder.Error : UiBuilder.TextSecondary;
+            }
+        }
+
+        /// <summary>Shows the panel with a slide-in animation.</summary>
+        public void Show()
+        {
+            _targetVisible = true;
+            if (_canvasGroup != null)
+            {
+                _canvasGroup.interactable   = true;
+                _canvasGroup.blocksRaycasts = true;
+            }
+        }
+
+        /// <summary>Hides the panel with a fade animation.</summary>
+        public void Hide()
+        {
+            _targetVisible = false;
+            if (_canvasGroup != null)
+            {
+                _canvasGroup.interactable   = false;
+                _canvasGroup.blocksRaycasts = false;
+            }
+        }
+
+        // ── MonoBehaviour ─────────────────────────────────────────────────────────
+
+        private void Update()
+        {
+            AnimatePanel();
+        }
+
+        // ── Animation ─────────────────────────────────────────────────────────────
+
+        private void AnimatePanel()
+        {
+            if (_canvasGroup == null || _panelRt == null) return;
+
+            float target = _targetVisible ? 1f : 0f;
+            _animT = Mathf.MoveTowards(_animT, target, Time.deltaTime / AnimDuration);
+
+            _canvasGroup.alpha = _animT;
+
+            // Slide from right (+80px) to resting position
+            float slideOffset = Mathf.Lerp(80f, 0f, _animT);
+            _panelRt.anchoredPosition = new Vector2(slideOffset, 0f);
+        }
+
+        // ── UI construction ────────────────────────────────────────────────────────
+
+        private void BuildHeader(Transform parent)
+        {
+            GameObject header = UiBuilder.MakePanel(parent, "Header",
+                UiBuilder.BgSurface, new Vector2(0f, HeaderHeight));
+            RectTransform hRt = header.GetComponent<RectTransform>();
+            hRt.anchorMin = new Vector2(0f, 1f);
+            hRt.anchorMax = Vector2.one;
+            hRt.pivot     = new Vector2(0.5f, 1f);
+            hRt.offsetMin = Vector2.zero;
+            hRt.offsetMax = Vector2.zero;
+            hRt.sizeDelta = new Vector2(0f, HeaderHeight);
+
+            UiBuilder.AddHorizontalLayout(header, 8f, new RectOffset(12, 8, 6, 6));
+
+            // Title
+            Text title = UiBuilder.MakeText(header.transform, "Title", "DINOForge", 16,
+                UiBuilder.Accent, bold: true);
+            LayoutElement titleLe = title.gameObject.AddComponent<LayoutElement>();
+            titleLe.preferredWidth = 120f;
+            titleLe.minWidth = 80f;
+
+            // Status text (flexible)
+            _headerStatusText = UiBuilder.MakeText(header.transform, "Status",
+                BuildStatusLine(), 12, UiBuilder.TextSecondary);
+            LayoutElement statusLe = _headerStatusText.gameObject.AddComponent<LayoutElement>();
+            statusLe.flexibleWidth = 1f;
+
+            // Close button
+            Button closeBtn = UiBuilder.MakeButton(
+                header.transform, "CloseBtn", "×",
+                UiBuilder.BgDeep, UiBuilder.TextSecondary,
+                () => Hide());
+            RectTransform closeBtnRt = closeBtn.GetComponent<RectTransform>();
+            LayoutElement closeLe = closeBtn.gameObject.AddComponent<LayoutElement>();
+            closeLe.preferredWidth  = 28f;
+            closeLe.preferredHeight = 28f;
+
+            // Bottom separator
+            GameObject sep = UiBuilder.MakeHorizontalSeparator(parent, UiBuilder.Border);
+            RectTransform sepRt = sep.GetComponent<RectTransform>();
+            sepRt.anchorMin = new Vector2(0f, 1f);
+            sepRt.anchorMax = Vector2.one;
+            sepRt.pivot     = new Vector2(0.5f, 1f);
+            sepRt.anchoredPosition = new Vector2(0f, -HeaderHeight);
+            sepRt.sizeDelta = new Vector2(0f, 1f);
+        }
+
+        private void BuildBody(Transform parent)
+        {
+            // Body container between header and footer
+            GameObject body = new GameObject("Body", typeof(RectTransform));
+            body.transform.SetParent(parent, false);
+            RectTransform bodyRt = body.GetComponent<RectTransform>();
+            bodyRt.anchorMin = Vector2.zero;
+            bodyRt.anchorMax = Vector2.one;
+            bodyRt.offsetMin = new Vector2(0f, FooterHeight + 1f);
+            bodyRt.offsetMax = new Vector2(0f, -(HeaderHeight + 1f));
+
+            HorizontalLayoutGroup hlg = body.AddComponent<HorizontalLayoutGroup>();
+            hlg.childForceExpandWidth  = false;
+            hlg.childForceExpandHeight = true;
+            hlg.spacing = 0f;
+
+            BuildListPane(body.transform);
+
+            // Vertical divider
+            GameObject divider = UiBuilder.MakePanel(body.transform, "Divider",
+                UiBuilder.Border, new Vector2(1f, 0f));
+            LayoutElement divLe = divider.AddComponent<LayoutElement>();
+            divLe.preferredWidth  = 1f;
+            divLe.minWidth = 1f;
+
+            BuildDetailPane(body.transform);
+        }
+
+        private void BuildListPane(Transform parent)
+        {
+            GameObject pane = new GameObject("ListPane", typeof(RectTransform));
+            pane.transform.SetParent(parent, false);
+
+            LayoutElement paneLe = pane.AddComponent<LayoutElement>();
+            paneLe.preferredWidth = ListWidth;
+            paneLe.minWidth       = ListWidth;
+
+            // List header
+            GameObject listHeader = UiBuilder.MakePanel(pane.transform, "ListHeader",
+                UiBuilder.BgSurface, new Vector2(ListWidth, 32f));
+            RectTransform lhRt = listHeader.GetComponent<RectTransform>();
+            lhRt.anchorMin = new Vector2(0f, 1f);
+            lhRt.anchorMax = new Vector2(1f, 1f);
+            lhRt.pivot = new Vector2(0.5f, 1f);
+            lhRt.sizeDelta = new Vector2(0f, 32f);
+
+            UiBuilder.AddHorizontalLayout(listHeader, 4f, new RectOffset(8, 8, 6, 6));
+            Text lhTitle = UiBuilder.MakeText(listHeader.transform, "ListTitle",
+                "Loaded Packs", 12, UiBuilder.TextSecondary, bold: false);
+            LayoutElement lhTitleLe = lhTitle.gameObject.AddComponent<LayoutElement>();
+            lhTitleLe.flexibleWidth = 1f;
+
+            // Scroll view for pack items
+            (ScrollRect scrollRect, RectTransform content) = UiBuilder.MakeScrollView(
+                pane.transform, "PackListScroll",
+                new Vector2(ListWidth, 0f));
+
+            RectTransform scrollRt = scrollRect.GetComponent<RectTransform>();
+            scrollRt.anchorMin = Vector2.zero;
+            scrollRt.anchorMax = Vector2.one;
+            scrollRt.offsetMin = new Vector2(0f, 0f);
+            scrollRt.offsetMax = new Vector2(0f, -32f);
+            scrollRt.sizeDelta = Vector2.zero;
+
+            _listContent = content;
+        }
+
+        private void BuildDetailPane(Transform parent)
+        {
+            _detailPane = new GameObject("DetailPane", typeof(RectTransform));
+            _detailPane.transform.SetParent(parent, false);
+
+            RectTransform detailRt = _detailPane.GetComponent<RectTransform>();
+            LayoutElement detailLe = _detailPane.AddComponent<LayoutElement>();
+            detailLe.flexibleWidth = 1f;
+
+            VerticalLayoutGroup vlg = _detailPane.AddComponent<VerticalLayoutGroup>();
+            vlg.childForceExpandWidth  = true;
+            vlg.childForceExpandHeight = false;
+            vlg.spacing = 6f;
+            vlg.padding = new RectOffset(14, 14, 12, 12);
+
+            // Name
+            _detailName = UiBuilder.MakeText(_detailPane.transform, "DetailName",
+                "Select a pack", 15, UiBuilder.TextPrimary, bold: true);
+            LayoutElement nameLe = _detailName.gameObject.AddComponent<LayoutElement>();
+            nameLe.preferredHeight = 22f;
+
+            // Meta (author · type)
+            _detailMeta = UiBuilder.MakeText(_detailPane.transform, "DetailMeta",
+                "", 12, UiBuilder.TextSecondary);
+            LayoutElement metaLe = _detailMeta.gameObject.AddComponent<LayoutElement>();
+            metaLe.preferredHeight = 18f;
+
+            UiBuilder.MakeHorizontalSeparator(_detailPane.transform, UiBuilder.Border);
+
+            // Description (scrollable text area)
+            _detailDesc = UiBuilder.MakeText(_detailPane.transform, "DetailDesc",
+                "", 12, UiBuilder.TextPrimary);
+            LayoutElement descLe = _detailDesc.gameObject.AddComponent<LayoutElement>();
+            descLe.preferredHeight = 80f;
+            _detailDesc.verticalOverflow = VerticalWrapMode.Overflow;
+
+            UiBuilder.MakeHorizontalSeparator(_detailPane.transform, UiBuilder.Border);
+
+            // Dependencies
+            _detailDeps = UiBuilder.MakeText(_detailPane.transform, "DetailDeps",
+                "Dependencies: none", 12, UiBuilder.TextSecondary);
+            LayoutElement depsLe = _detailDeps.gameObject.AddComponent<LayoutElement>();
+            depsLe.preferredHeight = 18f;
+
+            // Conflicts
+            _detailConflicts = UiBuilder.MakeText(_detailPane.transform, "DetailConflicts",
+                "Conflicts: none", 12, UiBuilder.TextSecondary);
+            LayoutElement conflictsLe = _detailConflicts.gameObject.AddComponent<LayoutElement>();
+            conflictsLe.preferredHeight = 18f;
+
+            // Load order
+            _detailLoadOrder = UiBuilder.MakeText(_detailPane.transform, "DetailLoadOrder",
+                "Load Order: —", 12, UiBuilder.TextSecondary);
+            LayoutElement loLe = _detailLoadOrder.gameObject.AddComponent<LayoutElement>();
+            loLe.preferredHeight = 18f;
+
+            UiBuilder.MakeHorizontalSeparator(_detailPane.transform, UiBuilder.Border);
+
+            // Action buttons row
+            GameObject btnRow = new GameObject("ActionButtons", typeof(RectTransform));
+            btnRow.transform.SetParent(_detailPane.transform, false);
+            HorizontalLayoutGroup btnHlg = btnRow.AddComponent<HorizontalLayoutGroup>();
+            btnHlg.spacing = 8f;
+            btnHlg.childForceExpandHeight = false;
+            btnHlg.childForceExpandWidth  = false;
+            LayoutElement btnRowLe = btnRow.AddComponent<LayoutElement>();
+            btnRowLe.preferredHeight = 32f;
+
+            Button toggleBtn = UiBuilder.MakeButton(
+                btnRow.transform, "ToggleBtn", "Disable",
+                UiBuilder.BgSurface, UiBuilder.TextPrimary,
+                OnToggleSelected);
+            LayoutElement toggleBtnLe = toggleBtn.gameObject.AddComponent<LayoutElement>();
+            toggleBtnLe.preferredWidth  = 90f;
+            toggleBtnLe.preferredHeight = 30f;
+        }
+
+        private void BuildFooter(Transform parent)
+        {
+            // Separator above footer
+            GameObject sep = UiBuilder.MakeHorizontalSeparator(parent, UiBuilder.Border);
+            RectTransform sepRt = sep.GetComponent<RectTransform>();
+            sepRt.anchorMin = new Vector2(0f, 0f);
+            sepRt.anchorMax = new Vector2(1f, 0f);
+            sepRt.pivot     = new Vector2(0.5f, 0f);
+            sepRt.anchoredPosition = new Vector2(0f, FooterHeight);
+            sepRt.sizeDelta = new Vector2(0f, 1f);
+
+            GameObject footer = UiBuilder.MakePanel(parent, "Footer",
+                UiBuilder.BgSurface, new Vector2(0f, FooterHeight));
+            RectTransform fRt = footer.GetComponent<RectTransform>();
+            fRt.anchorMin = Vector2.zero;
+            fRt.anchorMax = new Vector2(1f, 0f);
+            fRt.pivot     = new Vector2(0.5f, 0f);
+            fRt.offsetMin = Vector2.zero;
+            fRt.offsetMax = Vector2.zero;
+            fRt.sizeDelta = new Vector2(0f, FooterHeight);
+
+            UiBuilder.AddHorizontalLayout(footer, 8f, new RectOffset(12, 12, 7, 7));
+
+            // Reload button
+            Button reloadBtn = UiBuilder.MakeButton(
+                footer.transform, "ReloadBtn", "↺  Reload Packs",
+                UiBuilder.BgDeep, UiBuilder.Accent,
+                () => OnReloadRequested?.Invoke());
+            LayoutElement reloadLe = reloadBtn.gameObject.AddComponent<LayoutElement>();
+            reloadLe.preferredWidth  = 140f;
+            reloadLe.preferredHeight = 30f;
+
+            // Spacer
+            GameObject spacer = new GameObject("FooterSpacer", typeof(RectTransform));
+            spacer.transform.SetParent(footer.transform, false);
+            LayoutElement spacerLe = spacer.AddComponent<LayoutElement>();
+            spacerLe.flexibleWidth = 1f;
+        }
+
+        // ── Pack list rendering ────────────────────────────────────────────────────
+
+        private void RebuildPackList()
+        {
+            if (_listContent == null) return;
+
+            // Destroy existing items
+            for (int i = _listContent.childCount - 1; i >= 0; i--)
+            {
+                Destroy(_listContent.GetChild(i).gameObject);
+            }
+
+            for (int i = 0; i < _packs.Count; i++)
+            {
+                BuildPackListItem(_packs[i], i);
+            }
+        }
+
+        private void BuildPackListItem(PackDisplayInfo pack, int index)
+        {
+            if (_listContent == null) return;
+
+            bool isSelected = index == _selectedPackIndex;
+            bool hasErrors  = pack.Errors.Count > 0;
+            bool hasConflicts = pack.Conflicts.Count > 0;
+
+            // Card
+            Color bgColor = isSelected ? UiBuilder.BgSurface : UiBuilder.BgDeep;
+            Color alpha   = pack.IsEnabled ? Color.white : new Color(1f, 1f, 1f, 0.6f);
+
+            GameObject card = UiBuilder.MakePanel(_listContent, $"PackItem_{pack.Id}", bgColor, new Vector2(0f, ItemHeight));
+            LayoutElement cardLe = card.AddComponent<LayoutElement>();
+            cardLe.minHeight       = ItemHeight;
+            cardLe.preferredHeight = ItemHeight;
+            cardLe.flexibleWidth   = 1f;
+
+            // Amber left-border strip for enabled packs
+            if (pack.IsEnabled)
+            {
+                GameObject border = UiBuilder.MakePanel(card.transform, "EnabledBorder",
+                    UiBuilder.Accent, new Vector2(4f, 0f));
+                RectTransform bRt = border.GetComponent<RectTransform>();
+                bRt.anchorMin = new Vector2(0f, 0f);
+                bRt.anchorMax = new Vector2(0f, 1f);
+                bRt.pivot     = new Vector2(0f, 0.5f);
+                bRt.offsetMin = Vector2.zero;
+                bRt.offsetMax = new Vector2(4f, 0f);
+                bRt.anchoredPosition = Vector2.zero;
+            }
+
+            // Content layout
+            HorizontalLayoutGroup hlg = card.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing = 6f;
+            hlg.padding = new RectOffset(pack.IsEnabled ? 10 : 6, 6, 4, 4);
+            hlg.childForceExpandWidth  = false;
+            hlg.childForceExpandHeight = true;
+
+            // Pack name
+            Color nameColor = pack.IsEnabled ? UiBuilder.TextPrimary : UiBuilder.TextSecondary;
+            Text nameText = UiBuilder.MakeText(card.transform, "PackName", pack.Name, 13,
+                nameColor, bold: isSelected);
+            if (!pack.IsEnabled)
+            {
+                nameText.color = new Color(nameColor.r, nameColor.g, nameColor.b, 0.6f);
+            }
+            LayoutElement nameLe = nameText.gameObject.AddComponent<LayoutElement>();
+            nameLe.flexibleWidth = 1f;
+
+            // Error / Conflict badge
+            if (hasErrors)
+            {
+                GameObject badge = UiBuilder.MakePanel(card.transform, "ErrorBadge",
+                    UiBuilder.Error, new Vector2(32f, 18f));
+                LayoutElement badgeLe = badge.AddComponent<LayoutElement>();
+                badgeLe.preferredWidth  = 32f;
+                badgeLe.preferredHeight = 18f;
+
+                Text badgeText = UiBuilder.MakeText(badge.transform, "BadgeText", "ERR",
+                    10, Color.white, bold: true, TextAnchor.MiddleCenter);
+                UiBuilder.FillParent(badgeText.GetComponent<RectTransform>());
+            }
+            else if (hasConflicts)
+            {
+                GameObject badge = UiBuilder.MakePanel(card.transform, "ConflictBadge",
+                    UiBuilder.Warning, new Vector2(40f, 18f));
+                LayoutElement badgeLe = badge.AddComponent<LayoutElement>();
+                badgeLe.preferredWidth  = 40f;
+                badgeLe.preferredHeight = 18f;
+
+                Text badgeText = UiBuilder.MakeText(badge.transform, "BadgeText", "CONF",
+                    10, Color.black, bold: true, TextAnchor.MiddleCenter);
+                UiBuilder.FillParent(badgeText.GetComponent<RectTransform>());
+            }
+
+            // Version label
+            Text versionText = UiBuilder.MakeText(card.transform, "Version",
+                $"v{pack.Version}", 11, UiBuilder.TextSecondary);
+            LayoutElement verLe = versionText.gameObject.AddComponent<LayoutElement>();
+            verLe.preferredWidth = 50f;
+            verLe.minWidth = 40f;
+
+            // Click to select
+            int capturedIndex = index;
+            Button btn = card.AddComponent<Button>();
+            ColorBlock cb = btn.colors;
+            cb.normalColor      = bgColor;
+            cb.highlightedColor = Color.Lerp(bgColor, Color.white, 0.08f);
+            cb.pressedColor     = Color.Lerp(bgColor, Color.black, 0.1f);
+            cb.selectedColor    = bgColor;
+            cb.colorMultiplier  = 1f;
+            btn.colors = cb;
+            btn.targetGraphic = card.GetComponent<Image>();
+            btn.onClick.AddListener(() => SelectPack(capturedIndex));
+        }
+
+        private void SelectPack(int index)
+        {
+            _selectedPackIndex = index;
+            RebuildPackList();
+            RefreshDetail();
+        }
+
+        private void RefreshDetail()
+        {
+            if (_selectedPackIndex < 0 || _selectedPackIndex >= _packs.Count)
+            {
+                if (_detailName != null) _detailName.text = "Select a pack";
+                if (_detailMeta != null) _detailMeta.text = "";
+                if (_detailDesc != null) _detailDesc.text = "";
+                if (_detailDeps != null) _detailDeps.text = "Dependencies: none";
+                if (_detailConflicts != null) _detailConflicts.text = "Conflicts: none";
+                if (_detailLoadOrder != null) _detailLoadOrder.text = "Load Order: —";
+                return;
+            }
+
+            PackDisplayInfo p = _packs[_selectedPackIndex];
+
+            if (_detailName != null) _detailName.text = p.Name;
+            if (_detailMeta != null) _detailMeta.text = $"by {p.Author}  ·  {p.Type}  ·  v{p.Version}";
+            if (_detailDesc != null)
+            {
+                string descText = string.IsNullOrEmpty(p.Description)
+                    ? "(no description)"
+                    : p.Description;
+
+                if (p.Errors.Count > 0)
+                {
+                    descText += "\n\n<color=#e05252>Errors:</color>\n"
+                        + string.Join("\n", p.Errors);
+                }
+
+                _detailDesc.text = descText;
+            }
+
+            if (_detailDeps != null)
+            {
+                _detailDeps.text = p.Dependencies.Count == 0
+                    ? "Dependencies: none"
+                    : "Dependencies: " + string.Join(", ", p.Dependencies);
+            }
+
+            if (_detailConflicts != null)
+            {
+                _detailConflicts.text = p.Conflicts.Count == 0
+                    ? "Conflicts: none"
+                    : "<color=#e8a020>Conflicts: " + string.Join(", ", p.Conflicts) + "</color>";
+            }
+
+            if (_detailLoadOrder != null)
+            {
+                _detailLoadOrder.text = $"Load Order: {p.LoadOrder}";
+            }
+
+            // Update toggle button label
+            if (_detailPane != null)
+            {
+                Transform btnRow = _detailPane.transform.Find("ActionButtons");
+                if (btnRow != null)
+                {
+                    Transform toggleBtnT = btnRow.Find("ToggleBtn");
+                    if (toggleBtnT != null)
+                    {
+                        Text? btnLabel = toggleBtnT.Find("Label")?.GetComponent<Text>();
+                        if (btnLabel != null)
+                            btnLabel.text = p.IsEnabled ? "Disable" : "Enable";
+                    }
+                }
+            }
+        }
+
+        private void OnToggleSelected()
+        {
+            if (_selectedPackIndex < 0 || _selectedPackIndex >= _packs.Count) return;
+
+            PackDisplayInfo p = _packs[_selectedPackIndex];
+            PackDisplayInfo updated = p.WithEnabled(!p.IsEnabled);
+            _packs[_selectedPackIndex] = updated;
+            OnPackToggled?.Invoke(p.Id, updated.IsEnabled);
+            RebuildPackList();
+            RefreshDetail();
+        }
+
+        // ── Helpers ────────────────────────────────────────────────────────────────
+
+        private string BuildStatusLine()
+        {
+            string errPart = _errorCount > 0 ? $"  {_errorCount} errors" : "  0 errors";
+            return $"{_packs.Count} packs{errPart}  {_statusMessage}";
+        }
+    }
+}
