@@ -1,0 +1,3 @@
+[submodule "packs/official"]
+	path = packs/official
+	url = https://github.com/KooshaPari/dinoforge-packs
