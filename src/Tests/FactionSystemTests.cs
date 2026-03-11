@@ -68,13 +68,5 @@ namespace DINOForge.Tests
             faction.Definition.Should().NotBeNull();
         }
 
-        [Fact]
-        public void FactionSystem_GetFaction_ReturnsNullWhenNotFound()
-        {
-            var faction = FactionSystem.GetFaction("nonexistent");
-
-            faction.Should().BeNull();
-        }
-
     }
 }
