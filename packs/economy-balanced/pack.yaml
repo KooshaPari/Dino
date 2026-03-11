@@ -8,26 +8,22 @@ framework_version: ">=0.1.0 <1.0.0"
 author: DINOForge Agents
 type: balance
 description: |
-  Essential economy system providing balanced resource production, consumption, and trading mechanics for DINO gameplay.
+  Defines two economy profiles and eight trade routes for the DINOForge economy system.
+  Does NOT change vanilla DINO's default economy; this pack layers on top of it.
 
-  Economy profiles included:
-  - Standard Economy: baseline 1.0x multipliers with moderate starting resources (200 food, 150 wood, 100 stone, 50 iron)
-  - Abundance Economy: boosted production for longer casual play sessions
+  Standard profile (economy-standard): all multipliers at 1.0x — a reference baseline
+  matching default game rates. Starting resources: 200 food, 150 wood, 100 stone, 50 iron,
+  0 gold. Useful as a no-change anchor when combining multiple economy packs.
 
-  Trade system features:
-  - Lumber Export: wood to gold at 10:1 ratio
-  - Food Export: food to gold at 12:1 ratio
-  - Stone Export: stone to gold at 8:1 ratio
-  - Cooldown-based trading to prevent economy break
-  - Transaction limits preventing gold hoarding
+  Abundance profile (economy-abundance): boosted output for aggressive expansion.
+  Production: food +50%, wood +40%, stone +30%, iron +20%. Consumption: food +20%,
+  wood/stone +10%. Starting resources doubled (400 food, 300 wood, 200 stone, 100 iron,
+  25 gold). Storage +50%, building costs -10%, worker efficiency +20%. Trade rates +15%.
 
-  Core mechanics:
-  - Gold as premium currency obtained exclusively through trade
-  - Configurable storage capacity, production, and consumption rates
-  - Worker efficiency multipliers for faction specialization
-  - Building cost modifiers for economy pack combinations
-
-  Foundation for all faction and scenario gameplay.
+  Trade routes (8 total): 4 resource-to-gold exports (wood 10:1, food 12:1, stone 8:1,
+  iron 5:1), 1 gold-to-iron import (2:1), and 3 cross-resource swaps (wood→stone 1.5:1,
+  food→wood 1.2:1, stone→iron 2.5:1). All routes have per-transaction caps and cooldowns.
+  These rates are pack-defined, not vanilla values.
 
 depends_on: []
 conflicts_with: []
