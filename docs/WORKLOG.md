@@ -41,9 +41,10 @@
 8. 3 faction archetypes (Order, Industrial Swarm, Asymmetric) across 5 factions
 9. Build order: Modern warfare first, Star Wars second, Guerrilla third
 
-### Open Questions
-- [ ] Exact DINO Unity version and Mono vs IL2CPP status
-- [ ] Component dump format and ECS system discovery approach
+### Open Questions (from inception -- most now resolved)
+- [ ] Exact DINO Unity version
+- [x] ~~Mono vs IL2CPP status~~ -> **Mono confirmed**
+- [x] ~~Component dump format~~ -> Entity Dumper and System Enumerator implemented in Runtime
 - [ ] Asset replacement feasibility (models, textures, audio)
-- [ ] Steam Workshop integration potential
-- [ ] BepInEx version compatibility matrix for DINO
+- [x] ~~Steam Workshop integration potential~~ -> Maps only via May 2025 Map Editor update; no code mod support
+- [x] ~~BepInEx version compatibility~~ -> BepInEx 5.4.23.5 with modified Doorstop fork confirmed working

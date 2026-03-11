@@ -325,7 +325,23 @@ See `schemas/scenario.schema.json` for the full schema.
 
 ### Economy Profiles
 
-Economy profiles adjust resource rates and costs globally. These are typically `balance` or `ruleset` packs that use stat overrides targeting economy-related values.
+Economy profiles adjust resource rates and costs globally. Define economy profiles in `profiles/<name>.yaml`:
+
+```yaml
+id: balanced-economy
+description: Balanced resource rates for extended games
+resource_rates:
+  food: 1.0
+  wood: 1.0
+  stone: 0.9
+  iron: 0.8
+  gold: 0.7
+trade_modifiers:
+  buy_markup: 1.2
+  sell_discount: 0.8
+```
+
+See `schemas/economy-profile.schema.json` for the full schema. Also see `packs/economy-balanced/` for a working example.
 
 ---
 
@@ -450,3 +466,10 @@ For total conversion packs, the Universe Bible system provides a structured way 
 - Pack generator that scaffolds a full total conversion from a Universe Bible
 
 This is particularly useful for themed conversions like Star Wars or modern military, where consistency across hundreds of content entries matters.
+
+See `schemas/universe-bible.json` for the schema. The SDK provides:
+- `UniverseBible` / `UniverseLoader` -- Parse and validate Bible documents
+- `FactionTaxonomy` -- Faction classification and relationships
+- `NamingGuide` / `StyleGuide` -- Naming conventions and visual style rules
+- `CrosswalkDictionary` -- Map vanilla elements to themed equivalents
+- `PackGenerator` -- Scaffold a full total conversion pack from a Universe Bible

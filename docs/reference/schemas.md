@@ -6,20 +6,24 @@ DINOForge uses JSON Schema and YAML Schema definitions to validate all pack cont
 
 | Schema | File | Description |
 |--------|------|-------------|
-| Pack Manifest | `pack-manifest.schema.yaml` | Required metadata for every pack |
-| Unit | `unit.schema.yaml` | Unit definitions with stats, weapons, behavior |
-| Faction | `faction.schema.yaml` | Faction identity, roster, economy, visuals |
+| Pack Manifest | `pack-manifest.schema.yaml` / `.json` | Required metadata for every pack |
+| Unit | `unit.schema.yaml` / `.json` | Unit definitions with stats, weapons, behavior |
+| Faction | `faction.schema.yaml` / `.json` | Faction identity, roster, economy, visuals |
 | Building | `building.schema.json` | Structure definitions |
 | Weapon | `weapon.schema.json` | Weapon class definitions |
 | Projectile | `projectile.schema.json` | Projectile behavior and visuals |
 | Doctrine | `doctrine.schema.json` | Combat doctrine modifiers |
-| Skill | `skill.schema.json` | Unit abilities |
-| Wave | `wave.schema.json` | Enemy wave composition |
+| Skill | `skill.schema.json` | Unit abilities and special actions |
+| Wave | `wave.schema.json` | Enemy wave composition templates |
 | Squad | `squad.schema.json` | Squad formation definitions |
+| Stat Override | `stat-override.schema.json` | Balance mod stat modifications |
+| Scenario | `scenario.schema.json` | Scenario scripting, conditions, victory/loss |
+| Economy Profile | `economy-profile.schema.json` | Resource rates, trade, economy balance |
+| Universe Bible | `universe-bible.json` | Total conversion lore, naming, style guides |
 
 ## Pack Manifest
 
-Every pack must include a `manifest.yaml` conforming to this schema.
+Every pack must include a `pack.yaml` conforming to this schema.
 
 ### Required Fields
 

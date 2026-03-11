@@ -39,9 +39,10 @@ Requirements:
 New packs added under `packs/<pack-name>/`:
 
 Requirements:
-- Must include `pack.yaml` conforming to `schemas/pack-manifest.schema.yaml`
+- Must include `pack.yaml` conforming to `schemas/pack-manifest.schema.yaml` (or `.json`)
 - Must pass `dotnet run --project src/Tools/PackCompiler -- validate`
 - Must declare all dependencies and conflicts
+- See `packs/example-balance/` for a minimal working example
 
 ## Agents MUST NOT:
 - Create new registry types without architect approval

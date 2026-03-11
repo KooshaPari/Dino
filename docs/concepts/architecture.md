@@ -95,20 +95,38 @@ graph LR
 ```
 DINOForge/
   src/
-    Runtime/           # Product A — BepInEx plugin
-    SDK/               # Product B — Public mod API
+    Runtime/             # Product A — BepInEx plugin
+      Bridge/            #   ECS bridge (component mapping, stat modifiers, queries)
+      HotReload/         #   Hot reload bridge
+      UI/                #   Mod menu overlay (F10), settings panel
+    SDK/                 # Product B — Public mod API
+      Assets/            #   Asset service, addressables catalog
+      Dependencies/      #   Dependency resolver
+      HotReload/         #   Pack file watcher
+      Models/            #   Content data models
+      Registry/          #   Generic registry with conflict detection
+      Universe/          #   Universe Bible system
+      Validation/        #   Schema validation (NJsonSchema)
+    Bridge/
+      Protocol/          #   JSON-RPC types, IGameBridge interface
+      Client/            #   Out-of-process game client
     Domains/
-      Warfare/         # First domain plugin
-      Economy/         # Future
-      Scenario/        # Future
-      UI/              # Future
+      Warfare/           #   Warfare domain (factions, doctrines, combat)
+      Economy/           #   Economy domain (rates, trade, balance)
+      Scenario/          #   Scenario domain (scripting, conditions)
+      UI/                #   UI domain (HUD injection, menus)
     Tools/
-      PackCompiler/    # CLI tooling
-      DumpTools/       # Dump analysis
-    Tests/             # xUnit test suite
-  packs/               # Product C — Content packs
-  schemas/             # Canonical schema definitions
-  docs/                # This site
+      Cli/               #   dinoforge CLI (11 commands)
+      McpServer/         #   MCP server for Claude Code (13 tools)
+      PackCompiler/      #   Pack compiler (validate, build)
+      DumpTools/         #   Dump analysis (Spectre.Console)
+      Installer/         #   BepInEx + DINOForge installer
+    Tests/               #   Unit tests (xUnit + FluentAssertions)
+      Integration/       #   Integration tests
+  packs/                 # Product C — Content packs (6 example packs)
+  schemas/               # Canonical schema definitions (17 schemas)
+  docs/                  # This documentation site
+  manifests/             # Ownership map, extension points
 ```
 
 ## Reference Models

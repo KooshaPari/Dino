@@ -7,28 +7,68 @@ using UnityEngine;
 namespace DINOForge.Runtime
 {
     /// <summary>
-    /// Simple IMGUI debug overlay showing ECS world state.
-    /// Toggled via hotkey (default: F9).
+    /// IMGUI debug overlay MonoBehaviour showing ECS world state,
+    /// loaded packs, and system status.
+    /// Toggled via F9. Lives on the persistent DINOForge_Root GameObject.
     /// </summary>
-    public class DebugOverlay
+    public class DebugOverlayBehaviour : MonoBehaviour
     {
+        private bool _visible;
         private Vector2 _scrollPosition;
         private Rect _windowRect = new Rect(10, 10, 420, 500);
         private bool _showSystems;
         private bool _showArchetypes;
+        private ModPlatform? _modPlatform;
 
-        public void Draw()
+        /// <summary>Whether the debug overlay is currently visible.</summary>
+        public bool IsVisible => _visible;
+
+        /// <summary>
+        /// Provides a reference to the ModPlatform for status display.
+        /// </summary>
+        /// <param name="modPlatform">The mod platform orchestrator.</param>
+        public void SetModPlatform(ModPlatform? modPlatform)
         {
+            _modPlatform = modPlatform;
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.F9))
+            {
+                _visible = !_visible;
+            }
+        }
+
+        private void OnGUI()
+        {
+            if (!_visible) return;
+
             _windowRect = GUI.Window(
                 9999,
                 _windowRect,
                 DrawWindow,
-                $"DINOForge v{PluginInfo.VERSION}");
+                $"DINOForge Debug v{PluginInfo.VERSION}");
         }
 
         private void DrawWindow(int windowId)
         {
             _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
+
+            // Platform status
+            GUILayout.Label("=== Platform Status ===");
+            if (_modPlatform != null)
+            {
+                GUILayout.Label($"  Initialized: {_modPlatform.IsInitialized}");
+                GUILayout.Label($"  World Ready: {_modPlatform.IsWorldReady}");
+                GUILayout.Label($"  Packs Dir: {_modPlatform.PacksDirectory}");
+            }
+            else
+            {
+                GUILayout.Label("  ModPlatform: not available");
+            }
+
+            GUILayout.Space(10);
 
             // World info
             GUILayout.Label("=== ECS Worlds ===");
@@ -80,7 +120,7 @@ namespace DINOForge.Runtime
             }
 
             GUILayout.Space(10);
-            GUILayout.Label("F8 = Dump to disk | F9 = Toggle overlay");
+            GUILayout.Label("F8 = Dump to disk | F9 = Toggle debug | F10 = Mod menu");
 
             GUILayout.EndScrollView();
             GUI.DragWindow();

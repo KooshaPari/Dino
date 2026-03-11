@@ -11,9 +11,9 @@ DINOForge follows a milestone-based development plan, building from low-level ru
 Install BepInEx, confirm plugin loading, test plugin, dump entities.
 
 - BepInEx 5.4.23.5 installed with modified Doorstop pre-loader
-- Runtime builds to `BepInEx/ecs_plugins/DINOForge.Runtime.dll` (26KB)
+- Runtime builds to `BepInEx/ecs_plugins/DINOForge.Runtime.dll`
 - Entity Dumper, System Enumerator, Debug Overlay scaffolded
-- 6/6 tests passing (xUnit + FluentAssertions)
+- Initial test suite passing (xUnit + FluentAssertions)
 
 ---
 
@@ -26,88 +26,133 @@ Bootstrap plugin, version detection, logging, ECS introspection, debug overlay.
 - BepInEx plugin bootstrap with version-aware initialization
 - ECS system and component discovery
 - Runtime logging infrastructure
-- Debug overlay foundation
+- Debug overlay foundation (F9 key)
 
 ---
 
-### M2 — Generic Mod SDK :construction:
+### M2 — Generic Mod SDK :white_check_mark:
 
-**Status**: In Progress
+**Status**: Complete
 
 Pack manifest format, registry system, schema validation, override model, dependency resolver.
 
 - Pack manifest model with YAML loader (YamlDotNet)
-- Registry system for extensible content types
-- Schema validation pipeline (JsonSchema.Net / NJsonSchema)
-- Content override model with priority layering
+- Generic `Registry<T>` system with priority layers and conflict detection
+- Schema validation pipeline (NJsonSchema)
+- Content override model with 4-layer priority (BaseGame -> Framework -> DomainPlugin -> Pack)
 - Dependency resolver with cycle detection
+- 17 JSON/YAML schemas covering all content types
+- Content loader for YAML pack ingestion
+- Asset service with addressables catalog support
 
 ---
 
-### M3 — Dev Tooling :construction:
+### M3 — Dev Tooling :white_check_mark:
 
-**Status**: In Progress
+**Status**: Complete
 
 Pack compiler CLI, validator CLI, test harness, diff tools, diagnostics.
 
 - PackCompiler CLI (validate, build, assets commands)
-- DumpTools CLI with Spectre.Console
-- Schema validation integration
-- Pack diffing and compatibility checks
+- DumpTools CLI with Spectre.Console interactive terminal UI
+- `dinoforge` CLI with 11 commands (status, query, override, reload, watch, dump, resources, screenshot, verify, component-map, etc.)
+- MCP Server with 13 game interaction tools for Claude Code integration
 
 ---
 
-### M3.5 — QA Harness :calendar:
+### M3.5 — QA Harness :white_check_mark:
 
-**Status**: Planned
+**Status**: Complete
 
-BepInEx QA plugin with IPC (named pipe/WebSocket), external test driver, ECS state assertions, CI-runnable integration tests.
+Bridge Protocol/Client for IPC, integration test suite, CI-runnable tests.
 
-- In-game QA plugin that accepts commands via IPC
-- External test driver for automated testing
-- ECS state assertion framework
-- CI integration for automated pack validation
+- Bridge Protocol: JSON-RPC message types, IGameBridge interface, typed result models
+- Bridge Client: GameClient for out-of-process game communication with connection state management
+- Integration test project (`DINOForge.Tests.Integration`) with assertions, fixtures, and test data
+- 14 integration tests covering content loading, bridge communication, end-to-end pack application
+- CI solution (`DINOForge.CI.sln`) excluding Runtime for headless builds
 
 ---
 
-### M4 — Warfare Domain Plugin :calendar:
+### M4 — Warfare Domain Plugin :white_check_mark:
 
-**Status**: Planned
+**Status**: Complete
 
 Factions, doctrines, unit classes, weapons, waves, defenses.
 
 - Faction archetype system (Order, Industrial Swarm, Asymmetric)
 - 5 factions: Republic, CIS, West, Classic West Enemy, Guerrilla
-- Unit role matrix with 13 shared slots
-- Weapon classes and defense tags
+- Unit role matrix with 13 shared slots across all factions
+- Weapon classes (12 types) and defense tags (8 types)
 - Wave composition templates
 - Doctrine modifiers
+- Balance validation
 
 ---
 
-### M5 — First Example Packs :calendar:
+### M5 — First Example Packs :white_check_mark:
 
-**Status**: Planned
+**Status**: Complete
 
-West vs Classic Enemy, then Republic vs CIS, then Guerrilla.
+Full set of example packs demonstrating all content types.
 
-- Modern Warfare theme pack (West vs Classic West Enemy)
-- Star Wars Clone Wars theme pack (Republic vs CIS)
-- Asymmetric warfare pack (West vs Guerrilla)
-- Level 1 content (zero-new-model build)
+- `warfare-modern` — West vs Classic West Enemy (Modern Warfare theme)
+- `warfare-starwars` — Republic vs CIS (Star Wars Clone Wars theme)
+- `warfare-guerrilla` — Asymmetric warfare (Guerrilla faction)
+- `example-balance` — Simple stat override balance mod
+- `economy-balanced` — Economy balance profiles and trade rules
+- `scenario-tutorial` — Tutorial scenario with scripted conditions
 
 ---
 
-### M6 — Content Polish :calendar:
+### M6 — In-Game Mod Menu & HMR :white_check_mark:
 
-**Status**: Planned
+**Status**: Complete
 
-Signature structures, better models, faction audio, campaign wrappers.
+F10 mod menu overlay, hot module replacement for YAML packs.
 
-- Level 2 content (selective model swaps for key units)
-- Faction-specific audio packs
-- Campaign/scenario scripting
-- Polish and balance iteration
+- Mod menu overlay (F10) with pack listing, enable/disable, manual reload
+- Mod settings panel for per-pack configuration
+- Pack file watcher (HMR) for live YAML reload during gameplay
+- Hot reload bridge wiring changes to re-validation and re-application
+
+---
+
+### M7 — Installer & Universe Bible :white_check_mark:
+
+**Status**: Complete
+
+PowerShell/Bash installer, Universe Bible system, pack generator.
+
+- `Install-DINOForge.ps1` (Windows) and `install.sh` (Linux/macOS) installer scripts
+- Installer library with programmatic installation support
+- Universe Bible system: faction taxonomies, naming guides, style guides, crosswalk dictionaries
+- Universe loader for parsing Bible documents
+- Pack generator for scaffolding total conversion packs from a Universe Bible
+
+---
+
+### M8 — Runtime Integration :construction:
+
+**Status**: In Progress
+
+ModPlatform orchestrator wiring SDK to Bridge to UI to HMR.
+
+- `ModPlatform` class owns entire mod platform lifecycle (ADR-009)
+- Lifecycle phases: Initialize -> OnWorldReady -> LoadPacks -> StartHotReload -> Shutdown
+- Plugin.cs stays thin (bootstrap only, forwards Unity callbacks)
+- ECS bridge with component mapping, stat modifiers, entity queries, override applicator
+- Remaining work: end-to-end in-game validation with live DINO instance
+
+---
+
+## Current Stats
+
+- **17 projects** in the solution
+- **342 tests passing** (328 unit + 14 integration)
+- **17 schemas** covering all content types
+- **6 example packs** demonstrating all mod categories
+- **4 domain plugins**: Warfare, Economy, Scenario, UI
 
 ---
 

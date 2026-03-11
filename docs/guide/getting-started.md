@@ -57,15 +57,37 @@ dotnet test src/DINOForge.sln --verbosity normal
 ```
 DINOForge/
   src/
-    Runtime/       # BepInEx plugin — bootstrap, ECS detection, hooks
-    SDK/           # Public mod API — registries, schemas, pack loaders
+    Runtime/           # BepInEx plugin — bootstrap, ECS detection, hooks
+      Bridge/          #   ECS bridge: component mapping, stat modifiers
+      HotReload/       #   Hot reload bridge
+      UI/              #   Mod menu (F10), settings panel
+    SDK/               # Public mod API — registries, schemas, pack loaders
+      Assets/          #   Asset service, addressables catalog
+      Dependencies/    #   Dependency resolver
+      HotReload/       #   Pack file watcher
+      Models/          #   Content data models
+      Registry/        #   Generic registry with conflict detection
+      Universe/        #   Universe Bible system
+      Validation/      #   Schema validation (NJsonSchema)
+    Bridge/
+      Protocol/        #   JSON-RPC message types, IGameBridge
+      Client/          #   Out-of-process game client
+    Domains/
+      Warfare/         #   Factions, doctrines, combat, waves
+      Economy/         #   Rates, trade, balance
+      Scenario/        #   Scripting, conditions
+      UI/              #   HUD injection, menus
     Tools/
-      PackCompiler/  # CLI: validate, build, package packs
-      DumpTools/     # Entity/component dump utilities
-    Tests/         # xUnit test suite
-  packs/           # Content packs and example mods
-  schemas/         # Canonical JSON/YAML schema definitions
-  docs/            # This documentation site
+      Cli/             #   dinoforge CLI
+      McpServer/       #   MCP server for Claude Code
+      PackCompiler/    #   Pack compiler (validate, build)
+      DumpTools/       #   Entity dump analysis (Spectre.Console)
+      Installer/       #   BepInEx + DINOForge installer
+    Tests/             # Unit tests (xUnit + FluentAssertions)
+      Integration/     # Integration tests
+  packs/               # Content packs (6 example packs)
+  schemas/             # JSON/YAML schema definitions (17 schemas)
+  docs/                # This documentation site
 ```
 
 ## Load a Pack

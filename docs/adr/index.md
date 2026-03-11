@@ -14,6 +14,7 @@ ADRs document significant architectural decisions made during DINOForge developm
 | [ADR-006](./ADR-006-domain-plugin-architecture.md) | Domain Plugin Architecture | Accepted |
 | [ADR-007](./ADR-007-observability-first.md) | Observability First | Accepted |
 | [ADR-008](./ADR-008-wrap-dont-handroll.md) | Wrap, Don't Handroll | Accepted |
+| [ADR-009](./ADR-009-runtime-orchestration.md) | Runtime Orchestration via ModPlatform | Accepted |
 
 ## Format
 

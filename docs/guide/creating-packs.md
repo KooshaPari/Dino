@@ -16,7 +16,7 @@ Every mod in DINOForge is a **pack** — a self-contained, versioned, validated 
 
 ```
 packs/my-pack/
-  manifest.yaml          # Required — pack metadata
+  pack.yaml              # Required — pack metadata
   units/                 # Unit definitions
     trooper.yaml
     sniper.yaml
@@ -37,7 +37,7 @@ packs/my-pack/
 
 ## Manifest Format
 
-Every pack requires a `manifest.yaml`:
+Every pack requires a `pack.yaml`:
 
 ```yaml
 id: my-awesome-pack

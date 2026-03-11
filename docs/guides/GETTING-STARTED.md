@@ -106,20 +106,33 @@ dotnet run --project src/Tools/PackCompiler -- build packs/<pack-name>
 DINOForge/
   src/
     Runtime/             # BepInEx plugin: bootstrap, ECS detection, hooks, debug overlay
+      Bridge/            #   ECS bridge: component mapping, stat modifiers, entity queries
+      HotReload/         #   Hot module replacement bridge
+      UI/                #   In-game mod menu (F10) and settings panel
     SDK/                 # Public mod API: registries, schemas, pack loaders, dependency resolver
-    Schemas/             # Pack schemas and validators
-    Registries/          # Unit/building/projectile/effect/AI registration systems
+      Assets/            #   Asset service and addressables catalog
+      Dependencies/      #   Pack dependency resolver with cycle detection
+      HotReload/         #   Pack file watcher for live reload
+      Models/            #   Data models (units, factions, buildings, weapons, etc.)
+      Registry/          #   Generic registry system with conflict detection
+      Universe/          #   Universe Bible system for total conversions
+      Validation/        #   Schema validation (NJsonSchema)
+    Bridge/
+      Protocol/          #   JSON-RPC message types and IGameBridge interface
+      Client/            #   GameClient for out-of-process bridge communication
     Domains/
-      Warfare/           # Warfare domain plugin (factions, doctrines, combat)
-      Economy/           # Economy domain plugin
-      Scenario/          # Scenario/campaign domain plugin
-      UI/                # UI/UX domain plugin
+      Warfare/           #   Warfare domain plugin (factions, doctrines, combat, waves)
+      Economy/           #   Economy domain plugin (rates, trade, balance)
+      Scenario/          #   Scenario domain plugin (scripting, conditions)
+      UI/                #   UI/UX domain plugin (HUD injection, menus)
     Tools/
-      PackCompiler/      # CLI: validate, build, diff, package packs
-      Inspector/         # In-game debug overlay and entity inspector
-      DumpTools/         # Entity/component/prefab dump utilities
-    Debug/               # Hot reload, logging, diagnostics
-    Tests/               # xUnit test suite
+      Cli/               #   dinoforge CLI (status, query, override, reload, watch)
+      McpServer/         #   MCP server for Claude Code integration
+      PackCompiler/      #   Pack compiler: validate, build, package packs
+      DumpTools/         #   Entity/component dump analysis (Spectre.Console)
+      Installer/         #   PowerShell/Bash installer for BepInEx + DINOForge
+    Tests/               #   Unit tests (xUnit + FluentAssertions)
+      Integration/       #   Integration tests
   packs/                 # Content packs and example mods
   schemas/               # Canonical JSON/YAML schema definitions
   docs/                  # Documentation
@@ -196,6 +209,64 @@ Copy the built pack to `BepInEx/dinoforge_packs/my-first-mod/` in your game dire
 2. Press F10 to open the mod menu
 3. Verify "My First Mod" appears and is loaded
 4. Check that archers have increased range
+
+---
+
+## MCP Server Setup (for Claude Code)
+
+DINOForge includes an MCP (Model Context Protocol) server that lets Claude Code interact with the game directly. This enables agent-driven testing and iteration.
+
+### Start the MCP Server
+
+```bash
+dotnet run --project src/Tools/McpServer
+```
+
+The MCP server exposes 13 tools for game interaction:
+- **GameStatus** / **GameLaunch** / **GameWaitForWorld** -- Lifecycle management
+- **GameQueryEntities** / **GameGetComponentMap** / **GameGetStat** -- ECS inspection
+- **GameApplyOverride** / **GameReloadPacks** -- Live mod application
+- **GameGetResources** / **GameDumpState** -- State inspection
+- **GameScreenshot** / **GameVerifyMod** -- Verification
+
+### Configure Claude Code
+
+Add the MCP server to your Claude Code configuration so agents can control the game during development sessions.
+
+---
+
+## Using the CLI
+
+The `dinoforge` CLI provides command-line access to the same capabilities:
+
+```bash
+# Check game status
+dotnet run --project src/Tools/Cli -- status
+
+# Query entities
+dotnet run --project src/Tools/Cli -- query --type unit
+
+# Apply an override
+dotnet run --project src/Tools/Cli -- override --pack my-mod
+
+# Watch for pack changes and auto-reload
+dotnet run --project src/Tools/Cli -- watch packs/my-mod
+
+# Reload all packs
+dotnet run --project src/Tools/Cli -- reload
+```
+
+---
+
+## Community Resources
+
+- [Nexus Mods - Diplomacy is Not an Option](https://www.nexusmods.com/diplomacyisnotanoption) -- Mod downloads and community
+- [BepInEx 5 with Unity ECS Support](https://www.nexusmods.com/diplomacyisnotanoption/mods/1) -- Required mod loader
+- [Steam Community Modding Guide](https://steamcommunity.com/sharedfiles/filedetails/?id=3348001330) -- Primary BepInEx modding reference
+- [Steam Workshop](https://steamcommunity.com/app/1272320/workshop/) -- Official map sharing (Map Editor maps only)
+- [devopsdinosaur/dno-mods](https://github.com/devopsdinosaur/dno-mods) -- Existing community mod source code
+- [Vortex Extension](https://www.nexusmods.com/site/mods/1070) -- Vortex Mod Manager support for DINO
+- [Door 407](https://door407.com) -- Game developer website
 
 ---
 

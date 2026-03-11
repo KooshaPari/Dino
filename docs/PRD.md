@@ -1,8 +1,9 @@
 # DINOForge - Product Requirements Document
 
-**Version**: 0.1.0
-**Status**: Draft
+**Version**: 0.2.0
+**Status**: Active
 **Created**: 2026-03-09
+**Updated**: 2026-03-10
 **Author**: kooshapari + Agent Org
 
 ---
@@ -258,12 +259,25 @@ Where actual mods live. Mostly declarative and content-driven.
 | M1 | Runtime Scaffold | Bootstrap plugin, version detection, logging, ECS introspection, debug overlay | Done |
 | M2 | Generic Mod SDK | Pack manifest format, registry system, schema validation, override model, dependency resolver | Done |
 | M3 | Dev Tooling | Pack compiler CLI, validator CLI, test harness, diff tools, diagnostics | Done |
-| M3.5 | QA Harness | BepInEx QA plugin with IPC, external test driver, ECS state assertions, CI-runnable integration tests | In Progress |
+| M3.5 | QA Harness | Bridge Protocol/Client, integration tests, CI-runnable test suite | Done |
 | M4 | Warfare Domain Plugin | Factions, doctrines, unit classes, weapons, waves, defenses | Done |
-| M5 | First Example Packs | West vs Classic Enemy, Republic vs CIS, Guerrilla | Done |
+| M5 | First Example Packs | West vs Classic Enemy, Republic vs CIS, Guerrilla, economy, scenario | Done |
 | M6 | In-Game Mod Menu & HMR | F10 mod menu overlay, hot module replacement for YAML packs | Done |
 | M7 | Installer & Universe Bible | PowerShell/Bash installer, Universe Bible system, pack generator | Done |
-| M8 | Runtime Integration | Orchestrator wiring SDK to Bridge to UI to HMR, end-to-end pack application | In Progress |
+| M8 | Runtime Integration | ModPlatform orchestrator wiring SDK to Bridge to UI to HMR, end-to-end pack application | In Progress |
+
+### Current Test Coverage
+
+- **342 tests passing** (328 unit + 14 integration)
+- Tests cover: pack loading, registry system, dependency resolution, schema validation, model serialization, warfare domain, economy domain, scenario domain, hot reload, installer, bridge client, content loader, asset service, mod menu, universe bible, skills/waves/squads
+
+### Current Project Count
+
+The solution (`src/DINOForge.sln`) contains **17 projects**:
+- Runtime, SDK, Bridge.Protocol, Bridge.Client
+- Domains: Warfare, Economy, Scenario, UI
+- Tools: Cli, McpServer, PackCompiler, DumpTools, Installer
+- Tests, Tests.Integration
 
 ---
 

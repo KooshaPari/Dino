@@ -10,7 +10,7 @@ mkdir -p packs/my-balance-mod
 
 ## 2. Write the Manifest
 
-Create `packs/my-balance-mod/manifest.yaml`:
+Create `packs/my-balance-mod/pack.yaml`:
 
 ```yaml
 id: my-balance-mod

@@ -185,16 +185,34 @@ These vanilla game elements map to abstract modding roles:
 ## References
 
 ### Primary
-- Nexus Mods: nexusmods.com/diplomacyisnotanoption/mods
-- Steam Community Guide: steamcommunity.com/sharedfiles/filedetails/?id=3348001330
-- GitHub: github.com/devopsdinosaur/dno-mods
+- [Nexus Mods - Diplomacy is Not an Option](https://www.nexusmods.com/diplomacyisnotanoption) -- Mod downloads and community hub
+- [BepInEx 5 with Unity ECS Support](https://www.nexusmods.com/diplomacyisnotanoption/mods/1) -- Required mod loader (modified Doorstop fork)
+- [Steam Community Modding Guide](https://steamcommunity.com/sharedfiles/filedetails/?id=3348001330) -- "Modding is an Option (with BepInEx)" -- primary BepInEx setup reference
+- [devopsdinosaur/dno-mods](https://github.com/devopsdinosaur/dno-mods) -- Community mod source code (Resource Fairy, Trainer)
+- [Steam Workshop](https://steamcommunity.com/app/1272320/workshop/) -- Official map sharing (Map Editor maps only, not code mods)
+
+### Nexus Mods Available
+- [BepInEx 5 with Unity ECS Support](https://www.nexusmods.com/diplomacyisnotanoption/mods/1) -- Foundation loader
+- [Resource Fairy](https://www.nexusmods.com/diplomacyisnotanoption/mods/2) -- Configurable resource/storage multipliers (F1 ConfigManager)
+- [Trainer and Multipliers](https://www.nexusmods.com/diplomacyisnotanoption/mods/3) -- Unit damage/speed/health, building health, population multipliers
 
 ### Secondary
-- PCGamingWiki: pcgamingwiki.com/wiki/Diplomacy_Is_Not_an_Option
-- Fandom Wiki: diplomacy-is-not-an-option.fandom.com
-- ModDB: moddb.com/games/diplomacy-is-not-an-option/mods
-- SteamDB Patch Notes: steamdb.info/app/1272320/patchnotes/
-- Door 407: door407.com
+- [Vortex Extension for DINO](https://www.nexusmods.com/site/mods/1070) -- Adds DINO support to Vortex Mod Manager (auto-installs BepInEx)
+- [PCGamingWiki](https://pcgamingwiki.com/wiki/Diplomacy_Is_Not_an_Option)
+- [Fandom Wiki](https://diplomacy-is-not-an-option.fandom.com)
+- [ModDB](https://www.moddb.com/games/diplomacy-is-not-an-option/mods)
+- [SteamDB Patch Notes](https://steamdb.info/app/1272320/patchnotes/)
+- [Door 407 (Developer)](https://door407.com)
+- [Steam Store Page](https://store.steampowered.com/app/1272320/Diplomacy_is_Not_an_Option/)
+
+### Map Editor (Official)
+The May 2025 update added a full Map Editor with Steam Workshop integration:
+- Adjustable terrain, enemy horde waves, timing
+- Mission objectives (defend/attack, survive/prosper)
+- Random or manual landscape options
+- Resource difficulty settings
+- December 2025 update made Undead faction playable in Map Editor
+- Maps only -- the Workshop does not support code mods
 
 ### Comparable BepInEx Modding Scenes (for reference)
 - Valheim (mature BepInEx + Thunderstore ecosystem)

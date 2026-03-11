@@ -33,28 +33,44 @@ dotnet run --project src/Tools/PackCompiler -- build packs/<pack-name>
 ```
 DINOForge/
   src/
-    Runtime/           # Low-level bootstrap, ECS detection, hooks, version compat
-    SDK/               # Public mod API - registries, schemas, pack loaders
-    Schemas/           # All pack schemas and validators (JSON Schema / YAML)
-    Registries/        # Unit/building/projectile/effect/AI registration systems
+    Runtime/             # BepInEx plugin: bootstrap, ECS detection, debug overlay
+      Bridge/            #   ECS bridge: component mapping, stat modifiers, entity queries
+      HotReload/         #   Hot module replacement bridge
+      UI/                #   In-game mod menu overlay (F10) and settings panel
+    SDK/                 # Public mod API: registries, schemas, pack loaders
+      Assets/            #   Asset service, addressables catalog, bundle info
+      Dependencies/      #   Pack dependency resolver with cycle detection
+      HotReload/         #   Pack file watcher for live reload
+      Models/            #   Data models (units, factions, buildings, weapons, etc.)
+      Registry/          #   Generic registry system with conflict detection
+      Universe/          #   Universe Bible system for total conversions
+      Validation/        #   Schema validation (NJsonSchema)
+    Bridge/
+      Protocol/          #   JSON-RPC message types and IGameBridge interface
+      Client/            #   GameClient for out-of-process bridge communication
     Domains/
-      Warfare/         # Warfare domain plugin (factions, doctrines, combat)
-      Economy/         # Economy domain plugin
-      Scenario/        # Scenario/campaign domain plugin
-      UI/              # UI/UX domain plugin
+      Warfare/           #   Warfare domain plugin (factions, doctrines, combat, waves)
+      Economy/           #   Economy domain plugin (rates, trade, balance)
+      Scenario/          #   Scenario domain plugin (scripting, conditions, validation)
+      UI/                #   UI/UX domain plugin (HUD injection, menu management)
     Tools/
-      PackCompiler/    # CLI: validate, build, diff, package packs
-      Inspector/       # In-game debug overlay and entity inspector
-      DumpTools/       # Entity/component/prefab dump utilities
-    Debug/             # Hot reload, logging surfaces, diagnostics
-    Tests/             # Unit, integration, pack validation, BDD specs
-  packs/               # Official content packs and example mods
-    example-balance/
-    warfare-modern/
-    warfare-starwars/
-  schemas/             # Canonical JSON/YAML schema definitions
-  docs/                # All project documentation
-  manifests/           # System contracts, ownership maps, extension points
+      Cli/               #   dinoforge CLI (status, query, override, reload, watch, etc.)
+      McpServer/         #   MCP server for Claude Code integration (13 game tools)
+      PackCompiler/      #   Pack compiler: validate, build, package packs
+      DumpTools/         #   Entity/component dump analysis (Spectre.Console)
+      Installer/         #   PowerShell/Bash installer for BepInEx + DINOForge
+    Tests/               #   Unit tests (xUnit + FluentAssertions)
+      Integration/       #   Integration tests (Bridge, ContentLoader, end-to-end)
+  packs/                 # Content packs and example mods
+    example-balance/     #   Simple stat override example
+    warfare-modern/      #   Modern warfare theme (West vs Classic Enemy)
+    warfare-starwars/    #   Star Wars Clone Wars theme (Republic vs CIS)
+    warfare-guerrilla/   #   Asymmetric warfare (Guerrilla faction)
+    economy-balanced/    #   Economy balance pack
+    scenario-tutorial/   #   Tutorial scenario pack
+  schemas/               # Canonical JSON/YAML schema definitions (17 schemas)
+  docs/                  # All project documentation
+  manifests/             # System contracts, ownership maps, extension points
 ```
 
 ## Agent Governance
@@ -147,7 +163,7 @@ Agents should reduce all work to one of these forms:
 
 ## Pack System
 
-Every mod is a pack with explicit metadata:
+Every mod is a pack with a `pack.yaml` manifest and explicit metadata:
 ```yaml
 id: example-pack
 name: Example Pack
