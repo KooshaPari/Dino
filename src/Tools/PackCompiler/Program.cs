@@ -23,26 +23,32 @@ namespace DINOForge.Tools.PackCompiler
         {
             var packPathArg = new Argument<string>("pack-path") { Description = "Path to the pack directory" };
             var outputOption = new Option<string?>("--output", "-o") { Description = "Output directory for the bundled pack" };
+            var formatOption = new Option<string>("--format") { Description = "Output format: text or json (default: text)", DefaultValueFactory = _ => "text" };
 
             // Validate command
             var validateCommand = new Command("validate") { Description = "Validate a pack directory" };
             validateCommand.Arguments.Add(packPathArg);
+            validateCommand.Options.Add(formatOption);
             validateCommand.SetAction(parseResult =>
             {
                 string packPath = parseResult.GetValue(packPathArg)!;
-                ValidatePack(packPath);
+                string format = parseResult.GetValue(formatOption) ?? "text";
+                ValidatePack(packPath, format);
             });
 
             // Build command
             var buildPackPathArg = new Argument<string>("pack-path") { Description = "Path to the pack directory" };
+            var buildFormatOption = new Option<string>("--format") { Description = "Output format: text or json (default: text)", DefaultValueFactory = _ => "text" };
             var buildCommand = new Command("build") { Description = "Validate and bundle a pack directory" };
             buildCommand.Arguments.Add(buildPackPathArg);
             buildCommand.Options.Add(outputOption);
+            buildCommand.Options.Add(buildFormatOption);
             buildCommand.SetAction(parseResult =>
             {
                 string packPath = parseResult.GetValue(buildPackPathArg)!;
                 string? outputDir = parseResult.GetValue(outputOption);
-                BuildPack(packPath, outputDir);
+                string format = parseResult.GetValue(buildFormatOption) ?? "text";
+                BuildPack(packPath, outputDir, format);
             });
 
             // Assets command group
@@ -150,30 +156,54 @@ namespace DINOForge.Tools.PackCompiler
             return await parseResultObj.InvokeAsync();
         }
 
-        private static void ValidatePack(string packPath)
+        private static void ValidatePack(string packPath, string format = "text")
         {
+            bool jsonMode = string.Equals(format, "json", StringComparison.OrdinalIgnoreCase);
             try
             {
-                AnsiConsole.MarkupLine("[bold blue]PackCompiler Validate[/]");
-                AnsiConsole.MarkupLine($"Pack Path: {packPath}");
-                AnsiConsole.WriteLine();
+                if (!jsonMode)
+                {
+                    AnsiConsole.MarkupLine("[bold blue]PackCompiler Validate[/]");
+                    AnsiConsole.MarkupLine($"Pack Path: {packPath}");
+                    AnsiConsole.WriteLine();
+                }
 
                 if (!Directory.Exists(packPath))
                 {
-                    AnsiConsole.MarkupLine("[bold red]Error:[/] Pack directory not found");
+                    if (jsonMode)
+                    {
+                        Console.WriteLine(JsonSerializer.Serialize(new { status = "error", pack = (string?)null, errors = new[] { "Pack directory not found" } }));
+                    }
+                    else
+                    {
+                        AnsiConsole.MarkupLine("[bold red]Error:[/] Pack directory not found");
+                    }
                     Environment.Exit(1);
                 }
 
                 string manifestPath = Path.Combine(packPath, "pack.yaml");
                 if (!File.Exists(manifestPath))
                 {
-                    AnsiConsole.MarkupLine("[bold red]Error:[/] pack.yaml not found in directory");
+                    if (jsonMode)
+                    {
+                        Console.WriteLine(JsonSerializer.Serialize(new { status = "error", pack = (string?)null, errors = new[] { "pack.yaml not found in directory" } }));
+                    }
+                    else
+                    {
+                        AnsiConsole.MarkupLine("[bold red]Error:[/] pack.yaml not found in directory");
+                    }
                     Environment.Exit(1);
                 }
 
-                AnsiConsole.MarkupLine("[yellow]Loading manifest...[/]");
+                if (!jsonMode) AnsiConsole.MarkupLine("[yellow]Loading manifest...[/]");
                 var loader = new PackLoader();
                 var manifest = loader.LoadFromFile(manifestPath);
+
+                if (jsonMode)
+                {
+                    Console.WriteLine(JsonSerializer.Serialize(new { status = "ok", pack = manifest.Id, errors = Array.Empty<string>() }));
+                    return;
+                }
 
                 AnsiConsole.MarkupLine("[bold]Manifest Fields:[/]");
                 var table = new Table();
@@ -234,61 +264,95 @@ namespace DINOForge.Tools.PackCompiler
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[bold red]Validation failed:[/] {ex.Message}");
+                if (jsonMode)
+                {
+                    Console.WriteLine(JsonSerializer.Serialize(new { status = "error", pack = (string?)null, errors = new[] { ex.Message } }));
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine($"[bold red]Validation failed:[/] {ex.Message}");
+                }
                 Environment.Exit(1);
             }
         }
 
-        private static void BuildPack(string packPath, string? outputDir)
+        private static void BuildPack(string packPath, string? outputDir, string format = "text")
         {
+            bool jsonMode = string.Equals(format, "json", StringComparison.OrdinalIgnoreCase);
             try
             {
-                AnsiConsole.MarkupLine("[bold blue]PackCompiler Build[/]");
-                AnsiConsole.MarkupLine($"Pack Path: {packPath}");
-                if (!string.IsNullOrEmpty(outputDir))
-                    AnsiConsole.MarkupLine($"Output Directory: {outputDir}");
-                AnsiConsole.WriteLine();
+                if (!jsonMode)
+                {
+                    AnsiConsole.MarkupLine("[bold blue]PackCompiler Build[/]");
+                    AnsiConsole.MarkupLine($"Pack Path: {packPath}");
+                    if (!string.IsNullOrEmpty(outputDir))
+                        AnsiConsole.MarkupLine($"Output Directory: {outputDir}");
+                    AnsiConsole.WriteLine();
+                }
 
                 if (!Directory.Exists(packPath))
                 {
-                    AnsiConsole.MarkupLine("[bold red]Error:[/] Pack directory not found");
+                    if (jsonMode)
+                        Console.WriteLine(JsonSerializer.Serialize(new { status = "error", errors = new[] { "Pack directory not found" } }));
+                    else
+                        AnsiConsole.MarkupLine("[bold red]Error:[/] Pack directory not found");
                     Environment.Exit(1);
                 }
 
                 string manifestPath = Path.Combine(packPath, "pack.yaml");
                 if (!File.Exists(manifestPath))
                 {
-                    AnsiConsole.MarkupLine("[bold red]Error:[/] pack.yaml not found in directory");
+                    if (jsonMode)
+                        Console.WriteLine(JsonSerializer.Serialize(new { status = "error", errors = new[] { "pack.yaml not found in directory" } }));
+                    else
+                        AnsiConsole.MarkupLine("[bold red]Error:[/] pack.yaml not found in directory");
                     Environment.Exit(1);
                 }
 
-                AnsiConsole.MarkupLine("[yellow]Validating manifest...[/]");
+                if (!jsonMode) AnsiConsole.MarkupLine("[yellow]Validating manifest...[/]");
                 var loader = new PackLoader();
                 var manifest = loader.LoadFromFile(manifestPath);
-                AnsiConsole.MarkupLine($"[green]v[/] Manifest valid: {manifest.Name} v{manifest.Version}");
-                AnsiConsole.WriteLine();
+                if (!jsonMode)
+                {
+                    AnsiConsole.MarkupLine($"[green]v[/] Manifest valid: {manifest.Name} v{manifest.Version}");
+                    AnsiConsole.WriteLine();
+                }
 
                 string finalOutputDir = outputDir ?? Path.Combine(Directory.GetCurrentDirectory(), $"{manifest.Id}-{manifest.Version}");
 
                 if (Directory.Exists(finalOutputDir))
                 {
-                    AnsiConsole.MarkupLine($"[yellow]Clearing existing output directory...[/]");
+                    if (!jsonMode) AnsiConsole.MarkupLine($"[yellow]Clearing existing output directory...[/]");
                     Directory.Delete(finalOutputDir, true);
                 }
 
-                AnsiConsole.MarkupLine($"[yellow]Copying pack to output directory...[/]");
+                if (!jsonMode) AnsiConsole.MarkupLine($"[yellow]Copying pack to output directory...[/]");
                 CopyDirectory(packPath, finalOutputDir);
 
-                AnsiConsole.MarkupLine("[yellow]Generating Thunderstore manifest...[/]");
+                if (!jsonMode) AnsiConsole.MarkupLine("[yellow]Generating Thunderstore manifest...[/]");
                 GenerateThunderstoreManifest(packPath, "KooshaPari", finalOutputDir);
 
-                AnsiConsole.WriteLine();
-                AnsiConsole.MarkupLine("[bold green]Build successful![/]");
-                AnsiConsole.MarkupLine($"Output: {finalOutputDir}");
+                // Compute output size
+                long outputSize = Directory.GetFiles(finalOutputDir, "*", SearchOption.AllDirectories)
+                    .Sum(f => new FileInfo(f).Length);
+
+                if (jsonMode)
+                {
+                    Console.WriteLine(JsonSerializer.Serialize(new { status = "ok", output = finalOutputDir, size = outputSize }));
+                }
+                else
+                {
+                    AnsiConsole.WriteLine();
+                    AnsiConsole.MarkupLine("[bold green]Build successful![/]");
+                    AnsiConsole.MarkupLine($"Output: {finalOutputDir}");
+                }
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[bold red]Build failed:[/] {ex.Message}");
+                if (jsonMode)
+                    Console.WriteLine(JsonSerializer.Serialize(new { status = "error", errors = new[] { ex.Message } }));
+                else
+                    AnsiConsole.MarkupLine($"[bold red]Build failed:[/] {ex.Message}");
                 Environment.Exit(1);
             }
         }

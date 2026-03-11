@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **CI: remove `./local-packages` from nuget.config** — caused NU1301 failures on every GitHub Actions build
+- **Installer: silent crash after UAC** — added `AppDomain.UnhandledException`, task exception handler, try/catch around Avalonia startup, and native Win32 `MessageBox` crash dialog; crash log written to `%LOCALAPPDATA%\DINOForge\installer-crash.log`
+- **PackCompiler: `DefaultValue` API** — updated to `DefaultValueFactory` for System.CommandLine 2.0 compatibility
+
 ### Infrastructure & Quality
+- `.gitattributes` — normalize all source files to LF (fixes `dotnet format` ENDOFLINE errors on Linux CI)
+- `packages.lock.json` generated for all 17 projects (reproducible NuGet restore in CI)
 - PRD updated to v0.5.0 reflecting current state (M9-M11 complete)
 - ROADMAP updated: M9/M10/M11 complete, M12/M13 in progress, M14/M15 scoped out
 - Current test coverage: 416+ tests (402 unit + 14 integration) with 60%+ enforcement
@@ -70,12 +77,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### M9: Unit Spawning & Wave Injection System
 - M9: **PackUnitSpawner** - clone-and-override ECS system for spawning pack-defined units with full ECS archetype support
+- M9: **PackUnitSpawner** ECS SystemBase for cloning vanilla entity archetypes from pack definitions
+- M9: **VanillaArchetypeMapper** maps pack unit class strings to ECS component types
+- M9: **UnitSpawnRequest** queue system with faction tagging and stat override support
 - M9: **FactionSystem** - runtime faction registry and entity tagging via Enemy component marker
 - M9: **WaveInjector** - translates pack wave definitions to timed unit spawn sequences with stagger support
 - M9: **IUnitFactory**, **IFactionSystem**, **IWaveInjector** SDK interfaces for mod extensibility
 - M9: Version compatibility matrix (compat.json, CompatibilityChecker) for pack dependency resolution
 - Pack registry metadata field: `requires_spawner` flag for UI compatibility warnings
 - ModPlatform system registration for all M9 systems with error isolation
+- PackCompiler `--format json` flag for machine-parseable output (agent-first tooling)
+- `GetUnitsByComponentType()` query helper in EntityQueries
 
 ### Changed
 
