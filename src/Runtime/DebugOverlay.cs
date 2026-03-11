@@ -88,7 +88,7 @@ namespace DINOForge.Runtime
                         GUILayout.Label($"  Entities: {entities.Length}");
                         entities.Dispose();
 
-                        int systemCount = world.Systems.Count();
+                        int systemCount = world.Systems.Count;
                         GUILayout.Label($"  Systems: {systemCount}");
                     }
                     catch (Exception ex)

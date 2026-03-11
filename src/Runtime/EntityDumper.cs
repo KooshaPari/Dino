@@ -109,7 +109,7 @@ namespace DINOForge.Runtime
             }
 
             string worldsPath = Path.Combine(dumpDir, "worlds.json");
-            File.WriteAllText(worldsPath, worldsJson.ToString(Formatting.Indented));
+            File.WriteAllText(worldsPath, JsonConvert.SerializeObject(worldsJson, Formatting.Indented));
             _log.LogInfo($"Wrote {worldsPath}");
         }
 
@@ -221,7 +221,7 @@ namespace DINOForge.Runtime
 
             // Write archetype summary
             string summaryPath = Path.Combine(dumpDir, $"archetypes_{worldName}.json");
-            File.WriteAllText(summaryPath, archetypesJson.ToString(Formatting.Indented));
+            File.WriteAllText(summaryPath, JsonConvert.SerializeObject(archetypesJson, Formatting.Indented));
             _log.LogInfo($"  Wrote {summaryPath}");
 
             return archetypesJson;
@@ -280,7 +280,7 @@ namespace DINOForge.Runtime
             string samplesDir = Path.Combine(dumpDir, "samples");
             Directory.CreateDirectory(samplesDir);
             string samplesPath = Path.Combine(samplesDir, $"{worldName}_archetype_{archetypeIndex}.json");
-            File.WriteAllText(samplesPath, samplesJson.ToString(Formatting.Indented));
+            File.WriteAllText(samplesPath, JsonConvert.SerializeObject(samplesJson, Formatting.Indented));
         }
 
         private void DumpComponentTypes(string dumpDir)
@@ -353,7 +353,7 @@ namespace DINOForge.Runtime
             }
 
             string typesPath = Path.Combine(dumpDir, "ecs_types.json");
-            File.WriteAllText(typesPath, allTypes.ToString(Formatting.Indented));
+            File.WriteAllText(typesPath, JsonConvert.SerializeObject(allTypes, Formatting.Indented));
             _log.LogInfo($"Found {allTypes.Count} ECS types, wrote {typesPath}");
         }
 
@@ -398,7 +398,7 @@ namespace DINOForge.Runtime
             }
 
             string nsPath = Path.Combine(dumpDir, "game_namespaces.json");
-            File.WriteAllText(nsPath, namespaceDump.ToString(Formatting.Indented));
+            File.WriteAllText(nsPath, JsonConvert.SerializeObject(namespaceDump, Formatting.Indented));
             _log.LogInfo($"Wrote {nsPath}");
         }
     }

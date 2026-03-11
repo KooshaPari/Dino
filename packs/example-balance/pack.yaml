@@ -7,7 +7,21 @@ version: 0.1.0
 framework_version: ">=0.1.0 <1.0.0"
 author: DINOForge Examples
 type: content
-description: Example pack demonstrating the ContentLoader pipeline
+description: |
+  A minimal example pack demonstrating the DINOForge content pack pipeline and architecture.
+
+  This pack serves as a reference implementation for new modders, showcasing:
+  - Basic unit definition with stats, costs, and behavior tags
+  - Faction roster system with unit assignments and economy modifiers
+  - Building registration and faction integration
+  - Pack dependencies and manifest structure
+
+  Content includes:
+  - 1 faction: The Defenders (order archetype with elite discipline doctrine)
+  - 1 unit: Town Militia (affordable infantry for early game)
+  - 1 building: Barracks (infantry training facility)
+
+  Perfect for learning the SDK and understanding how to structure your own balance mods.
 
 depends_on: []
 conflicts_with: []

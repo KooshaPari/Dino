@@ -120,7 +120,7 @@ namespace DINOForge.Runtime
 
                 string systemsPath = Path.Combine(latestDir, $"systems_{world.Name}.json");
                 JArray systemsJson = new JArray(systemList);
-                File.WriteAllText(systemsPath, systemsJson.ToString(Formatting.Indented));
+                File.WriteAllText(systemsPath, JsonConvert.SerializeObject(systemsJson, Formatting.Indented));
                 _log.LogInfo($"  Wrote {systemsPath}");
             }
             catch (Exception ex)

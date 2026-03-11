@@ -149,6 +149,7 @@ namespace DINOForge.SDK
             }
 
             List<string> errors = new List<string>();
+            Dictionary<string, List<string>> errorsByPack = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             List<(string Directory, PackManifest Manifest)> manifests = new List<(string Directory, PackManifest Manifest)>();
 
             // 1. Discover all pack directories
@@ -211,12 +212,23 @@ namespace DINOForge.SDK
                 if (!packResult.IsSuccess)
                 {
                     errors.AddRange(packResult.Errors);
+                    // Track errors per pack
+                    if (!errorsByPack.ContainsKey(orderedManifest.Id))
+                        errorsByPack[orderedManifest.Id] = new List<string>();
+                    errorsByPack[orderedManifest.Id].AddRange(packResult.Errors);
                 }
             }
 
             if (errors.Count > 0)
             {
-                return ContentLoadResult.Partial(loadedPacks.AsReadOnly(), errors.AsReadOnly());
+                // Convert to readonly lists in the dictionary
+                var readonlyErrorsByPack = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
+                foreach (var kvp in errorsByPack)
+                {
+                    readonlyErrorsByPack[kvp.Key] = kvp.Value.AsReadOnly();
+                }
+
+                return ContentLoadResult.Partial(loadedPacks.AsReadOnly(), errors.AsReadOnly(), readonlyErrorsByPack);
             }
 
             return ContentLoadResult.Success(loadedPacks.AsReadOnly());
@@ -346,49 +358,93 @@ namespace DINOForge.SDK
 
         /// <summary>
         /// Deserializes YAML content to the appropriate model type and registers it.
+        /// Handles both single objects and lists of objects.
         /// </summary>
         private void RegisterContent(string yamlContent, string contentType, PackManifest manifest)
         {
             switch (contentType.ToLowerInvariant())
             {
                 case "units":
-                    UnitDefinition unit = _deserializer.Deserialize<UnitDefinition>(yamlContent);
-                    _registryManager.Units.Register(unit.Id, unit, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    var units = TryDeserializeList<UnitDefinition>(yamlContent)
+                        ?? new List<UnitDefinition> { _deserializer.Deserialize<UnitDefinition>(yamlContent) };
+                    foreach (var unit in units)
+                    {
+                        _registryManager.Units.Register(unit.Id, unit, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    }
                     break;
 
                 case "buildings":
-                    BuildingDefinition building = _deserializer.Deserialize<BuildingDefinition>(yamlContent);
-                    _registryManager.Buildings.Register(building.Id, building, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    var buildings = TryDeserializeList<BuildingDefinition>(yamlContent)
+                        ?? new List<BuildingDefinition> { _deserializer.Deserialize<BuildingDefinition>(yamlContent) };
+                    foreach (var building in buildings)
+                    {
+                        _registryManager.Buildings.Register(building.Id, building, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    }
                     break;
 
                 case "factions":
-                    FactionDefinition faction = _deserializer.Deserialize<FactionDefinition>(yamlContent);
-                    _registryManager.Factions.Register(faction.Faction.Id, faction, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    var factions = TryDeserializeList<FactionDefinition>(yamlContent)
+                        ?? new List<FactionDefinition> { _deserializer.Deserialize<FactionDefinition>(yamlContent) };
+                    foreach (var faction in factions)
+                    {
+                        _registryManager.Factions.Register(faction.Faction.Id, faction, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    }
                     break;
 
                 case "weapons":
-                    WeaponDefinition weapon = _deserializer.Deserialize<WeaponDefinition>(yamlContent);
-                    _registryManager.Weapons.Register(weapon.Id, weapon, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    var weapons = TryDeserializeList<WeaponDefinition>(yamlContent)
+                        ?? new List<WeaponDefinition> { _deserializer.Deserialize<WeaponDefinition>(yamlContent) };
+                    foreach (var weapon in weapons)
+                    {
+                        _registryManager.Weapons.Register(weapon.Id, weapon, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    }
                     break;
 
                 case "projectiles":
-                    ProjectileDefinition projectile = _deserializer.Deserialize<ProjectileDefinition>(yamlContent);
-                    _registryManager.Projectiles.Register(projectile.Id, projectile, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    var projectiles = TryDeserializeList<ProjectileDefinition>(yamlContent)
+                        ?? new List<ProjectileDefinition> { _deserializer.Deserialize<ProjectileDefinition>(yamlContent) };
+                    foreach (var projectile in projectiles)
+                    {
+                        _registryManager.Projectiles.Register(projectile.Id, projectile, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    }
                     break;
 
                 case "doctrines":
-                    DoctrineDefinition doctrine = _deserializer.Deserialize<DoctrineDefinition>(yamlContent);
-                    _registryManager.Doctrines.Register(doctrine.Id, doctrine, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    var doctrines = TryDeserializeList<DoctrineDefinition>(yamlContent)
+                        ?? new List<DoctrineDefinition> { _deserializer.Deserialize<DoctrineDefinition>(yamlContent) };
+                    foreach (var doctrine in doctrines)
+                    {
+                        _registryManager.Doctrines.Register(doctrine.Id, doctrine, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    }
                     break;
 
                 case "stats":
-                    StatOverrideDefinition statOverride = _deserializer.Deserialize<StatOverrideDefinition>(yamlContent);
-                    _loadedOverrides.Add(statOverride);
+                    var statOverrides = TryDeserializeList<StatOverrideDefinition>(yamlContent)
+                        ?? new List<StatOverrideDefinition> { _deserializer.Deserialize<StatOverrideDefinition>(yamlContent) };
+                    _loadedOverrides.AddRange(statOverrides);
                     break;
 
                 default:
                     _log($"[ContentLoader] Unknown content type '{contentType}', skipping.");
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Attempts to deserialize YAML content as a list of items.
+        /// Returns null if the content is not a list.
+        /// </summary>
+        private List<T>? TryDeserializeList<T>(string yamlContent) where T : class
+        {
+            try
+            {
+                // Try to deserialize as a list
+                return _deserializer.Deserialize<List<T>>(yamlContent);
+            }
+            catch
+            {
+                // If deserialization as list fails, return null to fall back to single object
+                return null;
             }
         }
     }

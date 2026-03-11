@@ -13,11 +13,13 @@ namespace DINOForge.Runtime.UI
     public class ModMenuOverlay : MonoBehaviour
     {
         private bool _visible;
-        private Rect _windowRect = new Rect(20, 20, 500, 600);
+        private Rect _windowRect = new Rect(20, 20, 500, 700);
         private Vector2 _packListScroll;
+        private Vector2 _errorListScroll;
         private int _selectedPackIndex = -1;
         private string _statusMessage = "";
         private int _errorCount;
+        private bool _showErrors;
 
         private readonly List<PackDisplayInfo> _packs = new List<PackDisplayInfo>();
 
@@ -103,6 +105,13 @@ namespace DINOForge.Runtime.UI
             GUILayout.EndHorizontal();
 
             GUILayout.Space(8);
+
+            // Errors section (collapsible)
+            if (_errorCount > 0)
+            {
+                DrawErrorsSection();
+                GUILayout.Space(8);
+            }
 
             // Reload button
             if (GUILayout.Button("Reload Packs", GUILayout.Height(30)))
@@ -228,6 +237,57 @@ namespace DINOForge.Runtime.UI
                 GUI.color = oldColor;
             }
 
+            if (pack.Errors.Count > 0)
+            {
+                GUILayout.Space(4);
+                Color oldColor = GUI.color;
+                GUI.color = Color.red;
+                GUILayout.Label("Pack Errors:");
+                foreach (string error in pack.Errors)
+                {
+                    string truncated = error.Length > 80 ? error.Substring(0, 77) + "..." : error;
+                    GUILayout.Label($"  • {truncated}");
+                }
+                GUI.color = oldColor;
+            }
+
+            GUILayout.EndVertical();
+        }
+
+        private void DrawErrorsSection()
+        {
+            GUILayout.BeginVertical("box");
+
+            _showErrors = GUILayout.Toggle(_showErrors, $"Errors ({_errorCount})", GUILayout.Height(20));
+
+            if (_showErrors)
+            {
+                _errorListScroll = GUILayout.BeginScrollView(_errorListScroll, GUILayout.Height(150));
+
+                Color oldColor = GUI.color;
+                GUI.color = Color.red;
+
+                // Collect all errors from all packs
+                foreach (PackDisplayInfo pack in _packs)
+                {
+                    if (pack.Errors.Count == 0) continue;
+
+                    foreach (string error in pack.Errors)
+                    {
+                        // Format: "[pack-id] error message (truncated if long)"
+                        string display = $"[{pack.Id}] {error}";
+                        if (display.Length > 100)
+                            display = display.Substring(0, 97) + "...";
+
+                        GUILayout.Label(display);
+                    }
+                }
+
+                GUI.color = oldColor;
+
+                GUILayout.EndScrollView();
+            }
+
             GUILayout.EndVertical();
         }
     }
@@ -267,6 +327,9 @@ namespace DINOForge.Runtime.UI
         /// <summary>Pack conflict IDs.</summary>
         public IReadOnlyList<string> Conflicts { get; }
 
+        /// <summary>Errors specific to this pack (if any).</summary>
+        public IReadOnlyList<string> Errors { get; }
+
         /// <summary>
         /// Creates a new pack display info instance.
         /// </summary>
@@ -280,7 +343,8 @@ namespace DINOForge.Runtime.UI
             int loadOrder,
             bool isEnabled,
             IReadOnlyList<string> dependencies,
-            IReadOnlyList<string> conflicts)
+            IReadOnlyList<string> conflicts,
+            IReadOnlyList<string>? errors = null)
         {
             Id = id;
             Name = name;
@@ -292,10 +356,11 @@ namespace DINOForge.Runtime.UI
             IsEnabled = isEnabled;
             Dependencies = dependencies;
             Conflicts = conflicts;
+            Errors = errors ?? new List<string>().AsReadOnly();
         }
 
         /// <summary>Returns a copy with the enabled state changed.</summary>
         public PackDisplayInfo WithEnabled(bool enabled)
-            => new PackDisplayInfo(Id, Name, Version, Author, Type, Description, LoadOrder, enabled, Dependencies, Conflicts);
+            => new PackDisplayInfo(Id, Name, Version, Author, Type, Description, LoadOrder, enabled, Dependencies, Conflicts, Errors);
     }
 }

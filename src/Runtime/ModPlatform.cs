@@ -412,6 +412,13 @@ namespace DINOForge.Runtime
                                 }
                             }
 
+                            // Get errors specific to this pack
+                            IReadOnlyList<string> packErrors = new List<string>().AsReadOnly();
+                            if (result.ErrorsByPack.TryGetValue(manifest.Id, out var errors))
+                            {
+                                packErrors = errors;
+                            }
+
                             packInfos.Add(new PackDisplayInfo(
                                 id: manifest.Id,
                                 name: manifest.Name,
@@ -422,7 +429,8 @@ namespace DINOForge.Runtime
                                 loadOrder: manifest.LoadOrder,
                                 isEnabled: isLoaded,
                                 dependencies: manifest.DependsOn.AsReadOnly(),
-                                conflicts: manifest.ConflictsWith.AsReadOnly()));
+                                conflicts: manifest.ConflictsWith.AsReadOnly(),
+                                errors: packErrors));
                         }
                         catch (Exception ex)
                         {
