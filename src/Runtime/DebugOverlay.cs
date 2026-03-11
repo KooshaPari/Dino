@@ -15,9 +15,10 @@ namespace DINOForge.Runtime
     {
         private bool _visible;
         private Vector2 _scrollPosition;
-        private Rect _windowRect = new Rect(10, 10, 420, 500);
+        private Rect _windowRect = new Rect(10, 10, 420, 600);
         private bool _showSystems;
         private bool _showArchetypes;
+        private bool _showErrors;
         private ModPlatform? _modPlatform;
 
         /// <summary>Whether the debug overlay is currently visible.</summary>
@@ -62,6 +63,18 @@ namespace DINOForge.Runtime
                 GUILayout.Label($"  Initialized: {_modPlatform.IsInitialized}");
                 GUILayout.Label($"  World Ready: {_modPlatform.IsWorldReady}");
                 GUILayout.Label($"  Packs Dir: {_modPlatform.PacksDirectory}");
+
+                if (_modPlatform.ContentLoader != null)
+                {
+                    int errorCount = _modPlatform.ContentLoader.LastLoadErrorCount;
+                    if (errorCount > 0)
+                    {
+                        Color oldColor = GUI.color;
+                        GUI.color = Color.red;
+                        GUILayout.Label($"  Load Errors: {errorCount}");
+                        GUI.color = oldColor;
+                    }
+                }
             }
             else
             {
@@ -117,6 +130,16 @@ namespace DINOForge.Runtime
             if (_showArchetypes)
             {
                 DrawArchetypes();
+            }
+
+            // Errors section
+            if (_modPlatform?.ContentLoader != null && _modPlatform.ContentLoader.LastLoadErrorCount > 0)
+            {
+                _showErrors = GUILayout.Toggle(_showErrors, $"Show Errors ({_modPlatform.ContentLoader.LastLoadErrorCount})");
+                if (_showErrors)
+                {
+                    DrawErrors();
+                }
             }
 
             GUILayout.Space(10);
@@ -194,6 +217,36 @@ namespace DINOForge.Runtime
                 }
                 catch { }
             }
+        }
+
+        private void DrawErrors()
+        {
+            if (_modPlatform?.ContentLoader == null) return;
+
+            var errors = _modPlatform.ContentLoader.LastLoadErrors;
+            if (errors == null || errors.Count == 0)
+            {
+                GUILayout.Label("  (No errors available)");
+                return;
+            }
+
+            Color oldColor = GUI.color;
+            GUI.color = Color.red;
+
+            int maxShow = Math.Min(10, errors.Count);
+            for (int i = 0; i < maxShow; i++)
+            {
+                string error = errors[i];
+                string display = error.Length > 100 ? error.Substring(0, 97) + "..." : error;
+                GUILayout.Label($"  • {display}");
+            }
+
+            if (errors.Count > 10)
+            {
+                GUILayout.Label($"  ... and {errors.Count - 10} more errors (see F10 mod menu)");
+            }
+
+            GUI.color = oldColor;
         }
     }
 }

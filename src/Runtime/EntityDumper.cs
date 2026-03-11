@@ -109,7 +109,8 @@ namespace DINOForge.Runtime
             }
 
             string worldsPath = Path.Combine(dumpDir, "worlds.json");
-            File.WriteAllText(worldsPath, JsonConvert.SerializeObject(worldsJson, Formatting.Indented));
+            string worldsJson_serialized = JsonConvert.SerializeObject(worldsJson, Formatting.Indented);
+            File.WriteAllText(worldsPath, worldsJson_serialized);
             _log.LogInfo($"Wrote {worldsPath}");
         }
 

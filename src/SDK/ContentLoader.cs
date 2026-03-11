@@ -24,11 +24,22 @@ namespace DINOForge.SDK
         private readonly PackDependencyResolver _dependencyResolver;
         private readonly IDeserializer _deserializer;
         private readonly List<StatOverrideDefinition> _loadedOverrides = new List<StatOverrideDefinition>();
+        private IReadOnlyList<string> _lastLoadErrors = new List<string>().AsReadOnly();
 
         /// <summary>
         /// All stat override definitions loaded from packs.
         /// </summary>
         public IReadOnlyList<StatOverrideDefinition> LoadedOverrides => _loadedOverrides;
+
+        /// <summary>
+        /// Errors from the last load operation.
+        /// </summary>
+        public IReadOnlyList<string> LastLoadErrors => _lastLoadErrors;
+
+        /// <summary>
+        /// Count of errors from the last load operation.
+        /// </summary>
+        public int LastLoadErrorCount => _lastLoadErrors.Count;
 
         /// <summary>
         /// Mapping from content type keys (as used in pack.yaml loads section)
@@ -125,11 +136,13 @@ namespace DINOForge.SDK
 
             if (errors.Count > 0)
             {
+                _lastLoadErrors = errors.AsReadOnly();
                 return ContentLoadResult.Partial(
                     new List<string> { manifest.Id }.AsReadOnly(),
                     errors.AsReadOnly());
             }
 
+            _lastLoadErrors = new List<string>().AsReadOnly();
             return ContentLoadResult.Success(new List<string> { manifest.Id }.AsReadOnly());
         }
 
@@ -228,9 +241,11 @@ namespace DINOForge.SDK
                     readonlyErrorsByPack[kvp.Key] = kvp.Value.AsReadOnly();
                 }
 
+                _lastLoadErrors = errors.AsReadOnly();
                 return ContentLoadResult.Partial(loadedPacks.AsReadOnly(), errors.AsReadOnly(), readonlyErrorsByPack);
             }
 
+            _lastLoadErrors = new List<string>().AsReadOnly();
             return ContentLoadResult.Success(loadedPacks.AsReadOnly());
         }
 
