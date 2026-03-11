@@ -123,6 +123,25 @@ jobs:
             -o staging/installer `
             --verbosity minimal
 
+      - name: Copy installer to staging and generate checksum
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          $installerExe = "staging/installer/DINOForge.Installer.exe"
+          $stagingExe = "staging/DINOForge-v$version-Installer.exe"
+          $checksumFile = "staging/DINOForge-v$version-Installer.exe.sha256"
+
+          if (Test-Path $installerExe) {
+            Copy-Item $installerExe $stagingExe
+            $hash = (Get-FileHash $stagingExe -Algorithm SHA256).Hash
+            "$hash *DINOForge-v$version-Installer.exe" | Out-File -FilePath $checksumFile -Encoding utf8
+            Write-Host "Installer prepared: $stagingExe"
+            Write-Host "Checksum: $checksumFile"
+          } else {
+            Write-Host "ERROR: Installer EXE not found at $installerExe"
+            exit 1
+          }
+
       # ---------------------------------------------------------------
       # Publish SDK and Bridge.Protocol to staging/plugin
       # These are the DLLs that go into BepInEx/plugins
@@ -307,6 +326,8 @@ jobs:
           files: |
             ${{ env.ZIP_NAME }}
             staging/nuget/*.nupkg
+            staging/DINOForge-v${{ steps.version.outputs.VERSION }}-Installer.exe
+            staging/DINOForge-v${{ steps.version.outputs.VERSION }}-Installer.exe.sha256
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
