@@ -72,6 +72,43 @@ jobs:
           retention-days: 14
 
       # ---------------------------------------------------------------
+      # Pack and publish NuGet packages
+      # SETUP REQUIRED: Add NUGET_API_KEY secret in GitHub repo Settings → Secrets
+      # Get your API key from https://www.nuget.org/account/apikeys
+      # ---------------------------------------------------------------
+      - name: Pack SDK NuGet package
+        run: |
+          dotnet pack src/SDK/DINOForge.SDK.csproj -c Release `
+            -p:PackageVersion=${{ steps.version.outputs.VERSION }} `
+            --output staging/nuget/
+        shell: pwsh
+
+      - name: Pack Templates NuGet package
+        run: |
+          dotnet pack src/Templates/DINOForge.Templates.csproj -c Release `
+            -p:PackageVersion=${{ steps.version.outputs.VERSION }} `
+            --output staging/nuget/
+        shell: pwsh
+
+      - name: Publish to NuGet.org
+        if: ${{ !steps.version.outputs.IS_PRERELEASE == 'true' }}
+        run: |
+          dotnet nuget push staging/nuget/*.nupkg `
+            --api-key ${{ secrets.NUGET_API_KEY }} `
+            --source https://api.nuget.org/v3/index.json `
+            --skip-duplicate
+        shell: pwsh
+
+      - name: Publish pre-release to NuGet.org
+        if: ${{ steps.version.outputs.IS_PRERELEASE == 'true' }}
+        run: |
+          dotnet nuget push staging/nuget/*.nupkg `
+            --api-key ${{ secrets.NUGET_API_KEY }} `
+            --source https://api.nuget.org/v3/index.json `
+            --skip-duplicate
+        shell: pwsh
+
+      # ---------------------------------------------------------------
       # Build the GUI Installer (net8.0-windows, self-contained EXE)
       # ---------------------------------------------------------------
       - name: Build Installer EXE
@@ -269,6 +306,7 @@ jobs:
           draft: false
           files: |
             ${{ env.ZIP_NAME }}
+            staging/nuget/*.nupkg
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
