@@ -50,3 +50,5 @@ node_modules/
 
 src/Tests/TestResults/
 docs/.vitepress/dist/
+release-staging/
+local-packages/
