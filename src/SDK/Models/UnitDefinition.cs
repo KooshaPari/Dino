@@ -9,12 +9,15 @@ namespace DINOForge.SDK.Models
     /// </summary>
     public class UnitDefinition
     {
+        /// <summary>Unique unit identifier.</summary>
         [YamlMember(Alias = "id")]
         public string Id { get; set; } = "";
 
+        /// <summary>Human-readable unit name shown in-game.</summary>
         [YamlMember(Alias = "display_name")]
         public string DisplayName { get; set; } = "";
 
+        /// <summary>Optional flavor or tooltip text for the unit.</summary>
         [YamlMember(Alias = "description")]
         public string? Description { get; set; }
 
@@ -27,6 +30,7 @@ namespace DINOForge.SDK.Models
         [YamlMember(Alias = "unit_class")]
         public string UnitClass { get; set; } = "";
 
+        /// <summary>ID of the faction this unit belongs to.</summary>
         [YamlMember(Alias = "faction_id")]
         public string FactionId { get; set; } = "";
 
@@ -36,6 +40,7 @@ namespace DINOForge.SDK.Models
         [YamlMember(Alias = "tier")]
         public int? Tier { get; set; }
 
+        /// <summary>Combat and movement statistics for this unit.</summary>
         [YamlMember(Alias = "stats")]
         public UnitStats Stats { get; set; } = new UnitStats();
 
@@ -59,9 +64,11 @@ namespace DINOForge.SDK.Models
         [YamlMember(Alias = "behavior_tags")]
         public List<string> BehaviorTags { get; set; } = new List<string>();
 
+        /// <summary>Optional visual overrides (icon, portrait, model, VFX).</summary>
         [YamlMember(Alias = "visuals")]
         public UnitVisuals? Visuals { get; set; }
 
+        /// <summary>Optional audio overrides (attack, death, select, move sounds).</summary>
         [YamlMember(Alias = "audio")]
         public UnitAudio? Audio { get; set; }
 
@@ -78,28 +85,37 @@ namespace DINOForge.SDK.Models
         public string? TechRequirement { get; set; }
     }
 
+    /// <summary>
+    /// Combat and movement statistics for a unit definition.
+    /// </summary>
     public class UnitStats
     {
+        /// <summary>Hit points. Default 1.</summary>
         [YamlMember(Alias = "hp")]
         public float Hp { get; set; } = 1f;
 
+        /// <summary>Base damage per attack. Default 0.</summary>
         [YamlMember(Alias = "damage")]
         public float Damage { get; set; } = 0f;
 
+        /// <summary>Armor value reducing incoming damage. Default 0.</summary>
         [YamlMember(Alias = "armor")]
         public float Armor { get; set; } = 0f;
 
+        /// <summary>Attack range in world units. Default 0 (melee).</summary>
         [YamlMember(Alias = "range")]
         public float Range { get; set; } = 0f;
 
+        /// <summary>Movement speed in world units per second. Default 0.</summary>
         [YamlMember(Alias = "speed")]
         public float Speed { get; set; } = 0f;
 
+        /// <summary>Resource cost to produce this unit.</summary>
         [YamlMember(Alias = "cost")]
         public ResourceCost Cost { get; set; } = new ResourceCost();
 
         /// <summary>
-        /// Hit chance, clamped 0.0 – 1.0. Default 0.7.
+        /// Hit chance, clamped 0.0 - 1.0. Default 0.7.
         /// </summary>
         [YamlMember(Alias = "accuracy")]
         public float Accuracy { get; set; } = 0.7f;
@@ -117,35 +133,50 @@ namespace DINOForge.SDK.Models
         public float Morale { get; set; } = 100f;
     }
 
+    /// <summary>
+    /// Visual asset overrides for a unit (icon, portrait, model, VFX).
+    /// </summary>
     public class UnitVisuals
     {
+        /// <summary>Icon asset path for the unit selection panel.</summary>
         [YamlMember(Alias = "icon")]
         public string? Icon { get; set; }
 
+        /// <summary>Portrait asset path for the unit info panel.</summary>
         [YamlMember(Alias = "portrait")]
         public string? Portrait { get; set; }
 
+        /// <summary>3D model override asset ID.</summary>
         [YamlMember(Alias = "model_override")]
         public string? ModelOverride { get; set; }
 
+        /// <summary>Projectile visual effect asset ID.</summary>
         [YamlMember(Alias = "projectile_vfx")]
         public string? ProjectileVfx { get; set; }
 
+        /// <summary>Muzzle flash visual effect asset ID.</summary>
         [YamlMember(Alias = "muzzle_vfx")]
         public string? MuzzleVfx { get; set; }
     }
 
+    /// <summary>
+    /// Audio asset overrides for a unit (attack, death, selection, movement).
+    /// </summary>
     public class UnitAudio
     {
+        /// <summary>Sound effect played when the unit attacks.</summary>
         [YamlMember(Alias = "attack_sound")]
         public string? AttackSound { get; set; }
 
+        /// <summary>Sound effect played when the unit dies.</summary>
         [YamlMember(Alias = "death_sound")]
         public string? DeathSound { get; set; }
 
+        /// <summary>Sound effect played when the unit is selected.</summary>
         [YamlMember(Alias = "select_sound")]
         public string? SelectSound { get; set; }
 
+        /// <summary>Sound effect played when the unit moves.</summary>
         [YamlMember(Alias = "move_sound")]
         public string? MoveSound { get; set; }
     }

@@ -46,9 +46,9 @@ namespace DINOForge.SDK.Validation
                 throw new ArgumentException("YAML content cannot be null or empty.", nameof(yamlContent));
 
             // Load and cache the schema
-            if (!_cachedSchemas.TryGetValue(schemaName, out var schema))
+            if (!_cachedSchemas.TryGetValue(schemaName, out JsonSchema? schema))
             {
-                if (!_schemaSources.TryGetValue(schemaName, out var schemaYaml))
+                if (!_schemaSources.TryGetValue(schemaName, out string? schemaYaml))
                     throw new InvalidOperationException($"Schema '{schemaName}' not found.");
 
                 schema = LoadSchema(schemaYaml);
@@ -56,18 +56,18 @@ namespace DINOForge.SDK.Validation
             }
 
             // Convert YAML content to JSON
-            var jsonContent = YamlSchemaConverter.ConvertYamlToJson(yamlContent);
+            string jsonContent = YamlSchemaConverter.ConvertYamlToJson(yamlContent);
 
             // Parse JSON for validation
-            var jToken = JToken.Parse(jsonContent);
+            JToken jToken = JToken.Parse(jsonContent);
 
             // Perform validation
-            var errors = schema.Validate(jToken);
+            ICollection<NJsonSchema.Validation.ValidationError> errors = schema.Validate(jToken);
 
             if (errors.Count == 0)
                 return ValidationResult.Success();
 
-            var validationErrors = errors
+            List<ValidationError> validationErrors = errors
                 .Select(e => new ValidationError(
                     path: e.Path ?? "",
                     message: e.ToString(),
@@ -83,10 +83,10 @@ namespace DINOForge.SDK.Validation
         private static string GetRuleKind(object validationError)
         {
             // Get the 'Kind' property from the validation error
-            var kindProperty = validationError.GetType().GetProperty("Kind");
+            System.Reflection.PropertyInfo? kindProperty = validationError.GetType().GetProperty("Kind");
             if (kindProperty != null)
             {
-                var kindValue = kindProperty.GetValue(validationError);
+                object? kindValue = kindProperty.GetValue(validationError);
                 return kindValue?.ToString() ?? "unknown";
             }
             return "unknown";
@@ -97,8 +97,8 @@ namespace DINOForge.SDK.Validation
         /// </summary>
         private static JsonSchema LoadSchema(string yamlSchemaContent)
         {
-            var jsonSchemaContent = YamlSchemaConverter.ConvertYamlToJson(yamlSchemaContent);
-            var schema = JsonSchema.FromJsonAsync(jsonSchemaContent).GetAwaiter().GetResult();
+            string jsonSchemaContent = YamlSchemaConverter.ConvertYamlToJson(yamlSchemaContent);
+            JsonSchema schema = JsonSchema.FromJsonAsync(jsonSchemaContent).GetAwaiter().GetResult();
             return schema;
         }
     }

@@ -7,9 +7,11 @@ namespace DINOForge.SDK.Models
     /// </summary>
     public class ProjectileDefinition
     {
+        /// <summary>Unique projectile identifier.</summary>
         [YamlMember(Alias = "id")]
         public string Id { get; set; } = "";
 
+        /// <summary>Human-readable projectile name.</summary>
         [YamlMember(Alias = "display_name")]
         public string DisplayName { get; set; } = "";
 
@@ -19,6 +21,7 @@ namespace DINOForge.SDK.Models
         [YamlMember(Alias = "speed")]
         public float Speed { get; set; } = 0f;
 
+        /// <summary>Base damage dealt on impact.</summary>
         [YamlMember(Alias = "damage")]
         public float Damage { get; set; } = 0f;
 

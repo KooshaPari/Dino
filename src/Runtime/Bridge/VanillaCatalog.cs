@@ -214,8 +214,17 @@ namespace DINOForge.Runtime.Bridge
                 return new VanillaEntityInfo(inferredId, group.TypeNames, group.Count, "building");
             }
 
-            // TODO: Detect projectile archetypes once projectile component names are confirmed
-            // Projectiles likely have a Projectile or Arrow or similar component
+            // Detect projectile archetypes via ProjectileDataBase or ProjectileFlyData.
+            // Entity dumps confirm: Components.ProjectileDataBase (BlobAssetReference<ProjectileData>)
+            // and Components.RawComponents.ProjectileFlyData (runtime fields: weaponType, damage, etc.)
+            bool hasProjectile = types.Contains("Components.ProjectileDataBase") ||
+                                 types.Contains("Components.RawComponents.ProjectileFlyData");
+            if (hasProjectile)
+            {
+                string projectileType = InferProjectileType(types);
+                string inferredId = $"vanilla:{projectileType}";
+                return new VanillaEntityInfo(inferredId, group.TypeNames, group.Count, "projectile");
+            }
 
             // Classify as resource entity if it has resource components
             if (types.Any(t => t.Contains("FoodSource") || t.Contains("IronSource") ||
@@ -235,8 +244,20 @@ namespace DINOForge.Runtime.Bridge
             if (types.Contains("Components.MeleeUnit")) return "melee_unit";
             if (types.Contains("Components.RangeUnit")) return "ranged_unit";
             if (types.Contains("Components.CavalryUnit")) return "cavalry_unit";
+            if (types.Contains("Components.SiegeUnit")) return "siege_unit";
             if (types.Contains("Components.Archer")) return "archer_unit";
+            if (types.Contains("Components.CastOnlyUnit")) return "caster_unit";
             return "generic_unit";
+        }
+
+        private static string InferProjectileType(HashSet<string> types)
+        {
+            // ProjectileMultiHitBuffer indicates AoE/piercing projectiles
+            if (types.Contains("Components.ProjectileMultiHitBuffer"))
+                return "projectile_aoe";
+            if (types.Contains("Components.ProjectileDataBase"))
+                return "projectile_standard";
+            return "projectile_generic";
         }
 
         private static string InferBuildingType(HashSet<string> types)
@@ -251,6 +272,9 @@ namespace DINOForge.Runtime.Bridge
             if (types.Contains("Components.IronMine")) return "iron_mine";
             if (types.Contains("Components.InfiniteIronMine")) return "infinite_iron_mine";
             if (types.Contains("Components.SoulMine")) return "soul_mine";
+            if (types.Contains("Components.BuilderHouse")) return "builder_house";
+            if (types.Contains("Components.EngineerGuild")) return "engineer_guild";
+            if (types.Contains("Components.GateBase")) return "gate";
             return "generic_building";
         }
 

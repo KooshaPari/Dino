@@ -10,12 +10,15 @@ namespace DINOForge.SDK.Models
     /// </summary>
     public class SkillDefinition
     {
+        /// <summary>Unique skill identifier.</summary>
         [YamlMember(Alias = "id")]
         public string Id { get; set; } = "";
 
+        /// <summary>Human-readable skill name shown in-game.</summary>
         [YamlMember(Alias = "display_name")]
         public string DisplayName { get; set; } = "";
 
+        /// <summary>Optional description of the skill's effects.</summary>
         [YamlMember(Alias = "description")]
         public string? Description { get; set; }
 

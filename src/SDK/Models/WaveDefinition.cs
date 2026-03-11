@@ -10,12 +10,15 @@ namespace DINOForge.SDK.Models
     /// </summary>
     public class WaveDefinition
     {
+        /// <summary>Unique wave identifier.</summary>
         [YamlMember(Alias = "id")]
         public string Id { get; set; } = "";
 
+        /// <summary>Human-readable wave name (e.g. "Wave 1").</summary>
         [YamlMember(Alias = "display_name")]
         public string DisplayName { get; set; } = "";
 
+        /// <summary>Optional description of the wave.</summary>
         [YamlMember(Alias = "description")]
         public string? Description { get; set; }
 

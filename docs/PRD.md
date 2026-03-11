@@ -256,12 +256,14 @@ Where actual mods live. Mostly declarative and content-driven.
 |---|-----------|-------------|--------|
 | M0 | Reverse-Engineering Harness | Install BepInEx, confirm plugin loading, test plugin, dump entities | Done |
 | M1 | Runtime Scaffold | Bootstrap plugin, version detection, logging, ECS introspection, debug overlay | Done |
-| M2 | Generic Mod SDK | Pack manifest format, registry system, schema validation, override model, dependency resolver | In Progress |
-| M3 | Dev Tooling | Pack compiler CLI, validator CLI, test harness, diff tools, diagnostics | In Progress |
-| M3.5 | QA Harness | BepInEx QA plugin with IPC (named pipe/WebSocket), external test driver, ECS state assertions, CI-runnable integration tests | Planned |
-| M4 | Warfare Domain Plugin | Factions, doctrines, unit classes, weapons, waves, defenses | Planned |
-| M5 | First Example Packs | West vs Classic Enemy, then Republic vs CIS, then Guerrilla | Planned |
-| M6 | Content Polish | Signature structures, better models, faction audio, campaign wrappers | Planned |
+| M2 | Generic Mod SDK | Pack manifest format, registry system, schema validation, override model, dependency resolver | Done |
+| M3 | Dev Tooling | Pack compiler CLI, validator CLI, test harness, diff tools, diagnostics | Done |
+| M3.5 | QA Harness | BepInEx QA plugin with IPC, external test driver, ECS state assertions, CI-runnable integration tests | In Progress |
+| M4 | Warfare Domain Plugin | Factions, doctrines, unit classes, weapons, waves, defenses | Done |
+| M5 | First Example Packs | West vs Classic Enemy, Republic vs CIS, Guerrilla | Done |
+| M6 | In-Game Mod Menu & HMR | F10 mod menu overlay, hot module replacement for YAML packs | Done |
+| M7 | Installer & Universe Bible | PowerShell/Bash installer, Universe Bible system, pack generator | Done |
+| M8 | Runtime Integration | Orchestrator wiring SDK to Bridge to UI to HMR, end-to-end pack application | In Progress |
 
 ---
 

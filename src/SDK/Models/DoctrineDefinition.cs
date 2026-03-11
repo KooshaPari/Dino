@@ -8,12 +8,15 @@ namespace DINOForge.SDK.Models
     /// </summary>
     public class DoctrineDefinition
     {
+        /// <summary>Unique doctrine identifier.</summary>
         [YamlMember(Alias = "id")]
         public string Id { get; set; } = "";
 
+        /// <summary>Human-readable doctrine name shown in-game.</summary>
         [YamlMember(Alias = "display_name")]
         public string DisplayName { get; set; } = "";
 
+        /// <summary>Optional description of the doctrine's effects.</summary>
         [YamlMember(Alias = "description")]
         public string? Description { get; set; }
 

@@ -1,0 +1,532 @@
+#nullable enable
+using System;
+using System.Collections.Generic;
+using System.IO;
+using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Logging;
+using DINOForge.Runtime.Bridge;
+using DINOForge.Runtime.HotReload;
+using DINOForge.Runtime.UI;
+using DINOForge.SDK;
+using DINOForge.SDK.HotReload;
+using DINOForge.SDK.Registry;
+using Unity.Entities;
+using UnityEngine;
+
+namespace DINOForge.Runtime
+{
+    /// <summary>
+    /// Central orchestrator for the DINOForge mod platform. Coordinates pack loading,
+    /// registry population, ECS system registration, UI overlays, and hot reload.
+    /// This is NOT a MonoBehaviour; it is owned by <see cref="Plugin"/>.
+    /// </summary>
+    public sealed class ModPlatform
+    {
+        private ManualLogSource _log = null!;
+        private ConfigFile _config = null!;
+        private GameObject _pluginObject = null!;
+
+        // Config entries
+        private ConfigEntry<string> _packsDirectory = null!;
+        private ConfigEntry<bool> _autoLoadOnStartup = null!;
+        private ConfigEntry<bool> _hotReloadEnabled = null!;
+
+        // Subsystems
+        private RegistryManager? _registryManager;
+        private ContentLoader? _contentLoader;
+        private VanillaCatalog? _vanillaCatalog;
+
+        // UI
+        private ModMenuOverlay? _modMenuOverlay;
+        private ModSettingsPanel? _modSettingsPanel;
+
+        // Hot reload
+        private PackFileWatcher? _packFileWatcher;
+        private HotReloadBridge? _hotReloadBridge;
+
+        // IPC
+        private GameBridgeServer? _gameBridgeServer;
+
+        // State
+        private bool _initialized;
+        private bool _worldReady;
+        private ContentLoadResult? _lastLoadResult;
+
+        /// <summary>The registry manager containing all loaded content.</summary>
+        public RegistryManager? Registry => _registryManager;
+
+        /// <summary>The vanilla entity catalog built from the ECS world.</summary>
+        public VanillaCatalog? Catalog => _vanillaCatalog;
+
+        /// <summary>The content loader for pack loading operations.</summary>
+        public ContentLoader? ContentLoader => _contentLoader;
+
+        /// <summary>The configured packs directory path.</summary>
+        public string PacksDirectory => _packsDirectory?.Value ?? "";
+
+        /// <summary>Whether the platform has been initialized.</summary>
+        public bool IsInitialized => _initialized;
+
+        /// <summary>Whether the ECS world is ready and systems are registered.</summary>
+        public bool IsWorldReady => _worldReady;
+
+        /// <summary>
+        /// Initializes the mod platform with all subsystems.
+        /// Call this from <see cref="Plugin.Awake"/>.
+        /// </summary>
+        /// <param name="log">BepInEx logger.</param>
+        /// <param name="config">BepInEx config file for storing settings.</param>
+        /// <param name="pluginObject">The plugin's GameObject (for adding MonoBehaviour components).</param>
+        public void Initialize(ManualLogSource log, ConfigFile config, GameObject pluginObject)
+        {
+            if (_initialized)
+            {
+                log.LogWarning("[ModPlatform] Already initialized, skipping.");
+                return;
+            }
+
+            _log = log ?? throw new ArgumentNullException(nameof(log));
+            _config = config ?? throw new ArgumentNullException(nameof(config));
+            _pluginObject = pluginObject ?? throw new ArgumentNullException(nameof(pluginObject));
+
+            _log.LogInfo("[ModPlatform] Initializing...");
+
+            // Bind config entries
+            try
+            {
+                _packsDirectory = _config.Bind(
+                    "Packs", "PacksDirectory",
+                    Path.Combine(Paths.BepInExRootPath, "dinoforge_packs"),
+                    "Directory containing DINOForge content packs");
+
+                _autoLoadOnStartup = _config.Bind(
+                    "Packs", "AutoLoadOnStartup",
+                    true,
+                    "Automatically load all packs when the game starts");
+
+                _hotReloadEnabled = _config.Bind(
+                    "HotReload", "Enabled",
+                    true,
+                    "Watch pack files for changes and reload automatically");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] Config binding failed: {ex.Message}");
+                return;
+            }
+
+            // Create core subsystems
+            try
+            {
+                _registryManager = new RegistryManager();
+                _contentLoader = new ContentLoader(
+                    _registryManager,
+                    schemaValidator: null,
+                    log: msg => _log.LogInfo(msg));
+
+                _vanillaCatalog = new VanillaCatalog();
+
+                _log.LogInfo("[ModPlatform] Core subsystems created.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] Failed to create subsystems: {ex.Message}");
+                return;
+            }
+
+            // Ensure packs directory exists
+            try
+            {
+                string packsDir = _packsDirectory.Value;
+                if (!Directory.Exists(packsDir))
+                {
+                    Directory.CreateDirectory(packsDir);
+                    _log.LogInfo($"[ModPlatform] Created packs directory: {packsDir}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[ModPlatform] Could not create packs directory: {ex.Message}");
+            }
+
+            _initialized = true;
+            _log.LogInfo("[ModPlatform] Initialization complete.");
+        }
+
+        /// <summary>
+        /// Called when the ECS World becomes available. Registers ECS systems
+        /// and builds the vanilla entity catalog.
+        /// </summary>
+        /// <param name="world">The default ECS world.</param>
+        public void OnWorldReady(World world)
+        {
+            if (!_initialized)
+            {
+                _log.LogError("[ModPlatform] Cannot process world - not initialized.");
+                return;
+            }
+
+            if (_worldReady)
+            {
+                _log.LogWarning("[ModPlatform] World already processed, skipping.");
+                return;
+            }
+
+            _log.LogInfo($"[ModPlatform] ECS World ready: {world.Name}");
+
+            // Register the StatModifierSystem
+            try
+            {
+                world.GetOrCreateSystem<StatModifierSystem>();
+                _log.LogInfo("[ModPlatform] StatModifierSystem registered.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] Failed to register StatModifierSystem: {ex.Message}");
+            }
+
+            // Build the vanilla entity catalog
+            try
+            {
+                _vanillaCatalog!.Build(world.EntityManager);
+                _log.LogInfo($"[ModPlatform] VanillaCatalog built: " +
+                    $"{_vanillaCatalog.Units.Count} units, " +
+                    $"{_vanillaCatalog.Buildings.Count} buildings, " +
+                    $"{_vanillaCatalog.Projectiles.Count} projectiles.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[ModPlatform] VanillaCatalog build failed: {ex.Message}");
+            }
+
+            // Validate component mappings
+            try
+            {
+                (int resolved, int total, List<string> unresolved) = ComponentMap.ValidateResolution();
+                _log.LogInfo($"[ModPlatform] ComponentMap: {resolved}/{total} types resolved.");
+                foreach (string unresolvedType in unresolved)
+                {
+                    _log.LogWarning($"[ModPlatform] Unresolved component type: {unresolvedType}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[ModPlatform] ComponentMap validation failed: {ex.Message}");
+            }
+
+            // Start the IPC bridge server
+            try
+            {
+                _gameBridgeServer = new GameBridgeServer(this);
+                _gameBridgeServer.Start();
+                _log.LogInfo("[ModPlatform] GameBridgeServer started.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] Failed to start GameBridgeServer: {ex.Message}");
+            }
+
+            _worldReady = true;
+        }
+
+        /// <summary>
+        /// Loads all content packs from the configured packs directory.
+        /// After loading, updates the UI overlay and enqueues stat modifications.
+        /// </summary>
+        /// <returns>The result of the load operation.</returns>
+        public ContentLoadResult LoadPacks()
+        {
+            if (!_initialized || _contentLoader == null || _registryManager == null)
+            {
+                _log.LogError("[ModPlatform] Cannot load packs - not initialized.");
+                return ContentLoadResult.Failure(
+                    new List<string> { "ModPlatform not initialized" }.AsReadOnly());
+            }
+
+            string packsDir = _packsDirectory.Value;
+            _log.LogInfo($"[ModPlatform] Loading packs from: {packsDir}");
+
+            ContentLoadResult result;
+            try
+            {
+                result = _contentLoader.LoadPacks(packsDir);
+                _lastLoadResult = result;
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] Pack loading failed: {ex.Message}");
+                result = ContentLoadResult.Failure(
+                    new List<string> { $"Pack loading exception: {ex.Message}" }.AsReadOnly());
+                _lastLoadResult = result;
+                UpdateUI(result);
+                return result;
+            }
+
+            // Log results
+            if (result.IsSuccess)
+            {
+                _log.LogInfo($"[ModPlatform] Successfully loaded {result.LoadedPacks.Count} pack(s).");
+            }
+            else
+            {
+                _log.LogWarning($"[ModPlatform] Loaded {result.LoadedPacks.Count} pack(s) with {result.Errors.Count} error(s).");
+                foreach (string error in result.Errors)
+                {
+                    _log.LogError($"  {error}");
+                }
+            }
+
+            // Apply stat overrides from loaded units
+            try
+            {
+                int overrideCount = OverrideApplicator.ApplyUnitOverrides(
+                    _registryManager,
+                    msg => _log.LogInfo(msg));
+                _log.LogInfo($"[ModPlatform] {overrideCount} stat override(s) enqueued.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] Stat override application failed: {ex.Message}");
+            }
+
+            // Update UI
+            UpdateUI(result);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates and starts the hot reload system (PackFileWatcher + HotReloadBridge).
+        /// </summary>
+        public void StartHotReload()
+        {
+            if (!_initialized || _contentLoader == null || _registryManager == null)
+            {
+                _log.LogError("[ModPlatform] Cannot start hot reload - not initialized.");
+                return;
+            }
+
+            if (!_hotReloadEnabled.Value)
+            {
+                _log.LogInfo("[ModPlatform] Hot reload disabled in config.");
+                return;
+            }
+
+            string packsDir = _packsDirectory.Value;
+
+            try
+            {
+                _packFileWatcher = new PackFileWatcher(
+                    packsDir,
+                    _contentLoader,
+                    _registryManager,
+                    schemaValidator: null,
+                    log: msg => _log.LogInfo(msg),
+                    debounceMs: 500);
+
+                _hotReloadBridge = new HotReloadBridge(
+                    _packFileWatcher,
+                    _registryManager,
+                    _log);
+
+                // Wire up events: when hot reload updates, re-apply overrides and refresh UI
+                _hotReloadBridge.OnRuntimeUpdated += OnHotReloadCompleted;
+
+                _hotReloadBridge.Start();
+                _log.LogInfo($"[ModPlatform] Hot reload started, watching: {packsDir}");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] Failed to start hot reload: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Handles hot reload completion by re-applying stat overrides and updating UI.
+        /// </summary>
+        private void OnHotReloadCompleted(object? sender, HotReloadResult result)
+        {
+            try
+            {
+                _log.LogInfo($"[ModPlatform] Hot reload completed. " +
+                    $"Changed: {result.ChangedFiles.Count}, Updated: {result.UpdatedEntries.Count}");
+
+                // Re-apply stat overrides
+                if (_registryManager != null)
+                {
+                    int overrideCount = OverrideApplicator.ApplyUnitOverrides(
+                        _registryManager,
+                        msg => _log.LogInfo(msg));
+                    _log.LogInfo($"[ModPlatform] Re-applied {overrideCount} stat override(s) after hot reload.");
+
+                    // Tell StatModifierSystem to re-process
+                    StatModifierSystem.Reapply();
+                }
+
+                // Update UI with current state
+                if (_lastLoadResult != null)
+                {
+                    UpdateUI(_lastLoadResult);
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] Error handling hot reload completion: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Updates the ModMenuOverlay with current pack information and status.
+        /// </summary>
+        private void UpdateUI(ContentLoadResult result)
+        {
+            if (_modMenuOverlay == null || _registryManager == null) return;
+
+            try
+            {
+                // Build PackDisplayInfo list from the registry manager's loaded content
+                // We need to re-read manifests since ContentLoadResult only has IDs
+                List<PackDisplayInfo> packInfos = new List<PackDisplayInfo>();
+
+                // Use the packs directory to find manifests for display
+                string packsDir = _packsDirectory.Value;
+                if (Directory.Exists(packsDir))
+                {
+                    PackLoader packLoader = new PackLoader();
+                    foreach (string dir in Directory.GetDirectories(packsDir))
+                    {
+                        string manifestPath = Path.Combine(dir, "pack.yaml");
+                        if (!File.Exists(manifestPath)) continue;
+
+                        try
+                        {
+                            PackManifest manifest = packLoader.LoadFromFile(manifestPath);
+                            bool isLoaded = false;
+                            foreach (string loadedId in result.LoadedPacks)
+                            {
+                                if (string.Equals(loadedId, manifest.Id, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    isLoaded = true;
+                                    break;
+                                }
+                            }
+
+                            packInfos.Add(new PackDisplayInfo(
+                                id: manifest.Id,
+                                name: manifest.Name,
+                                version: manifest.Version,
+                                author: manifest.Author,
+                                type: manifest.Type,
+                                description: manifest.Description,
+                                loadOrder: manifest.LoadOrder,
+                                isEnabled: isLoaded,
+                                dependencies: manifest.DependsOn.AsReadOnly(),
+                                conflicts: manifest.ConflictsWith.AsReadOnly()));
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.LogWarning($"[ModPlatform] Could not read manifest in {dir}: {ex.Message}");
+                        }
+                    }
+                }
+
+                _modMenuOverlay.SetPacks(packInfos);
+
+                // Set status message
+                string statusMsg = result.IsSuccess
+                    ? $"All {result.LoadedPacks.Count} pack(s) loaded OK"
+                    : $"{result.LoadedPacks.Count} loaded, {result.Errors.Count} error(s)";
+                _modMenuOverlay.SetStatus(statusMsg, result.Errors.Count);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] UI update failed: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Sets the UI overlay references. Called by Plugin after adding components to the GameObject.
+        /// </summary>
+        /// <param name="menuOverlay">The mod menu overlay MonoBehaviour.</param>
+        /// <param name="settingsPanel">The mod settings panel MonoBehaviour.</param>
+        public void SetUI(ModMenuOverlay menuOverlay, ModSettingsPanel settingsPanel)
+        {
+            _modMenuOverlay = menuOverlay;
+            _modSettingsPanel = settingsPanel;
+
+            // Wire reload button to hot reload
+            if (_modMenuOverlay != null)
+            {
+                _modMenuOverlay.OnReloadRequested = OnReloadRequested;
+            }
+        }
+
+        /// <summary>
+        /// Handles the reload button press from the mod menu overlay.
+        /// </summary>
+        private void OnReloadRequested()
+        {
+            _log.LogInfo("[ModPlatform] Reload requested from UI.");
+
+            try
+            {
+                if (_hotReloadBridge != null)
+                {
+                    // Use hot reload bridge for full reload
+                    HotReloadResult result = _hotReloadBridge.TriggerReload();
+                    _log.LogInfo($"[ModPlatform] UI-triggered reload: success={result.IsSuccess}");
+                }
+                else
+                {
+                    // Fallback: just reload packs directly
+                    LoadPacks();
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] Reload failed: {ex.Message}");
+                _modMenuOverlay?.SetStatus($"Reload failed: {ex.Message}", 1);
+            }
+        }
+
+        /// <summary>
+        /// Shuts down the mod platform and disposes all resources.
+        /// Call from <see cref="Plugin.OnDestroy"/>.
+        /// </summary>
+        public void Shutdown()
+        {
+            _log?.LogInfo("[ModPlatform] Shutting down...");
+
+            try
+            {
+                if (_gameBridgeServer != null)
+                {
+                    _gameBridgeServer.Dispose();
+                    _gameBridgeServer = null;
+                }
+
+                if (_hotReloadBridge != null)
+                {
+                    _hotReloadBridge.OnRuntimeUpdated -= OnHotReloadCompleted;
+                    _hotReloadBridge.Dispose();
+                    _hotReloadBridge = null;
+                }
+
+                if (_packFileWatcher != null)
+                {
+                    _packFileWatcher.Dispose();
+                    _packFileWatcher = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                _log?.LogWarning($"[ModPlatform] Error during shutdown: {ex.Message}");
+            }
+
+            _initialized = false;
+            _worldReady = false;
+            _log?.LogInfo("[ModPlatform] Shutdown complete.");
+        }
+    }
+}

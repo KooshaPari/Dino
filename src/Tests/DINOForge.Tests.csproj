@@ -25,6 +25,15 @@
     <ProjectReference Include="..\Tools\Installer\InstallerLib\DINOForge.Tools.Installer.csproj" />
     <ProjectReference Include="..\Domains\Economy\DINOForge.Domains.Economy.csproj" />
     <ProjectReference Include="..\Domains\Scenario\DINOForge.Domains.Scenario.csproj" />
+    <ProjectReference Include="..\Bridge\Client\DINOForge.Bridge.Client.csproj" />
+  </ItemGroup>
+
+  <!-- Exclude the Integration sub-project which has its own csproj -->
+  <ItemGroup>
+    <Compile Remove="Integration\**" />
+    <None Remove="Integration\**" />
+    <Content Remove="Integration\**" />
+    <EmbeddedResource Remove="Integration\**" />
   </ItemGroup>
 
 </Project>

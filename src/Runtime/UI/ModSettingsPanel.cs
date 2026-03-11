@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,7 @@ namespace DINOForge.Runtime.UI
         /// <summary>
         /// Shows or hides the settings panel.
         /// </summary>
+        /// <param name="visible">Whether to show the panel.</param>
         public void SetVisible(bool visible) => _visible = visible;
 
         /// <summary>
@@ -59,7 +61,7 @@ namespace DINOForge.Runtime.UI
                 string name = pluginAttr.Name;
 
                 ConfigFile config = plugin.Config;
-                var entries = new List<SettingEntryInfo>();
+                List<SettingEntryInfo> entries = new List<SettingEntryInfo>();
 
                 foreach (KeyValuePair<ConfigDefinition, ConfigEntryBase> kvp in config)
                 {
@@ -251,7 +253,7 @@ namespace DINOForge.Runtime.UI
             // Description tooltip
             if (!string.IsNullOrEmpty(setting.Description))
             {
-                GUILayout.Label($"  {setting.Description}", GUI.skin.GetStyle("miniLabel"));
+                GUILayout.Label($"  {setting.Description}");
             }
         }
     }
@@ -261,10 +263,18 @@ namespace DINOForge.Runtime.UI
     /// </summary>
     public sealed class PluginSettingsInfo
     {
+        /// <summary>BepInEx plugin GUID.</summary>
         public string Guid { get; }
+
+        /// <summary>Human-readable plugin name.</summary>
         public string Name { get; }
+
+        /// <summary>All config entries for this plugin.</summary>
         public IReadOnlyList<SettingEntryInfo> Entries { get; }
 
+        /// <summary>
+        /// Creates a new plugin settings info instance.
+        /// </summary>
         public PluginSettingsInfo(string guid, string name, IReadOnlyList<SettingEntryInfo> entries)
         {
             Guid = guid;
@@ -278,11 +288,21 @@ namespace DINOForge.Runtime.UI
     /// </summary>
     public sealed class SettingEntryInfo
     {
+        /// <summary>Config section name.</summary>
         public string Section { get; }
+
+        /// <summary>Config key name.</summary>
         public string Key { get; }
+
+        /// <summary>Human-readable description of the setting.</summary>
         public string Description { get; }
+
+        /// <summary>The underlying BepInEx config entry.</summary>
         public ConfigEntryBase Entry { get; }
 
+        /// <summary>
+        /// Creates a new setting entry info instance.
+        /// </summary>
         public SettingEntryInfo(string section, string key, string description, ConfigEntryBase entry)
         {
             Section = section;

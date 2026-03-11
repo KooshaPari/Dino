@@ -26,8 +26,8 @@ namespace DINOForge.SDK.Validation
         /// <returns>A JSON string representation.</returns>
         public static string ConvertYamlToJson(string yamlContent)
         {
-            var yamlObject = Deserializer.Deserialize<object>(yamlContent);
-            var coerced = CoerceTypes(yamlObject);
+            object? yamlObject = Deserializer.Deserialize<object>(yamlContent);
+            object? coerced = CoerceTypes(yamlObject);
             return JsonConvert.SerializeObject(coerced);
         }
 
@@ -42,8 +42,8 @@ namespace DINOForge.SDK.Validation
 
             if (value is Dictionary<object, object> dict)
             {
-                var result = new Dictionary<string, object?>();
-                foreach (var kvp in dict)
+                Dictionary<string, object?> result = new Dictionary<string, object?>();
+                foreach (KeyValuePair<object, object> kvp in dict)
                 {
                     string key = kvp.Key?.ToString() ?? "";
                     result[key] = CoerceTypes(kvp.Value);
@@ -53,8 +53,8 @@ namespace DINOForge.SDK.Validation
 
             if (value is List<object> list)
             {
-                var result = new List<object?>();
-                foreach (var item in list)
+                List<object?> result = new List<object?>();
+                foreach (object item in list)
                     result.Add(CoerceTypes(item));
                 return result;
             }

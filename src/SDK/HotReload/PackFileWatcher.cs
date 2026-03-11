@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -193,8 +194,8 @@ namespace DINOForge.SDK.HotReload
 
         private HotReloadResult ExecuteReload(List<string> changedFiles)
         {
-            var errors = new List<string>();
-            var updatedEntries = new List<string>();
+            List<string> errors = new List<string>();
+            List<string> updatedEntries = new List<string>();
 
             try
             {
@@ -292,6 +293,9 @@ namespace DINOForge.SDK.HotReload
         /// <summary>When the change was detected.</summary>
         public DateTimeOffset Timestamp { get; }
 
+        /// <summary>
+        /// Creates a new instance with the given file path.
+        /// </summary>
         public PackContentChangedEventArgs(string filePath)
         {
             FilePath = filePath;

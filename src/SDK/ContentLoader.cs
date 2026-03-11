@@ -23,6 +23,12 @@ namespace DINOForge.SDK
         private readonly PackLoader _packLoader;
         private readonly PackDependencyResolver _dependencyResolver;
         private readonly IDeserializer _deserializer;
+        private readonly List<StatOverrideDefinition> _loadedOverrides = new List<StatOverrideDefinition>();
+
+        /// <summary>
+        /// All stat override definitions loaded from packs.
+        /// </summary>
+        public IReadOnlyList<StatOverrideDefinition> LoadedOverrides => _loadedOverrides;
 
         /// <summary>
         /// Mapping from content type keys (as used in pack.yaml loads section)
@@ -35,7 +41,8 @@ namespace DINOForge.SDK
             { "factions", "faction" },
             { "weapons", "weapon" },
             { "projectiles", "projectile" },
-            { "doctrines", "doctrine" }
+            { "doctrines", "doctrine" },
+            { "stats", "stat-override" }
         };
 
         /// <summary>
@@ -64,7 +71,7 @@ namespace DINOForge.SDK
         /// <returns>Result indicating success or failure with errors.</returns>
         public ContentLoadResult LoadPack(string packDirectory)
         {
-            var errors = new List<string>();
+            List<string> errors = new List<string>();
 
             // 1. Find and parse manifest
             string manifestPath = Path.Combine(packDirectory, "pack.yaml");
@@ -98,6 +105,17 @@ namespace DINOForge.SDK
                 LoadContentType(packDirectory, manifest, "factions", manifest.Loads.Factions, errors);
                 LoadContentType(packDirectory, manifest, "weapons", manifest.Loads.Weapons, errors);
                 LoadContentType(packDirectory, manifest, "doctrines", manifest.Loads.Doctrines, errors);
+
+                // 3. Load stat overrides from Overrides section or conventional stats/ subdirectory
+                if (manifest.Overrides?.Stats != null && manifest.Overrides.Stats.Count > 0)
+                {
+                    LoadContentType(packDirectory, manifest, "stats", manifest.Overrides.Stats, errors);
+                }
+                else
+                {
+                    // Scan conventional stats/ subdirectory
+                    LoadContentType(packDirectory, manifest, "stats", null, errors);
+                }
             }
             else
             {
@@ -130,8 +148,8 @@ namespace DINOForge.SDK
                 }.AsReadOnly());
             }
 
-            var errors = new List<string>();
-            var manifests = new List<(string Directory, PackManifest Manifest)>();
+            List<string> errors = new List<string>();
+            List<(string Directory, PackManifest Manifest)> manifests = new List<(string Directory, PackManifest Manifest)>();
 
             // 1. Discover all pack directories
             foreach (string dir in Directory.GetDirectories(packsRootDirectory))
@@ -177,7 +195,7 @@ namespace DINOForge.SDK
             }
 
             // 4. Load packs in dependency order
-            var loadedPacks = new List<string>();
+            List<string> loadedPacks = new List<string>();
             Dictionary<string, string> dirByPackId = manifests.ToDictionary(
                 m => m.Manifest.Id,
                 m => m.Directory,
@@ -361,6 +379,11 @@ namespace DINOForge.SDK
                 case "doctrines":
                     DoctrineDefinition doctrine = _deserializer.Deserialize<DoctrineDefinition>(yamlContent);
                     _registryManager.Doctrines.Register(doctrine.Id, doctrine, RegistrySource.Pack, manifest.Id, manifest.LoadOrder);
+                    break;
+
+                case "stats":
+                    StatOverrideDefinition statOverride = _deserializer.Deserialize<StatOverrideDefinition>(yamlContent);
+                    _loadedOverrides.Add(statOverride);
                     break;
 
                 default:

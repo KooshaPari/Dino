@@ -11,12 +11,15 @@ namespace DINOForge.SDK.Models
     /// </summary>
     public class SquadDefinition
     {
+        /// <summary>Unique squad identifier.</summary>
         [YamlMember(Alias = "id")]
         public string Id { get; set; } = "";
 
+        /// <summary>Human-readable squad name shown in-game.</summary>
         [YamlMember(Alias = "display_name")]
         public string DisplayName { get; set; } = "";
 
+        /// <summary>Optional description of the squad.</summary>
         [YamlMember(Alias = "description")]
         public string? Description { get; set; }
 
