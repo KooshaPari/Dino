@@ -1,0 +1,43 @@
+name: Mutation Testing
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'  # Monday 6am UTC
+
+permissions:
+  contents: read
+
+jobs:
+  stryker:
+    name: Stryker Mutation Testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET 8.0
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore src/DINOForge.CI.sln
+
+      - name: Build
+        run: dotnet build src/DINOForge.CI.sln --no-restore --configuration Release
+
+      - name: Install Stryker.NET
+        run: dotnet tool install -g dotnet-stryker
+
+      - name: Run mutation tests on SDK
+        run: dotnet stryker --project src/SDK/DINOForge.SDK.csproj
+
+      - name: Upload mutation test results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: mutation-test-results
+          path: StrykerOutput/
+          retention-days: 30

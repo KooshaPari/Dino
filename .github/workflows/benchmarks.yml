@@ -1,0 +1,44 @@
+name: Performance Benchmarks
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    name: BenchmarkDotNet
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET 8.0
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore src/DINOForge.CI.sln
+
+      - name: Build
+        run: dotnet build src/DINOForge.CI.sln --no-restore --configuration Release
+
+      - name: Run benchmarks
+        run: |
+          # Run benchmark project if it exists
+          if [ -d "src/Tools/Benchmarks" ]; then
+            dotnet run --project src/Tools/Benchmarks/DINOForge.Tools.Benchmarks.csproj -- --configuration Release
+          else
+            echo "Note: Benchmark project not yet created. Create src/Tools/Benchmarks/DINOForge.Tools.Benchmarks.csproj with BenchmarkDotNet v0.13.* and benchmarks for ContentLoader.LoadPacks"
+          fi
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: benchmark-results
+          path: BenchmarkDotNet.Artifacts/
+          retention-days: 90

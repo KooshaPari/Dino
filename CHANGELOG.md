@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-03-11
+
 ### Added
 
 #### M0: Reverse-Engineering Harness
@@ -130,5 +132,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pack manifest, faction, and unit YAML schemas
 - Module ownership map and extension point documentation
 
-[Unreleased]: https://github.com/KooshaPari/Dino/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/KooshaPari/Dino/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/KooshaPari/Dino/compare/v0.1.0...v0.5.0
 [0.1.0]: https://github.com/KooshaPari/Dino/releases/tag/v0.1.0
