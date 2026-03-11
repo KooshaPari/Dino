@@ -104,7 +104,7 @@ namespace DINOForge.Runtime.Bridge
                     if (Math.Abs(unit.Stats.Damage - DefaultDamage) > 0.001f)
                     {
                         modifications.Add(new StatModification(
-                            "unit.stats.hp",
+                            "unit.stats.damage",
                             unit.Stats.Damage,
                             ModifierMode.Override));
                         log($"[OverrideApplicator] Unit '{unit.Id}': Damage = {unit.Stats.Damage}");
@@ -144,6 +144,67 @@ namespace DINOForge.Runtime.Bridge
             else
             {
                 log("[OverrideApplicator] No unit stat overrides to apply.");
+            }
+
+            return modifications.Count;
+        }
+
+        /// <summary>
+        /// Applies YAML-loaded stat overrides to entities via StatModifierSystem.
+        /// Converts each override entry to a StatModification and enqueues for application.
+        /// </summary>
+        /// <param name="overrides">The stat override definitions loaded from YAML.</param>
+        /// <param name="log">Logging callback for diagnostics.</param>
+        /// <returns>The number of stat modifications enqueued.</returns>
+        public static int ApplyStatOverrides(IReadOnlyList<SDK.Models.StatOverrideDefinition> overrides, Action<string> log)
+        {
+            if (overrides == null) throw new ArgumentNullException(nameof(overrides));
+            if (log == null) throw new ArgumentNullException(nameof(log));
+
+            List<StatModification> modifications = new List<StatModification>();
+
+            foreach (SDK.Models.StatOverrideDefinition definition in overrides)
+            {
+                if (definition.Overrides == null || definition.Overrides.Count == 0)
+                    continue;
+
+                try
+                {
+                    foreach (SDK.Models.StatOverrideEntry entry in definition.Overrides)
+                    {
+                        // Parse the mode string to ModifierMode enum
+                        ModifierMode mode = ModifierMode.Override;
+                        if (!string.IsNullOrEmpty(entry.Mode))
+                        {
+                            if (string.Equals(entry.Mode, "override", StringComparison.OrdinalIgnoreCase))
+                                mode = ModifierMode.Override;
+                            else if (string.Equals(entry.Mode, "add", StringComparison.OrdinalIgnoreCase))
+                                mode = ModifierMode.Add;
+                            else if (string.Equals(entry.Mode, "multiply", StringComparison.OrdinalIgnoreCase))
+                                mode = ModifierMode.Multiply;
+                        }
+
+                        // Create stat modification
+                        StatModification mod = new StatModification(
+                            entry.Target,
+                            entry.Value,
+                            mode,
+                            entry.Filter);
+
+                        modifications.Add(mod);
+                        log($"[OverrideApplicator] YAML override: {entry.Target} = {entry.Value} ({mode})");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log($"[OverrideApplicator] Error processing stat override definition: {ex.Message}");
+                }
+            }
+
+            if (modifications.Count > 0)
+            {
+                StatModifierSystem.EnqueueRange(modifications);
+                log($"[OverrideApplicator] Enqueued {modifications.Count} YAML stat override(s).");
             }
 
             return modifications.Count;

@@ -24,6 +24,9 @@ namespace DINOForge.Runtime.UI
         /// <summary>Callback invoked when the user clicks the Reload Packs button.</summary>
         public Action? OnReloadRequested;
 
+        /// <summary>Callback invoked when a pack is toggled enabled/disabled (packId, isEnabled).</summary>
+        public Action<string, bool>? OnPackToggled;
+
         /// <summary>Whether the overlay is currently visible.</summary>
         public bool IsVisible => _visible;
 
@@ -157,6 +160,7 @@ namespace DINOForge.Runtime.UI
                 if (newEnabled != pack.IsEnabled)
                 {
                     _packs[i] = pack.WithEnabled(newEnabled);
+                    OnPackToggled?.Invoke(pack.Id, newEnabled);
                 }
 
                 // Pack name (highlight selected)
@@ -228,6 +232,19 @@ namespace DINOForge.Runtime.UI
                 GUI.color = oldColor;
             }
 
+            if (pack.Errors.Count > 0)
+            {
+                GUILayout.Space(4);
+                Color oldColor = GUI.color;
+                GUI.color = Color.red;
+                GUILayout.Label("Errors:");
+                foreach (string error in pack.Errors)
+                {
+                    GUILayout.Label($"  - {error}");
+                }
+                GUI.color = oldColor;
+            }
+
             GUILayout.EndVertical();
         }
     }
@@ -267,6 +284,9 @@ namespace DINOForge.Runtime.UI
         /// <summary>Pack conflict IDs.</summary>
         public IReadOnlyList<string> Conflicts { get; }
 
+        /// <summary>Pack-specific error messages.</summary>
+        public IReadOnlyList<string> Errors { get; }
+
         /// <summary>
         /// Creates a new pack display info instance.
         /// </summary>
@@ -280,7 +300,8 @@ namespace DINOForge.Runtime.UI
             int loadOrder,
             bool isEnabled,
             IReadOnlyList<string> dependencies,
-            IReadOnlyList<string> conflicts)
+            IReadOnlyList<string> conflicts,
+            IReadOnlyList<string>? errors = null)
         {
             Id = id;
             Name = name;
@@ -292,10 +313,11 @@ namespace DINOForge.Runtime.UI
             IsEnabled = isEnabled;
             Dependencies = dependencies;
             Conflicts = conflicts;
+            Errors = errors ?? new List<string>().AsReadOnly();
         }
 
         /// <summary>Returns a copy with the enabled state changed.</summary>
         public PackDisplayInfo WithEnabled(bool enabled)
-            => new PackDisplayInfo(Id, Name, Version, Author, Type, Description, LoadOrder, enabled, Dependencies, Conflicts);
+            => new PackDisplayInfo(Id, Name, Version, Author, Type, Description, LoadOrder, enabled, Dependencies, Conflicts, Errors);
     }
 }
