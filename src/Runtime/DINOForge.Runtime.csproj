@@ -155,6 +155,15 @@
     <Compile Remove="HotReload\HotReloadBridge.cs" />
     <Compile Remove="UI\ModMenuOverlay.cs" />
     <Compile Remove="UI\ModSettingsPanel.cs" />
+    <Compile Remove="UI\NativeMenuInjector.cs" />
+    <Compile Remove="UI\NativeUiHelper.cs" />
+    <Compile Remove="UI\DinoForgeStyle.cs" />
+    <Compile Remove="UI\HudIndicator.cs" />
+    <Compile Remove="UI\HudStrip.cs" />
+    <Compile Remove="UI\ModMenuPanel.cs" />
+    <Compile Remove="UI\UiBuilder.cs" />
+    <Compile Remove="UI\DebugPanel.cs" />
+    <Compile Remove="UI\DFCanvas.cs" />
   </ItemGroup>
 
   <!-- SDK project reference - provides pack loading, registries, schemas -->
