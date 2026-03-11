@@ -148,6 +148,7 @@ namespace DINOForge.Runtime
         private ModMenuOverlay? _modMenuOverlay;
         private ModSettingsPanel? _modSettingsPanel;
         private DebugOverlayBehaviour? _debugOverlay;
+        private HudIndicator? _hudIndicator;
 
         private bool _worldFound;
         private bool _initialized;
@@ -167,6 +168,27 @@ namespace DINOForge.Runtime
             _dumpOnStartup = dumpOnStartup;
             _dumpOutputPath = dumpOutputPath;
             _initialized = true;
+
+            // Initialize Kenney CC0 UI asset loader.
+            // Sprites are expected at BepInEx/plugins/dinoforge-ui-assets/ (deployed by MSBuild target).
+            // If the directory or files are absent UiAssets falls back silently — all properties return null.
+            try
+            {
+                UiAssets.Initialize(BepInEx.Paths.PluginPath);
+                if (UiAssets.MissingFiles.Count > 0)
+                {
+                    _log.LogInfo($"[RuntimeDriver] UiAssets: {UiAssets.MissingFiles.Count} sprite(s) not found " +
+                        $"— flat-colour fallback active. See src/Runtime/UI/Assets/README.md for download instructions.");
+                }
+                else
+                {
+                    _log.LogInfo("[RuntimeDriver] UiAssets: sprites loaded from disk.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[RuntimeDriver] UiAssets initialization failed: {ex.Message}");
+            }
 
             // Initialize ModPlatform orchestrator
             try
@@ -205,11 +227,8 @@ namespace DINOForge.Runtime
                 // We wire the UGUI panel callbacks manually to keep ModPlatform untouched.
                 if (_dfCanvas.ModMenuPanel != null && _modPlatform != null)
                 {
-                    // Wire reload and toggle callbacks through an adapter shim below.
-                    _dfCanvas.ModMenuPanel.OnReloadRequested = () =>
-                        _modPlatform?.SetUI(
-                            GetOrCreateImguiFallbackMenu(),
-                            GetOrCreateImguiSettingsPanel());
+                    // Wire reload callback — triggers pack reload and shows HUD strip toast.
+                    _dfCanvas.ModMenuPanel.OnReloadRequested = () => _modPlatform?.LoadPacks();
 
                     // Use a legacy ModMenuOverlay shim for ModPlatform.SetUI typing.
                     // We create a disabled IMGUI overlay purely as a typed carrier;
@@ -264,6 +283,9 @@ namespace DINOForge.Runtime
                     _modSettingsPanel = gameObject.AddComponent<ModSettingsPanel>();
                     _debugOverlay     = gameObject.AddComponent<DebugOverlayBehaviour>();
 
+                    // Wire settings panel into mod menu so its inline Settings button works
+                    _modMenuOverlay.SetSettingsPanel(_modSettingsPanel);
+
                     if (_modPlatform != null)
                     {
                         _modPlatform.SetUI(_modMenuOverlay, _modSettingsPanel);
@@ -274,6 +296,28 @@ namespace DINOForge.Runtime
                 catch (Exception ex)
                 {
                     _log.LogError($"[RuntimeDriver] IMGUI fallback UI setup failed: {ex.Message}");
+                }
+            }
+
+            // HUD indicator — only used in IMGUI fallback mode.
+            // When UGUI is active, DFCanvas.HudStrip provides equivalent functionality.
+            if (!uguiReady)
+            {
+                try
+                {
+                    _hudIndicator = gameObject.AddComponent<HudIndicator>();
+                    _hudIndicator.SetModMenu(_modMenuOverlay);
+
+                    if (_modMenuOverlay != null)
+                    {
+                        _modMenuOverlay.OnReloadRequested += () => _hudIndicator?.ShowToast("Packs reloaded");
+                    }
+
+                    _log.LogInfo("[RuntimeDriver] HudIndicator added (IMGUI mode).");
+                }
+                catch (Exception ex)
+                {
+                    _log.LogWarning($"[RuntimeDriver] HudIndicator setup failed: {ex.Message}");
                 }
             }
 

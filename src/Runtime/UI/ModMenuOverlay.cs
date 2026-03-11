@@ -8,18 +8,23 @@ namespace DINOForge.Runtime.UI
     /// <summary>
     /// IMGUI-based mod menu overlay. Toggle with F10.
     /// Attached to a DontDestroyOnLoad GameObject so it persists across scenes.
-    /// Shows loaded packs, enable/disable toggles, version info, and a reload button.
+    /// Shows loaded packs, enable/disable toggles, search, status badges, and a reload button.
+    /// Hosts an inline Settings button that delegates to <see cref="ModSettingsPanel"/>.
     /// </summary>
     public class ModMenuOverlay : MonoBehaviour
     {
         private bool _visible;
-        private Rect _windowRect = new Rect(20, 20, 500, 600);
+        private Rect _windowRect = new Rect(20, 20, 560, 640);
         private Vector2 _packListScroll;
+        private Vector2 _detailsScroll;
         private int _selectedPackIndex = -1;
         private string _statusMessage = "";
         private int _errorCount;
+        private string _searchText = "";
+        private ModSettingsPanel? _settingsPanel;
 
         private readonly List<PackDisplayInfo> _packs = new List<PackDisplayInfo>();
+        private readonly List<int> _filteredIndices = new List<int>();
 
         /// <summary>Callback invoked when the user clicks the Reload Packs button.</summary>
         public Action? OnReloadRequested;
@@ -30,26 +35,31 @@ namespace DINOForge.Runtime.UI
         /// <summary>Whether the overlay is currently visible.</summary>
         public bool IsVisible => _visible;
 
-        /// <summary>The currently selected pack index, or -1 if none.</summary>
+        /// <summary>The currently selected pack index (into the full _packs list), or -1 if none.</summary>
         public int SelectedPackIndex => _selectedPackIndex;
+
+        // ── Public API ─────────────────────────────────────────────────────────────
 
         /// <summary>
         /// Updates the list of packs displayed in the overlay.
+        /// Virtual so subclasses (e.g. ModMenuOverlayProxy) can forward to UGUI panels.
         /// </summary>
         /// <param name="packs">Pack display info objects to show.</param>
-        public void SetPacks(IEnumerable<PackDisplayInfo> packs)
+        public virtual void SetPacks(IEnumerable<PackDisplayInfo> packs)
         {
             _packs.Clear();
             _packs.AddRange(packs);
             _selectedPackIndex = _packs.Count > 0 ? 0 : -1;
+            RebuildFilter();
         }
 
         /// <summary>
         /// Updates the status bar message.
+        /// Virtual so subclasses (e.g. ModMenuOverlayProxy) can forward to UGUI panels.
         /// </summary>
         /// <param name="message">Status text to display.</param>
         /// <param name="errorCount">Number of errors to show in the status bar.</param>
-        public void SetStatus(string message, int errorCount = 0)
+        public virtual void SetStatus(string message, int errorCount = 0)
         {
             _statusMessage = message;
             _errorCount = errorCount;
@@ -63,11 +73,27 @@ namespace DINOForge.Runtime.UI
             _visible = !_visible;
         }
 
+        /// <summary>
+        /// Wires the settings panel reference so the Settings button inside this overlay can show/hide it.
+        /// </summary>
+        /// <param name="panel">The settings panel instance.</param>
+        public void SetSettingsPanel(ModSettingsPanel? panel)
+        {
+            _settingsPanel = panel;
+        }
+
+        // ── Unity lifecycle ────────────────────────────────────────────────────────
+
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.F10))
             {
                 Toggle();
+            }
+
+            if (_visible && Input.GetKeyDown(KeyCode.Escape))
+            {
+                _visible = false;
             }
         }
 
@@ -75,114 +101,158 @@ namespace DINOForge.Runtime.UI
         {
             if (!_visible) return;
 
-            _windowRect = GUI.Window(
-                9001,
-                _windowRect,
-                DrawWindow,
-                "DINOForge Mod Menu");
+            string title = BuildWindowTitle();
+            _windowRect = GUI.Window(9001, _windowRect, DrawWindow, title, DinoForgeStyle.WindowStyle);
+        }
+
+        // ── Window drawing ─────────────────────────────────────────────────────────
+
+        private string BuildWindowTitle()
+        {
+            string base_ = $"DINOForge v{PluginInfo.VERSION}  —  Mod Manager  [{_packs.Count} packs]";
+            return _errorCount > 0 ? $"{base_}  ⚠ {_errorCount} errors" : base_;
         }
 
         private void DrawWindow(int windowId)
         {
             GUILayout.BeginVertical();
 
-            // Status bar
-            DrawStatusBar();
+            // ── Header strip (status + settings button) ──────────────────────────
+            DrawHeader();
 
-            GUILayout.Space(8);
+            GUILayout.Space(6);
 
-            // Main content: pack list + details side by side
+            // ── Search field ──────────────────────────────────────────────────────
+            DrawSearchField();
+
+            GUILayout.Space(6);
+
+            // ── Main two-column layout ────────────────────────────────────────────
             GUILayout.BeginHorizontal();
-
-            // Pack list (left panel)
             DrawPackList();
 
-            // Details panel (right panel)
             if (_selectedPackIndex >= 0 && _selectedPackIndex < _packs.Count)
             {
                 DrawPackDetails(_packs[_selectedPackIndex]);
             }
+            else
+            {
+                GUILayout.BeginVertical(DinoForgeStyle.BoxStyle, GUILayout.MinWidth(300));
+                GUILayout.Label("Select a pack to view details.", DinoForgeStyle.BodyLabelStyle);
+                GUILayout.EndVertical();
+            }
 
             GUILayout.EndHorizontal();
 
-            GUILayout.Space(8);
+            GUILayout.Space(6);
 
-            // Reload button
-            if (GUILayout.Button("Reload Packs", GUILayout.Height(30)))
-            {
-                OnReloadRequested?.Invoke();
-            }
+            // ── Footer buttons ────────────────────────────────────────────────────
+            DrawFooter();
 
             GUILayout.EndVertical();
 
-            // Make the window draggable
-            GUI.DragWindow(new Rect(0, 0, _windowRect.width, 20));
+            GUI.DragWindow(new Rect(0, 0, _windowRect.width, 22));
         }
 
-        private void DrawStatusBar()
+        private void DrawHeader()
         {
-            GUILayout.BeginHorizontal("box");
-            GUILayout.Label($"Packs: {_packs.Count}");
-            GUILayout.FlexibleSpace();
+            GUILayout.BeginHorizontal(DinoForgeStyle.BoxStyle);
+
+            // Pack / error summary
+            GUILayout.Label($"Packs: {_packs.Count}", DinoForgeStyle.SectionLabelStyle, GUILayout.Width(90));
+
+            GUILayout.Space(6);
 
             if (_errorCount > 0)
             {
-                Color oldColor = GUI.color;
-                GUI.color = Color.red;
-                GUILayout.Label($"Errors: {_errorCount}");
-                GUI.color = oldColor;
+                DinoForgeStyle.StatusBadge($"ERR {_errorCount}", DinoForgeStyle.Error, 60f);
             }
             else
             {
-                GUILayout.Label("No errors");
+                DinoForgeStyle.StatusBadge("OK", DinoForgeStyle.Success, 40f);
             }
 
             GUILayout.FlexibleSpace();
-            GUILayout.Label(_statusMessage);
+
+            if (!string.IsNullOrEmpty(_statusMessage))
+            {
+                GUILayout.Label(_statusMessage, DinoForgeStyle.BodyLabelStyle);
+                GUILayout.Space(8);
+            }
+
+            // Settings toggle button
+            bool settingsActive = _settingsPanel != null && _settingsPanel.IsVisible;
+            string settingsLabel = settingsActive ? "▼ Settings" : "▶ Settings";
+            if (GUILayout.Button(settingsLabel, DinoForgeStyle.ButtonStyle, GUILayout.Width(90), GUILayout.Height(22)))
+            {
+                _settingsPanel?.SetVisible(!settingsActive);
+            }
+
+            GUILayout.EndHorizontal();
+        }
+
+        private void DrawSearchField()
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Search:", DinoForgeStyle.FieldLabelStyle, GUILayout.Width(52));
+            string newSearch = GUILayout.TextField(_searchText, GUILayout.ExpandWidth(true));
+            if (newSearch != _searchText)
+            {
+                _searchText = newSearch;
+                RebuildFilter();
+            }
+            if (GUILayout.Button("x", DinoForgeStyle.ButtonStyle, GUILayout.Width(26)))
+            {
+                _searchText = "";
+                RebuildFilter();
+            }
             GUILayout.EndHorizontal();
         }
 
         private void DrawPackList()
         {
-            GUILayout.BeginVertical("box", GUILayout.Width(200));
-            GUILayout.Label("Loaded Packs");
+            GUILayout.BeginVertical(DinoForgeStyle.BoxStyle, GUILayout.Width(215));
+            GUILayout.Label("Loaded Packs", DinoForgeStyle.HeaderStyle);
 
-            _packListScroll = GUILayout.BeginScrollView(_packListScroll, GUILayout.Height(400));
+            _packListScroll = GUILayout.BeginScrollView(_packListScroll, GUILayout.Height(430));
 
-            for (int i = 0; i < _packs.Count; i++)
+            if (_filteredIndices.Count == 0)
             {
-                PackDisplayInfo pack = _packs[i];
+                GUILayout.Label("No packs match.", DinoForgeStyle.BodyLabelStyle);
+            }
 
-                GUILayout.BeginHorizontal();
+            foreach (int realIndex in _filteredIndices)
+            {
+                PackDisplayInfo pack = _packs[realIndex];
+                bool isSelected = realIndex == _selectedPackIndex;
 
-                // Enable/disable toggle
-                bool newEnabled = GUILayout.Toggle(pack.IsEnabled, "", GUILayout.Width(20));
-                if (newEnabled != pack.IsEnabled)
+                if (isSelected)
                 {
-                    _packs[i] = pack.WithEnabled(newEnabled);
-                    OnPackToggled?.Invoke(pack.Id, newEnabled);
-                }
-
-                // Pack name (highlight selected)
-                if (i == _selectedPackIndex)
-                {
-                    Color oldColor = GUI.color;
-                    GUI.color = Color.cyan;
-                    if (GUILayout.Button(pack.Name, GUI.skin.label))
-                    {
-                        _selectedPackIndex = i;
-                    }
-                    GUI.color = oldColor;
+                    GUILayout.BeginHorizontal(DinoForgeStyle.SelectedRowStyle);
                 }
                 else
                 {
-                    if (GUILayout.Button(pack.Name, GUI.skin.label))
-                    {
-                        _selectedPackIndex = i;
-                    }
+                    GUILayout.BeginHorizontal();
                 }
 
-                GUILayout.Label($"v{pack.Version}", GUILayout.Width(50));
+                // Enable toggle
+                bool newEnabled = GUILayout.Toggle(pack.IsEnabled, "", GUILayout.Width(18));
+                if (newEnabled != pack.IsEnabled)
+                {
+                    _packs[realIndex] = pack.WithEnabled(newEnabled);
+                    OnPackToggled?.Invoke(pack.Id, newEnabled);
+                    RebuildFilter();
+                }
+
+                // Pack name button
+                GUIStyle nameStyle = isSelected ? DinoForgeStyle.PackNameSelectedStyle : DinoForgeStyle.PackNameStyle;
+                if (GUILayout.Button(pack.Name, nameStyle, GUILayout.ExpandWidth(true)))
+                {
+                    _selectedPackIndex = realIndex;
+                }
+
+                // Status badge
+                DrawPackStatusBadge(pack);
 
                 GUILayout.EndHorizontal();
             }
@@ -191,63 +261,143 @@ namespace DINOForge.Runtime.UI
             GUILayout.EndVertical();
         }
 
+        private void DrawPackStatusBadge(PackDisplayInfo pack)
+        {
+            if (pack.Errors.Count > 0)
+            {
+                DinoForgeStyle.StatusBadge("ERR", DinoForgeStyle.Error, 30f);
+            }
+            else if (pack.Conflicts.Count > 0)
+            {
+                DinoForgeStyle.StatusBadge("CONF", DinoForgeStyle.Warning, 34f);
+            }
+            else if (pack.IsEnabled)
+            {
+                DinoForgeStyle.StatusBadge("OK", DinoForgeStyle.Success, 22f);
+            }
+            else
+            {
+                DinoForgeStyle.StatusBadge("OFF", DinoForgeStyle.TextMuted, 24f);
+            }
+        }
+
         private void DrawPackDetails(PackDisplayInfo pack)
         {
-            GUILayout.BeginVertical("box", GUILayout.MinWidth(280));
-            GUILayout.Label("Pack Details");
+            GUILayout.BeginVertical(DinoForgeStyle.BoxStyle, GUILayout.MinWidth(310));
+            GUILayout.Label("Pack Details", DinoForgeStyle.HeaderStyle);
 
-            GUILayout.Label($"ID: {pack.Id}");
-            GUILayout.Label($"Name: {pack.Name}");
-            GUILayout.Label($"Version: {pack.Version}");
-            GUILayout.Label($"Author: {pack.Author}");
-            GUILayout.Label($"Type: {pack.Type}");
-            GUILayout.Label($"Load Order: {pack.LoadOrder}");
+            _detailsScroll = GUILayout.BeginScrollView(_detailsScroll, GUILayout.ExpandHeight(true));
+
+            DrawField("ID", pack.Id);
+            DrawField("Name", pack.Name);
+            DrawField("Version", pack.Version);
+            DrawField("Author", pack.Author);
+            DrawField("Type", pack.Type);
+            DrawField("Load Order", pack.LoadOrder.ToString());
 
             if (!string.IsNullOrEmpty(pack.Description))
             {
-                GUILayout.Space(4);
-                GUILayout.Label($"Description: {pack.Description}");
+                GUILayout.Space(6);
+                GUILayout.Label("Description", DinoForgeStyle.FieldLabelStyle);
+                GUILayout.Label(pack.Description, DinoForgeStyle.BodyLabelStyle);
             }
 
             if (pack.Dependencies.Count > 0)
             {
+                GUILayout.Space(6);
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Dependencies", DinoForgeStyle.FieldLabelStyle);
                 GUILayout.Space(4);
-                GUILayout.Label("Dependencies:");
+                DinoForgeStyle.StatusBadge(pack.Dependencies.Count.ToString(), DinoForgeStyle.AccentDim, 22f);
+                GUILayout.EndHorizontal();
                 foreach (string dep in pack.Dependencies)
                 {
-                    GUILayout.Label($"  - {dep}");
+                    GUILayout.Label($"  - {dep}", DinoForgeStyle.BodyLabelStyle);
                 }
             }
 
             if (pack.Conflicts.Count > 0)
             {
+                GUILayout.Space(6);
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Conflicts", DinoForgeStyle.FieldLabelStyle);
                 GUILayout.Space(4);
-                Color oldColor = GUI.color;
-                GUI.color = Color.yellow;
-                GUILayout.Label("Conflicts:");
+                DinoForgeStyle.StatusBadge(pack.Conflicts.Count.ToString(), DinoForgeStyle.Warning, 22f);
+                GUILayout.EndHorizontal();
                 foreach (string conflict in pack.Conflicts)
                 {
-                    GUILayout.Label($"  - {conflict}");
+                    GUILayout.Label($"  - {conflict}", DinoForgeStyle.WarningLabelStyle);
                 }
-                GUI.color = oldColor;
             }
 
             if (pack.Errors.Count > 0)
             {
+                GUILayout.Space(6);
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Errors", DinoForgeStyle.FieldLabelStyle);
                 GUILayout.Space(4);
-                Color oldColor = GUI.color;
-                GUI.color = Color.red;
-                GUILayout.Label("Errors:");
+                DinoForgeStyle.StatusBadge(pack.Errors.Count.ToString(), DinoForgeStyle.Error, 22f);
+                GUILayout.EndHorizontal();
                 foreach (string error in pack.Errors)
                 {
-                    GUILayout.Label($"  - {error}");
+                    GUILayout.Label($"  - {error}", DinoForgeStyle.ErrorLabelStyle);
                 }
-                GUI.color = oldColor;
             }
 
+            GUILayout.EndScrollView();
             GUILayout.EndVertical();
         }
+
+        private static void DrawField(string label, string value)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label($"{label}:", DinoForgeStyle.FieldLabelStyle, GUILayout.Width(80));
+            GUILayout.Label(value, DinoForgeStyle.BodyLabelStyle);
+            GUILayout.EndHorizontal();
+        }
+
+        private void DrawFooter()
+        {
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Reload Packs", DinoForgeStyle.ButtonStyle, GUILayout.Height(28)))
+            {
+                OnReloadRequested?.Invoke();
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.Label("[F10] toggle  |  [Esc] close", DinoForgeStyle.SectionLabelStyle);
+            GUILayout.EndHorizontal();
+        }
+
+        // ── Filter helpers ─────────────────────────────────────────────────────────
+
+        private void RebuildFilter()
+        {
+            _filteredIndices.Clear();
+            for (int i = 0; i < _packs.Count; i++)
+            {
+                if (PackMatchesSearch(_packs[i]))
+                    _filteredIndices.Add(i);
+            }
+
+            // If the selected pack is no longer in the filtered list, reset selection
+            if (_selectedPackIndex >= 0 && !_filteredIndices.Contains(_selectedPackIndex))
+            {
+                _selectedPackIndex = _filteredIndices.Count > 0 ? _filteredIndices[0] : -1;
+            }
+        }
+
+        private bool PackMatchesSearch(PackDisplayInfo pack)
+        {
+            if (string.IsNullOrWhiteSpace(_searchText)) return true;
+            string lower = _searchText.ToLowerInvariant();
+            return pack.Name.ToLowerInvariant().Contains(lower)
+                || pack.Id.ToLowerInvariant().Contains(lower);
+        }
     }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // PackDisplayInfo — unchanged public API
+    // ─────────────────────────────────────────────────────────────────────────────
 
     /// <summary>
     /// Immutable display data for a pack in the mod menu.
