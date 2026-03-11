@@ -40,7 +40,13 @@ namespace DINOForge.SDK
         public int LoadOrder { get; set; } = 100;
 
         [YamlMember(Alias = "game_version")]
-        public string? GameVersion { get; set; }
+        public string GameVersion { get; set; } = "*";
+
+        [YamlMember(Alias = "bepinex_version")]
+        public string BepInExVersion { get; set; } = ">=5.4.0";
+
+        [YamlMember(Alias = "unity_version")]
+        public string UnityVersion { get; set; } = "*";
 
         [YamlMember(Alias = "loads")]
         public PackLoads? Loads { get; set; }

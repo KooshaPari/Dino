@@ -21,7 +21,6 @@ namespace DINOForge.SDK
     /// Multiple constraints can be combined with spaces.
     /// </summary>
     public static class CompatibilityChecker
-        /// <summary>        /// Defines the installer action tier for a given compatibility status.        /// Maps status values from compat.json to installer directives.        /// </summary>        public enum StatusTier        {            /// <summary>Proceed with installation without warnings.</summary>            Proceed,            /// <summary>Warn user but allow installation.</summary>            Warn,            /// <summary>Warn strongly but allow installation.</summary>            WarnStrongly,            /// <summary>Block installation completely.</summary>            Block,            /// <summary>Unknown compatibility tier.</summary>            Unknown        }        /// <summary>        /// Gets the installer action tier for a compatibility status value.        /// Translates status strings from compat.json into actionable installer tiers.        /// </summary>        /// <param name="status">The status from compat.json (e.g., "optimal", "stable", "broken").</param>        /// <returns>The corresponding installer action tier.</returns>        public static StatusTier GetStatusTier(string status)        {            return status?.ToLowerInvariant() switch            {                "optimal" => StatusTier.Proceed,                "stable" => StatusTier.Proceed,                "maintenance" => StatusTier.Warn,                "unstable" => StatusTier.WarnStrongly,                "broken" => StatusTier.Block,                "unknown" => StatusTier.Warn,                _ => StatusTier.Unknown            };        }
     {
         /// <summary>
         /// Gets the current DINOForge framework version from the SDK assembly.
@@ -31,7 +30,12 @@ namespace DINOForge.SDK
             get
             {
                 var version = typeof(CompatibilityChecker).Assembly.GetName().Version;
-                return version ?? new Version(0, 1, 0);
+                // netstandard2.0 builds may not have proper version set, default to 0.3.0
+                if (version == null || version.Equals(new Version(0, 0, 0)))
+                {
+                    return new Version(0, 3, 0);
+                }
+                return version;
             }
         }
 
@@ -129,6 +133,14 @@ namespace DINOForge.SDK
 
             // Extract operator and version number
             var (op, constraintVersion) = ExtractOperatorAndVersion(constraint);
+
+            // Handle wildcard versions like "2021.3.*"
+            if (constraintVersion.Contains("*"))
+            {
+                // Wildcard version comparison: match prefix
+                var prefix = constraintVersion.Replace("*", "");
+                return version.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+            }
 
             // Try to parse versions, handle formats like "2021.3.45f2" (Unity)
             if (!TryParseVersion(version, out var v) || !TryParseVersion(constraintVersion, out var cv))

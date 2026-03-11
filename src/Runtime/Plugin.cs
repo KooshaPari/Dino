@@ -47,10 +47,11 @@ namespace DINOForge.Runtime
                 Path.Combine(Paths.BepInExRootPath, "dinoforge_dumps"),
                 "Directory to write entity/component dump files");
 
-            // Detect game
+            // Detect game and log version compatibility info
             try
             {
-                Log.LogInfo($"Unity version: {Application.unityVersion}");
+                var bepinexVersion = typeof(BaseUnityPlugin).Assembly.GetName().Version?.ToString() ?? "unknown";
+                Log.LogInfo($"DINOForge v{PluginInfo.VERSION} | BepInEx {bepinexVersion} | Unity {Application.unityVersion}");
                 Log.LogInfo($"Platform: {Application.platform}");
             }
             catch (Exception ex)
