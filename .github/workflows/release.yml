@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  attestations: write
+  id-token: write
 
 jobs:
   build-and-release:
@@ -249,6 +251,38 @@ jobs:
           "ZIP_NAME=$zipName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       # ---------------------------------------------------------------
+      # Generate SHA256 checksums for all release artifacts
+      # ---------------------------------------------------------------
+      - name: Generate SHA256 checksums
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          $checksumFile = "staging/SHA256SUMS.txt"
+          $checksumContent = @()
+
+          # Generate checksums for all release artifacts
+          $artifacts = @(
+            "staging/nuget/*.nupkg",
+            "staging/DINOForge-v$version-Installer.exe",
+            "${{ env.ZIP_NAME }}"
+          )
+
+          foreach ($pattern in $artifacts) {
+            $files = Get-ChildItem $pattern -ErrorAction SilentlyContinue
+            foreach ($file in $files) {
+              $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLower()
+              $checksumContent += "$hash  $($file.Name)"
+              Write-Host "Checksum for $($file.Name): $hash"
+            }
+          }
+
+          # Write checksums to file
+          $checksumContent | Out-File -FilePath $checksumFile -Encoding utf8
+          Write-Host "Generated checksums for $($checksumContent.Count) artifacts"
+          Write-Host "SHA256SUMS.txt contents:"
+          Get-Content $checksumFile
+
+      # ---------------------------------------------------------------
       # Extract CHANGELOG section for the release body
       # ---------------------------------------------------------------
       - name: Extract changelog section
@@ -328,6 +362,18 @@ jobs:
             staging/nuget/*.nupkg
             staging/DINOForge-v${{ steps.version.outputs.VERSION }}-Installer.exe
             staging/DINOForge-v${{ steps.version.outputs.VERSION }}-Installer.exe.sha256
+            staging/SHA256SUMS.txt
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------------------------------------------------------------
+      # Generate SLSA L2 build provenance attestations
+      # ---------------------------------------------------------------
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            staging/DINOForge-v${{ steps.version.outputs.VERSION }}-Installer.exe
+            staging/nuget/*.nupkg
+            ${{ env.ZIP_NAME }}

@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Spectre.Console;
 using DINOForge.SDK;
@@ -71,9 +73,26 @@ namespace DINOForge.Tools.PackCompiler
             assetsCommand.Subcommands.Add(assetsInspectCommand);
             assetsCommand.Subcommands.Add(assetsValidateCommand);
 
+            // Thunderstore command
+            var thunderstorePackDirArg = new Argument<string>("pack-path") { Description = "Path to the pack directory containing pack.yaml" };
+            var authorOption = new Option<string?>("--author") { Description = "Thunderstore author name (default: KooshaPari)" };
+            var thunderstoreOutputOption = new Option<string?>("--output", "-o") { Description = "Output directory (defaults to pack-path)" };
+            var thunderstoreCommand = new Command("thunderstore") { Description = "Generate Thunderstore-compatible manifest.json from a DINOForge pack" };
+            thunderstoreCommand.Arguments.Add(thunderstorePackDirArg);
+            thunderstoreCommand.Options.Add(authorOption);
+            thunderstoreCommand.Options.Add(thunderstoreOutputOption);
+            thunderstoreCommand.SetAction(parseResult =>
+            {
+                string packPath = parseResult.GetValue(thunderstorePackDirArg)!;
+                string author = parseResult.GetValue(authorOption) ?? "KooshaPari";
+                string? outputDir = parseResult.GetValue(thunderstoreOutputOption);
+                GenerateThunderstoreManifest(packPath, author, outputDir ?? "");
+            });
+
             var rootCommand = new RootCommand("DINOForge PackCompiler - Validate and bundle content packs");
             rootCommand.Subcommands.Add(validateCommand);
             rootCommand.Subcommands.Add(buildCommand);
+            rootCommand.Subcommands.Add(thunderstoreCommand);
             rootCommand.Subcommands.Add(assetsCommand);
 
             ParseResult parseResultObj = rootCommand.Parse(args);
@@ -209,6 +228,9 @@ namespace DINOForge.Tools.PackCompiler
                 AnsiConsole.MarkupLine($"[yellow]Copying pack to output directory...[/]");
                 CopyDirectory(packPath, finalOutputDir);
 
+                AnsiConsole.MarkupLine("[yellow]Generating Thunderstore manifest...[/]");
+                GenerateThunderstoreManifest(packPath, "KooshaPari", finalOutputDir);
+
                 AnsiConsole.WriteLine();
                 AnsiConsole.MarkupLine("[bold green]Build successful![/]");
                 AnsiConsole.MarkupLine($"Output: {finalOutputDir}");
@@ -216,6 +238,77 @@ namespace DINOForge.Tools.PackCompiler
             catch (Exception ex)
             {
                 AnsiConsole.MarkupLine($"[bold red]Build failed:[/] {ex.Message}");
+                Environment.Exit(1);
+            }
+        }
+
+        private static void GenerateThunderstoreManifest(string packPath, string author, string outputDir)
+        {
+            try
+            {
+                string manifestPath = Path.Combine(packPath, "pack.yaml");
+                if (!File.Exists(manifestPath))
+                {
+                    AnsiConsole.MarkupLine($"[bold red]ERROR:[/] No pack.yaml found in {packPath}");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                var loader = new PackLoader();
+                var manifest = loader.LoadFromFile(manifestPath);
+
+                // Build Thunderstore package name: "Author-PackId" (sanitized to alphanumeric + dash)
+                string safeName = System.Text.RegularExpressions.Regex.Replace(
+                    manifest.Id, @"[^a-zA-Z0-9_]", "-");
+                string tsName = $"{author}-{safeName}";
+
+                // Map DINOForge depends_on to Thunderstore format
+                // Always include BepInEx as base dependency
+                var dependencies = new List<string> { "BepInEx-BepInExPack-5.4.2100" };
+                if (manifest.DependsOn != null && manifest.DependsOn.Count > 0)
+                {
+                    foreach (string dep in manifest.DependsOn)
+                    {
+                        // Convert DINOForge dep ID to Thunderstore format
+                        string safeDep = System.Text.RegularExpressions.Regex.Replace(dep, @"[^a-zA-Z0-9_]", "-");
+                        dependencies.Add($"{author}-{safeDep}-1.0.0");
+                    }
+                }
+
+                // Truncate description to 250 chars (Thunderstore limit)
+                string description = manifest.Description ?? $"DINOForge pack: {manifest.Name}";
+                if (description.Length > 250)
+                    description = description[..247] + "...";
+
+                var tsManifest = new
+                {
+                    name = tsName,
+                    version_number = manifest.Version,
+                    website_url = "https://github.com/KooshaPari/Dino",
+                    description = description,
+                    dependencies = dependencies
+                };
+
+                string finalOutputDir = string.IsNullOrEmpty(outputDir) ? packPath : outputDir;
+                Directory.CreateDirectory(finalOutputDir);
+                string outPath = Path.Combine(finalOutputDir, "thunderstore.manifest.json");
+
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+                };
+
+                string json = JsonSerializer.Serialize(tsManifest, options);
+                File.WriteAllText(outPath, json);
+
+                AnsiConsole.MarkupLine($"[green]✓[/] Thunderstore manifest written to: [bold]{outPath}[/]");
+                AnsiConsole.MarkupLine($"  Package: [bold]{tsManifest.name}[/] v{tsManifest.version_number}");
+                AnsiConsole.MarkupLine($"  Dependencies: [dim]{dependencies.Count}[/]");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[bold red]Thunderstore generation failed:[/] {ex.Message}");
                 Environment.Exit(1);
             }
         }

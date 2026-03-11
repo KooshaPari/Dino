@@ -24,18 +24,32 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
 
       - name: Restore dependencies
-        run: dotnet restore src/DINOForge.CI.sln
+        run: dotnet restore src/DINOForge.CI.sln --locked-mode
+        env:
+          CI: 'true'
 
       - name: Build
         run: dotnet build src/DINOForge.CI.sln --no-restore --configuration Release
 
       - name: Test with coverage
-        run: dotnet test src/DINOForge.CI.sln --no-build --configuration Release \
-          --collect:"XPlat Code Coverage" \
-          --results-directory ./test-results \
-          --logger "trx;LogFileName=test-results.trx"
+        run: |
+          dotnet test src/DINOForge.CI.sln \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=cobertura \
+            /p:CoverletOutput=./coverage/ \
+            /p:Threshold=60 \
+            /p:ThresholdType=line \
+            /p:ThresholdStat=total \
+            --logger "trx;LogFileName=test-results.trx" \
+            --results-directory ./test-results \
+            -- xunit.parallelizeAssembly=true
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -45,11 +59,19 @@ jobs:
           path: ./test-results/*.trx
           retention-days: 30
 
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: '**/coverage/*.xml'
+          retention-days: 14
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         if: always()
         with:
-          files: ./test-results/**/coverage.cobertura.xml
+          files: '**/coverage/*.xml'
           fail_ci_if_error: false
           # Configure CODECOV_TOKEN secret in repository settings for authenticated uploads
           # This enables better coverage tracking and historical comparisons

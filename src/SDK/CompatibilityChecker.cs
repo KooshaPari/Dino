@@ -29,13 +29,27 @@ namespace DINOForge.SDK
         {
             get
             {
-                var version = typeof(CompatibilityChecker).Assembly.GetName().Version;
-                // netstandard2.0 builds may not have proper version set, default to 0.3.0
-                if (version == null || version.Equals(new Version(0, 0, 0)))
+                var asm = typeof(CompatibilityChecker).Assembly;
+
+                // MinVer sets AssemblyVersion to {major}.0.0.0 by default, which collapses
+                // to 0.0.0.0 when major=0.  Fall back to FileVersion (e.g. "0.5.1.0") which
+                // MinVer always sets correctly, then to InformationalVersion as last resort.
+                var assemblyVersion = asm.GetName().Version;
+                if (assemblyVersion != null && assemblyVersion.Major + assemblyVersion.Minor > 0)
+                    return assemblyVersion;
+
+                // Try FileVersionAttribute (MinVer sets this to {major}.{minor}.{patch}.0)
+                var fileVerAttr = asm.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false);
+                if (fileVerAttr.Length > 0 &&
+                    fileVerAttr[0] is AssemblyFileVersionAttribute fva &&
+                    Version.TryParse(fva.Version, out var fileVer) &&
+                    fileVer.Major + fileVer.Minor > 0)
                 {
-                    return new Version(0, 3, 0);
+                    return fileVer;
                 }
-                return version;
+
+                // Fallback: known framework version constant
+                return new Version(0, 5, 0);
             }
         }
 
@@ -209,6 +223,11 @@ namespace DINOForge.SDK
             {
                 return false;
             }
+
+            // Strip semver pre-release tag (e.g. "-preview.0.5", "-alpha.1") before parsing
+            var dashIdx = versionStr.IndexOf('-');
+            if (dashIdx >= 0)
+                versionStr = versionStr.Substring(0, dashIdx);
 
             // Remove common suffixes like 'f2', 'rc1', etc. for parsing
             var cleaned = System.Text.RegularExpressions.Regex.Replace(versionStr, "[a-zA-Z]+\\d*$", "");

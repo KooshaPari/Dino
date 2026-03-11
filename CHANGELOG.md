@@ -9,6 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Versionize & Release Automation
+- Versionize conventional-commits based version automation workflow
+- .versionize config for GitHub URL formats in changelog (commits, tags, issues, users)
+- SHA256SUMS.txt generated automatically for all release artifacts
+- Enhanced version-bump.yml workflow with dry-run support and automatic tagging
+
+#### Thunderstore Distribution Support
+- PackCompiler `thunderstore` command: generates Thunderstore-compatible manifest.json for r2modman/TMM compatibility
+- Automatic Thunderstore manifest generation during `build` command
+- Manifest includes Thunderstore package naming (Author-PackId format), BepInEx dependency, and description truncation to 250 chars
+
+#### CI/Build Optimization & Reproducibility
+- NuGet package lock files for reproducible builds (RestorePackagesWithLockFile)
+- CI NuGet caching via setup-dotnet built-in cache (cache-dependency-path: packages.lock.json)
+- RestoreLockedMode enabled in CI to enforce lock file consistency
+- Parallel xunit test execution in CI (xunit.parallelizeAssembly=true)
+- TRX test results upload as CI artifacts for visibility
+
+#### Testing & Architecture Validation
+- NetArchTest architecture enforcement tests (SDK layer isolation from Runtime and Domains)
+- AutoFixture test data generation package for improved test fixtures
+- Code coverage collection (Cobertura format) with 60% line threshold in CI
+- Coverage report artifacts uploaded to GitHub Actions with 14-day retention
+
+#### Versioning & Security Infrastructure
+- MinVer git-tag-based versioning for all .NET projects (automatic version detection from git tags with `v` prefix)
+- NuGet security audit (moderate threshold) via Directory.Build.props to fail CI on vulnerable packages
+- Dependabot weekly updates for NuGet packages and GitHub Actions with package grouping (Microsoft/System, Testing, Avalonia, Stryker)
+- Automated dependency PR labeling and scheduling (Mondays at default time)
+- Unity package exclusion from major version updates to maintain game compatibility
+- OpenSSF Scorecard security analysis workflow (weekly + push to main)
+- CycloneDX SBOM generation for SDK and Runtime projects
+- SLSA L2 build provenance attestations on release artifacts
+
 #### M9: Unit Spawning & Wave Injection System
 - M9: **PackUnitSpawner** - clone-and-override ECS system for spawning pack-defined units with full ECS archetype support
 - M9: **FactionSystem** - runtime faction registry and entity tagging via Enemy component marker
