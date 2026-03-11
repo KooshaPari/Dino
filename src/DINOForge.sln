@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
@@ -38,6 +38,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DINOForge.Tests.Integration", "Tests\Integration\DINOForge.Tests.Integration.csproj", "{A4BBF396-90A7-4EDC-9565-34641567B1C9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DINOForge.Tools.McpServer", "Tools\McpServer\DINOForge.Tools.McpServer.csproj", "{10BDBC6D-8475-49D8-AF47-33416E27DA78}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DINOForge.Templates", "Templates\DINOForge.Templates.csproj", "{4141EF9A-BE42-418B-82CF-EDD6114FADBB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,6 +103,10 @@ Global
 		{10BDBC6D-8475-49D8-AF47-33416E27DA78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10BDBC6D-8475-49D8-AF47-33416E27DA78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10BDBC6D-8475-49D8-AF47-33416E27DA78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4141EF9A-BE42-418B-82CF-EDD6114FADBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4141EF9A-BE42-418B-82CF-EDD6114FADBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4141EF9A-BE42-418B-82CF-EDD6114FADBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4141EF9A-BE42-418B-82CF-EDD6114FADBB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{AB762478-FE63-49D6-90D0-9DE803ED2CA9} = {0E5E249A-34B4-42CE-9CEB-0ACD11CD86C7}
