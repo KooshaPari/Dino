@@ -7,9 +7,11 @@ namespace DINOForge.SDK.Models
     /// </summary>
     public class WeaponDefinition
     {
+        /// <summary>Unique weapon identifier.</summary>
         [YamlMember(Alias = "id")]
         public string Id { get; set; } = "";
 
+        /// <summary>Human-readable weapon name.</summary>
         [YamlMember(Alias = "display_name")]
         public string DisplayName { get; set; } = "";
 
@@ -25,9 +27,11 @@ namespace DINOForge.SDK.Models
         [YamlMember(Alias = "damage_type")]
         public string? DamageType { get; set; }
 
+        /// <summary>Base damage per hit before modifiers.</summary>
         [YamlMember(Alias = "base_damage")]
         public float BaseDamage { get; set; } = 0f;
 
+        /// <summary>Maximum attack range in world units.</summary>
         [YamlMember(Alias = "range")]
         public float Range { get; set; } = 0f;
 

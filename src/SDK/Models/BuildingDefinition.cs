@@ -8,12 +8,15 @@ namespace DINOForge.SDK.Models
     /// </summary>
     public class BuildingDefinition
     {
+        /// <summary>Unique building identifier.</summary>
         [YamlMember(Alias = "id")]
         public string Id { get; set; } = "";
 
+        /// <summary>Human-readable building name shown in-game.</summary>
         [YamlMember(Alias = "display_name")]
         public string DisplayName { get; set; } = "";
 
+        /// <summary>Optional flavor or tooltip text for the building.</summary>
         [YamlMember(Alias = "description")]
         public string? Description { get; set; }
 
@@ -24,6 +27,7 @@ namespace DINOForge.SDK.Models
         [YamlMember(Alias = "building_type")]
         public string? BuildingType { get; set; }
 
+        /// <summary>Resource cost to construct this building.</summary>
         [YamlMember(Alias = "cost")]
         public ResourceCost Cost { get; set; } = new ResourceCost();
 

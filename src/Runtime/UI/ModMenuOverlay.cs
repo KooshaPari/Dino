@@ -1,6 +1,6 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace DINOForge.Runtime.UI
@@ -142,7 +142,7 @@ namespace DINOForge.Runtime.UI
         private void DrawPackList()
         {
             GUILayout.BeginVertical("box", GUILayout.Width(200));
-            GUILayout.Label("Loaded Packs", GUI.skin.GetStyle("label"));
+            GUILayout.Label("Loaded Packs");
 
             _packListScroll = GUILayout.BeginScrollView(_packListScroll, GUILayout.Height(400));
 
@@ -190,7 +190,7 @@ namespace DINOForge.Runtime.UI
         private void DrawPackDetails(PackDisplayInfo pack)
         {
             GUILayout.BeginVertical("box", GUILayout.MinWidth(280));
-            GUILayout.Label("Pack Details", GUI.skin.GetStyle("label"));
+            GUILayout.Label("Pack Details");
 
             GUILayout.Label($"ID: {pack.Id}");
             GUILayout.Label($"Name: {pack.Name}");
@@ -237,17 +237,39 @@ namespace DINOForge.Runtime.UI
     /// </summary>
     public sealed class PackDisplayInfo
     {
+        /// <summary>The unique pack identifier.</summary>
         public string Id { get; }
+
+        /// <summary>Human-readable pack name.</summary>
         public string Name { get; }
+
+        /// <summary>SemVer version string.</summary>
         public string Version { get; }
+
+        /// <summary>Pack author name.</summary>
         public string Author { get; }
+
+        /// <summary>Pack type (content, balance, ruleset, etc.).</summary>
         public string Type { get; }
+
+        /// <summary>Optional description of the pack.</summary>
         public string? Description { get; }
+
+        /// <summary>Load order priority.</summary>
         public int LoadOrder { get; }
+
+        /// <summary>Whether the pack is currently enabled.</summary>
         public bool IsEnabled { get; }
+
+        /// <summary>Pack dependency IDs.</summary>
         public IReadOnlyList<string> Dependencies { get; }
+
+        /// <summary>Pack conflict IDs.</summary>
         public IReadOnlyList<string> Conflicts { get; }
 
+        /// <summary>
+        /// Creates a new pack display info instance.
+        /// </summary>
         public PackDisplayInfo(
             string id,
             string name,

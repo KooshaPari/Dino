@@ -27,6 +27,14 @@ namespace DINOForge.SDK.Registry
         /// <summary>The <c>id</c> of the pack that registered this entry.</summary>
         public string SourcePackId { get; }
 
+        /// <summary>
+        /// Creates a new registry entry with computed priority.
+        /// </summary>
+        /// <param name="id">Namespaced entry identifier.</param>
+        /// <param name="data">The content data object.</param>
+        /// <param name="source">Which loading layer contributed this entry.</param>
+        /// <param name="sourcePackId">The pack that registered this entry.</param>
+        /// <param name="loadOrder">Intra-tier ordering value.</param>
         public RegistryEntry(string id, T data, RegistrySource source, string sourcePackId, int loadOrder = 100)
         {
             Id = id;

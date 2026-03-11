@@ -22,15 +22,16 @@ namespace DINOForge.Runtime.Bridge
         //  Unit Component Mappings
         // ──────────────────────────────────────────────
 
-        /// <summary>HP tracking component.</summary>
+        /// <summary>HP tracking component. Field: currentHealth (float).</summary>
         public static readonly ComponentMapping UnitHealth =
             new ComponentMapping("Components.Health", "unit.stats.hp",
-                "Current and max HP for units and buildings");
+                "Current HP for units and buildings", "currentHealth");
 
-        /// <summary>Base health data (blob asset reference).</summary>
+        /// <summary>Max health multiplier on HealthBase. Field: _maxHealthMultiplier (float).</summary>
         public static readonly ComponentMapping UnitHealthBase =
             new ComponentMapping("Components.HealthBase", "unit.stats.hp_base",
-                "Base health values defined at prefab level");
+                "Max health multiplier (blob ref has immutable base, this float is mutable)",
+                "_maxHealthMultiplier");
 
         /// <summary>Core unit marker — present on all units.</summary>
         public static readonly ComponentMapping UnitTag =
@@ -42,30 +43,56 @@ namespace DINOForge.Runtime.Bridge
             new ComponentMapping("Components.UnitBase", "unit.base",
                 "Core unit data (type identifiers, base stats)");
 
-        /// <summary>Defense values (armor).</summary>
+        /// <summary>Defense values (armor). Field: type (ArmorType enum).</summary>
         public static readonly ComponentMapping UnitArmor =
             new ComponentMapping("Components.ArmorData", "unit.stats.armor",
-                "Armor/defense rating");
+                "Armor type enum from Utility.EnumsStorage.ArmorType", "type");
 
-        /// <summary>Attack cooldown timer.</summary>
+        /// <summary>Attack cooldown timer. Field: value (float).</summary>
         public static readonly ComponentMapping UnitAttackCooldown =
             new ComponentMapping("Components.AttackCooldown", "unit.stats.attack_cooldown",
-                "Time between attacks");
+                "Cooldown timer between attacks", "value");
+
+        /// <summary>Attack speed animation modifier. Field: Value (float).</summary>
+        public static readonly ComponentMapping UnitAttackSpeedMod =
+            new ComponentMapping("Components.MmAnimationPropertyAttackSpeedModifier",
+                "unit.stats.attack_speed",
+                "Animation speed multiplier affecting attack rate", "Value");
+
+        /// <summary>Projectile speed on attack cooldown. Field: fixedProjectileSpeed (float).</summary>
+        public static readonly ComponentMapping UnitProjectileSpeed =
+            new ComponentMapping("Components.AttackCooldown", "unit.stats.projectile_speed",
+                "Projectile speed set during attack targeting", "fixedProjectileSpeed");
 
         /// <summary>Attack range (ground units).</summary>
         public static readonly ComponentMapping UnitAttackArea =
             new ComponentMapping("Components.GroundAttackArea", "unit.stats.range",
                 "Ground attack range radius");
 
-        /// <summary>Movement direction and speed.</summary>
+        /// <summary>Movement speed. Field: speed (float). Also has delayModify, currentModify.</summary>
         public static readonly ComponentMapping UnitMoveHeading =
             new ComponentMapping("Components.RawComponents.MoveHeading", "unit.stats.speed",
-                "Movement vector / speed");
+                "Movement speed and heading vector", "speed");
 
         /// <summary>Squad membership marker.</summary>
         public static readonly ComponentMapping UnitSquadMarker =
             new ComponentMapping("Components.RawComponents.SquadMarker", "unit.squad",
                 "Squad assignment identifier");
+
+        /// <summary>Regeneration timer. Field: regenerationStartTime (float).</summary>
+        public static readonly ComponentMapping UnitRegeneration =
+            new ComponentMapping("Components.Regeneration", "unit.stats.regen",
+                "Regeneration timer start", "regenerationStartTime");
+
+        /// <summary>Object identity. Field: value (int).</summary>
+        public static readonly ComponentMapping ObjectId =
+            new ComponentMapping("Components.RawComponents.ObjectId", "entity.object_id",
+                "Unique object identifier per entity", "value");
+
+        /// <summary>Price/cost data (blob asset reference, immutable).</summary>
+        public static readonly ComponentMapping PriceBase =
+            new ComponentMapping("Components.PriceBase", "entity.cost",
+                "Unit/building cost definition (BlobAssetReference<PriceBaseData>)");
 
         // ── Unit Class Tags ──
 
@@ -84,18 +111,52 @@ namespace DINOForge.Runtime.Bridge
             new ComponentMapping("Components.CavalryUnit", "unit.class.cavalry",
                 "Zero-sized tag: cavalry unit");
 
+        /// <summary>Siege unit type tag.</summary>
+        public static readonly ComponentMapping UnitClassSiege =
+            new ComponentMapping("Components.SiegeUnit", "unit.class.siege",
+                "Zero-sized tag: siege unit");
+
         /// <summary>Archer unit type tag.</summary>
         public static readonly ComponentMapping UnitClassArcher =
             new ComponentMapping("Components.Archer", "unit.class.archer",
                 "Zero-sized tag: archer unit");
+
+        /// <summary>Cast-only unit type tag (magic users).</summary>
+        public static readonly ComponentMapping UnitClassCastOnly =
+            new ComponentMapping("Components.CastOnlyUnit", "unit.class.cast_only",
+                "Zero-sized tag: magic-only unit");
+
+        /// <summary>High priority targeting marker.</summary>
+        public static readonly ComponentMapping UnitHighPriority =
+            new ComponentMapping("Components.HighPriorityUnit", "unit.class.high_priority",
+                "Zero-sized tag: prioritized by enemy targeting");
 
         // ── Faction Tags ──
 
         /// <summary>Enemy faction tag. Absence implies player-owned.</summary>
         public static readonly ComponentMapping FactionEnemy =
             new ComponentMapping("Components.Enemy", "unit.faction.enemy",
-                "Zero-sized tag: entity belongs to enemy faction. " +
+                "Enemy base data (BlobAssetReference<EnemyBaseData>). " +
                 "DINO has no explicit faction component — player vs enemy is the only split.");
+
+        // ── Projectile Components ──
+
+        /// <summary>Projectile base data (blob asset reference).</summary>
+        public static readonly ComponentMapping ProjectileBase =
+            new ComponentMapping("Components.ProjectileDataBase", "projectile.base",
+                "Projectile data (BlobAssetReference<ProjectileData>)");
+
+        /// <summary>Projectile runtime fly data. Field: damage (float).</summary>
+        public static readonly ComponentMapping ProjectileDamage =
+            new ComponentMapping("Components.RawComponents.ProjectileFlyData",
+                "projectile.damage",
+                "Runtime projectile damage value", "damage");
+
+        /// <summary>Projectile gravity. Field: gravity (float).</summary>
+        public static readonly ComponentMapping ProjectileGravity =
+            new ComponentMapping("Components.RawComponents.ProjectileFlyData",
+                "projectile.gravity",
+                "Projectile gravity for ballistic arc", "gravity");
 
         // ──────────────────────────────────────────────
         //  Building Component Mappings
@@ -170,30 +231,45 @@ namespace DINOForge.Runtime.Bridge
         //  Resource Component Mappings
         // ──────────────────────────────────────────────
 
-        /// <summary>Current food stockpile.</summary>
+        /// <summary>Current food stockpile. Field: value (int).</summary>
         public static readonly ComponentMapping ResourceFood =
             new ComponentMapping("Components.RawComponents.CurrentFood", "resource.current.food",
-                "Current food resource amount");
+                "Current food resource amount (singleton)", "value");
 
-        /// <summary>Current iron stockpile.</summary>
+        /// <summary>Current iron stockpile. Field: value (int).</summary>
         public static readonly ComponentMapping ResourceIron =
             new ComponentMapping("Components.RawComponents.CurrentIron", "resource.current.iron",
-                "Current iron resource amount");
+                "Current iron resource amount (singleton)", "value");
 
-        /// <summary>Current stone stockpile.</summary>
+        /// <summary>Current stone stockpile. Field: value (int).</summary>
         public static readonly ComponentMapping ResourceStone =
             new ComponentMapping("Components.RawComponents.CurrentStone", "resource.current.stone",
-                "Current stone resource amount");
+                "Current stone resource amount (singleton)", "value");
 
-        /// <summary>Current wood stockpile.</summary>
+        /// <summary>Current wood stockpile. Field: value (int).</summary>
         public static readonly ComponentMapping ResourceWood =
             new ComponentMapping("Components.RawComponents.CurrentWood", "resource.current.wood",
-                "Current wood resource amount");
+                "Current wood resource amount (singleton)", "value");
 
-        /// <summary>Current souls stockpile.</summary>
+        /// <summary>Current money (gold) stockpile. Field: value (int).</summary>
+        public static readonly ComponentMapping ResourceMoney =
+            new ComponentMapping("Components.RawComponents.CurrentMoney", "resource.current.money",
+                "Current money/gold resource amount (singleton)", "value");
+
+        /// <summary>Current souls stockpile. Field: value (int).</summary>
         public static readonly ComponentMapping ResourceSouls =
             new ComponentMapping("Components.RawComponents.CurrentSouls", "resource.current.souls",
-                "Current soul crystal resource amount");
+                "Current soul crystal resource amount (singleton)", "value");
+
+        /// <summary>Current bones stockpile. Field: value (int).</summary>
+        public static readonly ComponentMapping ResourceBones =
+            new ComponentMapping("Components.RawComponents.CurrentBones", "resource.current.bones",
+                "Current bones resource amount (singleton)", "value");
+
+        /// <summary>Current spirit stockpile. Field: value (int).</summary>
+        public static readonly ComponentMapping ResourceSpirit =
+            new ComponentMapping("Components.RawComponents.CurrentSpirit", "resource.current.spirit",
+                "Current spirit resource amount (singleton)", "value");
 
         /// <summary>Food production source.</summary>
         public static readonly ComponentMapping ResourceFoodSource =
@@ -210,15 +286,35 @@ namespace DINOForge.Runtime.Bridge
             new ComponentMapping("Components.StoneSource", "resource.source.stone",
                 "Entity produces stone");
 
-        /// <summary>Food storage capacity.</summary>
+        /// <summary>Food storage. Field: stored (int).</summary>
         public static readonly ComponentMapping ResourceFoodStorage =
             new ComponentMapping("Components.FoodStorage", "resource.storage.food",
-                "Entity stores food");
+                "Entity stores food", "stored");
 
-        /// <summary>Iron storage capacity.</summary>
+        /// <summary>Wood storage. Field: stored (int).</summary>
+        public static readonly ComponentMapping ResourceWoodStorage =
+            new ComponentMapping("Components.WoodStorage", "resource.storage.wood",
+                "Entity stores wood", "stored");
+
+        /// <summary>Stone storage. Field: stored (int).</summary>
+        public static readonly ComponentMapping ResourceStoneStorage =
+            new ComponentMapping("Components.StoneStorage", "resource.storage.stone",
+                "Entity stores stone", "stored");
+
+        /// <summary>Iron storage. Field: stored (int).</summary>
         public static readonly ComponentMapping ResourceIronStorage =
             new ComponentMapping("Components.IronStorage", "resource.storage.iron",
-                "Entity stores iron");
+                "Entity stores iron", "stored");
+
+        /// <summary>Bones storage. Field: stored (int).</summary>
+        public static readonly ComponentMapping ResourceBonesStorage =
+            new ComponentMapping("Components.BonesStorage", "resource.storage.bones",
+                "Entity stores bones", "stored");
+
+        /// <summary>Corpse storage. Field: stored (int).</summary>
+        public static readonly ComponentMapping ResourceCorpseStorage =
+            new ComponentMapping("Components.CorpseStorage", "resource.storage.corpse",
+                "Entity stores corpses", "stored");
 
         // ──────────────────────────────────────────────
         //  Aggregate Lookup

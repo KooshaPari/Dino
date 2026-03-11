@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+using System.Linq;
 using DINOForge.SDK;
+using DINOForge.SDK.Models;
 using DINOForge.SDK.Registry;
 using FluentAssertions;
 using Xunit;
@@ -264,6 +266,96 @@ loads:
 
             result.IsSuccess.Should().BeFalse();
             result.Errors.Should().NotBeEmpty();
+        }
+
+        [Fact]
+        public void LoadPack_ExampleBalancePack_LoadsStatOverrides()
+        {
+            string packsDir = FindPacksDirectory();
+            string examplePackDir = Path.Combine(packsDir, "example-balance");
+
+            if (!Directory.Exists(examplePackDir))
+                return;
+
+            ContentLoadResult result = _loader.LoadPack(examplePackDir);
+
+            result.LoadedPacks.Should().Contain("example-balance-tweak");
+            _loader.LoadedOverrides.Should().NotBeEmpty(
+                because: "the example-balance pack contains stats/melee-buff.yaml");
+
+            StatOverrideDefinition overrideDef = _loader.LoadedOverrides[0];
+            overrideDef.Overrides.Should().HaveCount(2);
+            overrideDef.Overrides[0].Target.Should().Be("unit.stats.hp");
+            overrideDef.Overrides[0].Value.Should().Be(1.5f);
+            overrideDef.Overrides[0].Mode.Should().Be("multiply");
+            overrideDef.Overrides[0].Filter.Should().Be("Components.MeleeUnit");
+            overrideDef.Overrides[1].Target.Should().Be("unit.stats.speed");
+        }
+
+        [Fact]
+        public void LoadPack_ReturnsFailureForMissingDir()
+        {
+            string missingDir = Path.Combine(_tempRoot, "no-such-pack");
+
+            ContentLoadResult result = _loader.LoadPack(missingDir);
+
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Should().NotBeEmpty();
+            result.Errors[0].Should().Contain("not found");
+        }
+
+        [Fact]
+        public void LoadPacks_ResolveDependencies_LoadsInCorrectOrder()
+        {
+            string packsRoot = Path.Combine(_tempRoot, "dep-packs");
+            Directory.CreateDirectory(packsRoot);
+
+            // Base pack
+            string baseDir = CreatePackDirectory("base-mod", @"
+id: base-mod
+name: Base Mod
+version: 1.0.0
+author: Test
+type: content
+load_order: 10
+", packsRoot);
+            CreateContentFile(baseDir, "stats", "base-stats.yaml", @"
+overrides:
+  - target: unit.stats.hp
+    value: 100
+    mode: override
+");
+
+            // Dependent pack
+            string depDir = CreatePackDirectory("dep-mod", @"
+id: dep-mod
+name: Dependent Mod
+version: 1.0.0
+author: Test
+type: balance
+depends_on:
+  - base-mod
+load_order: 20
+", packsRoot);
+            CreateContentFile(depDir, "stats", "dep-stats.yaml", @"
+overrides:
+  - target: unit.stats.hp
+    value: 1.5
+    mode: multiply
+    filter: Components.MeleeUnit
+");
+
+            ContentLoadResult result = _loader.LoadPacks(packsRoot);
+
+            result.IsSuccess.Should().BeTrue(
+                because: "both packs should load. Errors: {0}",
+                string.Join("; ", result.Errors));
+            result.LoadedPacks.Should().HaveCount(2);
+            result.LoadedPacks[0].Should().Be("base-mod");
+            result.LoadedPacks[1].Should().Be("dep-mod");
+
+            _loader.LoadedOverrides.Should().HaveCount(2,
+                because: "each pack contributes one stat override file");
         }
 
         private string CreatePackDirectory(string name, string manifestYaml, string? parentDir = null)

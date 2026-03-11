@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>DINOForge.Bridge.Protocol</AssemblyName>
+    <RootNamespace>DINOForge.Bridge.Protocol</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <Description>DINOForge IPC protocol - JSON-RPC 2.0 DTOs for game bridge communication</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.*" />
+  </ItemGroup>
+
+</Project>

@@ -27,6 +27,12 @@ namespace DINOForge.Runtime.Bridge
         public string? Description { get; }
 
         /// <summary>
+        /// Name of the specific field to target for stat modifications.
+        /// Null means the component is a tag or requires blob-level access.
+        /// </summary>
+        public string? TargetFieldName { get; }
+
+        /// <summary>
         /// Lazily resolved CLR Type for the ECS component. Null if the type
         /// cannot be found in loaded assemblies (game DLL not present).
         /// </summary>
@@ -35,11 +41,13 @@ namespace DINOForge.Runtime.Bridge
         private Type? _resolvedType;
         private bool _resolutionAttempted;
 
-        public ComponentMapping(string ecsComponentType, string sdkModelPath, string? description = null)
+        public ComponentMapping(string ecsComponentType, string sdkModelPath,
+            string? description = null, string? targetFieldName = null)
         {
             EcsComponentType = ecsComponentType ?? throw new ArgumentNullException(nameof(ecsComponentType));
             SdkModelPath = sdkModelPath ?? throw new ArgumentNullException(nameof(sdkModelPath));
             Description = description;
+            TargetFieldName = targetFieldName;
         }
 
         private Type? ResolveType()

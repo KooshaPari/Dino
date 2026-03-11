@@ -70,10 +70,10 @@ namespace DINOForge.Runtime.Bridge
     ///   3. Load game and verify visual change on target entities
     ///   4. Check BepInEx/dinoforge_debug.log for swap results
     ///
-    /// TODO: The actual RenderMesh swap requires knowing the exact Hybrid Renderer
-    /// component layout used by DINO. This skeleton provides the framework;
-    /// the rendering integration will be completed after dump analysis confirms
-    /// the render component types.
+    /// Entity dump analysis confirms DINO uses Unity.Rendering.RenderMesh shared
+    /// components (Hybrid Renderer V1 style). Static environment archetypes show
+    /// RenderMesh + BuiltinMaterialPropertyColor + RenderBounds + PerInstanceCullingTag.
+    /// The swap targets the RenderMesh shared component to replace mesh/material refs.
     /// </summary>
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public class AssetSwapSystem : SystemBase
@@ -254,40 +254,104 @@ namespace DINOForge.Runtime.Bridge
                 return false;
             }
 
-            // TODO: Apply the actual RenderMesh swap.
-            //
-            // DINO uses Unity's Hybrid Renderer for ECS rendering. The typical approach:
-            //
-            //   1. Find the RenderMesh shared component on each entity:
-            //      RenderMesh renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(entity);
-            //
-            //   2. Create a modified copy with the replacement mesh/material:
-            //      RenderMesh newRenderMesh = new RenderMesh {
-            //          mesh = replacementMesh ?? renderMesh.mesh,
-            //          material = replacementMaterial ?? renderMesh.material,
-            //          subMesh = renderMesh.subMesh,
-            //          layer = renderMesh.layer
-            //      };
-            //
-            //   3. Set the new shared component:
-            //      EntityManager.SetSharedComponentData(entity, newRenderMesh);
-            //
-            // However, the exact component type depends on the Unity.Rendering version:
-            //   - Unity.Rendering.RenderMesh (Hybrid Renderer V1)
-            //   - Unity.Rendering.MaterialMeshInfo (Hybrid Renderer V2)
-            //   - Custom Door407 rendering components
-            //
-            // Entity dumps will reveal which rendering path DINO uses.
-            // See: BepInEx/dinoforge_dumps/*/ecs_types.json
+            // Apply RenderMesh swap via reflection.
+            // Entity dumps confirm DINO uses Unity.Rendering.RenderMesh (Hybrid Renderer V1).
+            // RenderMesh is a shared component with fields: mesh, material, subMesh, layer.
+            // We use reflection since Unity.Rendering may not be directly referenced.
+            Type? renderMeshType = ResolveRenderMeshType();
+            if (renderMeshType == null)
+            {
+                WriteDebug("Cannot resolve Unity.Rendering.RenderMesh type — " +
+                           "visual swap skipped, entities matched but render path unavailable");
+                entities.Dispose();
+                query.Dispose();
+                return false;
+            }
 
-            WriteDebug($"Asset swap queued for {entities.Length} entities " +
+            int swapCount = 0;
+            MethodInfo? getShared = typeof(EntityManager).GetMethod("GetSharedComponentData",
+                new[] { typeof(Entity) });
+            MethodInfo? setShared = typeof(EntityManager).GetMethod("SetSharedComponentData");
+
+            if (getShared == null || setShared == null)
+            {
+                WriteDebug("Cannot find GetSharedComponentData/SetSharedComponentData on EntityManager");
+                entities.Dispose();
+                query.Dispose();
+                return false;
+            }
+
+            MethodInfo genericGet = getShared.MakeGenericMethod(renderMeshType);
+            MethodInfo genericSet = setShared.MakeGenericMethod(renderMeshType);
+
+            FieldInfo? meshField = renderMeshType.GetField("mesh");
+            FieldInfo? materialField = renderMeshType.GetField("material");
+
+            for (int i = 0; i < entities.Length; i++)
+            {
+                try
+                {
+                    if (!EntityManager.HasComponent(entities[i], ComponentType.ReadOnly(renderMeshType)))
+                        continue;
+
+                    object? renderMesh = genericGet.Invoke(EntityManager, new object[] { entities[i] });
+                    if (renderMesh == null) continue;
+
+                    bool changed = false;
+                    if (replacementMesh != null && meshField != null)
+                    {
+                        meshField.SetValue(renderMesh, replacementMesh);
+                        changed = true;
+                    }
+                    if (replacementMaterial != null && materialField != null)
+                    {
+                        materialField.SetValue(renderMesh, replacementMaterial);
+                        changed = true;
+                    }
+
+                    if (changed)
+                    {
+                        genericSet.Invoke(EntityManager, new object[] { entities[i], renderMesh });
+                        swapCount++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    WriteDebug($"Failed to swap entity {entities[i].Index}: {ex.Message}");
+                }
+            }
+
+            WriteDebug($"Asset swap complete: {swapCount}/{entities.Length} entities swapped " +
                         $"(mesh={request.MeshAssetName ?? "none"}, " +
-                        $"material={request.MaterialAssetName ?? "none"}) — " +
-                        "awaiting render component integration");
+                        $"material={request.MaterialAssetName ?? "none"})");
 
             entities.Dispose();
             query.Dispose();
-            return true;
+            return swapCount > 0;
+        }
+
+        private static Type? _renderMeshType;
+        private static bool _renderMeshResolved;
+
+        /// <summary>
+        /// Resolve the Unity.Rendering.RenderMesh type from loaded assemblies.
+        /// DINO uses Hybrid Renderer V1 which provides RenderMesh as a shared component.
+        /// </summary>
+        private static Type? ResolveRenderMeshType()
+        {
+            if (_renderMeshResolved) return _renderMeshType;
+            _renderMeshResolved = true;
+
+            foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                try
+                {
+                    _renderMeshType = asm.GetType("Unity.Rendering.RenderMesh", throwOnError: false);
+                    if (_renderMeshType != null) return _renderMeshType;
+                }
+                catch { }
+            }
+            return null;
         }
 
         /// <summary>

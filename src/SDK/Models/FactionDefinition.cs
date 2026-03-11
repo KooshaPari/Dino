@@ -9,12 +9,15 @@ namespace DINOForge.SDK.Models
     /// </summary>
     public class FactionDefinition
     {
+        /// <summary>Core faction identity (id, name, theme, archetype).</summary>
         [YamlMember(Alias = "faction")]
         public FactionInfo Faction { get; set; } = new FactionInfo();
 
+        /// <summary>Economy modifiers for this faction.</summary>
         [YamlMember(Alias = "economy")]
         public FactionEconomy Economy { get; set; } = new FactionEconomy();
 
+        /// <summary>Army-wide modifiers for this faction.</summary>
         [YamlMember(Alias = "army")]
         public FactionArmy Army { get; set; } = new FactionArmy();
 
@@ -34,21 +37,29 @@ namespace DINOForge.SDK.Models
         [YamlMember(Alias = "buildings")]
         public FactionBuildings Buildings { get; set; } = new FactionBuildings();
 
+        /// <summary>Optional visual theme overrides (colors, projectile pack, UI skin).</summary>
         [YamlMember(Alias = "visuals")]
         public FactionVisuals? Visuals { get; set; }
 
+        /// <summary>Optional audio pack overrides (weapons, structures, ambient, music).</summary>
         [YamlMember(Alias = "audio")]
         public FactionAudio? Audio { get; set; }
     }
 
+    /// <summary>
+    /// Core identity block for a faction definition.
+    /// </summary>
     public class FactionInfo
     {
+        /// <summary>Unique faction identifier.</summary>
         [YamlMember(Alias = "id")]
         public string Id { get; set; } = "";
 
+        /// <summary>Human-readable faction name shown in-game.</summary>
         [YamlMember(Alias = "display_name")]
         public string DisplayName { get; set; } = "";
 
+        /// <summary>Optional faction lore or description text.</summary>
         [YamlMember(Alias = "description")]
         public string? Description { get; set; }
 
@@ -70,10 +81,14 @@ namespace DINOForge.SDK.Models
         [YamlMember(Alias = "doctrine")]
         public string? Doctrine { get; set; }
 
+        /// <summary>Optional icon asset path for this faction.</summary>
         [YamlMember(Alias = "icon")]
         public string? Icon { get; set; }
     }
 
+    /// <summary>
+    /// Economy modifiers applied to a faction's resource gathering, upkeep, research, and building.
+    /// </summary>
     public class FactionEconomy
     {
         /// <summary>
@@ -101,6 +116,9 @@ namespace DINOForge.SDK.Models
         public float BuildSpeed { get; set; } = 1.0f;
     }
 
+    /// <summary>
+    /// Army-wide modifiers applied to a faction's military capabilities.
+    /// </summary>
     public class FactionArmy
     {
         /// <summary>
@@ -128,75 +146,105 @@ namespace DINOForge.SDK.Models
         public float SpawnRateModifier { get; set; } = 1.0f;
     }
 
+    /// <summary>
+    /// Maps abstract unit role slots to concrete unit definition IDs for a faction.
+    /// </summary>
     public class FactionRoster
     {
+        /// <summary>Unit ID for the cheap infantry role slot.</summary>
         [YamlMember(Alias = "cheap_infantry")]
         public string? CheapInfantry { get; set; }
 
+        /// <summary>Unit ID for the line infantry role slot.</summary>
         [YamlMember(Alias = "line_infantry")]
         public string? LineInfantry { get; set; }
 
+        /// <summary>Unit ID for the elite infantry role slot.</summary>
         [YamlMember(Alias = "elite_infantry")]
         public string? EliteInfantry { get; set; }
 
+        /// <summary>Unit ID for the anti-armor role slot.</summary>
         [YamlMember(Alias = "anti_armor")]
         public string? AntiArmor { get; set; }
 
+        /// <summary>Unit ID for the support weapon role slot.</summary>
         [YamlMember(Alias = "support_weapon")]
         public string? SupportWeapon { get; set; }
 
+        /// <summary>Unit ID for the recon role slot.</summary>
         [YamlMember(Alias = "recon")]
         public string? Recon { get; set; }
 
+        /// <summary>Unit ID for the light vehicle role slot.</summary>
         [YamlMember(Alias = "light_vehicle")]
         public string? LightVehicle { get; set; }
 
+        /// <summary>Unit ID for the heavy vehicle role slot.</summary>
         [YamlMember(Alias = "heavy_vehicle")]
         public string? HeavyVehicle { get; set; }
 
+        /// <summary>Unit ID for the artillery role slot.</summary>
         [YamlMember(Alias = "artillery")]
         public string? Artillery { get; set; }
 
+        /// <summary>Unit ID for the hero/commander role slot.</summary>
         [YamlMember(Alias = "hero_commander")]
         public string? HeroCommander { get; set; }
 
+        /// <summary>Unit ID for the spike unit role slot.</summary>
         [YamlMember(Alias = "spike_unit")]
         public string? SpikeUnit { get; set; }
     }
 
+    /// <summary>
+    /// Maps abstract building roles to concrete building definition IDs for a faction.
+    /// </summary>
     public class FactionBuildings
     {
+        /// <summary>Building ID for the barracks role.</summary>
         [YamlMember(Alias = "barracks")]
         public string? Barracks { get; set; }
 
+        /// <summary>Building ID for the workshop role.</summary>
         [YamlMember(Alias = "workshop")]
         public string? Workshop { get; set; }
 
+        /// <summary>Building ID for the artillery foundry role.</summary>
         [YamlMember(Alias = "artillery_foundry")]
         public string? ArtilleryFoundry { get; set; }
 
+        /// <summary>Building ID for the machine gun tower role.</summary>
         [YamlMember(Alias = "tower_mg")]
         public string? TowerMg { get; set; }
 
+        /// <summary>Building ID for the heavy defense role.</summary>
         [YamlMember(Alias = "heavy_defense")]
         public string? HeavyDefense { get; set; }
 
+        /// <summary>Building ID for the command center role.</summary>
         [YamlMember(Alias = "command_center")]
         public string? CommandCenter { get; set; }
 
+        /// <summary>Building ID for the primary economy building role.</summary>
         [YamlMember(Alias = "economy_primary")]
         public string? EconomyPrimary { get; set; }
 
+        /// <summary>Building ID for the secondary economy building role.</summary>
         [YamlMember(Alias = "economy_secondary")]
         public string? EconomySecondary { get; set; }
 
+        /// <summary>Building ID for the research facility role.</summary>
         [YamlMember(Alias = "research_facility")]
         public string? ResearchFacility { get; set; }
 
+        /// <summary>Building ID for the wall segment role.</summary>
         [YamlMember(Alias = "wall_segment")]
         public string? WallSegment { get; set; }
     }
 
+    /// <summary>
+    /// Visual theme overrides for a faction (colors, projectile effects, UI skin).
+    /// </summary>
     public class FactionVisuals
     {
         /// <summary>
@@ -211,24 +259,33 @@ namespace DINOForge.SDK.Models
         [YamlMember(Alias = "accent_color")]
         public string? AccentColor { get; set; }
 
+        /// <summary>Projectile VFX pack asset ID.</summary>
         [YamlMember(Alias = "projectile_pack")]
         public string? ProjectilePack { get; set; }
 
+        /// <summary>UI skin asset ID for faction-specific interface.</summary>
         [YamlMember(Alias = "ui_skin")]
         public string? UiSkin { get; set; }
     }
 
+    /// <summary>
+    /// Audio pack overrides for a faction (weapons, structures, ambient, music).
+    /// </summary>
     public class FactionAudio
     {
+        /// <summary>Weapon sound effects pack asset ID.</summary>
         [YamlMember(Alias = "weapon_pack")]
         public string? WeaponPack { get; set; }
 
+        /// <summary>Structure sound effects pack asset ID.</summary>
         [YamlMember(Alias = "structure_pack")]
         public string? StructurePack { get; set; }
 
+        /// <summary>Ambient sound effects pack asset ID.</summary>
         [YamlMember(Alias = "ambient_pack")]
         public string? AmbientPack { get; set; }
 
+        /// <summary>Music pack asset ID.</summary>
         [YamlMember(Alias = "music_pack")]
         public string? MusicPack { get; set; }
     }

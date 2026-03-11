@@ -251,39 +251,20 @@ namespace DINOForge.Runtime.Bridge
 
             WriteDebug($"Matched {entities.Length} entities for {mapping.EcsComponentType}");
 
-            // TODO: Apply the actual field-level modification.
-            //
-            // The exact implementation depends on the internal struct layout of each
-            // DINO component. For example, Components.Health likely has fields like:
-            //   public float CurrentHealth;
-            //   public float MaxHealth;
-            //
-            // To modify these at runtime:
-            //   1. Use EntityManager.GetComponentData<T>(entity) to read current values
-            //   2. Reflect into the struct to find the target field
-            //   3. Apply the modifier (override / add / multiply)
-            //   4. Use EntityManager.SetComponentData<T>(entity, modified) to write back
-            //
-            // This requires calling the generic methods via reflection since we resolve
-            // component types dynamically:
-            //
-            //   MethodInfo getMethod = typeof(EntityManager)
-            //       .GetMethod("GetComponentData")
-            //       .MakeGenericMethod(componentType);
-            //   object data = getMethod.Invoke(EntityManager, new object[] { entity });
-            //
-            //   FieldInfo field = componentType.GetField("MaxHealth");
-            //   float current = (float)field.GetValue(data);
-            //   float newValue = ApplyMode(current, mod.Value, mod.Mode);
-            //   field.SetValue(data, newValue);
-            //
-            //   MethodInfo setMethod = typeof(EntityManager)
-            //       .GetMethod("SetComponentData")
-            //       .MakeGenericMethod(componentType);
-            //   setMethod.Invoke(EntityManager, new object[] { entity, data });
-            //
-            // This is left as TODO until entity dumps confirm exact field names.
-            // See: BepInEx/dinoforge_dumps/*/ecs_types.json for field layouts.
+            // Resolve the target field name from the mapping.
+            // Confirmed field layouts from entity dump analysis (ecs_types.json):
+            //   Components.Health:        currentHealth (float), underAttackTimerEnd (float)
+            //   Components.HealthBase:    _maxHealthMultiplier (float, private)
+            //   Components.AttackCooldown: value (float), fixedProjectileSpeed (float)
+            //   Components.MmAnimationPropertyAttackSpeedModifier: Value (float)
+            //   Components.Regeneration:  regenerationStartTime (float)
+            //   Components.FoodStorage:   stored (int)
+            //   Components.WoodStorage:   stored (int)
+            //   Components.StoneStorage:  stored (int)
+            //   Components.IronStorage:   stored (int)
+            //   Components.RawComponents.ObjectId: value (int)
+            //   Components.RawComponents.ProjectileFlyData: damage (float), gravity (float)
+            string? targetField = mapping.TargetFieldName;
 
             int modifiedCount = 0;
 
@@ -292,7 +273,7 @@ namespace DINOForge.Runtime.Bridge
                 try
                 {
                     bool modified = TryModifyEntityComponent(
-                        entities[i], componentType, mod.Value, mod.Mode);
+                        entities[i], componentType, targetField, mod.Value, mod.Mode);
                     if (modified) modifiedCount++;
                 }
                 catch (Exception ex)
@@ -310,12 +291,12 @@ namespace DINOForge.Runtime.Bridge
 
         /// <summary>
         /// Attempt to modify a single entity's component data via reflection.
-        /// Iterates all float fields on the component and applies the modifier
-        /// to the first one found. This is a best-effort heuristic until we
-        /// have confirmed field layouts from dump analysis.
+        /// Targets a specific field by name when available (from dump-confirmed layouts),
+        /// or falls back to the first numeric field if no target is specified.
         /// </summary>
         private bool TryModifyEntityComponent(
-            Entity entity, Type componentType, float value, ModifierMode mode)
+            Entity entity, Type componentType, string? targetFieldName,
+            float value, ModifierMode mode)
         {
             // Get the generic GetComponentData<T> and SetComponentData<T> methods
             MethodInfo? getMethod = typeof(EntityManager)
@@ -336,38 +317,64 @@ namespace DINOForge.Runtime.Bridge
             object? data = genericGet.Invoke(EntityManager, new object[] { entity });
             if (data == null) return false;
 
-            // Find float fields and apply modification to all of them
-            // TODO: Target specific fields based on the SdkModelPath once field names are confirmed
-            FieldInfo[] fields = componentType.GetFields(
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-            bool anyModified = false;
-            foreach (FieldInfo field in fields)
+            FieldInfo? field;
+            if (targetFieldName != null)
             {
-                if (field.FieldType == typeof(float))
+                // Target the specific field confirmed from entity dump analysis
+                field = componentType.GetField(targetFieldName,
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (field == null)
                 {
-                    float current = (float)field.GetValue(data);
-                    float newValue = ApplyMode(current, value, mode);
-                    field.SetValue(data, newValue);
-                    anyModified = true;
-                    break; // Only modify first float field as heuristic
+                    WriteDebug($"Field '{targetFieldName}' not found on {componentType.FullName}");
+                    return false;
                 }
-                else if (field.FieldType == typeof(int))
+            }
+            else
+            {
+                // Fallback: find first numeric field
+                field = FindFirstNumericField(componentType);
+                if (field == null)
                 {
-                    int current = (int)field.GetValue(data);
-                    int newValue = (int)ApplyMode(current, value, mode);
-                    field.SetValue(data, newValue);
-                    anyModified = true;
-                    break;
+                    WriteDebug($"No numeric field found on {componentType.FullName}");
+                    return false;
                 }
             }
 
-            if (anyModified)
+            // Apply the modification based on field type
+            bool modified = false;
+            if (field.FieldType == typeof(float))
+            {
+                float current = (float)field.GetValue(data);
+                float newValue = ApplyMode(current, value, mode);
+                field.SetValue(data, newValue);
+                modified = true;
+            }
+            else if (field.FieldType == typeof(int))
+            {
+                int current = (int)field.GetValue(data);
+                int newValue = (int)ApplyMode(current, value, mode);
+                field.SetValue(data, newValue);
+                modified = true;
+            }
+
+            if (modified)
             {
                 genericSet.Invoke(EntityManager, new object[] { entity, data });
             }
 
-            return anyModified;
+            return modified;
+        }
+
+        private static FieldInfo? FindFirstNumericField(Type type)
+        {
+            foreach (FieldInfo field in type.GetFields(
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                if (field.FieldType == typeof(float) || field.FieldType == typeof(int))
+                    return field;
+            }
+            return null;
         }
 
         private static float ApplyMode(float current, float value, ModifierMode mode)

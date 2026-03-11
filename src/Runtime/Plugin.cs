@@ -1,19 +1,29 @@
+#nullable enable
 using System;
+using System.Collections;
 using System.IO;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using DINOForge.Runtime.UI;
+using DINOForge.SDK;
 using HarmonyLib;
 using Unity.Entities;
 using UnityEngine;
 
 namespace DINOForge.Runtime
 {
+    /// <summary>
+    /// BepInEx entry point for the DINOForge mod platform.
+    /// Bootstraps the <see cref="ModPlatform"/> orchestrator, registers ECS systems,
+    /// and wires up UI overlays and hot reload.
+    /// </summary>
     [BepInPlugin(PluginInfo.GUID, PluginInfo.NAME, PluginInfo.VERSION)]
     public class Plugin : BaseUnityPlugin
     {
         private static ManualLogSource Log = null!;
         private Harmony? _harmony;
+        private ModPlatform? _modPlatform;
 
         private void Awake()
         {
@@ -22,10 +32,10 @@ namespace DINOForge.Runtime
 
             DontDestroyOnLoad(gameObject);
 
-            // Config
-            var dumpOnStartup = Config.Bind("Debug", "DumpOnStartup", true,
+            // Config for debug features (kept from original)
+            ConfigEntry<bool> dumpOnStartup = Config.Bind("Debug", "DumpOnStartup", true,
                 "Automatically dump entity/component data when the game loads");
-            var dumpOutputPath = Config.Bind("Debug", "DumpOutputPath",
+            ConfigEntry<string> dumpOutputPath = Config.Bind("Debug", "DumpOutputPath",
                 Path.Combine(Paths.BepInExRootPath, "dinoforge_dumps"),
                 "Directory to write entity/component dump files");
 
@@ -51,63 +61,153 @@ namespace DINOForge.Runtime
                 Log.LogError($"Harmony init failed: {ex.Message}");
             }
 
-            // Register ECS DumpSystem - survives MonoBehaviour destruction
-            if (dumpOnStartup.Value)
+            // Initialize the ModPlatform orchestrator
+            try
             {
-                DumpSystem.Configure(Log, dumpOutputPath.Value);
-                try
+                _modPlatform = new ModPlatform();
+                _modPlatform.Initialize(Logger, Config, gameObject);
+                Log.LogInfo("[Plugin] ModPlatform initialized.");
+            }
+            catch (Exception ex)
+            {
+                Log.LogError($"[Plugin] ModPlatform initialization failed: {ex.Message}");
+                _modPlatform = null;
+            }
+
+            // Add MainThreadDispatcher for IPC bridge support
+            try
+            {
+                gameObject.AddComponent<Bridge.MainThreadDispatcher>();
+                Log.LogInfo("[Plugin] MainThreadDispatcher added.");
+            }
+            catch (Exception ex)
+            {
+                Log.LogError($"[Plugin] MainThreadDispatcher setup failed: {ex.Message}");
+            }
+
+            // Add UI components to the plugin GameObject
+            try
+            {
+                ModMenuOverlay menuOverlay = gameObject.AddComponent<ModMenuOverlay>();
+                ModSettingsPanel settingsPanel = gameObject.AddComponent<ModSettingsPanel>();
+
+                if (_modPlatform != null)
                 {
-                    // Try to register in default world
-                    World? world = World.DefaultGameObjectInjectionWorld;
-                    if (world != null && world.IsCreated)
-                    {
-                        world.GetOrCreateSystem<DumpSystem>();
-                        Log.LogInfo("DumpSystem registered in default world.");
-                    }
-                    else
-                    {
-                        Log.LogWarning("Default world not ready yet - DumpSystem will try all worlds.");
-                        // Try any existing world
-                        foreach (World w in World.All)
-                        {
-                            if (w.IsCreated)
-                            {
-                                w.GetOrCreateSystem<DumpSystem>();
-                                Log.LogInfo($"DumpSystem registered in world: {w.Name}");
-                                break;
-                            }
-                        }
-                    }
+                    _modPlatform.SetUI(menuOverlay, settingsPanel);
                 }
-                catch (Exception ex)
-                {
-                    Log.LogWarning($"Could not register DumpSystem in ECS: {ex.Message}");
-                    // Fallback: thread-based dump
-                    string outputDir = dumpOutputPath.Value;
-                    var thread = new System.Threading.Thread(() =>
-                    {
-                        try
-                        {
-                            System.Threading.Thread.Sleep(15000); // Wait 15s
-                            WriteDebug("Thread-based dump firing");
-                            var dumper = new EntityDumper(Log, outputDir);
-                            dumper.DumpAll();
-                            var sysEnum = new SystemEnumerator(Log);
-                            sysEnum.EnumerateAll();
-                        }
-                        catch (Exception tex)
-                        {
-                            WriteDebug($"Thread dump failed: {tex}");
-                        }
-                    });
-                    thread.IsBackground = true;
-                    thread.Start();
-                    Log.LogInfo("Fallback thread-based dump scheduled (15s delay).");
-                }
+
+                Log.LogInfo("[Plugin] UI components added (F10 for mod menu).");
+            }
+            catch (Exception ex)
+            {
+                Log.LogError($"[Plugin] UI component setup failed: {ex.Message}");
+            }
+
+            // Start coroutine to wait for ECS world, then load packs and start hot reload
+            try
+            {
+                StartCoroutine(WaitForWorldAndLoad(dumpOnStartup.Value, dumpOutputPath.Value));
+            }
+            catch (Exception ex)
+            {
+                Log.LogError($"[Plugin] Failed to start world-wait coroutine: {ex.Message}");
             }
 
             WriteDebug("Awake completed");
             Log.LogInfo("DINOForge Runtime loaded successfully.");
+        }
+
+        /// <summary>
+        /// Coroutine that waits for the ECS World to become available, then
+        /// triggers pack loading, ECS system registration, and hot reload.
+        /// </summary>
+        private IEnumerator WaitForWorldAndLoad(bool dumpOnStartup, string dumpOutputPath)
+        {
+            Log.LogInfo("[Plugin] Waiting for ECS World...");
+
+            // Wait until the default world is created and available
+            yield return new WaitUntil(() =>
+            {
+                try
+                {
+                    World? world = World.DefaultGameObjectInjectionWorld;
+                    return world != null && world.IsCreated;
+                }
+                catch
+                {
+                    return false;
+                }
+            });
+
+            World ecsWorld = World.DefaultGameObjectInjectionWorld;
+            Log.LogInfo($"[Plugin] ECS World available: {ecsWorld.Name}");
+
+            // Register DumpSystem if configured
+            if (dumpOnStartup)
+            {
+                try
+                {
+                    DumpSystem.Configure(Log, dumpOutputPath);
+                    ecsWorld.GetOrCreateSystem<DumpSystem>();
+                    Log.LogInfo("[Plugin] DumpSystem registered in default world.");
+                }
+                catch (Exception ex)
+                {
+                    Log.LogWarning($"[Plugin] DumpSystem registration failed: {ex.Message}");
+                }
+            }
+
+            // Notify ModPlatform that the world is ready
+            if (_modPlatform != null)
+            {
+                try
+                {
+                    _modPlatform.OnWorldReady(ecsWorld);
+                    Log.LogInfo("[Plugin] ModPlatform notified of world readiness.");
+                }
+                catch (Exception ex)
+                {
+                    Log.LogError($"[Plugin] ModPlatform.OnWorldReady failed: {ex.Message}");
+                }
+
+                // Load packs
+                try
+                {
+                    ContentLoadResult result = _modPlatform.LoadPacks();
+                    Log.LogInfo($"[Plugin] Pack loading complete: success={result.IsSuccess}, " +
+                        $"loaded={result.LoadedPacks.Count}, errors={result.Errors.Count}");
+                }
+                catch (Exception ex)
+                {
+                    Log.LogError($"[Plugin] Pack loading failed: {ex.Message}");
+                }
+
+                // Start hot reload
+                try
+                {
+                    _modPlatform.StartHotReload();
+                    Log.LogInfo("[Plugin] Hot reload started.");
+                }
+                catch (Exception ex)
+                {
+                    Log.LogError($"[Plugin] Hot reload startup failed: {ex.Message}");
+                }
+
+                // Discover settings for the settings panel
+                try
+                {
+                    ModSettingsPanel? settingsPanel = gameObject.GetComponent<ModSettingsPanel>();
+                    if (settingsPanel != null)
+                    {
+                        settingsPanel.DiscoverSettings();
+                        Log.LogInfo("[Plugin] Mod settings discovered.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.LogWarning($"[Plugin] Settings discovery failed: {ex.Message}");
+                }
+            }
         }
 
         private static void WriteDebug(string msg)
@@ -122,8 +222,18 @@ namespace DINOForge.Runtime
 
         private void OnDestroy()
         {
+            // Shutdown the mod platform
+            try
+            {
+                _modPlatform?.Shutdown();
+            }
+            catch (Exception ex)
+            {
+                Log?.LogWarning($"[Plugin] ModPlatform shutdown error: {ex.Message}");
+            }
+
             _harmony?.UnpatchSelf();
-            Log.LogInfo("DINOForge Runtime unloaded.");
+            Log?.LogInfo("DINOForge Runtime unloaded.");
             WriteDebug("OnDestroy called");
         }
     }
