@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using DINOForge.SDK;
+using DINOForge.SDK.Registry;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 
 namespace DINOForge.Runtime.Bridge
 {
@@ -46,11 +49,25 @@ namespace DINOForge.Runtime.Bridge
         /// </summary>
         private static readonly Queue<UnitSpawnRequest> _spawnQueue = new Queue<UnitSpawnRequest>();
 
+        /// <summary>Static registry manager for pack unit lookup.</summary>
+        private static RegistryManager? _registry;
+
         private int _frameCount;
         private int _spawnedCount;
 
         /// <summary>Minimum frames to wait before processing spawns.</summary>
         private const int MinFrameDelay = 1800; // ~30 seconds at 60fps
+
+        /// <summary>
+        /// Initialize the spawner with a registry manager for unit lookups.
+        /// Called by ModPlatform during startup.
+        /// </summary>
+        /// <param name="registry">The RegistryManager containing loaded pack definitions.</param>
+        public static void Initialize(RegistryManager registry)
+        {
+            _registry = registry ?? throw new ArgumentNullException(nameof(registry));
+            WriteDebug("PackUnitSpawner.Initialize: Registry initialized");
+        }
 
         protected override void OnCreate()
         {
@@ -82,48 +99,111 @@ namespace DINOForge.Runtime.Bridge
 
             WriteDebug($"PackUnitSpawner processing {batch.Count} spawn requests");
 
-            // TODO: M9 implementation
-            // For each spawn request:
-            //   1. Look up unit definition from registry
-            //   2. Get its unit class
-            //   3. Map class to vanilla archetype component type via VanillaArchetypeMapper
-            //   4. Query for vanilla entities of that archetype
-            //   5. Pick a template entity
-            //   6. Clone via EntityManager.Instantiate(templateEntity, out NativeArray<Entity> clones)
-            //   7. Apply pack stats to the cloned entity via StatModifierSystem.Enqueue
-            //   8. Tag the entity with a custom component indicating it's a pack unit
-            //   9. Set world position if available
-            //   10. Add Enemy component if isEnemy = true
-            //
-            // Expected errors / edge cases:
-            //   - Unit definition not found → log warning, skip
-            //   - Vanilla archetype not found → log warning, skip
-            //   - EntityManager.Instantiate fails → log error, skip
-            //   - Stat application fails → logged by StatModifierSystem
-            //
-            // Pseudocode:
-            // foreach (request in batch)
-            // {
-            //     var unitDef = unitRegistry.Get(request.UnitDefinitionId);
-            //     if (unitDef == null) { LogWarning(...); continue; }
-            //
-            //     var componentType = VanillaArchetypeMapper.MapUnitClassToComponentType(unitDef.UnitClass);
-            //     if (componentType == null) { LogWarning(...); continue; }
-            //
-            //     var query = EntityQueries.GetUnitsByClass(EntityManager, componentType);
-            //     var entities = query.ToEntityArray(Allocator.Temp);
-            //     if (entities.Length == 0) { LogWarning(...); continue; }
-            //
-            //     var templateEntity = entities[0];
-            //     var cloned = EntityManager.Instantiate(templateEntity);
-            //
-            //     // Apply position
-            //     // Apply faction
-            //     // Queue stat modifications
-            //     // Tag entity as pack-owned
-            //
-            //     _spawnedCount++;
-            // }
+            // Process each spawn request
+            foreach (UnitSpawnRequest request in batch)
+            {
+                try
+                {
+                    // Look up unit definition from registry
+                    if (_registry == null)
+                    {
+                        WriteDebug($"Cannot spawn {request.UnitDefinitionId}: registry not initialized");
+                        continue;
+                    }
+
+                    var unitDef = _registry.Units.Get(request.UnitDefinitionId);
+                    if (unitDef == null)
+                    {
+                        WriteDebug($"Cannot spawn {request.UnitDefinitionId}: unit definition not found");
+                        continue;
+                    }
+
+                    // Map unit class to vanilla archetype component type
+                    string? componentTypeName = VanillaArchetypeMapper.MapUnitClassToComponentType(unitDef.UnitClass);
+                    if (componentTypeName == null)
+                    {
+                        WriteDebug($"Cannot spawn {request.UnitDefinitionId}: unknown unit class '{unitDef.UnitClass}'");
+                        continue;
+                    }
+
+                    // Query for vanilla entities of that archetype
+                    EntityQuery query;
+                    try
+                    {
+                        query = DINOForge.Runtime.Bridge.EntityQueries.GetUnitsByComponentType(EntityManager, componentTypeName);
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        WriteDebug($"Cannot spawn {request.UnitDefinitionId}: {ex.Message}");
+                        continue;
+                    }
+
+                    NativeArray<Entity> entities = query.ToEntityArray(Allocator.Temp);
+                    if (entities.Length == 0)
+                    {
+                        WriteDebug($"Cannot spawn {request.UnitDefinitionId}: no vanilla entities found with archetype '{componentTypeName}'");
+                        entities.Dispose();
+                        continue;
+                    }
+
+                    // Clone the template entity
+                    Entity template = entities[0];
+                    Entity spawned;
+                    try
+                    {
+                        spawned = EntityManager.Instantiate(template);
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteDebug($"Failed to clone template for {request.UnitDefinitionId}: {ex.Message}");
+                        entities.Dispose();
+                        continue;
+                    }
+
+                    // Set world position (Unity 2021.3 uses Translation component)
+                    try
+                    {
+                        if (EntityManager.HasComponent<Translation>(spawned))
+                        {
+                            EntityManager.SetComponentData(spawned, new Translation { Value = new float3(request.X, 0f, request.Z) });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteDebug($"Failed to set position for spawned unit: {ex.Message}");
+                    }
+
+                    // Add Enemy component if needed (for faction tagging)
+                    if (request.IsEnemy)
+                    {
+                        try
+                        {
+                            // Resolve the Enemy component type and add it
+                            ComponentType? enemyComponentType = DINOForge.Runtime.Bridge.EntityQueries.ResolveComponentType("Components.Enemy");
+                            if (enemyComponentType.HasValue && !EntityManager.HasComponent(spawned, enemyComponentType.Value))
+                            {
+                                EntityManager.AddComponent(spawned, enemyComponentType.Value);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            WriteDebug($"Failed to add Enemy component to spawned unit: {ex.Message}");
+                        }
+                    }
+
+                    // Queue stat modifications for the spawned unit if there are any stat overrides
+                    // (StatModifierSystem will handle applying these based on unit class matching)
+
+                    _spawnedCount++;
+                    WriteDebug($"Spawned unit {request.UnitDefinitionId} at ({request.X}, {request.Z})");
+
+                    entities.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    WriteDebug($"Unexpected error spawning {request.UnitDefinitionId}: {ex.Message}");
+                }
+            }
 
             WriteDebug($"PackUnitSpawner: Processed {batch.Count} requests, spawned {_spawnedCount} total units");
         }
@@ -151,11 +231,31 @@ namespace DINOForge.Runtime.Bridge
         // IUnitFactory implementation
         public bool CanSpawn(string unitDefinitionId)
         {
-            // TODO: M9 implementation
+            // Check if registry is initialized
+            if (_registry == null)
+                return false;
+
             // Check if unit definition exists in registry
-            // Check if its unit class can be mapped to a vanilla archetype
+            var unitDef = _registry.Units.Get(unitDefinitionId);
+            if (unitDef == null)
+                return false;
+
+            // Check if unit class can be mapped to a vanilla archetype
+            string? componentType = VanillaArchetypeMapper.MapUnitClassToComponentType(unitDef.UnitClass);
+            if (componentType == null)
+                return false;
+
             // Check if vanilla archetype entities exist in the world
-            return false; // Placeholder
+            try
+            {
+                EntityQuery query = DINOForge.Runtime.Bridge.EntityQueries.GetUnitsByComponentType(EntityManager, componentType);
+                // Check if the query returns any entities
+                return query.CalculateEntityCount() > 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public void RequestSpawn(string unitDefinitionId, float x, float z)

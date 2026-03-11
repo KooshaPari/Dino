@@ -186,6 +186,17 @@ namespace DINOForge.Runtime
                 _log.LogError($"[ModPlatform] Failed to register StatModifierSystem: {ex.Message}");
             }
 
+            // Register the PackUnitSpawner
+            try
+            {
+                world.GetOrCreateSystem<PackUnitSpawner>();
+                _log.LogInfo("[ModPlatform] PackUnitSpawner registered.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] Failed to register PackUnitSpawner: {ex.Message}");
+            }
+
             // Build the vanilla entity catalog
             try
             {
@@ -275,6 +286,17 @@ namespace DINOForge.Runtime
                 {
                     _log.LogError($"  {error}");
                 }
+            }
+
+            // Initialize PackUnitSpawner with the registry
+            try
+            {
+                PackUnitSpawner.Initialize(_registryManager);
+                _log.LogInfo("[ModPlatform] PackUnitSpawner initialized with registry.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] Failed to initialize PackUnitSpawner: {ex.Message}");
             }
 
             // Apply stat overrides from loaded units

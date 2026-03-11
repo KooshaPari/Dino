@@ -168,6 +168,42 @@ namespace DINOForge.Runtime.Bridge
         }
 
         /// <summary>
+        /// Get an EntityQuery for units of a specific archetype component type.
+        /// Used by PackUnitSpawner to find vanilla template entities for cloning.
+        /// Returns a query, or throws an InvalidOperationException if the component type cannot be resolved.
+        /// </summary>
+        /// <param name="em">The EntityManager to query against.</param>
+        /// <param name="componentTypeName">
+        /// Full ECS component type name identifying the archetype
+        /// (e.g. "Components.MeleeUnit", "Components.RangeUnit", "Components.CavalryUnit", "Components.SiegeUnit", "Components.Archer").
+        /// </param>
+        /// <returns>An EntityQuery matching units with that archetype.</returns>
+        /// <exception cref="InvalidOperationException">If the component type cannot be resolved.</exception>
+        public static EntityQuery GetUnitsByComponentType(EntityManager em, string componentTypeName)
+        {
+            ComponentType? archetype = ResolveComponentType(componentTypeName);
+            if (archetype == null)
+                throw new InvalidOperationException(
+                    $"Cannot resolve archetype component type '{componentTypeName}' — is DNO.Main.dll loaded?");
+
+            ComponentType? unitType = ResolveComponentType("Components.Unit");
+            if (unitType == null)
+                throw new InvalidOperationException(
+                    "Cannot resolve Components.Unit — is DNO.Main.dll loaded?");
+
+            EntityQueryDesc desc = new EntityQueryDesc
+            {
+                All = new[]
+                {
+                    ComponentType.ReadOnly(unitType.Value.TypeIndex),
+                    ComponentType.ReadOnly(archetype.Value.TypeIndex)
+                }
+            };
+
+            return em.CreateEntityQuery(desc);
+        }
+
+        /// <summary>
         /// Resolve a DINO ECS component type by full name from loaded assemblies,
         /// then convert it to a Unity.Entities.ComponentType.
         /// Results are cached for the lifetime of the AppDomain.
