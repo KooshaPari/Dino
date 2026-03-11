@@ -1,0 +1,31 @@
+id: warfare-starwars
+name: "Star Wars: Clone Wars"
+version: 0.1.0
+type: total_conversion
+author: DINOForge Community
+theme: sci-fi
+description: "Clone Wars era — Republic vs Confederacy of Independent Systems"
+framework_version: ">=0.5.0"
+singleton: true
+replaces_vanilla:
+  player: republic
+  enemy_classic: cis-droid-army
+  enemy_guerrilla: cis-infiltrators
+factions:
+  - id: republic
+    name: Galactic Republic
+    description: Clone troopers and Jedi-led forces
+    replaces_vanilla: player
+  - id: cis-droid-army
+    name: Confederacy of Independent Systems
+    description: Battle droids and Separatist war machines
+    replaces_vanilla: enemy_classic
+  - id: cis-infiltrators
+    name: CIS Infiltrators
+    description: Guerrilla droids and assassin units
+    replaces_vanilla: enemy_guerrilla
+asset_replacements:
+  textures: {}
+  audio: {}
+  ui: {}
+conflicts_with: []

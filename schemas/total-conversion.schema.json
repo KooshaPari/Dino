@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/KooshaPari/Dino/schemas/total-conversion.schema.json",
+  "title": "Total Conversion Manifest",
+  "type": "object",
+  "required": ["id", "name", "version", "type", "author"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "name": { "type": "string" },
+    "version": { "type": "string" },
+    "type": { "type": "string", "const": "total_conversion" },
+    "author": { "type": "string" },
+    "theme": { "type": "string" },
+    "description": { "type": "string" },
+    "framework_version": { "type": "string", "default": "*" },
+    "singleton": { "type": "boolean", "default": true },
+    "replaces_vanilla": { "type": "object", "additionalProperties": { "type": "string" } },
+    "factions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "replaces_vanilla": { "type": "string" }
+        }
+      }
+    },
+    "asset_replacements": {
+      "type": "object",
+      "properties": {
+        "textures": { "type": "object", "additionalProperties": { "type": "string" } },
+        "audio": { "type": "object", "additionalProperties": { "type": "string" } },
+        "ui": { "type": "object", "additionalProperties": { "type": "string" } }
+      }
+    },
+    "conflicts_with": { "type": "array", "items": { "type": "string" } }
+  }
+}
