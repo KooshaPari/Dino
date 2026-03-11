@@ -75,6 +75,17 @@ jobs:
           fi
           echo "Conventional commit title: OK"
 
+      - name: Check test count minimum
+        run: |
+          # Count total test methods in test files
+          TEST_COUNT=$(find src/Tests -name "*Tests.cs" -not -path "*/obj/*" -not -path "*/bin/*" -exec grep -h "public async Task\|public void\|public Task\|\[Fact\]\|\[Theory\]" {} \; | grep -c "public\|Fact\|Theory" || true)
+          MINIMUM_TESTS=350
+          if [ "$TEST_COUNT" -lt "$MINIMUM_TESTS" ]; then
+            echo "::error::Test count ($TEST_COUNT) is below minimum ($MINIMUM_TESTS). Add more tests."
+            exit 1
+          fi
+          echo "Test count check: OK ($TEST_COUNT >= $MINIMUM_TESTS)"
+
       - name: Summary
         if: success()
         run: echo "All governance checks passed"
