@@ -43,9 +43,9 @@ namespace DINOForge.Runtime.UI
 
         // Hover fade
         private bool _hovered;
-        private const float AlphaBase  = 0.6f;
+        private const float AlphaBase = 0.6f;
         private const float AlphaHover = 1.0f;
-        private const float FadeSpeed  = 6f;
+        private const float FadeSpeed = 6f;
 
         // State
         private int _packCount;
@@ -90,10 +90,10 @@ namespace DINOForge.Runtime.UI
             // Click handler — add a transparent button covering the strip
             Button btn = stripGo.AddComponent<Button>();
             ColorBlock cb = btn.colors;
-            cb.normalColor      = Color.clear;
+            cb.normalColor = Color.clear;
             cb.highlightedColor = Color.clear;
-            cb.pressedColor     = Color.clear;
-            cb.selectedColor    = Color.clear;
+            cb.pressedColor = Color.clear;
+            cb.selectedColor = Color.clear;
             btn.colors = cb;
             btn.targetGraphic = stripGo.GetComponent<Image>();
             btn.onClick.AddListener(() => OnClicked?.Invoke());
@@ -132,7 +132,7 @@ namespace DINOForge.Runtime.UI
         /// <summary>Updates the displayed pack and error counts.</summary>
         public void SetStatus(int packCount, int errorCount)
         {
-            _packCount  = packCount;
+            _packCount = packCount;
             _errorCount = errorCount;
             RefreshLabel();
         }
@@ -153,8 +153,8 @@ namespace DINOForge.Runtime.UI
                 {
                     ToastType.Success => UiBuilder.Success,
                     ToastType.Warning => UiBuilder.Warning,
-                    ToastType.Error   => UiBuilder.Error,
-                    _                 => UiBuilder.Accent,
+                    ToastType.Error => UiBuilder.Error,
+                    _ => UiBuilder.Accent,
                 };
             }
 
@@ -180,12 +180,12 @@ namespace DINOForge.Runtime.UI
             {
                 if (_errorCount > 0)
                 {
-                    _dotText.text  = $"● {_errorCount}";
+                    _dotText.text = $"● {_errorCount}";
                     _dotText.color = UiBuilder.Error;
                 }
                 else
                 {
-                    _dotText.text  = "●";
+                    _dotText.text = "●";
                     _dotText.color = UiBuilder.Success;
                 }
             }

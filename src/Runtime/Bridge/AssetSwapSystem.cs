@@ -201,7 +201,7 @@ namespace DINOForge.Runtime.Bridge
             AssetBundle? bundle = LoadBundle(modBundlePath);
             if (bundle == null) return false;
 
-            Mesh? replacementMesh    = bundle.LoadAsset<Mesh>(assetName);
+            Mesh? replacementMesh = bundle.LoadAsset<Mesh>(assetName);
             Material? replacementMat = bundle.LoadAsset<Material>(assetName);
 
             if (replacementMesh == null && replacementMat == null)
@@ -238,7 +238,7 @@ namespace DINOForge.Runtime.Bridge
             MethodInfo genericGet = getShared.MakeGenericMethod(renderMeshType);
             MethodInfo genericSet = setShared.MakeGenericMethod(renderMeshType);
 
-            FieldInfo? meshField     = renderMeshType.GetField("mesh");
+            FieldInfo? meshField = renderMeshType.GetField("mesh");
             FieldInfo? materialField = renderMeshType.GetField("material");
 
             int swapCount = 0;

@@ -25,15 +25,15 @@ namespace DINOForge.Runtime.UI
         // ── Configuration ────────────────────────────────────────────────────────
 
         /// <summary>Sub-folder inside the deployed assets root for each Kenney pack.</summary>
-        private const string UiPackDir        = "kenney/ui-pack/PNG";
-        private const string SciFiPackDir     = "kenney/ui-pack-sci-fi/PNG";
+        private const string UiPackDir = "kenney/ui-pack/PNG";
+        private const string SciFiPackDir = "kenney/ui-pack-sci-fi/PNG";
         private const string FantasyBordersDir = "kenney/fantasy-ui-borders/PNG";
-        private const string AdventurePackDir  = "kenney/ui-pack-adventure/PNG";
+        private const string AdventurePackDir = "kenney/ui-pack-adventure/PNG";
 
         // ── State ────────────────────────────────────────────────────────────────
 
         private static string _assetDir = string.Empty;
-        private static bool   _initialized;
+        private static bool _initialized;
 
         /// <summary>Paths that failed to load, for diagnostics.</summary>
         private static readonly List<string> _missingFiles = new List<string>();
@@ -63,7 +63,7 @@ namespace DINOForge.Runtime.UI
         /// </param>
         public static void Initialize(string pluginDir)
         {
-            _assetDir    = Path.Combine(pluginDir, "dinoforge-ui-assets");
+            _assetDir = Path.Combine(pluginDir, "dinoforge-ui-assets");
             _initialized = true;
             _missingFiles.Clear();
 
@@ -142,7 +142,7 @@ namespace DINOForge.Runtime.UI
                 Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false)
                 {
                     filterMode = FilterMode.Bilinear,
-                    wrapMode   = TextureWrapMode.Clamp
+                    wrapMode = TextureWrapMode.Clamp
                 };
 
                 if (!tex.LoadImage(data))
@@ -189,7 +189,7 @@ namespace DINOForge.Runtime.UI
                 Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, mipChain: false)
                 {
                     filterMode = FilterMode.Bilinear,
-                    wrapMode   = TextureWrapMode.Clamp
+                    wrapMode = TextureWrapMode.Clamp
                 };
 
                 if (!tex.LoadImage(data))
@@ -225,18 +225,18 @@ namespace DINOForge.Runtime.UI
         /// </summary>
         public static void Reset()
         {
-            _panelBackground   = null;
-            _panelSciFi        = null;
-            _panelFantasy      = null;
-            _buttonNormal      = null;
-            _buttonPressed     = null;
+            _panelBackground = null;
+            _panelSciFi = null;
+            _panelFantasy = null;
+            _buttonNormal = null;
+            _buttonPressed = null;
             _checkboxUnchecked = null;
-            _checkboxChecked   = null;
-            _scrollTrack       = null;
-            _scrollHandle      = null;
+            _checkboxChecked = null;
+            _scrollTrack = null;
+            _scrollHandle = null;
             _missingFiles.Clear();
             _initialized = false;
-            _assetDir    = string.Empty;
+            _assetDir = string.Empty;
         }
 
         // ── Diagnostics ──────────────────────────────────────────────────────────

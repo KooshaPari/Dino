@@ -25,36 +25,36 @@ namespace DINOForge.Runtime.UI
         public bool IsVisible => _canvasGroup != null && _canvasGroup.alpha > 0.01f;
 
         // ── Panel layout constants ────────────────────────────────────────────────
-        private const float PanelWidth      = 680f;
-        private const float PanelHeight     = 560f;
-        private const float HeaderHeight    = 44f;
-        private const float FooterHeight    = 44f;
-        private const float ListWidth       = 220f;
-        private const float ItemHeight      = 40f;
-        private const float AnimDuration    = 0.15f;
+        private const float PanelWidth = 680f;
+        private const float PanelHeight = 560f;
+        private const float HeaderHeight = 44f;
+        private const float FooterHeight = 44f;
+        private const float ListWidth = 220f;
+        private const float ItemHeight = 40f;
+        private const float AnimDuration = 0.15f;
 
         // ── State ────────────────────────────────────────────────────────────────
         private readonly List<PackDisplayInfo> _packs = new List<PackDisplayInfo>();
-        private int  _selectedPackIndex = -1;
-        private string _statusMessage   = "";
-        private int  _errorCount;
+        private int _selectedPackIndex = -1;
+        private string _statusMessage = "";
+        private int _errorCount;
 
         // ── Animation ────────────────────────────────────────────────────────────
         private CanvasGroup? _canvasGroup;
         private RectTransform? _panelRt;
         private float _animT;          // 0 = fully hidden, 1 = fully visible
-        private bool  _targetVisible;
+        private bool _targetVisible;
 
         // ── UI references ────────────────────────────────────────────────────────
-        private Text?       _headerStatusText;
+        private Text? _headerStatusText;
         private RectTransform? _listContent;
-        private GameObject?    _detailPane;
-        private Text?       _detailName;
-        private Text?       _detailMeta;
-        private Text?       _detailDesc;
-        private Text?       _detailDeps;
-        private Text?       _detailConflicts;
-        private Text?       _detailLoadOrder;
+        private GameObject? _detailPane;
+        private Text? _detailName;
+        private Text? _detailMeta;
+        private Text? _detailDesc;
+        private Text? _detailDeps;
+        private Text? _detailConflicts;
+        private Text? _detailLoadOrder;
 
         // ── Bootstrap ────────────────────────────────────────────────────────────
 
@@ -70,7 +70,7 @@ namespace DINOForge.Runtime.UI
             RectTransform rootRt = rootGo.GetComponent<RectTransform>();
             rootRt.anchorMin = new Vector2(0.5f, 0.5f);
             rootRt.anchorMax = new Vector2(0.5f, 0.5f);
-            rootRt.pivot     = new Vector2(0.5f, 0.5f);
+            rootRt.pivot = new Vector2(0.5f, 0.5f);
             rootRt.anchoredPosition = new Vector2(300f, 0f); // slide-in offset start
 
             _panelRt = rootRt;
@@ -100,7 +100,7 @@ namespace DINOForge.Runtime.UI
         public void SetStatus(string message, int errorCount = 0)
         {
             _statusMessage = message;
-            _errorCount    = errorCount;
+            _errorCount = errorCount;
             if (_headerStatusText != null)
             {
                 _headerStatusText.text = BuildStatusLine();
@@ -114,7 +114,7 @@ namespace DINOForge.Runtime.UI
             _targetVisible = true;
             if (_canvasGroup != null)
             {
-                _canvasGroup.interactable   = true;
+                _canvasGroup.interactable = true;
                 _canvasGroup.blocksRaycasts = true;
             }
         }
@@ -125,7 +125,7 @@ namespace DINOForge.Runtime.UI
             _targetVisible = false;
             if (_canvasGroup != null)
             {
-                _canvasGroup.interactable   = false;
+                _canvasGroup.interactable = false;
                 _canvasGroup.blocksRaycasts = false;
             }
         }
@@ -162,7 +162,7 @@ namespace DINOForge.Runtime.UI
             RectTransform hRt = header.GetComponent<RectTransform>();
             hRt.anchorMin = new Vector2(0f, 1f);
             hRt.anchorMax = Vector2.one;
-            hRt.pivot     = new Vector2(0.5f, 1f);
+            hRt.pivot = new Vector2(0.5f, 1f);
             hRt.offsetMin = Vector2.zero;
             hRt.offsetMax = Vector2.zero;
             hRt.sizeDelta = new Vector2(0f, HeaderHeight);
@@ -189,7 +189,7 @@ namespace DINOForge.Runtime.UI
                 () => Hide());
             RectTransform closeBtnRt = closeBtn.GetComponent<RectTransform>();
             LayoutElement closeLe = closeBtn.gameObject.AddComponent<LayoutElement>();
-            closeLe.preferredWidth  = 28f;
+            closeLe.preferredWidth = 28f;
             closeLe.preferredHeight = 28f;
 
             // Bottom separator
@@ -197,7 +197,7 @@ namespace DINOForge.Runtime.UI
             RectTransform sepRt = sep.GetComponent<RectTransform>();
             sepRt.anchorMin = new Vector2(0f, 1f);
             sepRt.anchorMax = Vector2.one;
-            sepRt.pivot     = new Vector2(0.5f, 1f);
+            sepRt.pivot = new Vector2(0.5f, 1f);
             sepRt.anchoredPosition = new Vector2(0f, -HeaderHeight);
             sepRt.sizeDelta = new Vector2(0f, 1f);
         }
@@ -214,7 +214,7 @@ namespace DINOForge.Runtime.UI
             bodyRt.offsetMax = new Vector2(0f, -(HeaderHeight + 1f));
 
             HorizontalLayoutGroup hlg = body.AddComponent<HorizontalLayoutGroup>();
-            hlg.childForceExpandWidth  = false;
+            hlg.childForceExpandWidth = false;
             hlg.childForceExpandHeight = true;
             hlg.spacing = 0f;
 
@@ -224,7 +224,7 @@ namespace DINOForge.Runtime.UI
             GameObject divider = UiBuilder.MakePanel(body.transform, "Divider",
                 UiBuilder.Border, new Vector2(1f, 0f));
             LayoutElement divLe = divider.AddComponent<LayoutElement>();
-            divLe.preferredWidth  = 1f;
+            divLe.preferredWidth = 1f;
             divLe.minWidth = 1f;
 
             BuildDetailPane(body.transform);
@@ -237,7 +237,7 @@ namespace DINOForge.Runtime.UI
 
             LayoutElement paneLe = pane.AddComponent<LayoutElement>();
             paneLe.preferredWidth = ListWidth;
-            paneLe.minWidth       = ListWidth;
+            paneLe.minWidth = ListWidth;
 
             // List header
             GameObject listHeader = UiBuilder.MakePanel(pane.transform, "ListHeader",
@@ -279,7 +279,7 @@ namespace DINOForge.Runtime.UI
             detailLe.flexibleWidth = 1f;
 
             VerticalLayoutGroup vlg = _detailPane.AddComponent<VerticalLayoutGroup>();
-            vlg.childForceExpandWidth  = true;
+            vlg.childForceExpandWidth = true;
             vlg.childForceExpandHeight = false;
             vlg.spacing = 6f;
             vlg.padding = new RectOffset(14, 14, 12, 12);
@@ -333,7 +333,7 @@ namespace DINOForge.Runtime.UI
             HorizontalLayoutGroup btnHlg = btnRow.AddComponent<HorizontalLayoutGroup>();
             btnHlg.spacing = 8f;
             btnHlg.childForceExpandHeight = false;
-            btnHlg.childForceExpandWidth  = false;
+            btnHlg.childForceExpandWidth = false;
             LayoutElement btnRowLe = btnRow.AddComponent<LayoutElement>();
             btnRowLe.preferredHeight = 32f;
 
@@ -342,7 +342,7 @@ namespace DINOForge.Runtime.UI
                 UiBuilder.BgSurface, UiBuilder.TextPrimary,
                 OnToggleSelected);
             LayoutElement toggleBtnLe = toggleBtn.gameObject.AddComponent<LayoutElement>();
-            toggleBtnLe.preferredWidth  = 90f;
+            toggleBtnLe.preferredWidth = 90f;
             toggleBtnLe.preferredHeight = 30f;
         }
 
@@ -353,7 +353,7 @@ namespace DINOForge.Runtime.UI
             RectTransform sepRt = sep.GetComponent<RectTransform>();
             sepRt.anchorMin = new Vector2(0f, 0f);
             sepRt.anchorMax = new Vector2(1f, 0f);
-            sepRt.pivot     = new Vector2(0.5f, 0f);
+            sepRt.pivot = new Vector2(0.5f, 0f);
             sepRt.anchoredPosition = new Vector2(0f, FooterHeight);
             sepRt.sizeDelta = new Vector2(0f, 1f);
 
@@ -362,7 +362,7 @@ namespace DINOForge.Runtime.UI
             RectTransform fRt = footer.GetComponent<RectTransform>();
             fRt.anchorMin = Vector2.zero;
             fRt.anchorMax = new Vector2(1f, 0f);
-            fRt.pivot     = new Vector2(0.5f, 0f);
+            fRt.pivot = new Vector2(0.5f, 0f);
             fRt.offsetMin = Vector2.zero;
             fRt.offsetMax = Vector2.zero;
             fRt.sizeDelta = new Vector2(0f, FooterHeight);
@@ -375,7 +375,7 @@ namespace DINOForge.Runtime.UI
                 UiBuilder.BgDeep, UiBuilder.Accent,
                 () => OnReloadRequested?.Invoke());
             LayoutElement reloadLe = reloadBtn.gameObject.AddComponent<LayoutElement>();
-            reloadLe.preferredWidth  = 140f;
+            reloadLe.preferredWidth = 140f;
             reloadLe.preferredHeight = 30f;
 
             // Spacer
@@ -408,18 +408,18 @@ namespace DINOForge.Runtime.UI
             if (_listContent == null) return;
 
             bool isSelected = index == _selectedPackIndex;
-            bool hasErrors  = pack.Errors.Count > 0;
+            bool hasErrors = pack.Errors.Count > 0;
             bool hasConflicts = pack.Conflicts.Count > 0;
 
             // Card
             Color bgColor = isSelected ? UiBuilder.BgSurface : UiBuilder.BgDeep;
-            Color alpha   = pack.IsEnabled ? Color.white : new Color(1f, 1f, 1f, 0.6f);
+            Color alpha = pack.IsEnabled ? Color.white : new Color(1f, 1f, 1f, 0.6f);
 
             GameObject card = UiBuilder.MakePanel(_listContent, $"PackItem_{pack.Id}", bgColor, new Vector2(0f, ItemHeight));
             LayoutElement cardLe = card.AddComponent<LayoutElement>();
-            cardLe.minHeight       = ItemHeight;
+            cardLe.minHeight = ItemHeight;
             cardLe.preferredHeight = ItemHeight;
-            cardLe.flexibleWidth   = 1f;
+            cardLe.flexibleWidth = 1f;
 
             // Amber left-border strip for enabled packs
             if (pack.IsEnabled)
@@ -429,7 +429,7 @@ namespace DINOForge.Runtime.UI
                 RectTransform bRt = border.GetComponent<RectTransform>();
                 bRt.anchorMin = new Vector2(0f, 0f);
                 bRt.anchorMax = new Vector2(0f, 1f);
-                bRt.pivot     = new Vector2(0f, 0.5f);
+                bRt.pivot = new Vector2(0f, 0.5f);
                 bRt.offsetMin = Vector2.zero;
                 bRt.offsetMax = new Vector2(4f, 0f);
                 bRt.anchoredPosition = Vector2.zero;
@@ -439,7 +439,7 @@ namespace DINOForge.Runtime.UI
             HorizontalLayoutGroup hlg = card.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 6f;
             hlg.padding = new RectOffset(pack.IsEnabled ? 10 : 6, 6, 4, 4);
-            hlg.childForceExpandWidth  = false;
+            hlg.childForceExpandWidth = false;
             hlg.childForceExpandHeight = true;
 
             // Pack name
@@ -459,7 +459,7 @@ namespace DINOForge.Runtime.UI
                 GameObject badge = UiBuilder.MakePanel(card.transform, "ErrorBadge",
                     UiBuilder.Error, new Vector2(32f, 18f));
                 LayoutElement badgeLe = badge.AddComponent<LayoutElement>();
-                badgeLe.preferredWidth  = 32f;
+                badgeLe.preferredWidth = 32f;
                 badgeLe.preferredHeight = 18f;
 
                 Text badgeText = UiBuilder.MakeText(badge.transform, "BadgeText", "ERR",
@@ -471,7 +471,7 @@ namespace DINOForge.Runtime.UI
                 GameObject badge = UiBuilder.MakePanel(card.transform, "ConflictBadge",
                     UiBuilder.Warning, new Vector2(40f, 18f));
                 LayoutElement badgeLe = badge.AddComponent<LayoutElement>();
-                badgeLe.preferredWidth  = 40f;
+                badgeLe.preferredWidth = 40f;
                 badgeLe.preferredHeight = 18f;
 
                 Text badgeText = UiBuilder.MakeText(badge.transform, "BadgeText", "CONF",
@@ -490,11 +490,11 @@ namespace DINOForge.Runtime.UI
             int capturedIndex = index;
             Button btn = card.AddComponent<Button>();
             ColorBlock cb = btn.colors;
-            cb.normalColor      = bgColor;
+            cb.normalColor = bgColor;
             cb.highlightedColor = Color.Lerp(bgColor, Color.white, 0.08f);
-            cb.pressedColor     = Color.Lerp(bgColor, Color.black, 0.1f);
-            cb.selectedColor    = bgColor;
-            cb.colorMultiplier  = 1f;
+            cb.pressedColor = Color.Lerp(bgColor, Color.black, 0.1f);
+            cb.selectedColor = bgColor;
+            cb.colorMultiplier = 1f;
             btn.colors = cb;
             btn.targetGraphic = card.GetComponent<Image>();
             btn.onClick.AddListener(() => SelectPack(capturedIndex));
