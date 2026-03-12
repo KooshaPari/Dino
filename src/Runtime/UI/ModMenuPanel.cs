@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using BepInEx.Logging;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,6 +39,7 @@ namespace DINOForge.Runtime.UI
         private int _selectedPackIndex = -1;
         private string _statusMessage = "";
         private int _errorCount;
+        private ManualLogSource? _log;
 
         // ── Animation ────────────────────────────────────────────────────────────
         private CanvasGroup? _canvasGroup;
@@ -59,11 +61,23 @@ namespace DINOForge.Runtime.UI
         // ── Bootstrap ────────────────────────────────────────────────────────────
 
         /// <summary>
+        /// Initializes the logger. Must be called before Build().
+        /// </summary>
+        /// <param name="log">BepInEx logger for diagnostics.</param>
+        public void Initialize(ManualLogSource log)
+        {
+            _log = log;
+            _log?.LogInfo("[ModMenuPanel] Initialized with logger.");
+        }
+
+        /// <summary>
         /// Builds the full UGUI hierarchy. Call from DFCanvas.Start() on the main thread.
         /// </summary>
         /// <param name="canvasRoot">Root canvas transform to attach to.</param>
         public void Build(Transform canvasRoot)
         {
+            _log?.LogInfo("[ModMenuPanel.Build] Starting UGUI hierarchy construction...");
+
             // Root panel — centered
             GameObject rootGo = UiBuilder.MakePanel(canvasRoot, "ModMenuPanel",
                 UiBuilder.BgDeep, new Vector2(PanelWidth, PanelHeight));
@@ -82,6 +96,8 @@ namespace DINOForge.Runtime.UI
             BuildHeader(rootGo.transform);
             BuildBody(rootGo.transform);
             BuildFooter(rootGo.transform);
+
+            _log?.LogInfo($"[ModMenuPanel.Build] UGUI hierarchy complete. _listContent={(_listContent != null ? _listContent.name : "NULL")}");
         }
 
         // ── Public API ────────────────────────────────────────────────────────────
@@ -94,7 +110,15 @@ namespace DINOForge.Runtime.UI
             _packs.AddRange(packs);
             _selectedPackIndex = _packs.Count > 0 ? 0 : -1;
 
-            Debug.Log($"[ModMenuPanel] SetPacks called: before={beforeCount}, after={_packs.Count}, _listContent={(_listContent != null ? _listContent.name : "NULL")}");
+            _log?.LogInfo($"[ModMenuPanel.SetPacks] Entry: before={beforeCount}, after={_packs.Count}, _listContent is {(_listContent != null ? "READY" : "NULL")}");
+
+            // Safety check: if _listContent is null, it means Build() hasn't been called yet
+            // or failed. This can happen if SetPacks is called before the UI hierarchy is complete.
+            if (_listContent == null)
+            {
+                _log?.LogWarning("[ModMenuPanel.SetPacks] _listContent is NULL! UI hierarchy not initialized. " +
+                    "Packs will queue and render when UI is ready. Check DFCanvas.Start() completion.");
+            }
 
             RebuildPackList();
             RefreshDetail();
@@ -237,6 +261,8 @@ namespace DINOForge.Runtime.UI
 
         private void BuildListPane(Transform parent)
         {
+            _log?.LogInfo("[ModMenuPanel.BuildListPane] Starting pack list pane construction...");
+
             GameObject pane = new GameObject("ListPane", typeof(RectTransform));
             pane.transform.SetParent(parent, false);
 
@@ -260,7 +286,7 @@ namespace DINOForge.Runtime.UI
             lhTitleLe.flexibleWidth = 1f;
 
             // Scroll view for pack items
-            Debug.Log("[ModMenuPanel.BuildListPane] Creating scroll view for pack list...");
+            _log?.LogInfo("[ModMenuPanel.BuildListPane] Creating scroll view...");
             (ScrollRect scrollRect, RectTransform content) = UiBuilder.MakeScrollView(
                 pane.transform, "PackListScroll",
                 new Vector2(ListWidth, 0f));
@@ -268,9 +294,9 @@ namespace DINOForge.Runtime.UI
             // Validate the result
             if (content == null || scrollRect == null)
             {
-                Debug.LogError("[ModMenuPanel.BuildListPane] CRITICAL: MakeScrollView failed! " +
+                _log?.LogError("[ModMenuPanel.BuildListPane] CRITICAL: MakeScrollView failed! " +
                     $"scrollRect={scrollRect != null}, content={content != null}. " +
-                    "Pack list will not be rendered. Check UiBuilder.MakeScrollView for exceptions.");
+                    "Pack list will not render. Check UiBuilder.MakeScrollView for exceptions.");
                 _listContent = null;
                 return;
             }
@@ -283,7 +309,7 @@ namespace DINOForge.Runtime.UI
             scrollRt.sizeDelta = Vector2.zero;
 
             _listContent = content;
-            Debug.Log($"[ModMenuPanel.BuildListPane] SUCCESS: Scroll view initialized, " +
+            _log?.LogInfo($"[ModMenuPanel.BuildListPane] Scroll view initialized successfully. " +
                 $"content={content.name}, active={content.gameObject.activeSelf}");
         }
 
@@ -417,11 +443,12 @@ namespace DINOForge.Runtime.UI
         {
             if (_listContent == null)
             {
-                Debug.LogError("[ModMenuPanel] FATAL: RebuildPackList called but _listContent is null. " +
-                    "This indicates Build() was never called or MakeScrollView failed. " +
-                    "Pack list will not render until Build() is properly initialized.");
+                _log?.LogWarning("[ModMenuPanel.RebuildPackList] _listContent is NULL — UI not initialized yet. " +
+                    "Pack list will render once Build() completes. Ensure DFCanvas.Start() runs before SetPacks() is called.");
                 return;
             }
+
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] Rebuilding pack list: {_packs.Count} pack(s)");
 
             // Destroy existing items
             for (int i = _listContent.childCount - 1; i >= 0; i--)
@@ -429,22 +456,21 @@ namespace DINOForge.Runtime.UI
                 Destroy(_listContent.GetChild(i).gameObject);
             }
 
-            Debug.Log($"[ModMenuPanel] RebuildPackList: Rendering {_packs.Count} packs");
             for (int i = 0; i < _packs.Count; i++)
             {
                 BuildPackListItem(_packs[i], i);
             }
+
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] Complete: rendered {_listContent.childCount} item(s)");
         }
 
         private void BuildPackListItem(PackDisplayInfo pack, int index)
         {
             if (_listContent == null)
             {
-                Debug.LogWarning($"[ModMenuPanel] BuildPackListItem: _listContent is NULL for pack {pack.Id}");
+                _log?.LogWarning($"[ModMenuPanel.BuildPackListItem] _listContent is NULL for pack '{pack.Id}' — item {index} skipped.");
                 return;
             }
-
-            Debug.Log($"[ModMenuPanel] BuildPackListItem: Creating item {index}: {pack.Name}, _listContent.childCount before={_listContent.childCount}");
 
             bool isSelected = index == _selectedPackIndex;
             bool hasErrors = pack.Errors.Count > 0;
@@ -538,8 +564,6 @@ namespace DINOForge.Runtime.UI
             btn.colors = cb;
             btn.targetGraphic = card.GetComponent<Image>();
             btn.onClick.AddListener(() => SelectPack(capturedIndex));
-
-            Debug.Log($"[ModMenuPanel] BuildPackListItem: Added item {index} ({pack.Name}), _listContent.childCount after={_listContent.childCount}, card.activeInHierarchy={card.activeInHierarchy}");
         }
 
         private void SelectPack(int index)

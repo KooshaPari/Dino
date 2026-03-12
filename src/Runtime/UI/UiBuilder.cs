@@ -121,6 +121,9 @@ namespace DINOForge.Runtime.UI
             GameObject go = new GameObject(name, typeof(RectTransform), typeof(Text));
             go.transform.SetParent(parent, false);
 
+            RectTransform rt = go.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(200f, fontSize + 4f);  // Ensure text has visible dimensions
+
             Text t = go.GetComponent<Text>();
             t.text = text;
             t.fontSize = fontSize;
@@ -131,6 +134,7 @@ namespace DINOForge.Runtime.UI
             t.supportRichText = true;
             t.horizontalOverflow = HorizontalWrapMode.Wrap;
             t.verticalOverflow = VerticalWrapMode.Truncate;
+            t.verticalOverflow = VerticalWrapMode.Overflow;  // Allow vertical overflow to prevent clipping
 
             return t;
         }

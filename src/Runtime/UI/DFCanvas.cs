@@ -120,6 +120,8 @@ namespace DINOForge.Runtime.UI
             GameObject menuGo = new GameObject("ModMenuPanelHost", typeof(RectTransform));
             menuGo.transform.SetParent(canvasRoot, false);
             ModMenuPanel = menuGo.AddComponent<ModMenuPanel>();
+            if (_log != null)
+                ModMenuPanel.Initialize(_log);
             ModMenuPanel.Build(canvasRoot);
 
             // Build debug panel

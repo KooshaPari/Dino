@@ -5,6 +5,7 @@
     <AssemblyName>DINOForge.Runtime</AssemblyName>
     <RootNamespace>DINOForge.Runtime</RootNamespace>
     <Description>DINOForge runtime plugin - BepInEx bootstrap, ECS introspection, entity dumper</Description>
+    <BuildInParallel>false</BuildInParallel>
 
     <!-- Detect if the DINO game is installed by checking for UnityEngine.dll -->
     <GameInstalled Condition="Exists('$(ManagedDir)\UnityEngine.dll')">true</GameInstalled>
