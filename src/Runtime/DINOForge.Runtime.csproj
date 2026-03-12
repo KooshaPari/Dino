@@ -17,6 +17,9 @@
     <OutputPath Condition="'$(GameInstalled)' == 'true'">$(BepInExDir)\plugins</OutputPath>
     <AppendTargetFrameworkToOutputPath Condition="'$(GameInstalled)' == 'true'">false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath Condition="'$(GameInstalled)' == 'true'">false</AppendRuntimeIdentifierToOutputPath>
+
+    <!-- Suppress version conflict warning for System.IO.Compression — game provides 4.2.0.0 at runtime, netstandard2.0 ref resolves to 4.1.3.0, both are compatible -->
+    <MSBuildWarningsAsMessages>MSB3277</MSBuildWarningsAsMessages>
   </PropertyGroup>
 
   <!-- Exclude UGUI-dependent UI files when the game is not installed (no UnityEngine.UIModule.dll) -->
