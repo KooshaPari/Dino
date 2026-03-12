@@ -1,0 +1,31 @@
+{
+  "asset_id": "sw_vader_hero_sketchfab_001",
+  "canonical_name": "Vader Hero Model",
+  "franchise_tag": "star_wars",
+  "faction": "cis",
+  "category": "unit_model",
+  "source_platform": "sketchfab",
+  "source_url": "https://sketchfab.com/3d-models/[PLACEHOLDER_SKETCHFAB_URL]",
+  "author_name": "[PLACEHOLDER_AUTHOR_NAME]",
+  "license_label": "[PLACEHOLDER_LICENSE_LABEL]",
+  "license_url": "[PLACEHOLDER_LICENSE_URL]",
+  "acquisition_mode": "download",
+  "acquired_at_utc": "[PLACEHOLDER_ISO8601_TIMESTAMP]",
+  "original_format": "glb",
+  "download_url": "[PLACEHOLDER_DIRECT_DOWNLOAD_URL]",
+  "sha256": "[PLACEHOLDER_SHA256_HASH]",
+  "polycount_estimate": null,
+  "texture_sets": null,
+  "rigged": true,
+  "animated": false,
+  "technical_status": "discovered",
+  "ip_status": "fan_star_wars_private_only",
+  "provenance_confidence": 0.85,
+  "notes": [
+    "Star Wars fan content - for internal development and prototyping only",
+    "Do not ship in public releases due to Star Wars IP ownership",
+    "Hero unit model - higher polygon budget than infantry",
+    "Potential derivative for replacement with generic dark lord/warlord model",
+    "Verify polygon count and material slot count after download"
+  ]
+}

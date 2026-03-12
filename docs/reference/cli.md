@@ -143,6 +143,21 @@ dotnet run --project src/Tools/PackCompiler -- assets list packs/my-pack
 dotnet run --project src/Tools/PackCompiler -- assets check packs/my-pack
 ```
 
+## Asset Intake CLI (Pre-Impl)
+
+Planned commands for intake and normalization are documented in:
+
+- `docs/asset-intake/assetctl-prd.md`
+- `docs/adr/ADR-010-asset-intake-pipeline.md`
+
+```bash
+assetctl search "star wars b1 battle droid" --source sketchfab --limit 10
+assetctl intake sketchfab:abc123
+assetctl normalize sw_b1_droid_sketchfab_001
+assetctl validate sw_b1_droid_sketchfab_001 --strict
+assetctl register sw_b1_droid_sketchfab_001
+```
+
 ---
 
 ## DumpTools
