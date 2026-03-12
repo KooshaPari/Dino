@@ -26,16 +26,16 @@ The following statuses indicate compatibility levels and recommended actions:
 
 | DINOForge | DINO Game | BepInEx | Unity | Status | Notes |
 |-----------|-----------|---------|-------|--------|-------|
-| 0.5.x | `>=1.0.0` | `>=5.4.21 <6.0.0` | 2021.3.* | **Optimal** | Current stable release. Fully tested. |
-| 0.4.x | `>=1.0.0` | `>=5.4.21 <6.0.0` | 2021.3.* | **Maintenance** | Security fixes only. Upgrade to 0.5.x recommended. |
-| 0.3.x | `>=1.0.0` | `>=5.4.21 <6.0.0` | 2021.3.* | **Broken** | No longer supported. Upgrade to 0.5.x required. |
+| 0.5.x | `>=1.0.0` | `>=5.4.21` `&lt;6.0.0` | 2021.3.* | **Optimal** | Current stable release. Fully tested. |
+| 0.4.x | `>=1.0.0` | `>=5.4.21` `&lt;6.0.0` | 2021.3.* | **Maintenance** | Security fixes only. Upgrade to 0.5.x recommended. |
+| 0.3.x | `>=1.0.0` | `>=5.4.21` `&lt;6.0.0` | 2021.3.* | **Broken** | No longer supported. Upgrade to 0.5.x required. |
 
 ### Experimental / Future
 
 | DINOForge | DINO Game | BepInEx | Unity | Status | Notes |
 |-----------|-----------|---------|-------|--------|-------|
 | 0.5.x | `>=1.0.0` | `>=6.0.0` | 2021.3.* | **Unknown** | BepInEx 6.x (Mono) support planned for DINOForge 1.0. Not yet tested. |
-| 0.5.x | `>=2.0.0` | `>=5.4.21 <6.0.0` | 2022.* | **Unknown** | Future DINO game version. No compatibility data available yet. |
+| 0.5.x | `>=2.0.0` | `>=5.4.21` `&lt;6.0.0` | 2022.* | **Unknown** | Future DINO game version. No compatibility data available yet. |
 
 ## Component Compatibility
 

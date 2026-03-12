@@ -15,16 +15,16 @@ namespace DINOForge.Tests
         private PackManifest MakePack(string id, string[]? dependsOn = null, string[]? conflictsWith = null, int loadOrder = 100)
         {
             string deps = dependsOn is { Length: > 0 }
-                ? "depends_on:\n" + string.Join("", System.Array.ConvertAll(dependsOn, d => $"  - {d}\n"))
+                ? "depends_on:\n" + string.Join("", System.Array.ConvertAll(dependsOn, d => $"  - \"{d}\"\n"))
                 : "";
 
             string conflicts = conflictsWith is { Length: > 0 }
-                ? "conflicts_with:\n" + string.Join("", System.Array.ConvertAll(conflictsWith, c => $"  - {c}\n"))
+                ? "conflicts_with:\n" + string.Join("", System.Array.ConvertAll(conflictsWith, c => $"  - \"{c}\"\n"))
                 : "";
 
             string yaml = $@"
-id: {id}
-name: {id}
+id: ""{id}""
+name: ""{id}""
 version: 0.1.0
 author: Test
 type: content

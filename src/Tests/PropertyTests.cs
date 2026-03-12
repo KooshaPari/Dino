@@ -264,16 +264,16 @@ namespace DINOForge.Tests
         private PackManifest MakePack(string id, string[]? dependsOn = null, string[]? conflictsWith = null, int loadOrder = 100)
         {
             string deps = dependsOn is { Length: > 0 }
-                ? "depends_on:\n" + string.Join("", dependsOn.Select(d => $"  - {d}\n"))
+                ? "depends_on:\n" + string.Join("", dependsOn.Select(d => $"  - \"{d}\"\n"))
                 : "";
 
             string conflicts = conflictsWith is { Length: > 0 }
-                ? "conflicts_with:\n" + string.Join("", conflictsWith.Select(c => $"  - {c}\n"))
+                ? "conflicts_with:\n" + string.Join("", conflictsWith.Select(c => $"  - \"{c}\"\n"))
                 : "";
 
             string yaml = $@"
-id: {id}
-name: {id}
+id: ""{id}""
+name: ""{id}""
 version: 0.1.0
 author: Test
 type: content

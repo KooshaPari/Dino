@@ -154,6 +154,7 @@ namespace DINOForge.Runtime
         private ModSettingsPanel? _modSettingsPanel;
         private DebugOverlayBehaviour? _debugOverlay;
         private HudIndicator? _hudIndicator;
+        private NativeMenuInjector? _nativeMenuInjector;
 
         // _uguiReady: true once DFCanvas.Start() reports success via IsReady.
         // We check this each Update() because DFCanvas.Start() runs after Initialize().
@@ -282,7 +283,22 @@ namespace DINOForge.Runtime
                 ActivateImguiFallback();
             }
 
-            // ── Step 3: Log key handler registration ────────────────────────────────
+            // ── Step 3: Add NativeMenuInjector for main menu button injection ──────
+            // This component monitors scene changes and injects a "Mods" button into
+            // the native game menus (main menu, pause menu) next to Settings/Options.
+            try
+            {
+                _nativeMenuInjector = gameObject.AddComponent<NativeMenuInjector>();
+                _nativeMenuInjector.SetLogger(_log);
+                // We'll wire the overlay reference later once it's created
+                _log.LogInfo("[RuntimeDriver] Added NativeMenuInjector — will inject Mods button into native menus.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[RuntimeDriver] NativeMenuInjector setup failed: {ex.Message}");
+            }
+
+            // ── Step 4: Log key handler registration ────────────────────────────────
             _log.LogInfo($"[RuntimeDriver] F9/F10 key handlers registered on {gameObject.name}.");
             _log.LogInfo("[RuntimeDriver] Waiting for ECS World (Update polling)...");
         }
@@ -308,6 +324,12 @@ namespace DINOForge.Runtime
                 if (_modPlatform != null)
                 {
                     _modPlatform.SetUI(overlay, settingsPanel);
+                }
+
+                // Wire ModMenuOverlay into NativeMenuInjector for the native Mods button
+                if (_nativeMenuInjector != null)
+                {
+                    _nativeMenuInjector.SetModMenuOverlay(overlay);
                 }
 
                 _modMenuOverlay   = overlay;
@@ -364,6 +386,12 @@ namespace DINOForge.Runtime
                 settingsPanel.enabled = false;
 
                 _modPlatform.SetUI(proxy, settingsPanel);
+
+                // Wire ModMenuOverlayProxy into NativeMenuInjector for the native Mods button
+                if (_nativeMenuInjector != null)
+                {
+                    _nativeMenuInjector.SetModMenuOverlay(proxy);
+                }
 
                 _modMenuOverlay   = proxy;
                 _modSettingsPanel = settingsPanel;

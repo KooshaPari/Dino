@@ -82,6 +82,8 @@ namespace DINOForge.Runtime.UI
                 _canvasGroup.interactable = true;
                 _canvasGroup.blocksRaycasts = true;
             }
+            // Immediately refresh content so panel displays on first open
+            RefreshContent();
         }
 
         /// <summary>Hides the panel with a fade animation.</summary>

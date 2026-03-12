@@ -180,6 +180,7 @@ namespace DINOForge.Runtime.UI
             _headerStatusText = UiBuilder.MakeText(header.transform, "Status",
                 BuildStatusLine(), 12, UiBuilder.TextSecondary);
             LayoutElement statusLe = _headerStatusText.gameObject.AddComponent<LayoutElement>();
+            statusLe.preferredWidth = 300f;
             statusLe.flexibleWidth = 1f;
 
             // Close button
@@ -289,12 +290,14 @@ namespace DINOForge.Runtime.UI
                 "Select a pack", 15, UiBuilder.TextPrimary, bold: true);
             LayoutElement nameLe = _detailName.gameObject.AddComponent<LayoutElement>();
             nameLe.preferredHeight = 22f;
+            nameLe.flexibleWidth = 1f;
 
             // Meta (author · type)
             _detailMeta = UiBuilder.MakeText(_detailPane.transform, "DetailMeta",
                 "", 12, UiBuilder.TextSecondary);
             LayoutElement metaLe = _detailMeta.gameObject.AddComponent<LayoutElement>();
             metaLe.preferredHeight = 18f;
+            metaLe.flexibleWidth = 1f;
 
             UiBuilder.MakeHorizontalSeparator(_detailPane.transform, UiBuilder.Border);
 
@@ -303,7 +306,9 @@ namespace DINOForge.Runtime.UI
                 "", 12, UiBuilder.TextPrimary);
             LayoutElement descLe = _detailDesc.gameObject.AddComponent<LayoutElement>();
             descLe.preferredHeight = 80f;
-            _detailDesc.verticalOverflow = VerticalWrapMode.Overflow;
+            descLe.flexibleWidth = 1f;
+            descLe.flexibleHeight = 1f;
+            _detailDesc.verticalOverflow = VerticalWrapMode.Truncate;
 
             UiBuilder.MakeHorizontalSeparator(_detailPane.transform, UiBuilder.Border);
 
@@ -312,18 +317,21 @@ namespace DINOForge.Runtime.UI
                 "Dependencies: none", 12, UiBuilder.TextSecondary);
             LayoutElement depsLe = _detailDeps.gameObject.AddComponent<LayoutElement>();
             depsLe.preferredHeight = 18f;
+            depsLe.flexibleWidth = 1f;
 
             // Conflicts
             _detailConflicts = UiBuilder.MakeText(_detailPane.transform, "DetailConflicts",
                 "Conflicts: none", 12, UiBuilder.TextSecondary);
             LayoutElement conflictsLe = _detailConflicts.gameObject.AddComponent<LayoutElement>();
             conflictsLe.preferredHeight = 18f;
+            conflictsLe.flexibleWidth = 1f;
 
             // Load order
             _detailLoadOrder = UiBuilder.MakeText(_detailPane.transform, "DetailLoadOrder",
                 "Load Order: —", 12, UiBuilder.TextSecondary);
             LayoutElement loLe = _detailLoadOrder.gameObject.AddComponent<LayoutElement>();
             loLe.preferredHeight = 18f;
+            loLe.flexibleWidth = 1f;
 
             UiBuilder.MakeHorizontalSeparator(_detailPane.transform, UiBuilder.Border);
 
@@ -343,6 +351,7 @@ namespace DINOForge.Runtime.UI
                 OnToggleSelected);
             LayoutElement toggleBtnLe = toggleBtn.gameObject.AddComponent<LayoutElement>();
             toggleBtnLe.preferredWidth = 90f;
+            toggleBtnLe.minWidth = 90f;
             toggleBtnLe.preferredHeight = 30f;
         }
 
@@ -451,6 +460,7 @@ namespace DINOForge.Runtime.UI
                 nameText.color = new Color(nameColor.r, nameColor.g, nameColor.b, 0.6f);
             }
             LayoutElement nameLe = nameText.gameObject.AddComponent<LayoutElement>();
+            nameLe.minWidth = 100f;
             nameLe.flexibleWidth = 1f;
 
             // Error / Conflict badge

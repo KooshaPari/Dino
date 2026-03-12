@@ -130,7 +130,7 @@ namespace DINOForge.Runtime.UI
             t.fontStyle = bold ? FontStyle.Bold : FontStyle.Normal;
             t.supportRichText = true;
             t.horizontalOverflow = HorizontalWrapMode.Wrap;
-            t.verticalOverflow = VerticalWrapMode.Overflow;
+            t.verticalOverflow = VerticalWrapMode.Truncate;
 
             return t;
         }
