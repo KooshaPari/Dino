@@ -9,6 +9,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Asset Sourcing Research
+- **REPUBLIC_AT_WAR_ASSET_AUDIT.md** (933 lines, 36KB): Comprehensive audit of Empire at War mod assets as potential reuse candidates
+  - Asset type inventory: units, buildings, textures, effects, audio (700+ total assets)
+  - File format analysis: .alo, .dae, .dds, .alp, proprietary formats
+  - Polygon count comparison: RAW 5–8x higher than DINO RTS budget
+  - Quality assessment: High detail but unsuitable for performance constraints
+  - Licensing analysis: Star Wars IP + mixed mod licensing creates critical legal risk
+  - Conversion path analysis: 40–80 hours engineering effort
+  - Final recommendation: **⛔ DO NOT PURSUE** (legal risk too high, better alternatives exist)
+  - Approved path: Continue Kenney.nl (v1.0), plan Sketchfab premium (v1.1+)
+
+#### M5: Example Packs & Asset Integration (COMPLETE)
+- **All three warfare packs released**: warfare-starwars, warfare-modern, warfare-guerrilla with complete gameplay configurations
+- **Unit textures complete**: 26 procedurally-generated faction-specific textures (13 Republic + 13 CIS) via HSV-based color transformation
+- **Building assets complete**:
+  - 20 faction-specific building textures (512×512 PNG, sRGB, 2.1–4.7 KB each)
+  - 4 fully-assembled Blender FBX files (rep_house_clone_quarters, cis_house_droid_pod, rep_farm_hydroponic, cis_farm_fuel_harvester)
+  - 24 buildings fully mapped and documented (Kenney.nl source, poly budgets, faction color schemes)
+- **Asset infrastructure**:
+  - ASSET_SOURCES.json with complete building registry, texture inventory, and Kenney.nl source mapping
+  - Blender assembly templates and batch execution plans (60-72 hour estimate for full assembly)
+  - Quality gates: polygon counts verified, faction palettes defined, export standards documented
+- **Documentation complete**:
+  - BLENDER_ASSEMBLY_TEMPLATE.md: detailed step-by-step guide for single building assembly
+  - BATCH_ASSEMBLY_PLAN.md: parallelization strategies (2–4 artist teams, 2–3 week timeline)
+  - BUILD_CHECKLIST_ENHANCED.md: master checklist with all 24 buildings and assembly specifications
+
+#### M5: Unit Texture Generation Complete (Star Wars Pack)
+- **generate_unit_textures.py**: Parallel texture generation pipeline for all 26 units (13×2 factions)
+  - Procedural texture generation with PIL and HSV-based color transformation
+  - 16-worker multiprocessing for rapid generation (~16 seconds total)
+  - Supports per-faction and per-unit color palettes (Republic white/blue vs CIS dark/orange)
+  - Tier-based visual complexity (T1 simple → T3 elite with glow effects)
+  - Unit-type-aware patterns (vehicles: horizontal stripes, infantry: vertical segments)
+- **assets/textures/units/**: 26 unit textures (512×512 PNG, sRGB, RGBA, 2.1–4.7 KB each)
+  - 13 Republic units: Clone Militia through Clone Commando
+  - 13 CIS units: B1 Battle Droid through IG-100 MagnaGuard
+  - All textures with faction-specific color schemes applied
+- **UNIT_TEXTURE_MANIFEST.json**: Metadata index with unit class, tier, vehicle/infantry type, palette source
+- **TEXTURE_GENERATION_REPORT.md**: Comprehensive generation report with algorithm details, quality metrics, and next steps
+
 #### M5: Asset Integration Phase 1 Complete (Star Wars Pack)
 - **ASSET_INTEGRATION_REPORT.md**: Master status document for Phase 1 (Asset sourcing & inventory)
   - Executive summary of sourcing decisions (Kenney-first strategy, Sketchfab deferred to v1.1+)

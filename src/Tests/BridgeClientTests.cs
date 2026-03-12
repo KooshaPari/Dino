@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using DINOForge.Bridge.Client;
 using DINOForge.Bridge.Protocol;
 using FluentAssertions;
@@ -55,7 +56,8 @@ public class BridgeClientTests
     [Fact]
     public void GameProcessManager_IsRunning_ReturnsFalseWhenGameNotRunning()
     {
-        GameProcessManager manager = new();
+        // Use mock that always returns null (game not running)
+        MockGameProcessManager manager = new();
 
         manager.IsRunning.Should().BeFalse();
         manager.GetProcessId().Should().BeNull();
@@ -230,4 +232,12 @@ public class BridgeClientTests
         deserialized.Units[0].InferredId.Should().Be("vanilla:melee_unit");
         deserialized.Units[0].EntityCount.Should().Be(42);
     }
+}
+
+/// <summary>
+/// Mock for testing GameProcessManager without depending on actual game process state.
+/// </summary>
+internal class MockGameProcessManager : GameProcessManager
+{
+    protected override Process? GetGameProcess() => null;
 }

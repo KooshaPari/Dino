@@ -8,7 +8,7 @@ namespace DINOForge.Bridge.Client;
 /// Manages the Diplomacy is Not an Option game process lifecycle.
 /// Provides methods to launch, monitor, and terminate the game.
 /// </summary>
-public sealed class GameProcessManager
+public class GameProcessManager
 {
     private const int SteamAppId = 1272320;
     private const string ProcessName = "Diplomacy is Not an Option";
@@ -146,7 +146,11 @@ public sealed class GameProcessManager
         ct.ThrowIfCancellationRequested();
     }
 
-    private static Process? GetGameProcess()
+    /// <summary>
+    /// Gets the game process if running, or null.
+    /// Protected virtual to allow test mocking.
+    /// </summary>
+    protected virtual Process? GetGameProcess()
     {
         try
         {
@@ -166,7 +170,7 @@ public sealed class GameProcessManager
         }
     }
 
-    private static async Task<bool> WaitForProcessAsync(int timeoutMs)
+    private async Task<bool> WaitForProcessAsync(int timeoutMs)
     {
         int elapsed = 0;
         const int pollInterval = 500;
