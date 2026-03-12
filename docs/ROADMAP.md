@@ -19,8 +19,8 @@ timeline
     v0.6.0 ✓ : Unit Spawner + ECS Integration : M9 : DONE
     v0.7.0 ✓ : Pack Registry + Discovery : M10 : DONE
     v0.8.0 ✓ : YAML-only Mods : M11 : DONE
-    v0.9.0 : Polyrepo + Submodule Support : M12 : IN PROGRESS
-    v0.10.0 : Total Conversion Framework : M13 : IN PROGRESS
+    v0.9.0 ✓ : Polyrepo + Submodule Support : M12 : DONE
+    v0.10.0 ✓ : Total Conversion Framework : M13 : DONE
     v0.11.0 : Multiplayer Compatibility : M14
     v0.12.0 : Visual Pack Editor : M15
     v1.0.0 : Stable Release (API Freeze) : M16
@@ -257,7 +257,7 @@ timeline
 
 ## v0.9.0: Polyrepo + Submodule Support (M12)
 
-**Status**: 🚧 IN PROGRESS
+**Status**: ✅ DONE
 
 **Goal**: Support packs as independent Git repositories with proper submodule integration.
 
@@ -335,7 +335,7 @@ timeline
 
 ## v0.10.0: Total Conversion Framework (M13)
 
-**Status**: 🚧 IN PROGRESS
+**Status**: ✅ DONE
 
 **Goal**: Enable complete replacement of game factions, units, buildings, and assets (e.g., Star Wars total conversion).
 

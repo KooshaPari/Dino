@@ -268,8 +268,8 @@ Where actual mods live. Mostly declarative and content-driven.
 | M9 | Unit Spawner + ECS Integration | PackUnitSpawner, FactionSystem, WaveInjector, VanillaArchetypeMapper | Done |
 | M10 | Pack Registry + Discovery | PackRegistryClient, registry.json, compat.json | Done |
 | M11 | YAML-only Mods | YAML arrays, stat overrides, content loader | Done |
-| M12 | Polyrepo + Submodule Support | dinoforge-packs repo, PackSubmoduleManager, packs.lock | In Progress |
-| M13 | Total Conversion Framework | TotalConversionPlugin, AssetReplacementEngine, VanillaCatalog | In Progress |
+| M12 | Polyrepo + Submodule Support | dinoforge-packs repo, PackSubmoduleManager, packs.lock | Done |
+| M13 | Total Conversion Framework | TotalConversionPlugin, AssetReplacementEngine, VanillaCatalog | Done |
 
 ### Current Test Coverage
 
