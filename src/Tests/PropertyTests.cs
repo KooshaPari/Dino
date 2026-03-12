@@ -544,23 +544,23 @@ load_order: {loadOrder}
     internal static class TestHelpers
     {
         internal static string SanitizeId(string id)
-    {
-        if (string.IsNullOrEmpty(id))
-            return "";
+        {
+            if (string.IsNullOrEmpty(id))
+                return "";
 
-        // Keep only alphanumeric and dash
-        var chars = id
-            .Where(c => char.IsLetterOrDigit(c) || c == '-')
-            .ToList();
+            // Keep only alphanumeric and dash
+            var chars = id
+                .Where(c => char.IsLetterOrDigit(c) || c == '-')
+                .ToList();
 
-        if (chars.Count == 0)
-            return "";
+            if (chars.Count == 0)
+                return "";
 
-        // Ensure starts with letter
-        while (chars.Count > 0 && char.IsDigit(chars[0]))
-            chars.RemoveAt(0);
+            // Ensure starts with letter
+            while (chars.Count > 0 && char.IsDigit(chars[0]))
+                chars.RemoveAt(0);
 
-        return new string(chars.Take(50).ToArray()); // Limit length
+            return new string(chars.Take(50).ToArray()); // Limit length
         }
     }
 }

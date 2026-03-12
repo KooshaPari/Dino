@@ -37,9 +37,9 @@ namespace DINOForge.SDK.Assets
         /// <param name="assetName">Asset name or PathID within the mod bundle.</param>
         public AssetSwapRequest(string assetAddress, string modBundlePath, string assetName)
         {
-            AssetAddress  = assetAddress  ?? throw new ArgumentNullException(nameof(assetAddress));
+            AssetAddress = assetAddress ?? throw new ArgumentNullException(nameof(assetAddress));
             ModBundlePath = modBundlePath ?? throw new ArgumentNullException(nameof(modBundlePath));
-            AssetName     = assetName     ?? throw new ArgumentNullException(nameof(assetName));
+            AssetName = assetName ?? throw new ArgumentNullException(nameof(assetName));
         }
     }
 
