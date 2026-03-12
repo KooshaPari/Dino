@@ -197,7 +197,7 @@ namespace DINOForge.Tests
             };
 
             var resolver = new PackDependencyResolver();
-            string installedFramework = "999.999.999";
+            _ = "999.999.999";
 
             // When: Checking compatibility with wildcard
             bool isCompatible = string.IsNullOrWhiteSpace(pack.FrameworkVersion) ||

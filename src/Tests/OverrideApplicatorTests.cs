@@ -87,7 +87,7 @@ namespace DINOForge.Tests
             {
                 Target = "unit.stats.hp",
                 Value = 100f,
-                Mode = null
+                Mode = null!
             };
 
             // Act & Assert

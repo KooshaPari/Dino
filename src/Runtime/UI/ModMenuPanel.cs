@@ -528,7 +528,7 @@ namespace DINOForge.Runtime.UI
             {
                 string descText = string.IsNullOrEmpty(p.Description)
                     ? "(no description)"
-                    : p.Description;
+                    : p.Description!;
 
                 if (p.Errors.Count > 0)
                 {

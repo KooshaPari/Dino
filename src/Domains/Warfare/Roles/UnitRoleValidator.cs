@@ -78,7 +78,7 @@ namespace DINOForge.Domains.Warfare.Roles
                 {
                     missing.Add(role);
                 }
-                else if (!units.Contains(unitId))
+                else if (unitId != null && !units.Contains(unitId))
                 {
                     missing.Add(role);
                 }
