@@ -43,7 +43,8 @@ public static class Program
                 .WithTools<Tools.GameScreenshotTool>()
                 .WithTools<Tools.GameVerifyModTool>()
                 .WithTools<Tools.GameGetResourcesTool>()
-                .WithTools<Tools.GameGetComponentMapTool>();
+                .WithTools<Tools.GameGetComponentMapTool>()
+                .WithTools<Tools.GameUIAutomationTool>();
             });
 
         await builder.Build().RunAsync().ConfigureAwait(false);
