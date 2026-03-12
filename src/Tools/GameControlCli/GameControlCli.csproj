@@ -5,13 +5,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <AssemblyName>dinoforge</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>game-control</AssemblyName>
     <RootNamespace>DINOForge.Tools.GameControlCli</RootNamespace>
+    <Description>DINOForge Game Control CLI - Check in-game state via named pipes</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24324.3" />
-    <PackageReference Include="Spectre.Console" Version="0.49.1" />
+    <PackageReference Include="System.CommandLine" Version="2.*" />
+    <PackageReference Include="Spectre.Console" Version="0.*" />
   </ItemGroup>
 
   <ItemGroup>

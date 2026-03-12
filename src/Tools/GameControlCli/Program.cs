@@ -1,8 +1,5 @@
 #nullable enable
-using System;
-using System.Threading.Tasks;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using DINOForge.Bridge.Client;
 using DINOForge.Bridge.Protocol;
 using Spectre.Console;
@@ -10,7 +7,7 @@ using Spectre.Console;
 namespace DINOForge.Tools.GameControlCli;
 
 /// <summary>
-/// DINOForge Game Control CLI - Standalone command-line interface for controlling the game.
+/// DINOForge Game Control CLI - Standalone command-line interface for checking game state.
 /// Communicates directly with the running game via named pipes (GameClient).
 /// Does NOT interact with the screen or other windows.
 /// </summary>
@@ -18,143 +15,219 @@ public static class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        var rootCommand = new RootCommand("DINOForge Game Control - Direct game process communication");
+        if (args.Length == 0)
+        {
+            ShowHelp();
+            return 0;
+        }
 
-        // Sub-commands
-        var statusCommand = new Command("status", "Check game connection and status");
-        var keyCommand = new Command("key", "Send a key press to the game");
-        var screenshotCommand = new Command("screenshot", "Take an in-game screenshot");
-        var queryCommand = new Command("query", "Query entities from the game");
-        var waitWorldCommand = new Command("wait-world", "Wait for ECS world to be ready");
-
-        // Key command arguments
-        var keyArg = new Argument<string>("key", "Key name (f10, f9, etc.)");
-        keyCommand.AddArgument(keyArg);
-        keyCommand.SetHandler(HandleKeyCommand, keyArg);
-
-        // Screenshot command arguments
-        var outputArg = new Argument<string>("output", "Output file path for screenshot");
-        screenshotCommand.AddArgument(outputArg);
-        screenshotCommand.SetHandler(HandleScreenshotCommand, outputArg);
-
-        // Status command
-        statusCommand.SetHandler(HandleStatusCommand);
-
-        // Wait world command
-        waitWorldCommand.SetHandler(HandleWaitWorldCommand);
-
-        // Add sub-commands
-        rootCommand.AddCommand(statusCommand);
-        rootCommand.AddCommand(keyCommand);
-        rootCommand.AddCommand(screenshotCommand);
-        rootCommand.AddCommand(queryCommand);
-        rootCommand.AddCommand(waitWorldCommand);
-
-        return await rootCommand.InvokeAsync(args);
+        string command = args[0];
+        return command switch
+        {
+            "status" => await HandleStatusCommand(),
+            "wait-world" => await HandleWaitWorldCommand(),
+            "resources" => await HandleResourcesCommand(),
+            "screenshot" => await HandleScreenshotCommand(args.Skip(1).FirstOrDefault()),
+            "catalog" => await HandleCatalogCommand(args.Skip(1).FirstOrDefault()),
+            "entities" => await HandleEntitiesCommand(args.Skip(1).FirstOrDefault()),
+            "--help" or "-h" => ShowHelpAndReturn(0),
+            _ => ShowHelpAndReturn(1)
+        };
     }
 
-    private static async Task HandleStatusCommand()
+    private static void ShowHelp()
     {
+        AnsiConsole.MarkupLine("[cyan bold]DINOForge Game Control CLI[/]");
+        AnsiConsole.MarkupLine("[yellow]Direct game process communication via named pipes[/]");
+        AnsiConsole.MarkupLine("");
+        AnsiConsole.MarkupLine("[green]Commands:[/]");
+        AnsiConsole.MarkupLine("  status           - Check game connection and status");
+        AnsiConsole.MarkupLine("  wait-world       - Wait for ECS world to be ready");
+        AnsiConsole.MarkupLine("  resources        - Show current resource values");
+        AnsiConsole.MarkupLine("  screenshot       - Capture in-game screenshot");
+        AnsiConsole.MarkupLine("  catalog [cat]    - Dump game catalog (units/buildings/projectiles)");
+        AnsiConsole.MarkupLine("  entities [comp]  - Query entities by component type");
+        AnsiConsole.MarkupLine("  --help, -h       - Show this help");
+    }
+
+    private static int ShowHelpAndReturn(int code)
+    {
+        if (code != 0) AnsiConsole.MarkupLine("[red]Invalid command[/]");
+        ShowHelp();
+        return code;
+    }
+
+    private static async Task<int> HandleStatusCommand()
+    {
+        using var client = new GameClient();
         try
         {
-            var client = new GameClient();
             await client.ConnectAsync();
+            AnsiConsole.MarkupLine("[green]✓[/] Connected to game bridge");
 
-            AnsiConsole.MarkupLine("[green]✓[/] Game client connected");
-            AnsiConsole.MarkupLine($"[cyan]Pipe name:[/] {client.PipeName}");
-            AnsiConsole.MarkupLine("[green]Ready to send commands[/]");
+            var status = await client.StatusAsync();
+            AnsiConsole.MarkupLine($"[cyan]Running:[/] {status.Running}");
+            AnsiConsole.MarkupLine($"[cyan]World ready:[/] {status.WorldReady}");
+            AnsiConsole.MarkupLine($"[cyan]World name:[/] {status.WorldName}");
+            AnsiConsole.MarkupLine($"[cyan]Entity count:[/] {status.EntityCount}");
+            AnsiConsole.MarkupLine($"[cyan]Mod platform ready:[/] {status.ModPlatformReady}");
+            AnsiConsole.MarkupLine($"[cyan]Loaded packs:[/] {status.LoadedPacks.Count}");
+            foreach (var pack in status.LoadedPacks)
+            {
+                AnsiConsole.MarkupLine($"  - {pack}");
+            }
+            AnsiConsole.MarkupLine($"[cyan]Version:[/] {status.Version}");
 
-            await client.DisconnectAsync();
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.MarkupLine($"[red]✗ Connection failed:[/] {ex.Message}");
-            Environment.Exit(1);
-        }
-    }
-
-    private static async Task HandleKeyCommand(string key)
-    {
-        try
-        {
-            AnsiConsole.Status()
-                .Start($"[yellow]Connecting to game...[/]", ctx =>
-                {
-                    ctx.Spinner(Spinner.Known.Star);
-                    // Key commands would be sent via RPC once the protocol supports it
-                    AnsiConsole.MarkupLine($"[cyan]Would send key:[/] {key}");
-                    AnsiConsole.MarkupLine("[yellow]Note:[/] Key input via GameClient not yet implemented in Bridge protocol");
-                });
+            client.Disconnect();
+            return 0;
         }
         catch (Exception ex)
         {
             AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
-            Environment.Exit(1);
+            return 1;
         }
     }
 
-    private static async Task HandleScreenshotCommand(string outputPath)
+    private static async Task<int> HandleWaitWorldCommand()
     {
+        using var client = new GameClient();
         try
         {
-            var client = new GameClient();
-            await AnsiConsole.Progress()
-                .StartAsync(async progress =>
-                {
-                    var task = progress.AddTask("[cyan]Connecting to game...[/]");
-                    await client.ConnectAsync();
+            await client.ConnectAsync();
 
-                    task.Update(p => p
-                        .Increment(20)
-                        .Update("[cyan]Requesting screenshot...[/]"));
-
-                    // Would call GameScreenshotTool via RPC once protocol supports it
-                    task.Update(p => p
-                        .Increment(30)
-                        .Update("[cyan]Saving screenshot...[/]"));
-
-                    task.Update(p => p
-                        .Increment(50)
-                        .Update("[green]Complete![/]"));
-
-                    await client.DisconnectAsync();
-                });
-
-            AnsiConsole.MarkupLine($"[green]✓[/] Screenshot saved to [cyan]{outputPath}[/]");
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.MarkupLine($"[red]✗ Screenshot failed:[/] {ex.Message}");
-            Environment.Exit(1);
-        }
-    }
-
-    private static async Task HandleWaitWorldCommand()
-    {
-        try
-        {
-            var client = new GameClient();
             await AnsiConsole.Progress()
                 .StartAsync(async progress =>
                 {
                     var task = progress.AddTask("[cyan]Waiting for ECS world...[/]");
-
-                    await client.ConnectAsync();
-                    task.Increment(30);
-
-                    // Would wait for world via RPC
-                    await Task.Delay(2000); // Simulate
-                    task.Increment(70);
-
-                    await client.DisconnectAsync();
+                    await client.WaitForWorldAsync(30000);
+                    task.Increment(100);
                 });
 
             AnsiConsole.MarkupLine("[green]✓[/] ECS World is ready");
+            client.Disconnect();
+            return 0;
         }
         catch (Exception ex)
         {
             AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
-            Environment.Exit(1);
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleResourcesCommand()
+    {
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            var result = await client.GetResourcesAsync();
+
+            AnsiConsole.MarkupLine("[cyan]Game Resources:[/]");
+            AnsiConsole.MarkupLine($"  Food:   [yellow]{result.Food}[/]");
+            AnsiConsole.MarkupLine($"  Wood:   [yellow]{result.Wood}[/]");
+            AnsiConsole.MarkupLine($"  Stone:  [yellow]{result.Stone}[/]");
+            AnsiConsole.MarkupLine($"  Iron:   [yellow]{result.Iron}[/]");
+            AnsiConsole.MarkupLine($"  Money:  [yellow]{result.Money}[/]");
+            AnsiConsole.MarkupLine($"  Souls:  [yellow]{result.Souls}[/]");
+            AnsiConsole.MarkupLine($"  Bones:  [yellow]{result.Bones}[/]");
+            AnsiConsole.MarkupLine($"  Spirit: [yellow]{result.Spirit}[/]");
+
+            client.Disconnect();
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleScreenshotCommand(string? outputPath)
+    {
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+
+            await AnsiConsole.Progress()
+                .StartAsync(async progress =>
+                {
+                    var task = progress.AddTask("[cyan]Taking screenshot...[/]");
+                    await client.ScreenshotAsync(outputPath);
+                    task.Increment(100);
+                });
+
+            AnsiConsole.MarkupLine($"[green]✓[/] Screenshot saved");
+            client.Disconnect();
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleCatalogCommand(string? category)
+    {
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            var result = await client.DumpStateAsync(category);
+
+            AnsiConsole.MarkupLine($"[cyan]Catalog dump ({category ?? "all"}):[/]");
+
+            if (result.Units.Count > 0)
+            {
+                AnsiConsole.MarkupLine("[cyan]Units:[/]");
+                foreach (var entry in result.Units.Take(15))
+                {
+                    AnsiConsole.MarkupLine($"  {entry.InferredId}: {entry.EntityCount} entities");
+                }
+            }
+
+            if (result.Buildings.Count > 0)
+            {
+                AnsiConsole.MarkupLine("[cyan]Buildings:[/]");
+                foreach (var entry in result.Buildings.Take(15))
+                {
+                    AnsiConsole.MarkupLine($"  {entry.InferredId}: {entry.EntityCount} entities");
+                }
+            }
+
+            if (result.Projectiles.Count > 0)
+            {
+                AnsiConsole.MarkupLine($"[cyan]Projectiles: {result.Projectiles.Count}[/]");
+            }
+
+            client.Disconnect();
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleEntitiesCommand(string? componentType)
+    {
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            var result = await client.QueryEntitiesAsync(componentType);
+
+            AnsiConsole.MarkupLine("[green]✓[/] Query complete");
+
+            client.Disconnect();
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
+            return 1;
         }
     }
 }
