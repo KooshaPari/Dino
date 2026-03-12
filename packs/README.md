@@ -4,7 +4,8 @@ Official example and reference packs for DINOForge.
 
 ## Directory Structure
 
-This directory contains the official example packs bundled with DINOForge:
+This directory is the canonical source for all official packs. Each subdirectory is a
+self-contained content pack with a `pack.yaml` manifest:
 
 - **example-balance** - Simple balance pack demonstrating basic unit and faction definitions
 - **warfare-modern** - Modern warfare theme with contemporary units and weapons
@@ -12,46 +13,6 @@ This directory contains the official example packs bundled with DINOForge:
 - **warfare-guerrilla** - Guerrilla warfare theme with asymmetric faction composition
 - **economy-balanced** - Economy system demonstration with resource rates and trade routes
 - **scenario-tutorial** - Scenario pack with tutorial, survival, and resource challenges
-
-## Adding Community Packs
-
-Community and third-party packs live at [github.com/KooshaPari/dinoforge-packs](https://github.com/KooshaPari/dinoforge-packs).
-
-To add a pack from the community repository as a git submodule:
-
-```bash
-dinoforge pack add <repository-url>
-```
-
-For example:
-
-```bash
-dinoforge pack add https://github.com/KooshaPari/dinoforge-packs/tree/main/your-pack
-```
-
-This will:
-1. Clone the pack repository into `packs/<pack-name>`
-2. Register it as a git submodule in `.gitmodules`
-3. Track the pack as part of your DINOForge installation
-
-## Managing Pack Submodules
-
-### List installed packs
-```bash
-dinoforge pack list
-```
-
-### Update all pack submodules
-```bash
-dinoforge pack update
-```
-
-### Generate packs.lock for reproducible builds
-```bash
-dinoforge pack lock
-```
-
-The `packs.lock` file captures the exact commit SHAs of all installed packs, ensuring consistent builds across environments.
 
 ## Pack Manifest Format
 
@@ -62,8 +23,29 @@ Each pack must contain a `pack.yaml` manifest. See the example packs for templat
 Validate any pack directory with:
 
 ```bash
+dotnet run --project src/Tools/PackCompiler -- validate packs/<pack-name>
+```
+
+Or via the CLI:
+
+```bash
 dinoforge validate <pack-directory>
 ```
+
+## Building a Pack
+
+```bash
+dotnet run --project src/Tools/PackCompiler -- build packs/<pack-name>
+```
+
+## Adding New Packs
+
+To create a new pack:
+
+1. Create a new subdirectory under `packs/` with your pack name.
+2. Add a `pack.yaml` manifest (use an existing pack as reference).
+3. Add your content files (units, factions, buildings, etc.) under the appropriate subdirectories.
+4. Validate: `dotnet run --project src/Tools/PackCompiler -- validate packs/<your-pack-name>`
 
 ## References
 
