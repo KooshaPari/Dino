@@ -11,6 +11,7 @@ All sourced assets are CC0 or CC-BY licensed. No NC (non-commercial) or ND (no-d
 | kenney_mini-characters | Kenney.nl | CC0 | 2.3MB | Downloaded + extracted | Humanoid character bases (male/female a–f) |
 | kenney_modular-space-kit | Kenney.nl | CC0 | 6.7MB | Downloaded + extracted | Modular sci-fi corridors/rooms/doors, CIS base buildings |
 | kenney_sci-fi-rts | Kenney.nl | CC0 | 2.0MB | Downloaded + extracted | 2D sprites — 48 unit icons, 16 structure icons, tiles (UI use) |
+| kenney_minigolf-kit | Kenney.nl | CC0 | 3.1MB | Downloaded + extracted | Modular minigolf course pieces (ramps, corners, windmills) — terrain tile proxy |
 | sci-fi-soldiers.zip | OpenGameArt.org | CC0 | 57MB | Downloaded | Clone/CIS soldier bodies, skin variants |
 | Shuttle.obj + texture.png | OpenGameArt.org | CC0 | 3.4MB | Downloaded | LAAT gunship base shape |
 | walker_rigged.zip | OpenGameArt.org | CC-BY 3.0 | 22MB | Downloaded | AT-TE / AAT walker body |
@@ -101,6 +102,22 @@ All sourced assets are CC0 or CC-BY licensed. No NC (non-commercial) or ND (no-d
 - Wall panels → CIS Droid Factory exterior walls, Republic Barracks walls
 - Floor tiles → Republic Command Bunker floor, CIS Base floor
 - Doors/airlocks → all buildings' entrance geometry
+
+### Minigolf Kit
+- **File**: `kenney/minigolf-kit/` (extracted)
+- **Source URL**: https://kenney.nl/assets/minigolf-kit
+- **Direct download**: https://kenney.nl/media/pages/assets/minigolf-kit/378928a3bb-1741163874/kenney_minigolf-kit.zip
+- **License**: CC0 (Public Domain)
+- **Size**: 3.1MB extracted, 646 files
+- **Contents**: Modular course pieces (straight, corner, incline, helix, windmill, obstacles), GLB + OBJ + FBX formats with textures
+
+**Unit/building mappings:**
+- Ramp pieces → Terrain elevation tiles for Geonosis/Ryloth maps
+- Corner/curve pieces → Modular base boundary walls
+- Windmill obstacle → Visual prop for environment dressing
+- Straight flat tiles → Walkway/platform connectors between buildings
+
+---
 
 ### Sci-Fi RTS
 - **File**: `kenney/sci-fi-rts/kenney_sci-fi-rts.zip`
