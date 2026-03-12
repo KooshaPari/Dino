@@ -57,4 +57,5 @@ version-resolver:
       - docs
       - ci
       - dependencies
+      - security
   default: patch

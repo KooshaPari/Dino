@@ -14,7 +14,6 @@ Every active public project should carry:
 - `CHANGELOG.md`
 - `SECURITY.md`
 - `.github/`
-- `AGENTS.md`
 - `docs/`
 
 When a repo is intended for sustained maintenance, also add:
@@ -23,13 +22,17 @@ When a repo is intended for sustained maintenance, also add:
 - `CONTRIBUTING.md`
 - `RELEASING.md`
 
+For agent-first or autonomously-maintained repositories, also add:
+
+- `AGENTS.md` (agent governance and autonomous workflow guidelines)
+
 ### 2. Release semantics
 
 Use one public release language across repos:
 
 - SemVer tags in the form `vX.Y.Z`
 - Keep a Changelog with `[Unreleased]`
-- a machine-readable version signal when the repo is not language-toolchain-only
+- a machine-readable version signal when the repo is not purely a language/toolchain implementation (i.e., when it includes application or library code beyond just compiler/interpreter source)
 - release artifacts with checksums when binaries or packages are published
 
 ### 3. CI and security semantics
@@ -68,7 +71,7 @@ These should stay explicit in Dino even if they do not apply to every KooshaPari
 
 In Dino, schemas are part of the product contract, not just validation helpers.
 
-### 2. Layered SDK/runtime/domain/pack split
+### 2. Layered Runtime, SDK, Domains, Tools, and Packs split
 
 The Runtime, SDK, Domains, Tools, and Packs separation is central to Dino’s architecture and should remain more explicit than in standard app repos.
 
