@@ -52,3 +52,5 @@ src/Tests/TestResults/
 docs/.vitepress/dist/
 release-staging/
 local-packages/
+*.sha256
+.claude/worktrees/
