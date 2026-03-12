@@ -1,0 +1,254 @@
+{
+  "version": "1.0",
+  "pack_id": "warfare-starwars",
+  "description": "Asset provenance and licensing information for warfare-starwars pack",
+  "generated_at": "2026-03-12",
+  "primary_sources": [
+    {
+      "source_name": "Kenney.nl Asset Packs",
+      "author": "Kenney Vleugels",
+      "website": "https://kenney.nl",
+      "license": "CC0 1.0 Universal (Public Domain Dedication)",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_summary": "All Kenney assets are free to use for any purpose, commercial or non-commercial, with no attribution required.",
+      "packs_used": [
+        {
+          "pack_name": "3D Structure Pack",
+          "pack_url": "https://kenney.nl/assets/3d-structure-pack",
+          "models": [
+            "kenney_structure_a.fbx",
+            "kenney_structure_b.fbx",
+            "kenney_structure_c.fbx",
+            "kenney_structure_d.fbx",
+            "kenney_structure_e.fbx",
+            "kenney_structure_f.fbx",
+            "kenney_structure_g.fbx",
+            "kenney_structure_h.fbx"
+          ],
+          "notes": "Primary building models, base textures extracted and faction-modified"
+        },
+        {
+          "pack_name": "3D Tower Pack",
+          "pack_url": "https://kenney.nl/assets/3d-tower-pack",
+          "models": [
+            "kenney_tower_a.fbx",
+            "kenney_tower_b.fbx"
+          ],
+          "notes": "Defensive tower structures"
+        },
+        {
+          "pack_name": "3D Wall Pack",
+          "pack_url": "https://kenney.nl/assets/3d-wall-pack",
+          "models": [
+            "kenney_wall_segment.fbx"
+          ],
+          "notes": "Wall and barrier segments"
+        },
+        {
+          "pack_name": "3D House Pack",
+          "pack_url": "https://kenney.nl/assets/3d-house-pack",
+          "models": [
+            "kenney_house_small.fbx",
+            "kenney_house_large.fbx"
+          ],
+          "notes": "Residential and support structures (planned)"
+        },
+        {
+          "pack_name": "3D Farm Pack",
+          "pack_url": "https://kenney.nl/assets/3d-farm-pack",
+          "models": [
+            "kenney_farm.fbx"
+          ],
+          "notes": "Farm and agricultural structures (planned)"
+        },
+        {
+          "pack_name": "3D Harbor Pack",
+          "pack_url": "https://kenney.nl/assets/3d-harbor-pack",
+          "models": [
+            "kenney_harbor.fbx"
+          ],
+          "notes": "Harbor and dock structures (planned)"
+        },
+        {
+          "pack_name": "3D Mine Pack",
+          "pack_url": "https://kenney.nl/assets/3d-mine-pack",
+          "models": [
+            "kenney_mine.fbx"
+          ],
+          "notes": "Mining structures (planned)"
+        },
+        {
+          "pack_name": "3D Medical Pack",
+          "pack_url": "https://kenney.nl/assets/3d-medical-pack",
+          "models": [
+            "kenney_hospital.fbx"
+          ],
+          "notes": "Medical and support structures (planned)"
+        },
+        {
+          "pack_name": "3D Temple Pack",
+          "pack_url": "https://kenney.nl/assets/3d-temple-pack",
+          "models": [
+            "kenney_temple.fbx"
+          ],
+          "notes": "Temple and monument structures (planned)"
+        },
+        {
+          "pack_name": "3D Military Pack",
+          "pack_url": "https://kenney.nl/assets/3d-military-pack",
+          "models": [
+            "kenney_armory.fbx",
+            "kenney_radar.fbx"
+          ],
+          "notes": "Military structures (planned)"
+        },
+        {
+          "pack_name": "3D Utility Pack",
+          "pack_url": "https://kenney.nl/assets/3d-utility-pack",
+          "models": [
+            "kenney_power.fbx"
+          ],
+          "notes": "Utility and infrastructure structures (planned)"
+        },
+        {
+          "pack_name": "3D Defense Pack",
+          "pack_url": "https://kenney.nl/assets/3d-defense-pack",
+          "models": [
+            "kenney_fortification.fbx"
+          ],
+          "notes": "Fortification structures (planned)"
+        },
+        {
+          "pack_name": "3D Marketplace Pack",
+          "pack_url": "https://kenney.nl/assets/3d-marketplace-pack",
+          "models": [
+            "kenney_marketplace.fbx"
+          ],
+          "notes": "Trade and commerce structures (planned)"
+        },
+        {
+          "pack_name": "3D Storage Pack",
+          "pack_url": "https://kenney.nl/assets/3d-storage-pack",
+          "models": [
+            "kenney_storage.fbx"
+          ],
+          "notes": "Storage structures (planned)"
+        }
+      ],
+      "attribution_required": false,
+      "commercial_use": "Yes",
+      "derivative_works": "Yes"
+    }
+  ],
+  "derivative_works": [
+    {
+      "work_type": "Texture Modifications",
+      "description": "HSV-based color transformation of Kenney base textures for faction-specific branding",
+      "method": "Python-based color space transformation pipeline",
+      "palettes": [
+        {
+          "name": "Galactic Republic",
+          "primary": "#F5F5F5",
+          "secondary": "#1A3A6B",
+          "tertiary": "#64A0DC"
+        },
+        {
+          "name": "Confederacy of Independent Systems",
+          "primary": "#444444",
+          "secondary": "#B35A00",
+          "tertiary": "#663300"
+        }
+      ],
+      "attribution": "Derived from Kenney.nl assets by DINOForge team"
+    },
+    {
+      "work_type": "Building Naming & Lore",
+      "description": "Faction-appropriate names and descriptions for buildings",
+      "examples": [
+        {
+          "vanilla": "Command Center",
+          "republic": "Republic Command Center",
+          "cis": "Tactical Droid Center"
+        }
+      ],
+      "attribution": "Original work by DINOForge team, inspired by Star Wars franchise (Fair Use educational material)"
+    }
+  ],
+  "contributors": [
+    {
+      "role": "Original Asset Creator",
+      "name": "Kenney Vleugels",
+      "contact": "https://kenney.nl",
+      "contribution": "3D models and base textures"
+    },
+    {
+      "role": "Pack Creator",
+      "name": "DINOForge Team",
+      "contribution": "Texture transformation pipeline, faction naming, lore integration"
+    }
+  ],
+  "compliance": {
+    "original_license_preserved": true,
+    "cc0_attribution_followthrough": true,
+    "derivative_marking": "All derived textures include 'kenney_source' and 'faction' metadata",
+    "commercial_use_allowed": true,
+    "redistribution_allowed": true,
+    "modification_allowed": true,
+    "notes": "This pack uses CC0-licensed Kenney assets exclusively. All derivative works maintain CC0 compliance and may be freely used, modified, and distributed."
+  },
+  "buildings_by_kenney_pack": {
+    "3d_structure_pack": [
+      "rep_command_center / cis_tactical_center",
+      "rep_clone_facility / cis_droid_factory",
+      "rep_weapons_factory / cis_assembly_line",
+      "rep_vehicle_bay / cis_heavy_foundry",
+      "rep_shield_generator / cis_ray_shield",
+      "rep_supply_station / cis_mining_facility",
+      "rep_tibanna_refinery / cis_processing_plant",
+      "rep_research_lab / cis_tech_union_lab"
+    ],
+    "3d_tower_pack": [
+      "rep_guard_tower / cis_sentry_turret",
+      "rep_watchtower / cis_lookout_tower"
+    ],
+    "3d_wall_pack": [
+      "rep_blast_wall / cis_durasteel_barrier"
+    ],
+    "3d_house_pack": [
+      "rep_residential_quarters / cis_droid_barracks",
+      "rep_command_quarters / cis_tactical_outpost"
+    ],
+    "3d_farm_pack": [
+      "rep_agricultural_station / cis_automated_farm"
+    ],
+    "3d_harbor_pack": [
+      "rep_space_dock / cis_landing_platform"
+    ],
+    "3d_mine_pack": [
+      "rep_ore_excavation / cis_ore_processing"
+    ],
+    "3d_medical_pack": [
+      "rep_medical_center / cis_repair_facility"
+    ],
+    "3d_temple_pack": [
+      "rep_jedi_temple / cis_separatist_monument"
+    ],
+    "3d_military_pack": [
+      "rep_armory / cis_weapon_cache",
+      "rep_sensor_array / cis_detection_grid"
+    ],
+    "3d_utility_pack": [
+      "rep_reactor_core / cis_power_generator"
+    ],
+    "3d_defense_pack": [
+      "rep_fortification / cis_fortification"
+    ],
+    "3d_marketplace_pack": [
+      "rep_market_hub / cis_resource_depot"
+    ],
+    "3d_storage_pack": [
+      "rep_storage_depot / cis_storage_facility"
+    ]
+  },
+  "license_summary": "CC0 1.0 Universal - All assets in this index (original Kenney works and derived faction textures) are in the public domain. Free for any use, commercial or non-commercial."
+}

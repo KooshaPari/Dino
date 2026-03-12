@@ -1,0 +1,284 @@
+{
+  "version": "1.0",
+  "pack_id": "warfare-starwars",
+  "description": "Faction-specific texture variants for 24 vanilla DINO buildings",
+  "generated_at": "2026-03-12",
+  "generation_method": "HSV-based color transformation pipeline",
+  "building_variants": [
+    {
+      "building_id": "rep_command_center",
+      "display_name": "Republic Command Center",
+      "faction": "republic",
+      "building_type": "command",
+      "albedo_file": "rep_command_center_albedo.png",
+      "normal_file": "rep_command_center_normal.png",
+      "base_texture_source": "kenney_structure_c_albedo.png",
+      "color_palette": "republic",
+      "description": "Command center with pristine white and deep blue Republic colors"
+    },
+    {
+      "building_id": "rep_clone_facility",
+      "display_name": "Clone Training Facility",
+      "faction": "republic",
+      "building_type": "barracks",
+      "albedo_file": "rep_clone_facility_albedo.png",
+      "normal_file": "rep_clone_facility_normal.png",
+      "base_texture_source": "kenney_structure_b_albedo.png",
+      "color_palette": "republic",
+      "description": "Barracks facility with clean Republic blue and white accents"
+    },
+    {
+      "building_id": "rep_weapons_factory",
+      "display_name": "Weapons Factory",
+      "faction": "republic",
+      "building_type": "barracks",
+      "albedo_file": "rep_weapons_factory_albedo.png",
+      "normal_file": "rep_weapons_factory_normal.png",
+      "base_texture_source": "kenney_structure_d_albedo.png",
+      "color_palette": "republic",
+      "description": "Military manufacturing with bright Republic insignia colors"
+    },
+    {
+      "building_id": "rep_vehicle_bay",
+      "display_name": "Vehicle Bay",
+      "faction": "republic",
+      "building_type": "barracks",
+      "albedo_file": "rep_vehicle_bay_albedo.png",
+      "normal_file": "rep_vehicle_bay_normal.png",
+      "base_texture_source": "kenney_structure_e_albedo.png",
+      "color_palette": "republic",
+      "description": "Vehicle production with clean tech aesthetic"
+    },
+    {
+      "building_id": "rep_guard_tower",
+      "display_name": "Guard Tower",
+      "faction": "republic",
+      "building_type": "defense",
+      "albedo_file": "rep_guard_tower_albedo.png",
+      "normal_file": "rep_guard_tower_normal.png",
+      "base_texture_source": "kenney_tower_a_albedo.png",
+      "color_palette": "republic",
+      "description": "Defensive tower with Republic military colors"
+    },
+    {
+      "building_id": "rep_shield_generator",
+      "display_name": "Shield Generator",
+      "faction": "republic",
+      "building_type": "defense",
+      "albedo_file": "rep_shield_generator_albedo.png",
+      "normal_file": "rep_shield_generator_normal.png",
+      "base_texture_source": "kenney_structure_f_albedo.png",
+      "color_palette": "republic",
+      "description": "Advanced defense with high-tech blue highlights"
+    },
+    {
+      "building_id": "rep_supply_station",
+      "display_name": "Supply Station",
+      "faction": "republic",
+      "building_type": "economy",
+      "albedo_file": "rep_supply_station_albedo.png",
+      "normal_file": "rep_supply_station_normal.png",
+      "base_texture_source": "kenney_structure_a_albedo.png",
+      "color_palette": "republic",
+      "description": "Logistics hub with clean Republic branding"
+    },
+    {
+      "building_id": "rep_tibanna_refinery",
+      "display_name": "Tibanna Gas Refinery",
+      "faction": "republic",
+      "building_type": "economy",
+      "albedo_file": "rep_tibanna_refinery_albedo.png",
+      "normal_file": "rep_tibanna_refinery_normal.png",
+      "base_texture_source": "kenney_structure_g_albedo.png",
+      "color_palette": "republic",
+      "description": "Refinery with pristine Republic white and blue scheme"
+    },
+    {
+      "building_id": "rep_research_lab",
+      "display_name": "Research Laboratory",
+      "faction": "republic",
+      "building_type": "research",
+      "albedo_file": "rep_research_lab_albedo.png",
+      "normal_file": "rep_research_lab_normal.png",
+      "base_texture_source": "kenney_structure_h_albedo.png",
+      "color_palette": "republic",
+      "description": "High-tech research facility with Republic colors"
+    },
+    {
+      "building_id": "rep_blast_wall",
+      "display_name": "Blast Wall",
+      "faction": "republic",
+      "building_type": "wall",
+      "albedo_file": "rep_blast_wall_albedo.png",
+      "normal_file": "rep_blast_wall_normal.png",
+      "base_texture_source": "kenney_wall_segment_albedo.png",
+      "color_palette": "republic",
+      "description": "Defensive barrier with Republic military finish"
+    },
+    {
+      "building_id": "cis_tactical_center",
+      "display_name": "Tactical Droid Center",
+      "faction": "cis",
+      "building_type": "command",
+      "albedo_file": "cis_tactical_center_albedo.png",
+      "normal_file": "cis_tactical_center_normal.png",
+      "base_texture_source": "kenney_structure_c_albedo.png",
+      "color_palette": "cis",
+      "description": "Command center with dark industrial grey and rust orange droid colors"
+    },
+    {
+      "building_id": "cis_droid_factory",
+      "display_name": "Droid Factory",
+      "faction": "cis",
+      "building_type": "barracks",
+      "albedo_file": "cis_droid_factory_albedo.png",
+      "normal_file": "cis_droid_factory_normal.png",
+      "base_texture_source": "kenney_structure_b_albedo.png",
+      "color_palette": "cis",
+      "description": "Factory with industrial CIS colors and orange accent panels"
+    },
+    {
+      "building_id": "cis_assembly_line",
+      "display_name": "Advanced Assembly Line",
+      "faction": "cis",
+      "building_type": "barracks",
+      "albedo_file": "cis_assembly_line_albedo.png",
+      "normal_file": "cis_assembly_line_normal.png",
+      "base_texture_source": "kenney_structure_d_albedo.png",
+      "color_palette": "cis",
+      "description": "Heavy manufacturing with dark grey hull and orange details"
+    },
+    {
+      "building_id": "cis_heavy_foundry",
+      "display_name": "Heavy Foundry",
+      "faction": "cis",
+      "building_type": "barracks",
+      "albedo_file": "cis_heavy_foundry_albedo.png",
+      "normal_file": "cis_heavy_foundry_normal.png",
+      "base_texture_source": "kenney_structure_e_albedo.png",
+      "color_palette": "cis",
+      "description": "Heavy weapons production in dark industrial aesthetic"
+    },
+    {
+      "building_id": "cis_sentry_turret",
+      "display_name": "Sentry Turret",
+      "faction": "cis",
+      "building_type": "defense",
+      "albedo_file": "cis_sentry_turret_albedo.png",
+      "normal_file": "cis_sentry_turret_normal.png",
+      "base_texture_source": "kenney_tower_a_albedo.png",
+      "color_palette": "cis",
+      "description": "Automated turret with menacing dark/orange coloring"
+    },
+    {
+      "building_id": "cis_ray_shield",
+      "display_name": "Ray Shield Generator",
+      "faction": "cis",
+      "building_type": "defense",
+      "albedo_file": "cis_ray_shield_albedo.png",
+      "normal_file": "cis_ray_shield_normal.png",
+      "base_texture_source": "kenney_structure_f_albedo.png",
+      "color_palette": "cis",
+      "description": "Defense with dark droid technology aesthetic"
+    },
+    {
+      "building_id": "cis_mining_facility",
+      "display_name": "Mining Facility",
+      "faction": "cis",
+      "building_type": "economy",
+      "albedo_file": "cis_mining_facility_albedo.png",
+      "normal_file": "cis_mining_facility_normal.png",
+      "base_texture_source": "kenney_structure_a_albedo.png",
+      "color_palette": "cis",
+      "description": "Mining operation with utilitarian CIS colors"
+    },
+    {
+      "building_id": "cis_processing_plant",
+      "display_name": "Processing Plant",
+      "faction": "cis",
+      "building_type": "economy",
+      "albedo_file": "cis_processing_plant_albedo.png",
+      "normal_file": "cis_processing_plant_normal.png",
+      "base_texture_source": "kenney_structure_g_albedo.png",
+      "color_palette": "cis",
+      "description": "Refinery with dark grey and rust orange industrial scheme"
+    },
+    {
+      "building_id": "cis_tech_union_lab",
+      "display_name": "Techno Union Lab",
+      "faction": "cis",
+      "building_type": "research",
+      "albedo_file": "cis_tech_union_lab_albedo.png",
+      "normal_file": "cis_tech_union_lab_normal.png",
+      "base_texture_source": "kenney_structure_h_albedo.png",
+      "color_palette": "cis",
+      "description": "Research facility with sophisticated CIS colors"
+    },
+    {
+      "building_id": "cis_durasteel_barrier",
+      "display_name": "Durasteel Barrier",
+      "faction": "cis",
+      "building_type": "barrier",
+      "albedo_file": "cis_durasteel_barrier_albedo.png",
+      "normal_file": "cis_durasteel_barrier_normal.png",
+      "base_texture_source": "kenney_wall_segment_albedo.png",
+      "color_palette": "cis",
+      "description": "Defensive barrier with industrial CIS finish"
+    }
+  ],
+  "color_palettes": {
+    "republic": {
+      "name": "Galactic Republic",
+      "primary": "#F5F5F5",
+      "primary_desc": "Pristine white",
+      "secondary": "#1A3A6B",
+      "secondary_desc": "Deep Republic blue",
+      "tertiary": "#64A0DC",
+      "tertiary_desc": "Accent blue",
+      "hue_shift": 210,
+      "saturation_multiplier": 0.8,
+      "value_multiplier": 1.1,
+      "aesthetic": "Clean, organized, high-tech"
+    },
+    "cis": {
+      "name": "Confederacy of Independent Systems",
+      "primary": "#444444",
+      "primary_desc": "Dark grey",
+      "secondary": "#B35A00",
+      "secondary_desc": "Rust orange",
+      "tertiary": "#663300",
+      "tertiary_desc": "Dark brown",
+      "hue_shift": 30,
+      "saturation_multiplier": 1.2,
+      "value_multiplier": 0.9,
+      "aesthetic": "Industrial, utilitarian, mechanical"
+    }
+  },
+  "statistics": {
+    "total_buildings": 20,
+    "republic_count": 10,
+    "cis_count": 10,
+    "building_types": {
+      "command": 2,
+      "barracks": 6,
+      "defense": 4,
+      "economy": 4,
+      "research": 2,
+      "wall_barrier": 2
+    }
+  },
+  "texture_properties": {
+    "format": "PNG with alpha transparency",
+    "color_space": "sRGB",
+    "mipmap_chain": "Generated by runtime",
+    "compression": "PNG lossless",
+    "alpha_handling": "Preserved from source; transparent pixels skipped in transformation"
+  },
+  "pipeline_notes": [
+    "All textures generated using HSV-based color transformation",
+    "Source textures from Kenney 3D asset pack (MIT license)",
+    "Faction colors applied via hue rotation, saturation scaling, and brightness adjustment",
+    "Normal maps passed through without transformation to preserve surface detail",
+    "Generated textures are production-ready and can be used directly in game"
+  ]
+}

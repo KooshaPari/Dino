@@ -266,6 +266,15 @@ public sealed class GameClient : IDisposable
 
     private void CleanupPipe()
     {
+        try
+        {
+            _writer?.Flush();
+        }
+        catch (ObjectDisposedException)
+        {
+            // Pipe already closed, ignore
+        }
+
         _reader?.Dispose();
         _writer?.Dispose();
         _pipe?.Dispose();

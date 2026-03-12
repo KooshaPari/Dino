@@ -1,0 +1,731 @@
+{
+  "version": "1.0",
+  "generated": "2026-03-12",
+  "pack_id": "warfare-starwars",
+  "description": "Complete asset source registry for DINOForge Star Wars pack",
+  "summary": {
+    "total_buildings": 24,
+    "primary_source": "kenney.nl",
+    "secondary_sources": [],
+    "sourcing_strategy": "Kenney-first (v1.0); Sketchfab deferred to post-v1.0 for prestige buildings only",
+    "textures_generated": 20,
+    "fbx_stubs": 4,
+    "fbx_pending": 20,
+    "integration_status": "Phase 1: FBX Batch Export (In Progress)",
+    "phase_1_completion": "40-60 hours (Blender batch export required)"
+  },
+  "asset_sources": {
+    "kenney_fbx": {
+      "name": "Kenney.nl 3D Models",
+      "url": "https://kenney.nl/assets/3d-models",
+      "license": "CC0 1.0 Universal (Public Domain)",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "attribution_required": false,
+      "commercial_use": "allowed",
+      "modifications_allowed": true,
+      "local_path": "source/kenney/",
+      "description": "Free, open-source 3D model packs with sci-fi, modular assets",
+      "source_files": {
+        "sci-fi-rts": {
+          "location": "source/kenney/sci-fi-rts/Models/FBX/",
+          "files": [
+            "structure-a.fbx",
+            "structure-b.fbx",
+            "structure-c.fbx",
+            "structure-d.fbx",
+            "structure-e.fbx",
+            "structure-f.fbx",
+            "structure-g.fbx",
+            "structure-h.fbx",
+            "structure-i.fbx",
+            "structure-j.fbx",
+            "structure-k.fbx",
+            "structure-l.fbx",
+            "structure-m.fbx",
+            "structure-n.fbx",
+            "tower-a.fbx",
+            "tower-b.fbx",
+            "wall-segment.fbx",
+            "house-small.fbx",
+            "house-large.fbx",
+            "temple.fbx",
+            "armory.fbx",
+            "radar.fbx",
+            "power.fbx",
+            "fortification.fbx"
+          ],
+          "count": 24
+        }
+      }
+    },
+    "faction_textures": {
+      "name": "DINOForge Generated Faction Textures",
+      "description": "Procedurally generated HSV-based faction color variants",
+      "pipeline": "texture_generation.py (HSV transformation)",
+      "format": "PNG, RGBA, sRGB",
+      "resolution": "256x256 pixels",
+      "compression": "lossless",
+      "local_path": "assets/textures/buildings/",
+      "license": "CC0 (derived from Kenney)",
+      "source_textures": "Kenney.nl FBX embedded textures",
+      "generation_process": {
+        "method": "HSV-based color transformation",
+        "hue_shift_republic": "+210 degrees (cool blue shift)",
+        "saturation_republic": 0.8,
+        "brightness_republic": 1.1,
+        "hue_shift_cis": "+30 degrees (warm orange shift)",
+        "saturation_cis": 1.2,
+        "brightness_cis": 0.9
+      },
+      "files": {
+        "republic": [
+          "rep_command_center_albedo.png",
+          "rep_clone_facility_albedo.png",
+          "rep_weapons_factory_albedo.png",
+          "rep_vehicle_bay_albedo.png",
+          "rep_guard_tower_albedo.png",
+          "rep_shield_generator_albedo.png",
+          "rep_supply_station_albedo.png",
+          "rep_tibanna_refinery_albedo.png",
+          "rep_research_lab_albedo.png",
+          "rep_blast_wall_albedo.png"
+        ],
+        "cis": [
+          "cis_tactical_center_albedo.png",
+          "cis_droid_factory_albedo.png",
+          "cis_assembly_line_albedo.png",
+          "cis_heavy_foundry_albedo.png",
+          "cis_sentry_turret_albedo.png",
+          "cis_ray_shield_albedo.png",
+          "cis_mining_facility_albedo.png",
+          "cis_processing_plant_albedo.png",
+          "cis_tech_union_lab_albedo.png",
+          "cis_durasteel_barrier_albedo.png"
+        ]
+      },
+      "count": 20
+    }
+  },
+  "buildings": [
+    {
+      "vanilla_id": 1,
+      "vanilla_name": "Command Center",
+      "kenney_source": "structure-c.fbx",
+      "republic_id": "rep_command_center",
+      "cis_id": "cis_tactical_center",
+      "building_type": "command",
+      "texture_status": "complete",
+      "fbx_status": "pending_export",
+      "fbx_file": "assets/meshes/buildings/rep_command_center.fbx",
+      "texture_file": "assets/textures/buildings/rep_command_center_albedo.png",
+      "estimated_poly_count": 320,
+      "faction": {
+        "republic": {
+          "name": "Republic Command Center",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "Tactical Droid Center",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 2,
+      "vanilla_name": "Barracks (Clone/B1)",
+      "kenney_source": "structure-b.fbx",
+      "republic_id": "rep_clone_facility",
+      "cis_id": "cis_droid_factory",
+      "building_type": "barracks",
+      "texture_status": "complete",
+      "fbx_status": "pending_export",
+      "fbx_file": "assets/meshes/buildings/rep_clone_facility.fbx",
+      "texture_file": "assets/textures/buildings/rep_clone_facility_albedo.png",
+      "estimated_poly_count": 300,
+      "faction": {
+        "republic": {
+          "name": "Clone Training Facility",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "Droid Factory",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 3,
+      "vanilla_name": "Barracks (Heavy/B2)",
+      "kenney_source": "structure-d.fbx",
+      "republic_id": "rep_weapons_factory",
+      "cis_id": "cis_assembly_line",
+      "building_type": "barracks",
+      "texture_status": "complete",
+      "fbx_status": "pending_export",
+      "fbx_file": "assets/meshes/buildings/rep_weapons_factory.fbx",
+      "texture_file": "assets/textures/buildings/rep_weapons_factory_albedo.png",
+      "estimated_poly_count": 310,
+      "faction": {
+        "republic": {
+          "name": "Weapons Factory",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "Advanced Assembly Line",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 4,
+      "vanilla_name": "Barracks (Vehicles)",
+      "kenney_source": "structure-e.fbx",
+      "republic_id": "rep_vehicle_bay",
+      "cis_id": "cis_heavy_foundry",
+      "building_type": "barracks",
+      "texture_status": "complete",
+      "fbx_status": "pending_export",
+      "fbx_file": "assets/meshes/buildings/rep_vehicle_bay.fbx",
+      "texture_file": "assets/textures/buildings/rep_vehicle_bay_albedo.png",
+      "estimated_poly_count": 290,
+      "faction": {
+        "republic": {
+          "name": "Vehicle Bay",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "Heavy Foundry",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 5,
+      "vanilla_name": "Tower",
+      "kenney_source": "tower-a.fbx",
+      "republic_id": "rep_guard_tower",
+      "cis_id": "cis_sentry_turret",
+      "building_type": "defense",
+      "texture_status": "complete",
+      "fbx_status": "pending_export",
+      "fbx_file": "assets/meshes/buildings/rep_guard_tower.fbx",
+      "texture_file": "assets/textures/buildings/rep_guard_tower_albedo.png",
+      "estimated_poly_count": 280,
+      "faction": {
+        "republic": {
+          "name": "Guard Tower",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "Sentry Turret",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 6,
+      "vanilla_name": "Shield Generator",
+      "kenney_source": "structure-f.fbx",
+      "republic_id": "rep_shield_generator",
+      "cis_id": "cis_ray_shield",
+      "building_type": "defense",
+      "texture_status": "complete",
+      "fbx_status": "pending_export",
+      "fbx_file": "assets/meshes/buildings/rep_shield_generator.fbx",
+      "texture_file": "assets/textures/buildings/rep_shield_generator_albedo.png",
+      "estimated_poly_count": 320,
+      "faction": {
+        "republic": {
+          "name": "Shield Generator",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#64A0DC"
+        },
+        "cis": {
+          "name": "Ray Shield Generator",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 7,
+      "vanilla_name": "Supply Station",
+      "kenney_source": "structure-a.fbx",
+      "republic_id": "rep_supply_station",
+      "cis_id": "cis_mining_facility",
+      "building_type": "economy",
+      "texture_status": "complete",
+      "fbx_status": "pending_export",
+      "fbx_file": "assets/meshes/buildings/rep_supply_station.fbx",
+      "texture_file": "assets/textures/buildings/rep_supply_station_albedo.png",
+      "estimated_poly_count": 310,
+      "faction": {
+        "republic": {
+          "name": "Supply Station",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "Mining Facility",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 8,
+      "vanilla_name": "Refinery",
+      "kenney_source": "structure-g.fbx",
+      "republic_id": "rep_tibanna_refinery",
+      "cis_id": "cis_processing_plant",
+      "building_type": "economy",
+      "texture_status": "complete",
+      "fbx_status": "pending_export",
+      "fbx_file": "assets/meshes/buildings/rep_tibanna_refinery.fbx",
+      "texture_file": "assets/textures/buildings/rep_tibanna_refinery_albedo.png",
+      "estimated_poly_count": 315,
+      "faction": {
+        "republic": {
+          "name": "Tibanna Gas Refinery",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "Processing Plant",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 9,
+      "vanilla_name": "Research Lab",
+      "kenney_source": "structure-h.fbx",
+      "republic_id": "rep_research_lab",
+      "cis_id": "cis_tech_union_lab",
+      "building_type": "research",
+      "texture_status": "complete",
+      "fbx_status": "pending_export",
+      "fbx_file": "assets/meshes/buildings/rep_research_lab.fbx",
+      "texture_file": "assets/textures/buildings/rep_research_lab_albedo.png",
+      "estimated_poly_count": 305,
+      "faction": {
+        "republic": {
+          "name": "Research Laboratory",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "Techno Union Lab",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 10,
+      "vanilla_name": "Wall",
+      "kenney_source": "wall-segment.fbx",
+      "republic_id": "rep_blast_wall",
+      "cis_id": "cis_durasteel_barrier",
+      "building_type": "wall",
+      "texture_status": "complete",
+      "fbx_status": "pending_export",
+      "fbx_file": "assets/meshes/buildings/rep_blast_wall.fbx",
+      "texture_file": "assets/textures/buildings/rep_blast_wall_albedo.png",
+      "estimated_poly_count": 240,
+      "faction": {
+        "republic": {
+          "name": "Blast Wall",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "Durasteel Barrier",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 11,
+      "vanilla_name": "House (Residential)",
+      "kenney_source": "house-small.fbx",
+      "republic_id": "rep_residential_quarters",
+      "cis_id": "cis_droid_barracks",
+      "building_type": "residential",
+      "texture_status": "in_progress",
+      "fbx_status": "in_progress",
+      "fbx_file": "assets/meshes/buildings/rep_residential_quarters.fbx",
+      "texture_file": "assets/textures/buildings/rep_residential_quarters_albedo.png",
+      "estimated_poly_count": 300,
+      "faction": {
+        "republic": {
+          "name": "Republic Officer Quarters",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "Droid Charging Station",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 12,
+      "vanilla_name": "House (Large)",
+      "kenney_source": "house-large.fbx",
+      "republic_id": "rep_command_quarters",
+      "cis_id": "cis_tactical_outpost",
+      "building_type": "residential",
+      "texture_status": "in_progress",
+      "fbx_status": "in_progress",
+      "fbx_file": "assets/meshes/buildings/rep_command_quarters.fbx",
+      "texture_file": "assets/textures/buildings/rep_command_quarters_albedo.png",
+      "estimated_poly_count": 310,
+      "faction": {
+        "republic": {
+          "name": "Republic Command Quarters",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "Tactical Outpost",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 13,
+      "vanilla_name": "Marketplace",
+      "kenney_source": "structure-i.fbx",
+      "republic_id": "rep_market_hub",
+      "cis_id": "cis_resource_depot",
+      "building_type": "trade",
+      "texture_status": "pending",
+      "fbx_status": "pending",
+      "fbx_file": "assets/meshes/buildings/rep_market_hub.fbx",
+      "texture_file": "assets/textures/buildings/rep_market_hub_albedo.png",
+      "estimated_poly_count": 320,
+      "faction": {
+        "republic": {
+          "name": "Republic Trade Hub",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "Resource Depot",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 14,
+      "vanilla_name": "Farm",
+      "kenney_source": "structure-j.fbx",
+      "republic_id": "rep_agricultural_station",
+      "cis_id": "cis_automated_farm",
+      "building_type": "economy",
+      "texture_status": "pending",
+      "fbx_status": "pending",
+      "fbx_file": "assets/meshes/buildings/rep_agricultural_station.fbx",
+      "texture_file": "assets/textures/buildings/rep_agricultural_station_albedo.png",
+      "estimated_poly_count": 280,
+      "faction": {
+        "republic": {
+          "name": "Agricultural Station",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "Automated Farm",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 15,
+      "vanilla_name": "Storage Depot",
+      "kenney_source": "structure-k.fbx",
+      "republic_id": "rep_storage_depot",
+      "cis_id": "cis_storage_facility",
+      "building_type": "storage",
+      "texture_status": "pending",
+      "fbx_status": "pending",
+      "fbx_file": "assets/meshes/buildings/rep_storage_depot.fbx",
+      "texture_file": "assets/textures/buildings/rep_storage_depot_albedo.png",
+      "estimated_poly_count": 300,
+      "faction": {
+        "republic": {
+          "name": "Republic Storage Depot",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "CIS Storage Facility",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 16,
+      "vanilla_name": "Harbor/Dock",
+      "kenney_source": "structure-l.fbx",
+      "republic_id": "rep_space_dock",
+      "cis_id": "cis_landing_platform",
+      "building_type": "trade",
+      "texture_status": "pending",
+      "fbx_status": "pending",
+      "fbx_file": "assets/meshes/buildings/rep_space_dock.fbx",
+      "texture_file": "assets/textures/buildings/rep_space_dock_albedo.png",
+      "estimated_poly_count": 325,
+      "faction": {
+        "republic": {
+          "name": "Republic Space Dock",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "CIS Landing Platform",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 17,
+      "vanilla_name": "Mining Site",
+      "kenney_source": "structure-m.fbx",
+      "republic_id": "rep_ore_excavation",
+      "cis_id": "cis_ore_processing",
+      "building_type": "economy",
+      "texture_status": "pending",
+      "fbx_status": "pending",
+      "fbx_file": "assets/meshes/buildings/rep_ore_excavation.fbx",
+      "texture_file": "assets/textures/buildings/rep_ore_excavation_albedo.png",
+      "estimated_poly_count": 310,
+      "faction": {
+        "republic": {
+          "name": "Republic Ore Excavation",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "CIS Ore Processing",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 18,
+      "vanilla_name": "Hospital/Healing",
+      "kenney_source": "structure-n.fbx",
+      "republic_id": "rep_medical_center",
+      "cis_id": "cis_repair_facility",
+      "building_type": "support",
+      "texture_status": "pending",
+      "fbx_status": "pending",
+      "fbx_file": "assets/meshes/buildings/rep_medical_center.fbx",
+      "texture_file": "assets/textures/buildings/rep_medical_center_albedo.png",
+      "estimated_poly_count": 290,
+      "faction": {
+        "republic": {
+          "name": "Republic Medical Center",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#CC2222"
+        },
+        "cis": {
+          "name": "CIS Repair Facility",
+          "primary_color": "#444444",
+          "accent_color": "#FF6600"
+        }
+      }
+    },
+    {
+      "vanilla_id": 19,
+      "vanilla_name": "Temple/Monument",
+      "kenney_source": "temple.fbx",
+      "republic_id": "rep_jedi_temple",
+      "cis_id": "cis_separatist_monument",
+      "building_type": "special",
+      "texture_status": "pending",
+      "fbx_status": "pending",
+      "fbx_file": "assets/meshes/buildings/rep_jedi_temple.fbx",
+      "texture_file": "assets/textures/buildings/rep_jedi_temple_albedo.png",
+      "estimated_poly_count": 340,
+      "faction": {
+        "republic": {
+          "name": "Jedi Force Temple",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#FFD700"
+        },
+        "cis": {
+          "name": "Separatist Monument",
+          "primary_color": "#444444",
+          "accent_color": "#FF6600"
+        }
+      }
+    },
+    {
+      "vanilla_id": 20,
+      "vanilla_name": "Armory",
+      "kenney_source": "armory.fbx",
+      "republic_id": "rep_armory",
+      "cis_id": "cis_weapon_cache",
+      "building_type": "military",
+      "texture_status": "pending",
+      "fbx_status": "pending",
+      "fbx_file": "assets/meshes/buildings/rep_armory.fbx",
+      "texture_file": "assets/textures/buildings/rep_armory_albedo.png",
+      "estimated_poly_count": 305,
+      "faction": {
+        "republic": {
+          "name": "Republic Armory",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "CIS Weapon Cache",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 21,
+      "vanilla_name": "Radar Station",
+      "kenney_source": "radar.fbx",
+      "republic_id": "rep_sensor_array",
+      "cis_id": "cis_detection_grid",
+      "building_type": "military",
+      "texture_status": "pending",
+      "fbx_status": "pending",
+      "fbx_file": "assets/meshes/buildings/rep_sensor_array.fbx",
+      "texture_file": "assets/textures/buildings/rep_sensor_array_albedo.png",
+      "estimated_poly_count": 295,
+      "faction": {
+        "republic": {
+          "name": "Republic Sensor Array",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#64A0DC"
+        },
+        "cis": {
+          "name": "CIS Detection Grid",
+          "primary_color": "#444444",
+          "accent_color": "#FF6600"
+        }
+      }
+    },
+    {
+      "vanilla_id": 22,
+      "vanilla_name": "Power Plant",
+      "kenney_source": "power.fbx",
+      "republic_id": "rep_reactor_core",
+      "cis_id": "cis_power_generator",
+      "building_type": "utility",
+      "texture_status": "pending",
+      "fbx_status": "pending",
+      "fbx_file": "assets/meshes/buildings/rep_reactor_core.fbx",
+      "texture_file": "assets/textures/buildings/rep_reactor_core_albedo.png",
+      "estimated_poly_count": 330,
+      "faction": {
+        "republic": {
+          "name": "Republic Reactor Core",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#64A0DC"
+        },
+        "cis": {
+          "name": "CIS Power Generator",
+          "primary_color": "#444444",
+          "accent_color": "#FF6600"
+        }
+      }
+    },
+    {
+      "vanilla_id": 23,
+      "vanilla_name": "Watchtower",
+      "kenney_source": "tower-b.fbx",
+      "republic_id": "rep_watchtower",
+      "cis_id": "cis_lookout_tower",
+      "building_type": "defense",
+      "texture_status": "pending",
+      "fbx_status": "pending",
+      "fbx_file": "assets/meshes/buildings/rep_watchtower.fbx",
+      "texture_file": "assets/textures/buildings/rep_watchtower_albedo.png",
+      "estimated_poly_count": 285,
+      "faction": {
+        "republic": {
+          "name": "Republic Watchtower",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "CIS Lookout Tower",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    },
+    {
+      "vanilla_id": 24,
+      "vanilla_name": "Fortification",
+      "kenney_source": "fortification.fbx",
+      "republic_id": "rep_fortification",
+      "cis_id": "cis_fortification",
+      "building_type": "defense",
+      "texture_status": "pending",
+      "fbx_status": "pending",
+      "fbx_file": "assets/meshes/buildings/rep_fortification.fbx",
+      "texture_file": "assets/textures/buildings/rep_fortification_albedo.png",
+      "estimated_poly_count": 340,
+      "faction": {
+        "republic": {
+          "name": "Republic Fortification",
+          "primary_color": "#F5F5F5",
+          "accent_color": "#1A3A6B"
+        },
+        "cis": {
+          "name": "CIS Fortification",
+          "primary_color": "#444444",
+          "accent_color": "#B35A00"
+        }
+      }
+    }
+  ],
+  "statistics": {
+    "total_buildings": 24,
+    "kenney_fbx_source_files": 24,
+    "faction_textures_generated": 20,
+    "fbx_files_complete": 0,
+    "fbx_files_in_progress": 2,
+    "fbx_files_pending": 22,
+    "total_estimated_polygons": 7520,
+    "average_polygons_per_building": 313,
+    "texture_generation_time": "< 1 minute",
+    "fbx_export_effort_hours": "40-60",
+    "total_storage_mb": 1.2
+  },
+  "metadata": {
+    "schema_version": "1.0",
+    "last_updated": "2026-03-12",
+    "created_by": "DINOForge Asset Sourcing Subagent",
+    "pack_id": "warfare-starwars",
+    "pack_version": "0.1.0"
+  }
+}

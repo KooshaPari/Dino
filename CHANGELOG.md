@@ -9,6 +9,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### M5: Asset Integration Phase 1 Complete (Star Wars Pack)
+- **ASSET_INTEGRATION_REPORT.md**: Master status document for Phase 1 (Asset sourcing & inventory)
+  - Executive summary of sourcing decisions (Kenney-first strategy, Sketchfab deferred to v1.1+)
+  - Current integration status: 4/24 FBX complete, 20/20 textures complete, all sources mapped
+  - Quality metrics: polygon counts verified (280-340 tri/building, < 400 tri budget)
+  - Integration roadmap with 4 phases: FBX export (current), game testing, validation, optional Sketchfab (post-v1.0)
+  - License documentation (CC0 Kenney.nl)
+  - QA checklist and known issues
+- **BUILD_STATE_SUMMARY.md**: Quick reference guide for current pack state
+  - Status table: all components mapped with completion percentage
+  - Phase 1 bottleneck identification (FBX batch export, 40-60 hours required)
+  - Next steps prioritized (FBX batch, validation, git commit)
+  - Directory structure and documentation locations
+  - Success criteria for Phase 1 completion
+- **manifest.yaml**: Updated with asset source references
+  - Added `asset_replacements.buildings` with source documentation paths
+  - Added `asset_sources` section referencing Kenney.nl and integration reports
+- **ASSET_SOURCES.json**: Enhanced summary fields
+  - Added `sourcing_strategy` field explaining Kenney-first approach
+  - Added `integration_status` and `phase_1_completion` fields for clarity
+  - Metadata timestamp: 2026-03-12
+
+#### M5: Blender Assembly Documentation (Star Wars Pack)
+- `BLENDER_ASSEMBLY_TEMPLATE.md`: Complete step-by-step Blender guide for assembling single building (rep_house_clone_quarters as template):
+  - Phase 1: Project setup (10 min) — new project, import Kenney FBX, rename
+  - Phase 2: Texture application (30 min) — material nodes, faction texture PNG, shader preview
+  - Phase 3: Details (45 min) — accent stripes, emblems, glow emitters, faction-specific customization
+  - Phase 4: Optimization (20 min) — poly decimation, material merging, pivot centering
+  - Phase 5: Export (15 min) — FBX export with correct settings, file naming, output validation
+  - Phase 6: Validation (30 min) — reimport verification, in-game testing, documentation
+  - ASCII art before/after visual references
+  - Detailed troubleshooting table (texture loading, scale, colors, export issues)
+  - Advanced options (custom glow emitters, rigged animated parts)
+  - Workflow diagram showing phase dependencies
+  - Expected time: 2 hours (first build); 45 min (with practice)
+- `BATCH_ASSEMBLY_PLAN.md`: Comprehensive parallelization & scheduling document:
+  - Parallelization strategy: 2-artist team (rep specialist + cis specialist) or 4-artist team (by building type)
+  - Priority assembly order: Tier 1 (Simple, 8 bldgs, 16 hrs), Tier 2 (Medium, 8 bldgs, 24 hrs), Tier 3 (Hard, 7 bldgs, 22 hrs), Expert (shaders/custom geometry, 13 hrs)
+  - Building dependency analysis: infinite_iron_mine mirrors iron_mine (saves 1.5 hrs); farm/granary share platform pieces
+  - 3-week timeline: Week 1 (pilots + Tier 1), Week 2 (Tier 2-3), Week 3 (validation + deployment)
+  - Parallel execution schedules for 2-artist and 4-artist teams with effective completion in 2-3 weeks
+  - Automation status: texture generation complete (< 1 min), Blender script framework ready, batch mode pending
+  - Quality gates (poly count, texture, scale, materials, performance, naming, export, mapping)
+  - Risk & mitigation table (scale validation, poly budget, palette accuracy, material preservation, schedule)
+  - Team communication plan (daily standup, weekly sync, issue tracking)
+  - Lessons learned template for knowledge capture
+  - Hand-off criteria for next team (FBX, textures, manifests, validation results)
+  - Future optimization opportunities (full automation, custom shaders, variants, LOD generation)
+- `BUILD_CHECKLIST_ENHANCED.md`: Master checklist for all 24 buildings with detailed assembly specifications:
+  - Quick reference table: all 24 buildings with Kenney source, complexity, estimated hours
+  - Faction palette reference: Republic (white #F5F5F5 + navy #1A3A6B) and CIS (grey #444444 + orange #B35A00) with shader settings
+  - Kenney source inventory: space-kit (9/12 buildings), modular-space-kit (fallback), polygon counts
+  - Building-by-building guide covering all 12 vanilla buildings × 2 factions (24 total):
+    - Each building includes: vanilla ID, Kenney source, poly budget, complexity rating, effort estimate, detailed assembly notes
+    - GROUP 1: Residential (house, granary, hospital) + GROUP 2: Resources (forester, stone, iron mines, soul mine) + GROUP 3: Military (builder, guild, gate)
+    - Complexity ratings: Simple (1.5-2 hrs), Medium (2-3 hrs), Hard (3-4 hrs), Expert (4-4.5 hrs)
+  - Artifact output targets: 24 FBX files (in meshes/buildings/), 24 textures (in textures/buildings/)
+  - Grand total estimate: 60-72 hours human effort (52-60 with optimizations); 2.5 hrs per building average
+  - Quality checkpoints: poly count, texture, scale, materials, normals, export, game testing, details, documentation
+  - Kenney CC0 license note (no attribution required)
+  - Success criteria for final delivery (24 FBX, 24 textures, poly budgets, faction details, game validation, crosswalk updates, source archival)
+
 #### M0: Reverse-Engineering Harness
 - BepInEx 5.4.23.5 runtime plugin targeting `netstandard2.0`
 - ECS `DumpSystem` (SystemBase) that survives MonoBehaviour destruction

@@ -28,4 +28,19 @@ asset_replacements:
   textures: {}
   audio: {}
   ui: {}
+  buildings:
+    meshes:
+      source: "Kenney.nl (CC0 Public Domain)"
+      path: "assets/meshes/buildings/"
+      status: "Phase 1: FBX batch export in progress (4/24 complete, 20/24 pending)"
+    textures:
+      source: "DINOForge texture generation (HSV faction variants from Kenney base)"
+      path: "assets/textures/buildings/"
+      status: "Complete (20/20 generated for 10 building types × 2 factions)"
+asset_sources:
+  primary: "Kenney.nl 3D Models (https://kenney.nl/assets/3d-models)"
+  license: "CC0 1.0 Universal (Public Domain)"
+  attribution_required: false
+  documentation: "assets/ASSET_SOURCE_HARMONIZATION.md"
+  integration_report: "assets/ASSET_INTEGRATION_REPORT.md"
 conflicts_with: []
