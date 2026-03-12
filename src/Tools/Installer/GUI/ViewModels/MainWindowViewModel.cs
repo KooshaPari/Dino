@@ -62,6 +62,19 @@ public partial class MainWindowViewModel : ObservableObject
             NavigateTo(WizardPage.GamePath);
         };
 
+        // Re-evaluate CanGoNext whenever GamePath changes so the Next button
+        // enables/disables live as the user types or auto-detect resolves.
+        _gamePathVm.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(GamePathPageViewModel.GamePath)
+                               or nameof(GamePathPageViewModel.IsPathValid)
+                               or nameof(GamePathPageViewModel.GameExeOk))
+            {
+                OnPropertyChanged(nameof(CanGoNext));
+                GoNextCommand.NotifyCanExecuteChanged();
+            }
+        };
+
         // Auto-detect on first visit to game path page
         _gamePathVm.AutoDetect();
     }
@@ -92,9 +105,19 @@ public partial class MainWindowViewModel : ObservableObject
     public bool CanGoBack => CurrentPage > WizardPage.Welcome && CurrentPage != WizardPage.Progress;
 
     /// <summary>
-    /// Whether the Next / Install navigation button should be visible.
+    /// Whether the Next / Install navigation button should be visible and enabled.
+    /// On the GamePath page the game exe must be found before proceeding.
     /// </summary>
-    public bool CanGoNext => CurrentPage < WizardPage.Progress;
+    public bool CanGoNext
+    {
+        get
+        {
+            if (CurrentPage >= WizardPage.Progress) return false;
+            if (CurrentPage == WizardPage.GamePath)
+                return _gamePathVm.IsPathValid && _gamePathVm.GameExeOk;
+            return true;
+        }
+    }
 
     /// <summary>
     /// Label for the primary action button (changes to "Install" on options page).
@@ -113,16 +136,18 @@ public partial class MainWindowViewModel : ObservableObject
 
     /// <summary>
     /// Navigates to the next wizard page, or triggers install on the options page.
+    /// Synchronous navigation uses a plain RelayCommand so the button is never
+    /// disabled mid-navigation. Install uses a fire-and-forget Task.
     /// </summary>
-    [RelayCommand]
-    public async System.Threading.Tasks.Task GoNextAsync()
+    [RelayCommand(CanExecute = nameof(CanGoNext))]
+    public void GoNext()
     {
         if (CurrentPage == WizardPage.Options)
         {
-            // Kick off install
             NavigateTo(WizardPage.Progress);
             InstallOptions opts = BuildInstallOptions();
-            await _progressVm.RunInstallAsync(opts).ConfigureAwait(false);
+            // Fire-and-forget: progress page handles completion via its own state
+            _ = _progressVm.RunInstallAsync(opts);
         }
         else if (CurrentPage < WizardPage.Progress)
         {
@@ -148,6 +173,8 @@ public partial class MainWindowViewModel : ObservableObject
         OnPropertyChanged(nameof(CanGoBack));
         OnPropertyChanged(nameof(CanGoNext));
         OnPropertyChanged(nameof(NextButtonLabel));
+        GoBackCommand.NotifyCanExecuteChanged();
+        GoNextCommand.NotifyCanExecuteChanged();
     }
 
     /// <summary>

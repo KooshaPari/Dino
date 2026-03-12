@@ -26,27 +26,31 @@ namespace DINOForge.Tests
     public class CompatibilityCheckerPropertyTests
     {
         /// <summary>
-        /// Property: Wildcard "*" always returns true for any version string.
+        /// Property: Wildcard "*" always returns true for any valid semver string.
+        /// Uses a constrained generator to avoid FsCheck discard exhaustion.
         /// </summary>
         [Property]
-        public Property WildcardAlwaysMatches(string versionString)
+        public Property WildcardAlwaysMatches()
         {
-            return Prop.When(
-                !string.IsNullOrEmpty(versionString) && IsValidVersionFormat(versionString),
-                CompatibilityChecker.IsVersionInRange(versionString, "*") == true
-            );
+            Gen<string> semverGen = Gen.Elements(
+                "0.1.0", "1.0.0", "2.3.4", "0.5.1", "10.20.30",
+                "0.0.1", "3.0.0", "1.2.3", "0.10.0", "5.0.0");
+            return Prop.ForAll(semverGen.ToArbitrary(), version =>
+                CompatibilityChecker.IsVersionInRange(version, "*") == true);
         }
 
         /// <summary>
-        /// Property: Empty range string always returns true for any version.
+        /// Property: Empty range string always returns true for any valid semver string.
+        /// Uses a constrained generator to avoid FsCheck discard exhaustion.
         /// </summary>
         [Property]
-        public Property EmptyRangeAlwaysMatches(string versionString)
+        public Property EmptyRangeAlwaysMatches()
         {
-            return Prop.When(
-                !string.IsNullOrEmpty(versionString) && IsValidVersionFormat(versionString),
-                CompatibilityChecker.IsVersionInRange(versionString, "") == true
-            );
+            Gen<string> semverGen = Gen.Elements(
+                "0.1.0", "1.0.0", "2.3.4", "0.5.1", "10.20.30",
+                "0.0.1", "3.0.0", "1.2.3", "0.10.0", "5.0.0");
+            return Prop.ForAll(semverGen.ToArbitrary(), version =>
+                CompatibilityChecker.IsVersionInRange(version, "") == true);
         }
 
         /// <summary>

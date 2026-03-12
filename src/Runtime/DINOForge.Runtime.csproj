@@ -19,6 +19,22 @@
     <AppendRuntimeIdentifierToOutputPath Condition="'$(GameInstalled)' == 'true'">false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
 
+  <!-- Exclude UGUI-dependent UI files when the game is not installed (no UnityEngine.UIModule.dll) -->
+  <ItemGroup Condition="'$(GameInstalled)' != 'true'">
+    <Compile Remove="UI\DebugPanel.cs" />
+    <Compile Remove="UI\DFCanvas.cs" />
+    <Compile Remove="UI\DinoForgeStyle.cs" />
+    <Compile Remove="UI\HudIndicator.cs" />
+    <Compile Remove="UI\HudStrip.cs" />
+    <Compile Remove="UI\ModMenuOverlay.cs" />
+    <Compile Remove="UI\ModMenuOverlayProxy.cs" />
+    <Compile Remove="UI\ModMenuPanel.cs" />
+    <Compile Remove="UI\ModSettingsPanel.cs" />
+    <Compile Remove="UI\NativeMenuInjector.cs" />
+    <Compile Remove="UI\NativeUiHelper.cs" />
+    <Compile Remove="UI\UiBuilder.cs" />
+  </ItemGroup>
+
   <!-- SDK reference for HotReload bridge and content loading -->
   <ItemGroup>
     <ProjectReference Include="..\SDK\DINOForge.SDK.csproj">
@@ -89,6 +105,18 @@
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
       <HintPath>$(ManagedDir)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>$(ManagedDir)\UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(ManagedDir)\UnityEngine.TextRenderingModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
