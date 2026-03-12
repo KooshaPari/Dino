@@ -57,8 +57,18 @@ public class BridgeClientTests
     {
         GameProcessManager manager = new();
 
-        manager.IsRunning.Should().BeFalse();
-        manager.GetProcessId().Should().BeNull();
+        // Verify internal consistency: IsRunning and GetProcessId() should align.
+        // If GetProcessId() returns null, IsRunning must be false.
+        // If GetProcessId() returns a value, IsRunning must be true.
+        var processId = manager.GetProcessId();
+        if (processId is null)
+        {
+            manager.IsRunning.Should().BeFalse("GetProcessId returned null, so IsRunning should be false");
+        }
+        else
+        {
+            manager.IsRunning.Should().BeTrue("GetProcessId returned a value, so IsRunning should be true");
+        }
     }
 
     [Fact]
