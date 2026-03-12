@@ -103,6 +103,40 @@ fi
 - Contains: GameControlCli implementation + workflow scripts + script library
 - Status: Ready for review, blocked on protected branch (requires PR approval)
 
+## UI Automation (MCP Tool)
+
+The `game_ui_automation` tool in McpServer provides **accessibility tree based UI automation**:
+
+```
+Get UI Tree (Playwright-style):
+  {
+    "action": "tree",
+    "selector": "#f10-menu"  // Optional: filter by selector
+  }
+
+Click Element:
+  {
+    "action": "click",
+    "selector": "#pack-list"  // CSS-like: #id, .class, [attr=value]
+  }
+
+Screenshot with UI Overlay:
+  {
+    "action": "screenshot",
+    "selector": "#f9-debug"
+  }
+```
+
+Returns:
+- Full accessibility tree (like Playwright's `page.accessibility.snapshot()`)
+- Element paths and attributes
+- Element selectors for easy navigation
+- Screenshot paths with UI bindings
+
+### Selectors
+- CSS-style: `#pack-list`, `.button`, `[data-id=item]`
+- Path-based: `root/f10-menu/pack-list`
+
 ## Architecture
 
 ```
@@ -110,9 +144,16 @@ Game Process (DINO)
     ↓ (named pipes)
 GameClient (Bridge.Client)
     ↓ (JSON-RPC 2.0)
-GameControlCli (src/Tools/GameControlCli)
-    ↓
-Console Output (Spectre.Console)
+    ├─ GameControlCli (state checking)
+    └─ McpServer (13 game tools + UI automation)
+        ├─ game_status, game_resources, game_screenshot
+        ├─ game_query_entities, game_dump_state
+        └─ game_ui_automation (accessibility tree + click)
 ```
 
-No screen capture, no window automation — pure game process communication.
+Pure game process communication:
+- ✅ Accessibility tree navigation (like Playwright)
+- ✅ Selector-based element interaction (no pixel coordinates)
+- ✅ Screenshot with UI overlay capability
+- ❌ No screen capture screen parsing needed
+- ❌ No window interaction
