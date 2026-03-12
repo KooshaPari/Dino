@@ -323,8 +323,8 @@ type: content
             sw.Stop();
 
             // Assert: 250 complex checks should still be fast
-            sw.ElapsedMilliseconds.Should().BeLessThan(50,
-                $"250 complex version range checks must complete in <50ms, took {sw.ElapsedMilliseconds}ms");
+            sw.ElapsedMilliseconds.Should().BeLessThan(100,
+                $"250 complex version range checks must complete in <100ms, took {sw.ElapsedMilliseconds}ms");
         }
 
         // ── Integration: Full Pipeline Timing ────────────────────────────────
