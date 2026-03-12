@@ -32,6 +32,7 @@
     <PackageReference Include="NetArchTest.Rules" Version="1.*" />
     <PackageReference Include="AutoFixture" Version="4.*" />
     <PackageReference Include="AutoFixture.Xunit2" Version="4.*" />
+    <PackageReference Include="FsCheck.Xunit" Version="3.*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -54,8 +55,11 @@
   </ItemGroup>
 
   <!-- Temporarily exclude UnitSpawnerTests which requires ECS infrastructure -->
+  <!-- Also exclude tests that depend on Runtime types excluded in CI (FactionSystem, WaveInjector) -->
   <ItemGroup>
     <Compile Remove="UnitSpawnerTests.cs" />
+    <Compile Remove="FactionSystemTests.cs" />
+    <Compile Remove="WaveInjectorTests.cs" />
   </ItemGroup>
 
 </Project>
