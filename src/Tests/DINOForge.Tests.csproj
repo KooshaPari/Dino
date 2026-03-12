@@ -33,6 +33,9 @@
     <PackageReference Include="AutoFixture" Version="4.*" />
     <PackageReference Include="AutoFixture.Xunit2" Version="4.*" />
     <PackageReference Include="FsCheck.Xunit" Version="3.*" />
+    <!-- Pin vulnerable transitive deps to patched versions (NU1903) -->
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>
