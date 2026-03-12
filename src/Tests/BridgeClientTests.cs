@@ -240,4 +240,142 @@ public class BridgeClientTests
         deserialized.Units[0].InferredId.Should().Be("vanilla:melee_unit");
         deserialized.Units[0].EntityCount.Should().Be(42);
     }
+
+    // ── Protocol Model Coverage ──────────────────────────────────────────────
+
+    [Fact]
+    public void OverrideResult_PropertiesRoundtrip()
+    {
+        OverrideResult result = new()
+        {
+            Success = true,
+            ModifiedCount = 17,
+            SdkPath = "Warfare.Unit.HeavyTank.Armor",
+            Message = "Override applied"
+        };
+        result.Success.Should().BeTrue();
+        result.ModifiedCount.Should().Be(17);
+        result.SdkPath.Should().Be("Warfare.Unit.HeavyTank.Armor");
+        result.Message.Should().Be("Override applied");
+
+        string json = JsonConvert.SerializeObject(result);
+        OverrideResult? deserialized = JsonConvert.DeserializeObject<OverrideResult>(json);
+        deserialized!.ModifiedCount.Should().Be(17);
+    }
+
+    [Fact]
+    public void QueryResult_WithEntities_Roundtrips()
+    {
+        QueryResult result = new()
+        {
+            Count = 2,
+            Entities = new System.Collections.Generic.List<EntityInfo>
+            {
+                new EntityInfo { Index = 0, Components = new System.Collections.Generic.List<string> { "Health", "ArmorData" } },
+                new EntityInfo { Index = 1, Components = new System.Collections.Generic.List<string> { "BuildingBase" } }
+            }
+        };
+        result.Count.Should().Be(2);
+        result.Entities.Should().HaveCount(2);
+        result.Entities[0].Index.Should().Be(0);
+        result.Entities[0].Components.Should().Contain("Health");
+
+        string json = JsonConvert.SerializeObject(result);
+        QueryResult? deserialized = JsonConvert.DeserializeObject<QueryResult>(json);
+        deserialized!.Entities.Should().HaveCount(2);
+        deserialized.Entities[1].Components.Should().Contain("BuildingBase");
+    }
+
+    [Fact]
+    public void ReloadResult_SuccessWithPacksAndErrors_Roundtrips()
+    {
+        ReloadResult result = new()
+        {
+            Success = true,
+            LoadedPacks = new System.Collections.Generic.List<string> { "warfare-modern", "example-balance" },
+            Errors = new System.Collections.Generic.List<string>()
+        };
+        result.Success.Should().BeTrue();
+        result.LoadedPacks.Should().HaveCount(2);
+        result.Errors.Should().BeEmpty();
+
+        string json = JsonConvert.SerializeObject(result);
+        ReloadResult? deserialized = JsonConvert.DeserializeObject<ReloadResult>(json);
+        deserialized!.LoadedPacks.Should().Contain("warfare-modern");
+    }
+
+    [Fact]
+    public void ScreenshotResult_PropertiesRoundtrip()
+    {
+        ScreenshotResult result = new()
+        {
+            Path = "C:/screenshots/capture.png",
+            Width = 1920,
+            Height = 1080,
+            Success = true
+        };
+        result.Path.Should().Be("C:/screenshots/capture.png");
+        result.Width.Should().Be(1920);
+        result.Height.Should().Be(1080);
+        result.Success.Should().BeTrue();
+
+        string json = JsonConvert.SerializeObject(result);
+        ScreenshotResult? deserialized = JsonConvert.DeserializeObject<ScreenshotResult>(json);
+        deserialized!.Width.Should().Be(1920);
+    }
+
+    [Fact]
+    public void StatResult_PropertiesRoundtrip()
+    {
+        StatResult result = new()
+        {
+            SdkPath = "Warfare.Unit.Tank.MaxHp",
+            Value = 500.0f,
+            EntityCount = 3,
+            Values = new System.Collections.Generic.List<float> { 500f, 450f, 500f },
+            ComponentType = "Health",
+            FieldName = "maxHp"
+        };
+        result.Value.Should().Be(500.0f);
+        result.EntityCount.Should().Be(3);
+        result.Values.Should().HaveCount(3);
+
+        string json = JsonConvert.SerializeObject(result);
+        StatResult? deserialized = JsonConvert.DeserializeObject<StatResult>(json);
+        deserialized!.ComponentType.Should().Be("Health");
+        deserialized.FieldName.Should().Be("maxHp");
+    }
+
+    [Fact]
+    public void VerifyResult_PropertiesRoundtrip()
+    {
+        VerifyResult result = new()
+        {
+            PackId = "warfare-modern",
+            Loaded = true,
+            StatChanges = new System.Collections.Generic.List<string> { "Tank.MaxHp: 400 → 500" },
+            Errors = new System.Collections.Generic.List<string>(),
+            EntityCount = 42
+        };
+        result.PackId.Should().Be("warfare-modern");
+        result.Loaded.Should().BeTrue();
+        result.StatChanges.Should().HaveCount(1);
+        result.EntityCount.Should().Be(42);
+
+        string json = JsonConvert.SerializeObject(result);
+        VerifyResult? deserialized = JsonConvert.DeserializeObject<VerifyResult>(json);
+        deserialized!.StatChanges.Should().Contain("Tank.MaxHp: 400 → 500");
+    }
+
+    [Fact]
+    public void WaitResult_PropertiesRoundtrip()
+    {
+        WaitResult result = new() { Ready = true, WorldName = "Default World" };
+        result.Ready.Should().BeTrue();
+        result.WorldName.Should().Be("Default World");
+
+        string json = JsonConvert.SerializeObject(result);
+        WaitResult? deserialized = JsonConvert.DeserializeObject<WaitResult>(json);
+        deserialized!.WorldName.Should().Be("Default World");
+    }
 }

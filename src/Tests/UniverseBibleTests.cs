@@ -453,5 +453,174 @@ version: '0.1.0'
                 StyleGuide = new StyleGuide()
             };
         }
+
+        // ──────────────────────── StyleGuide / FactionStyle ──────────────────
+
+        [Fact]
+        public void StyleGuide_DefaultsAreEmpty()
+        {
+            StyleGuide guide = new StyleGuide();
+            guide.FactionStyles.Should().BeEmpty();
+            guide.Global.Should().BeNull();
+        }
+
+        [Fact]
+        public void FactionStyle_DefaultColorPaletteExists()
+        {
+            FactionStyle style = new FactionStyle();
+            style.Colors.Should().NotBeNull();
+            style.Colors.Primary.Should().Be("#FFFFFF");
+            style.Colors.Secondary.Should().Be("#000000");
+            style.Audio.Should().BeNull();
+            style.Architecture.Should().BeNull();
+            style.VisualTheme.Should().BeNull();
+        }
+
+        [Fact]
+        public void ColorPalette_CanSetAllFields()
+        {
+            ColorPalette palette = new ColorPalette
+            {
+                Primary = "#FF0000",
+                Secondary = "#00FF00",
+                Tertiary = "#0000FF",
+                UiHighlight = "#FFFF00"
+            };
+            palette.Primary.Should().Be("#FF0000");
+            palette.Secondary.Should().Be("#00FF00");
+            palette.Tertiary.Should().Be("#0000FF");
+            palette.UiHighlight.Should().Be("#FFFF00");
+        }
+
+        [Fact]
+        public void AudioTheme_CanSetAllFields()
+        {
+            AudioTheme theme = new AudioTheme
+            {
+                March = "march_theme",
+                Ambient = "ambient_loop",
+                Combat = "combat_intense",
+                Victory = "victory_fanfare",
+                Defeat = "defeat_dirge"
+            };
+            theme.March.Should().Be("march_theme");
+            theme.Ambient.Should().Be("ambient_loop");
+            theme.Combat.Should().Be("combat_intense");
+            theme.Victory.Should().Be("victory_fanfare");
+            theme.Defeat.Should().Be("defeat_dirge");
+        }
+
+        [Fact]
+        public void StyleGuide_CanAddFactionStyles()
+        {
+            StyleGuide guide = new StyleGuide();
+            guide.FactionStyles["republic"] = new FactionStyle
+            {
+                VisualTheme = "sleek_white",
+                Architecture = "neoclassical",
+                Colors = new ColorPalette { Primary = "#C0C0C0", Secondary = "#1E3A5F" },
+                Audio = new AudioTheme { March = "republic_march", Combat = "republic_combat" }
+            };
+            guide.FactionStyles.Should().ContainKey("republic");
+            guide.FactionStyles["republic"].VisualTheme.Should().Be("sleek_white");
+            guide.FactionStyles["republic"].Audio!.March.Should().Be("republic_march");
+        }
+
+        [Fact]
+        public void TaxonomySubFaction_CanSetFields()
+        {
+            TaxonomySubFaction sub = new TaxonomySubFaction
+            {
+                Id = "501st",
+                Name = "501st Legion",
+                Description = "Elite clone trooper unit",
+                Specialization = "heavy_assault"
+            };
+            sub.Id.Should().Be("501st");
+            sub.Name.Should().Be("501st Legion");
+            sub.Description.Should().Be("Elite clone trooper unit");
+            sub.Specialization.Should().Be("heavy_assault");
+        }
+
+        [Fact]
+        public void FactionTaxonomy_CanAddFactionsWithSubFactions()
+        {
+            FactionTaxonomy taxonomy = new FactionTaxonomy();
+            taxonomy.Factions.Add(new TaxonomyFaction
+            {
+                Id = "republic",
+                Name = "Galactic Republic",
+                Alignment = "Player",
+                Archetype = "order",
+                Description = "The democratic republic",
+                SubFactions = new List<TaxonomySubFaction>
+                {
+                    new TaxonomySubFaction { Id = "501st", Name = "501st Legion" },
+                    new TaxonomySubFaction { Id = "212th", Name = "212th Attack Battalion" }
+                },
+                UnitRoster = new Dictionary<string, string> { ["line_infantry"] = "clone_trooper" }
+            });
+            taxonomy.Factions.Should().HaveCount(1);
+            taxonomy.Factions[0].SubFactions.Should().HaveCount(2);
+            taxonomy.Factions[0].UnitRoster.Should().ContainKey("line_infantry");
+        }
+
+        // ──────────────────────── PackGeneratorResult ────────────────────────
+
+        [Fact]
+        public void PackGeneratorResult_IsClean_WhenNoWarnings()
+        {
+            string outputDir = Path.Combine(Path.GetTempPath(), $"packgen_clean_{Guid.NewGuid():N}");
+            try
+            {
+                UniverseBible bible = CreateTestBible();
+                PackGenerator generator = new PackGenerator();
+                PackGeneratorResult result = generator.Generate(bible, null, outputDir);
+
+                result.IsClean.Should().BeTrue("generated pack had no warnings");
+                result.Warnings.Should().BeEmpty();
+            }
+            finally
+            {
+                if (Directory.Exists(outputDir))
+                    Directory.Delete(outputDir, true);
+            }
+        }
+
+        // ──────────────────────── GlobalStyle ────────────────────────────────
+
+        [Fact]
+        public void GlobalStyle_CanSetAllFields()
+        {
+            DINOForge.SDK.Universe.GlobalStyle gs = new DINOForge.SDK.Universe.GlobalStyle
+            {
+                Tone = "gritty",
+                UiTheme = "dark_metal",
+                FontStyle = "condensed_sans"
+            };
+            gs.Tone.Should().Be("gritty");
+            gs.UiTheme.Should().Be("dark_metal");
+            gs.FontStyle.Should().Be("condensed_sans");
+        }
+
+        [Fact]
+        public void GlobalStyle_DefaultsAreNull()
+        {
+            DINOForge.SDK.Universe.GlobalStyle gs = new DINOForge.SDK.Universe.GlobalStyle();
+            gs.Tone.Should().BeNull();
+            gs.UiTheme.Should().BeNull();
+            gs.FontStyle.Should().BeNull();
+        }
+
+        [Fact]
+        public void StyleGuide_WithGlobal_RoundtripsThroughModel()
+        {
+            StyleGuide guide = new StyleGuide
+            {
+                Global = new DINOForge.SDK.Universe.GlobalStyle { Tone = "epic", UiTheme = "gold_empire" }
+            };
+            guide.Global.Should().NotBeNull();
+            guide.Global!.Tone.Should().Be("epic");
+        }
     }
 }

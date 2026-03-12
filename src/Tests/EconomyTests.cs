@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DINOForge.Domains.Economy;
 using DINOForge.Domains.Economy.Balance;
@@ -402,6 +403,9 @@ namespace DINOForge.Tests
 
             report.Should().NotBeNull();
             report.PackId.Should().Be("test-pack");
+            report.FactionSummaries.Should().NotBeNull();
+            report.OverallBalanceScore.Should().BeGreaterThanOrEqualTo(0f);
+            report.Warnings.Should().NotBeNull();
         }
 
         // ── EconomyValidator.Validate_ValidPack ──
@@ -535,6 +539,89 @@ namespace DINOForge.Tests
             List<TradeSuggestion> suggestions = engine.GetOptimalTrades(routes, profile, available, balance);
 
             suggestions.Should().BeEmpty();
+        }
+
+        // ── FactionEconomySummary ────────────────────────────────────────────
+
+        [Fact]
+        public void FactionEconomySummary_ConstructorSetsAllProperties()
+        {
+            var production = new Dictionary<string, float> { ["gold"] = 10f, ["wood"] = 5f };
+            var consumption = new Dictionary<string, float> { ["gold"] = 3f };
+            var netBalance = new Dictionary<string, float> { ["gold"] = 7f, ["wood"] = 5f };
+
+            FactionEconomySummary summary = new FactionEconomySummary(
+                factionId: "test-faction",
+                production: production,
+                consumption: consumption,
+                netBalance: netBalance,
+                tradeEfficiency: 0.8f,
+                sustainabilityScore: 0.9f,
+                deficitCount: 0,
+                surplusCount: 2);
+
+            summary.FactionId.Should().Be("test-faction");
+            summary.Production.Should().ContainKey("gold");
+            summary.Consumption.Should().ContainKey("gold");
+            summary.NetBalance["gold"].Should().Be(7f);
+            summary.TradeEfficiency.Should().Be(0.8f);
+            summary.SustainabilityScore.Should().Be(0.9f);
+            summary.DeficitCount.Should().Be(0);
+            summary.SurplusCount.Should().Be(2);
+        }
+
+        [Fact]
+        public void FactionEconomySummary_WithDeficits()
+        {
+            var production = new Dictionary<string, float> { ["gold"] = 1f };
+            var consumption = new Dictionary<string, float> { ["gold"] = 5f, ["wood"] = 3f };
+            var netBalance = new Dictionary<string, float> { ["gold"] = -4f, ["wood"] = -3f };
+
+            FactionEconomySummary summary = new FactionEconomySummary(
+                factionId: "deficit-faction",
+                production: production,
+                consumption: consumption,
+                netBalance: netBalance,
+                tradeEfficiency: 0.3f,
+                sustainabilityScore: 0.1f,
+                deficitCount: 2,
+                surplusCount: 0);
+
+            summary.DeficitCount.Should().Be(2);
+            summary.SurplusCount.Should().Be(0);
+            summary.SustainabilityScore.Should().Be(0.1f);
+        }
+
+        // ── EconomyPlugin missing-branch coverage ────────────────────────────
+
+        [Fact]
+        public void EconomyPlugin_GenerateBalanceReport_NullProfiles_Throws()
+        {
+            RegistryManager registries = new RegistryManager();
+            EconomyPlugin plugin = new EconomyPlugin(registries);
+
+            Action act = () => plugin.GenerateBalanceReport("test-pack", null!, new List<TradeRoute>());
+            act.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void EconomyPlugin_GenerateBalanceReport_NullTradeRoutes_Throws()
+        {
+            RegistryManager registries = new RegistryManager();
+            EconomyPlugin plugin = new EconomyPlugin(registries);
+
+            Action act = () => plugin.GenerateBalanceReport("test-pack", new Dictionary<string, EconomyProfile>(), null!);
+            act.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void EconomyPlugin_GenerateBalanceReport_EmptyPackId_Throws()
+        {
+            RegistryManager registries = new RegistryManager();
+            EconomyPlugin plugin = new EconomyPlugin(registries);
+
+            Action act = () => plugin.GenerateBalanceReport("", new Dictionary<string, EconomyProfile>(), new List<TradeRoute>());
+            act.Should().Throw<ArgumentException>();
         }
     }
 }

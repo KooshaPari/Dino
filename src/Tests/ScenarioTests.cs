@@ -10,6 +10,8 @@ using DINOForge.SDK.Registry;
 using FluentAssertions;
 using Xunit;
 
+// EventAction is in DINOForge.Domains.Scenario.Models
+
 namespace DINOForge.Tests
 {
     public class ScenarioTests
@@ -749,6 +751,308 @@ namespace DINOForge.Tests
 
             IReadOnlyList<string> errors = validator.Validate(scenario);
             errors.Should().Contain(e => e.Contains("invalid wave count"));
+        }
+
+        // ── ScenarioPlugin missing-branch coverage ──────────────────────────
+
+        [Fact]
+        public void ScenarioPlugin_ValidatePack_NullScenarios_Throws()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioPlugin plugin = new ScenarioPlugin(registries);
+
+            System.Action act = () => plugin.ValidatePack("test-pack", null!);
+            act.Should().Throw<System.ArgumentNullException>();
+        }
+
+        [Fact]
+        public void ScenarioPlugin_ValidatePack_MaxDuration_WithNoTimeCondition_AddsWarning()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioPlugin plugin = new ScenarioPlugin(registries);
+
+            List<ScenarioDefinition> scenarios = new List<ScenarioDefinition>
+            {
+                new ScenarioDefinition
+                {
+                    Id = "timed-scenario",
+                    DisplayName = "Timed",
+                    WaveCount = 3,
+                    MaxDuration = 600, // duration set, but no time-based conditions
+                    VictoryConditions = new List<VictoryCondition>
+                    {
+                        new VictoryCondition { ConditionType = VictoryConditionType.DestroyTarget, TargetId = "boss" }
+                    },
+                    DefeatConditions = new List<DefeatCondition>
+                    {
+                        new DefeatCondition { ConditionType = DefeatConditionType.ResourceDepleted }
+                    }
+                }
+            };
+
+            ScenarioValidationResult result = plugin.ValidatePack("test-pack", scenarios);
+            result.Warnings.Should().Contain(w => w.Contains("time-based"));
+        }
+
+        [Fact]
+        public void ScenarioPlugin_ValidatePack_MaxDuration_WithTimeSurvivalVictory_NoWarning()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioPlugin plugin = new ScenarioPlugin(registries);
+
+            List<ScenarioDefinition> scenarios = new List<ScenarioDefinition>
+            {
+                new ScenarioDefinition
+                {
+                    Id = "survival-scenario",
+                    DisplayName = "Survival",
+                    WaveCount = 3,
+                    MaxDuration = 600,
+                    VictoryConditions = new List<VictoryCondition>
+                    {
+                        new VictoryCondition { ConditionType = VictoryConditionType.TimeSurvival, TargetValue = 600 }
+                    },
+                    DefeatConditions = new List<DefeatCondition>
+                    {
+                        new DefeatCondition { ConditionType = DefeatConditionType.ResourceDepleted }
+                    }
+                }
+            };
+
+            ScenarioValidationResult result = plugin.ValidatePack("test-pack", scenarios);
+            result.Warnings.Should().NotContain(w => w.Contains("time-based"));
+        }
+
+        [Fact]
+        public void ScenarioPlugin_ValidatePack_MaxDuration_WithTimeExpiredDefeat_NoWarning()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioPlugin plugin = new ScenarioPlugin(registries);
+
+            List<ScenarioDefinition> scenarios = new List<ScenarioDefinition>
+            {
+                new ScenarioDefinition
+                {
+                    Id = "expiry-scenario",
+                    DisplayName = "Time Expiry",
+                    WaveCount = 3,
+                    MaxDuration = 600,
+                    VictoryConditions = new List<VictoryCondition>
+                    {
+                        new VictoryCondition { ConditionType = VictoryConditionType.DestroyTarget, TargetId = "boss" }
+                    },
+                    DefeatConditions = new List<DefeatCondition>
+                    {
+                        new DefeatCondition { ConditionType = DefeatConditionType.TimeExpired, TargetValue = 600 }
+                    }
+                }
+            };
+
+            ScenarioValidationResult result = plugin.ValidatePack("test-pack", scenarios);
+            result.Warnings.Should().NotContain(w => w.Contains("time-based"));
+        }
+
+        // ── ScenarioValidator additional path coverage ───────────────────────
+
+        [Fact]
+        public void ScenarioValidator_NegativeResources_ReportsErrors()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioValidator validator = new ScenarioValidator(registries);
+
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "bad-resources",
+                DisplayName = "Bad Resources",
+                WaveCount = 3,
+                StartingResources = new DINOForge.SDK.Models.ResourceCost
+                {
+                    Food = -10,
+                    Wood = -5,
+                    Stone = -1,
+                    Iron = -2,
+                    Gold = -100
+                }
+            };
+
+            IReadOnlyList<string> errors = validator.Validate(scenario);
+            errors.Should().Contain(e => e.Contains("negative starting food"));
+            errors.Should().Contain(e => e.Contains("negative starting wood"));
+            errors.Should().Contain(e => e.Contains("negative starting stone"));
+            errors.Should().Contain(e => e.Contains("negative starting iron"));
+            errors.Should().Contain(e => e.Contains("negative starting gold"));
+        }
+
+        [Fact]
+        public void ScenarioValidator_OnWave_OutOfRange_ReportsError()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioValidator validator = new ScenarioValidator(registries);
+
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "wave-event",
+                DisplayName = "Wave Event",
+                WaveCount = 5,
+                ScriptedEvents = new List<ScriptedEvent>
+                {
+                    new ScriptedEvent
+                    {
+                        Id = "evt1",
+                        TriggerType = TriggerType.OnWave,
+                        TriggerValue = 99 // beyond WaveCount=5
+                    }
+                }
+            };
+
+            IReadOnlyList<string> errors = validator.Validate(scenario);
+            errors.Should().Contain(e => e.Contains("OnWave trigger value"));
+        }
+
+        [Fact]
+        public void ScenarioValidator_OnTime_NegativeValue_ReportsError()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioValidator validator = new ScenarioValidator(registries);
+
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "time-event",
+                DisplayName = "Time Event",
+                WaveCount = 3,
+                ScriptedEvents = new List<ScriptedEvent>
+                {
+                    new ScriptedEvent { Id = "evt1", TriggerType = TriggerType.OnTime, TriggerValue = 0 }
+                }
+            };
+
+            IReadOnlyList<string> errors = validator.Validate(scenario);
+            errors.Should().Contain(e => e.Contains("OnTime trigger with non-positive value"));
+        }
+
+        [Fact]
+        public void ScenarioValidator_OnResource_NoTarget_ReportsError()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioValidator validator = new ScenarioValidator(registries);
+
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "resource-event",
+                DisplayName = "Resource Event",
+                WaveCount = 3,
+                ScriptedEvents = new List<ScriptedEvent>
+                {
+                    new ScriptedEvent { Id = "evt1", TriggerType = TriggerType.OnResource, TriggerValue = 100, TriggerTarget = null }
+                }
+            };
+
+            IReadOnlyList<string> errors = validator.Validate(scenario);
+            errors.Should().Contain(e => e.Contains("OnResource trigger with no target resource"));
+        }
+
+        [Fact]
+        public void ScenarioValidator_OnBuildingBuilt_NoTarget_ReportsError()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioValidator validator = new ScenarioValidator(registries);
+
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "building-event",
+                DisplayName = "Building Event",
+                WaveCount = 3,
+                ScriptedEvents = new List<ScriptedEvent>
+                {
+                    new ScriptedEvent { Id = "evt1", TriggerType = TriggerType.OnBuildingBuilt, TriggerValue = 1, TriggerTarget = null }
+                }
+            };
+
+            IReadOnlyList<string> errors = validator.Validate(scenario);
+            errors.Should().Contain(e => e.Contains("OnBuildingBuilt trigger with no target building"));
+        }
+
+        [Fact]
+        public void ScenarioValidator_DuplicateEventId_ReportsError()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioValidator validator = new ScenarioValidator(registries);
+
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "dup-events",
+                DisplayName = "Duplicate Events",
+                WaveCount = 3,
+                ScriptedEvents = new List<ScriptedEvent>
+                {
+                    new ScriptedEvent { Id = "evt1", TriggerType = TriggerType.OnPopulation, TriggerValue = 50 },
+                    new ScriptedEvent { Id = "evt1", TriggerType = TriggerType.OnUnitKilled, TriggerValue = 100 }
+                }
+            };
+
+            IReadOnlyList<string> errors = validator.Validate(scenario);
+            errors.Should().Contain(e => e.Contains("duplicate scripted event ID"));
+        }
+
+        [Fact]
+        public void ScenarioValidator_SpawnUnits_MissingParameters_ReportsErrors()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioValidator validator = new ScenarioValidator(registries);
+
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "spawn-event",
+                DisplayName = "Spawn Event",
+                WaveCount = 3,
+                ScriptedEvents = new List<ScriptedEvent>
+                {
+                    new ScriptedEvent
+                    {
+                        Id = "evt1",
+                        TriggerType = TriggerType.OnPopulation,
+                        TriggerValue = 100,
+                        Actions = new List<EventAction>
+                        {
+                            new EventAction { ActionType = ActionType.SpawnUnits, Parameters = new Dictionary<string, string>() }
+                        }
+                    }
+                }
+            };
+
+            IReadOnlyList<string> errors = validator.Validate(scenario);
+            errors.Should().Contain(e => e.Contains("SpawnUnits action is missing 'unit_id'"));
+            errors.Should().Contain(e => e.Contains("SpawnUnits action is missing 'count'"));
+        }
+
+        [Fact]
+        public void ScenarioValidator_EnableBuilding_MissingBuildingId_ReportsError()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioValidator validator = new ScenarioValidator(registries);
+
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "building-action",
+                DisplayName = "Building Action",
+                WaveCount = 3,
+                ScriptedEvents = new List<ScriptedEvent>
+                {
+                    new ScriptedEvent
+                    {
+                        Id = "evt1",
+                        TriggerType = TriggerType.OnPopulation,
+                        TriggerValue = 50,
+                        Actions = new List<EventAction>
+                        {
+                            new EventAction { ActionType = ActionType.EnableBuilding, Parameters = new Dictionary<string, string>() }
+                        }
+                    }
+                }
+            };
+
+            IReadOnlyList<string> errors = validator.Validate(scenario);
+            errors.Should().Contain(e => e.Contains("EnableBuilding action is missing 'building_id'"));
         }
     }
 }
