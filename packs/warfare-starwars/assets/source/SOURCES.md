@@ -6,10 +6,11 @@ All sourced assets are CC0 or CC-BY licensed. No NC (non-commercial) or ND (no-d
 
 | Pack/File | Source | License | Size | Status | Maps To |
 |-----------|--------|---------|------|--------|---------|
-| kenney_space-kit | Kenney.nl | CC0 | 6.7MB | Downloaded + extracted (459 FBX) | Spaceships, turrets, hangars, astronaut characters, speeder craft |
-| kenney_blaster-kit | Kenney.nl | CC0 | 1.7MB | Downloaded + extracted (120 FBX) | All blaster/weapon props |
-| kenney_mini-characters | Kenney.nl | CC0 | 2.3MB | Downloaded + extracted (78 FBX) | Humanoid character bases |
-| kenney_modular-space-kit | Kenney.nl | CC0 | 6.8MB | Downloaded + extracted (120 FBX) | Modular sci-fi station parts, CIS base buildings |
+| kenney_space-kit | Kenney.nl | CC0 | 6.4MB | Downloaded + extracted | Spaceships, turrets, hangars, speeder craft, platforms, pipes, structures |
+| kenney_blaster-kit | Kenney.nl | CC0 | 1.7MB | Downloaded + extracted | All blaster/weapon props, crates |
+| kenney_mini-characters | Kenney.nl | CC0 | 2.3MB | Downloaded + extracted | Humanoid character bases (male/female a–f) |
+| kenney_modular-space-kit | Kenney.nl | CC0 | 6.7MB | Downloaded + extracted | Modular sci-fi corridors/rooms/doors, CIS base buildings |
+| kenney_sci-fi-rts | Kenney.nl | CC0 | 2.0MB | Downloaded + extracted | 2D sprites — 48 unit icons, 16 structure icons, tiles (UI use) |
 | sci-fi-soldiers.zip | OpenGameArt.org | CC0 | 57MB | Downloaded | Clone/CIS soldier bodies, skin variants |
 | Shuttle.obj + texture.png | OpenGameArt.org | CC0 | 3.4MB | Downloaded | LAAT gunship base shape |
 | walker_rigged.zip | OpenGameArt.org | CC-BY 3.0 | 22MB | Downloaded | AT-TE / AAT walker body |
@@ -100,6 +101,25 @@ All sourced assets are CC0 or CC-BY licensed. No NC (non-commercial) or ND (no-d
 - Wall panels → CIS Droid Factory exterior walls, Republic Barracks walls
 - Floor tiles → Republic Command Bunker floor, CIS Base floor
 - Doors/airlocks → all buildings' entrance geometry
+
+### Sci-Fi RTS
+- **File**: `kenney/sci-fi-rts/kenney_sci-fi-rts.zip`
+- **Source URL**: https://kenney.nl/assets/sci-fi-rts
+- **Direct download**: https://kenney.nl/media/pages/assets/sci-fi-rts/d981493ccb-1677693650/kenney_sci-fi-rts.zip
+- **License**: CC0 (Public Domain)
+- **Size**: 2.0MB extracted
+- **Contents**: 2D isometric RTS sprites — 48 unit sprites, 16 structure sprites, tile sheets, environment sheets; PNG, Vector, and Spritesheet formats
+
+**Unit/building mappings (2D sprites for UI icons — not 3D meshes):**
+- `PNG/Default size/Unit/scifiUnit_01–16.png` → Republic unit card icon references (humanoids, vehicles)
+- `PNG/Default size/Unit/scifiUnit_17–32.png` → CIS unit card icon references (droids, mechs)
+- `PNG/Default size/Unit/scifiUnit_33–48.png` → Additional unit icon variants
+- `PNG/Default size/Structure/scifiStructure_01–08.png` → Republic building icon references
+- `PNG/Default size/Structure/scifiStructure_09–16.png` → CIS building icon references
+- `PNG/Default size/Tile/` → Terrain tile references for map thumbnail generation
+- `Spritesheet/` → Consolidated sprite atlas for runtime UI rendering
+
+**Usage notes**: These are 2D top-down sprites suitable for HUD minimap icons, unit selection UI, and tooltip thumbnails. Not intended as 3D mesh sources. Ready to use as-is without Blender processing.
 
 ---
 
