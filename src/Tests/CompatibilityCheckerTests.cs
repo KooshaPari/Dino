@@ -1,3 +1,4 @@
+using System;
 using DINOForge.SDK;
 using FluentAssertions;
 using Xunit;
@@ -397,6 +398,44 @@ namespace DINOForge.Tests
 
             result.IsCompatible.Should().BeTrue();
             result.Warnings.Should().BeEmpty();
+        }
+
+        // ── IsVersionInRange: Pre-release and Edge Cases ──────────────────────
+
+        [Fact]
+        public void IsVersionInRange_PreReleaseVersion_HandledGracefully()
+        {
+            // Pre-release versions like "1.0.0-rc1" should be handled gracefully
+            // The implementation strips pre-release tags before parsing
+            CompatibilityChecker.IsVersionInRange("1.0.0-rc1", ">=1.0.0").Should().BeTrue();
+            CompatibilityChecker.IsVersionInRange("1.0.0-alpha", ">=0.9.0").Should().BeTrue();
+            CompatibilityChecker.IsVersionInRange("1.0.0-preview.5", "<2.0.0").Should().BeTrue();
+        }
+
+        [Fact]
+        public void IsVersionInRange_MalformedVersion_ReturnsFalse()
+        {
+            // Malformed versions should not throw, but return false
+            CompatibilityChecker.IsVersionInRange("not-a-version", ">=1.0.0").Should().BeFalse();
+            CompatibilityChecker.IsVersionInRange("", ">=1.0.0").Should().BeFalse();
+            CompatibilityChecker.IsVersionInRange("abc.def.ghi", "1.0.0").Should().BeFalse();
+        }
+
+        [Fact]
+        public void IsVersionInRange_FourPartVersion_ParsedAsIs()
+        {
+            // Four-part versions like "1.2.3.4" are parsed as full Version objects
+            CompatibilityChecker.IsVersionInRange("1.2.3.4", ">=1.2.3").Should().BeTrue();
+            CompatibilityChecker.IsVersionInRange("1.2.3.4", ">1.2.3").Should().BeTrue();
+            CompatibilityChecker.IsVersionInRange("1.2.3.99", "<1.2.4").Should().BeTrue();
+        }
+
+        [Fact]
+        public void IsVersionInRange_NullVersion_ThrowsNullReferenceException()
+        {
+            // Null version string causes NullReferenceException in version parsing
+            Action act = () => CompatibilityChecker.IsVersionInRange(null!, ">=1.0.0");
+            act.Should().Throw<NullReferenceException>();
         }
     }
 }
