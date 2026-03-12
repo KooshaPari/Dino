@@ -26,16 +26,16 @@ The following statuses indicate compatibility levels and recommended actions:
 
 | DINOForge | DINO Game | BepInEx | Unity | Status | Notes |
 |-----------|-----------|---------|-------|--------|-------|
-| 0.5.x | >=1.0.0 | >=5.4.21 <6.0.0 | 2021.3.* | **Optimal** | Current stable release. Fully tested. |
-| 0.4.x | >=1.0.0 | >=5.4.21 <6.0.0 | 2021.3.* | **Maintenance** | Security fixes only. Upgrade to 0.5.x recommended. |
-| 0.3.x | >=1.0.0 | >=5.4.21 <6.0.0 | 2021.3.* | **Broken** | No longer supported. Upgrade to 0.5.x required. |
+| 0.5.x | `>=1.0.0` | `>=5.4.21 <6.0.0` | 2021.3.* | **Optimal** | Current stable release. Fully tested. |
+| 0.4.x | `>=1.0.0` | `>=5.4.21 <6.0.0` | 2021.3.* | **Maintenance** | Security fixes only. Upgrade to 0.5.x recommended. |
+| 0.3.x | `>=1.0.0` | `>=5.4.21 <6.0.0` | 2021.3.* | **Broken** | No longer supported. Upgrade to 0.5.x required. |
 
 ### Experimental / Future
 
 | DINOForge | DINO Game | BepInEx | Unity | Status | Notes |
 |-----------|-----------|---------|-------|--------|-------|
-| 0.5.x | >=1.0.0 | >=6.0.0 | 2021.3.* | **Unknown** | BepInEx 6.x (Mono) support planned for DINOForge 1.0. Not yet tested. |
-| 0.5.x | >=2.0.0 | >=5.4.21 <6.0.0 | 2022.* | **Unknown** | Future DINO game version. No compatibility data available yet. |
+| 0.5.x | `>=1.0.0` | `>=6.0.0` | 2021.3.* | **Unknown** | BepInEx 6.x (Mono) support planned for DINOForge 1.0. Not yet tested. |
+| 0.5.x | `>=2.0.0` | `>=5.4.21 <6.0.0` | 2022.* | **Unknown** | Future DINO game version. No compatibility data available yet. |
 
 ## Component Compatibility
 
@@ -43,14 +43,14 @@ ECS component layouts may change between game versions. The following components
 
 | Component | Field | DINO Versions | Status | Notes |
 |-----------|-------|---------------|--------|-------|
-| `Components.Health` | `currentHealth` | >=1.0 | **Optimal** | Confirmed via entity dump. Core health tracking for units and buildings. |
-| `Components.HealthBase` | `_maxHealthMultiplier` | >=1.0 | **Stable** | Private field, may change in patches. Max health multiplier mutable value. |
-| `Components.Unit` | (tag) | >=1.0 | **Optimal** | Zero-sized tag marking entities as units. Verified present on all units. |
-| `Components.ArmorData` | `type` | >=1.0 | **Optimal** | ArmorType enum. Confirmed layout stable across patches. |
-| `Components.AttackCooldown` | `value` | >=1.0 | **Stable** | Cooldown timer. Also carries fixedProjectileSpeed field. |
-| `Components.ProjectileDataBase` | (blob ref) | >=1.0 | **Optimal** | BlobAssetReference<ProjectileData>. Immutable, verified on projectile entities. |
-| `Components.BuildingBase` | (core) | >=1.0 | **Optimal** | Present on all buildings. Core building data container. |
-| `Components.Enemy` | (faction marker) | >=1.0 | **Stable** | Enemy faction marker (BlobAssetReference<EnemyBaseData>). Player units lack this tag. |
+| `Components.Health` | `currentHealth` | `>=1.0` | **Optimal** | Confirmed via entity dump. Core health tracking for units and buildings. |
+| `Components.HealthBase` | `_maxHealthMultiplier` | `>=1.0` | **Stable** | Private field, may change in patches. Max health multiplier mutable value. |
+| `Components.Unit` | (tag) | `>=1.0` | **Optimal** | Zero-sized tag marking entities as units. Verified present on all units. |
+| `Components.ArmorData` | `type` | `>=1.0` | **Optimal** | ArmorType enum. Confirmed layout stable across patches. |
+| `Components.AttackCooldown` | `value` | `>=1.0` | **Stable** | Cooldown timer. Also carries fixedProjectileSpeed field. |
+| `Components.ProjectileDataBase` | (blob ref) | `>=1.0` | **Optimal** | `BlobAssetReference<ProjectileData>`. Immutable, verified on projectile entities. |
+| `Components.BuildingBase` | (core) | `>=1.0` | **Optimal** | Present on all buildings. Core building data container. |
+| `Components.Enemy` | (faction marker) | `>=1.0` | **Stable** | Enemy faction marker (`BlobAssetReference<EnemyBaseData>`). Player units lack this tag. |
 
 ## Upgrading Between Versions
 
