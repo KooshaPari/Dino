@@ -30,6 +30,7 @@ export default withMermaid(
         { text: 'Concepts', link: '/concepts/architecture' },
         { text: 'Warfare', link: '/warfare/overview' },
         { text: 'Reference', link: '/reference/schemas' },
+        { text: 'API', link: '/api/' },
         { text: 'Roadmap', link: '/roadmap/' },
         { text: 'Community', link: '/community' },
       ],

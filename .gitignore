@@ -50,6 +50,7 @@ node_modules/
 
 src/Tests/TestResults/
 docs/.vitepress/dist/
+docs/api/
 release-staging/
 local-packages/
 *.sha256
