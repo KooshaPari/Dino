@@ -21,7 +21,7 @@ DOWNLOADED ASSET:
 
 HOW TO USE:
 1. Set your API token:
-   export SKETCHFAB_API_TOKEN="df0764455f124549a58f8a156ad8177d"
+   export SKETCHFAB_API_TOKEN="<your_sketchfab_api_token_here>"
 
 2. Run the downloader:
    python3 packs/warfare-starwars/simple_downloader.py
