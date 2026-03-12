@@ -31,6 +31,7 @@ export default withMermaid(
         { text: 'Warfare', link: '/warfare/overview' },
         { text: 'Reference', link: '/reference/schemas' },
         { text: 'Roadmap', link: '/roadmap/' },
+        { text: 'Community', link: '/community' },
       ],
 
       sidebar: [
