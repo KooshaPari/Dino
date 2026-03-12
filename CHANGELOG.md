@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Installer: repair/update/uninstall flow** — when DINOForge is already installed, the Avalonia GUI installer now detects the existing installation on startup (checks `BepInEx/plugins/DINOForge.Runtime.dll` and reads version from `dinoforge_version.txt` sidecar), skips the normal wizard, and shows a `MaintenancePage` with three actions:
+  - **Repair** — re-copies all DINOForge binaries and re-runs verification (force-overwrite, same install path as fresh install)
+  - **Update** — same as repair; shown only when the installer version is newer than the installed version
+  - **Uninstall** — removes `DINOForge.Runtime.dll`, `DINOForge.SDK.dll`, `dinoforge_version.txt`, `dinoforge_packs/`, `dinoforge_dumps/`, and `dinoforge_dev/` with a progress log
+  - All file operations wrapped in try/catch with user-friendly "Try running as Administrator" messaging
+  - `InstallDetector` class added to `InstallerService.cs` for detection and version reading
+  - `UninstallOptions` + `InstallerService.UninstallAsync` added for clean removal
+  - Install now writes a `dinoforge_version.txt` version sidecar alongside the DLLs
+  - `MaintenancePageViewModel` + `MaintenancePage.axaml` added following existing Avalonia MVVM patterns
+  - `ProgressPageViewModel` gains `RunRepairAsync` and `RunUninstallAsync` methods
+  - `MainWindowViewModel` gains `ShowNavBar` property; nav bar is hidden on Welcome, Progress, and Maintenance pages
+
+
 - **UGUI medieval redesign** — replaced all legacy IMGUI windows with a proper UGUI Canvas-based overlay stack aligned to the "Diplomacy is Not an Option" medieval RTS aesthetic. New files: `DFCanvas.cs` (root Canvas manager, F9/F10/Escape wiring, slide-in animation), `ModMenuPanel.cs` (full mod menu with card list, detail pane, amber left-border enabled indicator, ERR/CONF badges, fade+slide animation), `DebugPanel.cs` (collapsible sections: Platform Status / ECS Worlds / Systems / Archetypes / Errors; Copy Errors to clipboard), `HudStrip.cs` (always-visible 200×32px top-right strip with pack count, green/red status dot, click-to-open, 3s auto-dismiss toasts), `UiBuilder.cs` (static factory: MakePanel, MakeText, MakeButton, MakeScrollView, MakeInputField, MakeToggle, MakeHorizontalSeparator), `UiAssets.cs` (optional sprite registry for 9-sliced backgrounds; flat-colour fallback always active). Palette: `#0d1a0f` background · `#1c2b1e` surface · `#e8d5b0` parchment text · `#c9a84c` amber gold accent · `#4caf7d` success · `#e05252` error.
 - **`DinoForgeStyle`** — static IMGUI style kit (dark navy theme, gold accent, lazy-initialized `GUIStyle` instances, `StatusBadge` helper) used by the IMGUI fallback path and legacy overlays
 - **`ModMenuOverlayProxy`** — thin `ModMenuOverlay` subclass that forwards `SetPacks`/`SetStatus` to the UGUI `ModMenuPanel` without modifying `ModPlatform`

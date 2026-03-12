@@ -16,13 +16,17 @@ public enum WizardPage
     /// <summary>Installation options screen.</summary>
     Options = 2,
     /// <summary>Progress / completion screen.</summary>
-    Progress = 3
+    Progress = 3,
+    /// <summary>Maintenance mode (Repair / Update / Uninstall) shown when already installed.</summary>
+    Maintenance = 4
 }
 
 /// <summary>
 /// Root ViewModel for the installer main window.
 /// Acts as a wizard state machine, hosting the four page ViewModels and
 /// managing navigation between them.
+/// On startup, auto-detects the game path and — if DINOForge is already installed —
+/// routes directly to the Maintenance page instead of the normal install wizard.
 /// </summary>
 public partial class MainWindowViewModel : ObservableObject
 {
@@ -30,6 +34,7 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly GamePathPageViewModel _gamePathVm;
     private readonly OptionsPageViewModel _optionsVm;
     private readonly ProgressPageViewModel _progressVm;
+    private readonly MaintenancePageViewModel _maintenanceVm;
 
     [ObservableProperty]
     private WizardPage _currentPage = WizardPage.Welcome;
@@ -39,6 +44,8 @@ public partial class MainWindowViewModel : ObservableObject
 
     /// <summary>
     /// Initializes child ViewModels and wires navigation events.
+    /// When an existing installation is detected via auto-detected game path,
+    /// the wizard starts on the Maintenance page instead of Welcome.
     /// </summary>
     public MainWindowViewModel()
     {
@@ -46,6 +53,7 @@ public partial class MainWindowViewModel : ObservableObject
         _gamePathVm = new GamePathPageViewModel();
         _optionsVm = new OptionsPageViewModel();
         _progressVm = new ProgressPageViewModel();
+        _maintenanceVm = new MaintenancePageViewModel();
 
         _currentPageViewModel = _welcomeVm;
 
@@ -72,11 +80,90 @@ public partial class MainWindowViewModel : ObservableObject
             {
                 OnPropertyChanged(nameof(CanGoNext));
                 GoNextCommand.NotifyCanExecuteChanged();
+
+                // If the user changes the path, re-check for existing installation
+                CheckAndOfferMaintenance(_gamePathVm.GamePath);
             }
         };
 
         // Auto-detect on first visit to game path page
         _gamePathVm.AutoDetect();
+
+        // Wire maintenance page events
+        _maintenanceVm.RepairSelected += OnRepairSelected;
+        _maintenanceVm.UpdateSelected += OnUpdateSelected;
+        _maintenanceVm.UninstallSelected += OnUninstallSelected;
+        _maintenanceVm.Cancelled += () => System.Environment.Exit(0);
+
+        // After auto-detect, check if DINOForge is already present
+        CheckAndOfferMaintenance(_gamePathVm.GamePath);
+    }
+
+    /// <summary>
+    /// Checks whether DINOForge is already installed at the given game path.
+    /// If so, populates the MaintenanceViewModel and navigates to the Maintenance page.
+    /// </summary>
+    private void CheckAndOfferMaintenance(string gamePath)
+    {
+        if (string.IsNullOrWhiteSpace(gamePath)) return;
+        if (!InstallDetector.IsInstalled(gamePath)) return;
+
+        _maintenanceVm.GamePath = gamePath;
+        _maintenanceVm.InstalledVersion = InstallDetector.GetInstalledVersion(gamePath);
+        _maintenanceVm.CurrentVersion = InstallDetector.GetCurrentVersion();
+        _maintenanceVm.RefreshDerivedProperties();
+
+        NavigateTo(WizardPage.Maintenance);
+    }
+
+    private void OnRepairSelected()
+    {
+        // Build repair options: same as a fresh install using the existing game path,
+        // dev mode defaults to false (user can't change it from maintenance screen).
+        InstallOptions opts = new InstallOptions
+        {
+            GamePath = _maintenanceVm.GamePath,
+            IsDevMode = false,
+            InstallExamplePacks = false,
+            CreateDesktopShortcut = false,
+            InstallSdkHeaders = false,
+            InstallPackCompiler = false,
+            InstallSchemas = false,
+            InstallDebugTools = false
+        };
+        NavigateTo(WizardPage.Progress);
+        _ = _progressVm.RunRepairAsync(opts);
+    }
+
+    private void OnUpdateSelected()
+    {
+        // Update = same as repair but confirms version bump via the version file
+        InstallOptions opts = new InstallOptions
+        {
+            GamePath = _maintenanceVm.GamePath,
+            IsDevMode = false,
+            InstallExamplePacks = false,
+            CreateDesktopShortcut = false,
+            InstallSdkHeaders = false,
+            InstallPackCompiler = false,
+            InstallSchemas = false,
+            InstallDebugTools = false
+        };
+        NavigateTo(WizardPage.Progress);
+        _ = _progressVm.RunRepairAsync(opts);
+    }
+
+    private void OnUninstallSelected()
+    {
+        UninstallOptions opts = new UninstallOptions
+        {
+            GamePath = _maintenanceVm.GamePath,
+            RemovePacks = true,
+            RemoveDumps = true,
+            RemoveDevAssets = true
+        };
+        NavigateTo(WizardPage.Progress);
+        _ = _progressVm.RunUninstallAsync(opts);
     }
 
     /// <summary>
@@ -100,12 +187,31 @@ public partial class MainWindowViewModel : ObservableObject
     public ProgressPageViewModel ProgressVm => _progressVm;
 
     /// <summary>
-    /// Whether the Back navigation button should be visible.
+    /// Exposes the Maintenance page ViewModel.
     /// </summary>
-    public bool CanGoBack => CurrentPage > WizardPage.Welcome && CurrentPage != WizardPage.Progress;
+    public MaintenancePageViewModel MaintenanceVm => _maintenanceVm;
+
+    /// <summary>
+    /// Whether the bottom navigation bar should be shown at all.
+    /// Hidden on Welcome (uses its own big mode buttons), Maintenance, and Progress pages.
+    /// </summary>
+    public bool ShowNavBar =>
+        CurrentPage != WizardPage.Welcome &&
+        CurrentPage != WizardPage.Progress &&
+        CurrentPage != WizardPage.Maintenance;
+
+    /// <summary>
+    /// Whether the Back navigation button should be visible.
+    /// Not shown on the Welcome, Progress, or Maintenance pages.
+    /// </summary>
+    public bool CanGoBack =>
+        CurrentPage > WizardPage.Welcome &&
+        CurrentPage != WizardPage.Progress &&
+        CurrentPage != WizardPage.Maintenance;
 
     /// <summary>
     /// Whether the Next / Install navigation button should be visible and enabled.
+    /// Hidden on Progress and Maintenance pages (those use their own action buttons).
     /// On the GamePath page the game exe must be found before proceeding.
     /// </summary>
     public bool CanGoNext
@@ -113,6 +219,7 @@ public partial class MainWindowViewModel : ObservableObject
         get
         {
             if (CurrentPage >= WizardPage.Progress) return false;
+            if (CurrentPage == WizardPage.Maintenance) return false;
             if (CurrentPage == WizardPage.GamePath)
                 return _gamePathVm.IsPathValid && _gamePathVm.GameExeOk;
             return true;
@@ -167,9 +274,11 @@ public partial class MainWindowViewModel : ObservableObject
             WizardPage.GamePath => _gamePathVm,
             WizardPage.Options => _optionsVm,
             WizardPage.Progress => _progressVm,
+            WizardPage.Maintenance => _maintenanceVm,
             _ => _welcomeVm
         };
 
+        OnPropertyChanged(nameof(ShowNavBar));
         OnPropertyChanged(nameof(CanGoBack));
         OnPropertyChanged(nameof(CanGoNext));
         OnPropertyChanged(nameof(NextButtonLabel));

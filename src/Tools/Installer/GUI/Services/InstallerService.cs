@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -44,6 +45,96 @@ public sealed class InstallOptions
 
     /// <summary>When true (dev mode), debug tools are installed.</summary>
     public bool InstallDebugTools { get; init; }
+}
+
+/// <summary>
+/// Options controlling what the uninstaller should remove.
+/// </summary>
+public sealed class UninstallOptions
+{
+    /// <summary>
+    /// Full path to the DINO game directory.
+    /// </summary>
+    public required string GamePath { get; init; }
+
+    /// <summary>
+    /// When true, the dinoforge_packs/ directory is also removed.
+    /// </summary>
+    public bool RemovePacks { get; init; } = true;
+
+    /// <summary>
+    /// When true, the dinoforge_dumps/ directory is also removed.
+    /// </summary>
+    public bool RemoveDumps { get; init; } = true;
+
+    /// <summary>
+    /// When true, the dinoforge_dev/ directory is also removed.
+    /// </summary>
+    public bool RemoveDevAssets { get; init; } = true;
+}
+
+/// <summary>
+/// Detects an existing DINOForge installation.
+/// </summary>
+public sealed class InstallDetector
+{
+    /// <summary>
+    /// Returns true when DINOForge Runtime is already present in the given game directory.
+    /// </summary>
+    /// <param name="gamePath">Path to the DINO game directory.</param>
+    public static bool IsInstalled(string gamePath)
+    {
+        if (string.IsNullOrWhiteSpace(gamePath)) return false;
+        string runtimeDll = Path.Combine(gamePath, "BepInEx", "plugins", "DINOForge.Runtime.dll");
+        return File.Exists(runtimeDll);
+    }
+
+    /// <summary>
+    /// Reads the installed DINOForge version from <c>dinoforge_version.txt</c>
+    /// next to the Runtime DLL, or falls back to the DLL's <see cref="FileVersionInfo"/>.
+    /// Returns "unknown" if the version cannot be determined.
+    /// </summary>
+    /// <param name="gamePath">Path to the DINO game directory.</param>
+    public static string GetInstalledVersion(string gamePath)
+    {
+        // Prefer the sidecar version file written during install
+        string versionFile = Path.Combine(gamePath, "BepInEx", "plugins", "dinoforge_version.txt");
+        if (File.Exists(versionFile))
+        {
+            try
+            {
+                string text = File.ReadAllText(versionFile).Trim();
+                if (!string.IsNullOrEmpty(text))
+                    return text;
+            }
+            catch { /* fall through */ }
+        }
+
+        // Fall back to FileVersionInfo on the DLL
+        string runtimeDll = Path.Combine(gamePath, "BepInEx", "plugins", "DINOForge.Runtime.dll");
+        if (File.Exists(runtimeDll))
+        {
+            try
+            {
+                System.Diagnostics.FileVersionInfo fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(runtimeDll);
+                string? ver = fvi.ProductVersion ?? fvi.FileVersion;
+                if (!string.IsNullOrEmpty(ver))
+                    return ver;
+            }
+            catch { /* fall through */ }
+        }
+
+        return "unknown";
+    }
+
+    /// <summary>
+    /// Gets the installer's own (current) version string.
+    /// </summary>
+    public static string GetCurrentVersion()
+    {
+        Version? v = Assembly.GetExecutingAssembly().GetName().Version;
+        return v is null ? "0.0.0" : $"{v.Major}.{v.Minor}.{v.Build}";
+    }
 }
 
 /// <summary>
@@ -97,6 +188,19 @@ public sealed class InstallerService
         string baseDir = AppContext.BaseDirectory;
         CopyIfExists(Path.Combine(baseDir, "DINOForge.Runtime.dll"), Path.Combine(pluginsDir, "DINOForge.Runtime.dll"), log);
         CopyIfExists(Path.Combine(baseDir, "DINOForge.SDK.dll"), Path.Combine(pluginsDir, "DINOForge.SDK.dll"), log);
+
+        // Write version sidecar so future runs can detect the installed version
+        string versionFile = Path.Combine(pluginsDir, "dinoforge_version.txt");
+        string installerVersion = InstallDetector.GetCurrentVersion();
+        try
+        {
+            await File.WriteAllTextAsync(versionFile, installerVersion, cancellationToken).ConfigureAwait(false);
+            log.Report($"Wrote version file: {installerVersion}");
+        }
+        catch (Exception ex)
+        {
+            log.Report($"  Warning: could not write version file: {ex.Message}");
+        }
 
         // Step 4 — Example packs
         if (options.InstallExamplePacks)
@@ -233,6 +337,99 @@ public sealed class InstallerService
             CopyDirectory(srcDir, dstDir, log);
         else
             log.Report($"  Warning: {Path.GetFileName(srcDir)}/ not found next to installer — skipping.");
+    }
+
+    /// <summary>
+    /// Removes DINOForge files from the game directory, reporting progress via <paramref name="log"/>.
+    /// All file I/O errors are caught and surfaced as log messages rather than thrown,
+    /// so the caller can decide how to handle partial uninstalls.
+    /// </summary>
+    /// <param name="options">Uninstall options.</param>
+    /// <param name="log">Progress reporter for log messages.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>True when all targeted files/directories were removed without errors.</returns>
+    public Task<bool> UninstallAsync(
+        UninstallOptions options,
+        IProgress<string> log,
+        CancellationToken cancellationToken = default)
+    {
+        bool success = true;
+        string gamePath = options.GamePath;
+        string pluginsDir = Path.Combine(gamePath, "BepInEx", "plugins");
+
+        log.Report("Starting DINOForge uninstall...");
+
+        // Remove runtime DLLs
+        success &= TryDeleteFile(Path.Combine(pluginsDir, "DINOForge.Runtime.dll"), log);
+        success &= TryDeleteFile(Path.Combine(pluginsDir, "DINOForge.SDK.dll"), log);
+        success &= TryDeleteFile(Path.Combine(pluginsDir, "dinoforge_version.txt"), log);
+
+        // Remove packs directory
+        if (options.RemovePacks)
+            success &= TryDeleteDirectory(Path.Combine(gamePath, "dinoforge_packs"), log);
+
+        // Remove dumps directory
+        if (options.RemoveDumps)
+            success &= TryDeleteDirectory(Path.Combine(gamePath, "dinoforge_dumps"), log);
+
+        // Remove dev assets directory
+        if (options.RemoveDevAssets)
+            success &= TryDeleteDirectory(Path.Combine(gamePath, "dinoforge_dev"), log);
+
+        if (success)
+            log.Report("Uninstall complete. DINOForge has been removed.");
+        else
+            log.Report("Uninstall finished with some errors (see above). Try running as Administrator.");
+
+        return Task.FromResult(success);
+    }
+
+    /// <summary>
+    /// Deletes a single file if it exists, logging success or warning on failure.
+    /// </summary>
+    private static bool TryDeleteFile(string path, IProgress<string> log)
+    {
+        if (!File.Exists(path))
+        {
+            log.Report($"  Skipped (not found): {Path.GetFileName(path)}");
+            return true;
+        }
+
+        try
+        {
+            File.Delete(path);
+            log.Report($"  Deleted: {Path.GetFileName(path)}");
+            return true;
+        }
+        catch (IOException ex)
+        {
+            log.Report($"  ERROR deleting {Path.GetFileName(path)}: {ex.Message}. Try running as Administrator.");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Recursively deletes a directory if it exists, logging success or warning on failure.
+    /// </summary>
+    private static bool TryDeleteDirectory(string path, IProgress<string> log)
+    {
+        if (!Directory.Exists(path))
+        {
+            log.Report($"  Skipped (not found): {Path.GetFileName(path)}/");
+            return true;
+        }
+
+        try
+        {
+            Directory.Delete(path, recursive: true);
+            log.Report($"  Deleted directory: {Path.GetFileName(path)}/");
+            return true;
+        }
+        catch (IOException ex)
+        {
+            log.Report($"  ERROR deleting {Path.GetFileName(path)}/: {ex.Message}. Try running as Administrator.");
+            return false;
+        }
     }
 
     /// <summary>

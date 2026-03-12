@@ -52,13 +52,17 @@
                 <DataTemplate DataType="{x:Type vm:ProgressPageViewModel}">
                     <views:ProgressPage DataContext="{Binding}" />
                 </DataTemplate>
+                <DataTemplate DataType="{x:Type vm:MaintenancePageViewModel}">
+                    <views:MaintenancePage DataContext="{Binding}" />
+                </DataTemplate>
             </ContentControl.DataTemplates>
         </ContentControl>
 
-        <!-- Navigation bar -->
+        <!-- Navigation bar (hidden on Maintenance and Progress pages which use their own actions) -->
         <Border Grid.Row="1"
                 Background="#12122a"
-                Padding="20,12">
+                Padding="20,12"
+                IsVisible="{Binding ShowNavBar}">
             <Grid ColumnDefinitions="*,Auto,Auto">
 
                 <!-- Step indicator -->

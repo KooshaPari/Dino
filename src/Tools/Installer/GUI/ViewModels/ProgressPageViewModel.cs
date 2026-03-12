@@ -126,6 +126,135 @@ public partial class ProgressPageViewModel : ObservableObject
     }
 
     /// <summary>
+    /// Runs the repair sequence: identical to a fresh install but always overwrites existing files.
+    /// </summary>
+    /// <param name="options">Install options populated with the existing game path.</param>
+    public async Task RunRepairAsync(InstallOptions options)
+    {
+        _cts = new CancellationTokenSource();
+        Phase = InstallPhase.Running;
+        HasError = false;
+        ErrorMessage = string.Empty;
+        LogLines.Clear();
+        StatusText = "Repairing DINOForge...";
+        GamePath = options.GamePath;
+
+        IProgress<string> progress = new Progress<string>(line => LogLines.Add(line));
+
+        try
+        {
+            progress.Report("Repair mode: re-copying all DINOForge files...");
+            InstallStatus status = await _service.InstallAsync(options, progress, _cts.Token).ConfigureAwait(false);
+
+            if (status.IsFullyInstalled)
+            {
+                Phase = InstallPhase.Success;
+                StatusText = "Repair complete!";
+            }
+            else
+            {
+                Phase = InstallPhase.Error;
+                StatusText = "Repair finished with issues.";
+                HasError = true;
+                ErrorMessage = "Some components could not be verified after repair. See log for details.";
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            Phase = InstallPhase.Error;
+            StatusText = "Repair was cancelled.";
+            HasError = true;
+            ErrorMessage = "The repair was cancelled by the user.";
+        }
+        catch (IOException ex)
+        {
+            Phase = InstallPhase.Error;
+            StatusText = "Repair failed.";
+            HasError = true;
+            ErrorMessage = $"Could not complete repair: {ex.Message}. Try running as Administrator.";
+            LogLines.Add($"ERROR: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Phase = InstallPhase.Error;
+            StatusText = "Repair failed.";
+            HasError = true;
+            ErrorMessage = ex.Message;
+            LogLines.Add($"ERROR: {ex.Message}");
+        }
+        finally
+        {
+            IsIndeterminate = false;
+            ProgressValue = 100;
+            OnPropertyChanged(nameof(ShowCompletionButtons));
+        }
+    }
+
+    /// <summary>
+    /// Runs the uninstall sequence.
+    /// </summary>
+    /// <param name="options">Uninstall options.</param>
+    public async Task RunUninstallAsync(UninstallOptions options)
+    {
+        _cts = new CancellationTokenSource();
+        Phase = InstallPhase.Running;
+        HasError = false;
+        ErrorMessage = string.Empty;
+        LogLines.Clear();
+        StatusText = "Uninstalling DINOForge...";
+        GamePath = options.GamePath;
+
+        IProgress<string> progress = new Progress<string>(line => LogLines.Add(line));
+
+        try
+        {
+            bool ok = await _service.UninstallAsync(options, progress, _cts.Token).ConfigureAwait(false);
+
+            if (ok)
+            {
+                Phase = InstallPhase.Success;
+                StatusText = "Uninstall complete.";
+            }
+            else
+            {
+                Phase = InstallPhase.Error;
+                StatusText = "Uninstall finished with errors.";
+                HasError = true;
+                ErrorMessage = "Some files could not be removed. Try running as Administrator.";
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            Phase = InstallPhase.Error;
+            StatusText = "Uninstall was cancelled.";
+            HasError = true;
+            ErrorMessage = "The uninstall was cancelled by the user.";
+        }
+        catch (IOException ex)
+        {
+            Phase = InstallPhase.Error;
+            StatusText = "Uninstall failed.";
+            HasError = true;
+            ErrorMessage = $"Could not complete uninstall: {ex.Message}. Try running as Administrator.";
+            LogLines.Add($"ERROR: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Phase = InstallPhase.Error;
+            StatusText = "Uninstall failed.";
+            HasError = true;
+            ErrorMessage = ex.Message;
+            LogLines.Add($"ERROR: {ex.Message}");
+        }
+        finally
+        {
+            IsIndeterminate = false;
+            ProgressValue = 100;
+            OnPropertyChanged(nameof(ShowCompletionButtons));
+        }
+    }
+
+    /// <summary>
     /// Launches the game executable.
     /// </summary>
     [RelayCommand]
