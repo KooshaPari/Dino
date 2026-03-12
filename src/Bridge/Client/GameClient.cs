@@ -73,10 +73,12 @@ public sealed class GameClient : IDisposable
 
             State = ConnectionState.Connected;
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex)
         {
             State = ConnectionState.Error;
             CleanupPipe();
+            if (ex is OperationCanceledException)
+                throw;
             throw new GameClientException($"Failed to connect to pipe '{_options.PipeName}'.", ex);
         }
     }
@@ -266,9 +268,9 @@ public sealed class GameClient : IDisposable
 
     private void CleanupPipe()
     {
-        _reader?.Dispose();
-        _writer?.Dispose();
-        _pipe?.Dispose();
+        try { _reader?.Dispose(); } catch { }
+        try { _writer?.Dispose(); } catch { }
+        try { _pipe?.Dispose(); } catch { }
         _reader = null;
         _writer = null;
         _pipe = null;
