@@ -18,10 +18,11 @@
     <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
     <MinVerTagPrefix>v</MinVerTagPrefix>
 
-    <!-- Security audit: fail CI on vulnerable packages -->
-    <NuGetAudit>true</NuGetAudit>
-    <NuGetAuditLevel>moderate</NuGetAuditLevel>
-    <NuGetAuditMode>all</NuGetAuditMode>
+    <!-- Security audit: enforce in CI, avoid failing local/offline builds -->
+    <NuGetAudit Condition="'$(CI)' == 'true'">true</NuGetAudit>
+    <NuGetAudit Condition="'$(CI)' != 'true'">false</NuGetAudit>
+    <NuGetAuditLevel Condition="'$(CI)' == 'true'">moderate</NuGetAuditLevel>
+    <NuGetAuditMode Condition="'$(CI)' == 'true'">all</NuGetAuditMode>
 
     <!-- Reproducible builds: lock NuGet package versions -->
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>

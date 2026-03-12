@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+#### VFX System Design: Star Wars Clone Wars Pack (v1.0)
+- **VFX_SYSTEM_DESIGN.md** (1737 lines) — comprehensive visual effects framework for `warfare-starwars` pack covering:
+  - **Projectile VFX**: 13 projectile types (Republic/CIS blaster bolts, lightsabers, electrostaffs, explosive rounds) with detailed mesh specs, emissive colors, and particle trails aligned to faction aesthetics
+  - **Impact Effects**: 8 impact effect definitions (spark bursts, large/medium explosions with flash+smoke+debris phases, lightsaber impact rings, electrical discharge) with particle system specs and duration timings
+  - **Ability VFX** (v1.1+): Jedi Force Push/Pull waves, lightsaber whirl, Droideka shield deploy with persistent dome effects
+  - **UI Effects**: Damage number popups (faction color, floating text, critical multiplier), health bar color shifts (green→yellow→red), selection highlights (faction-color pulse), ability readiness indicators (aura+cooldown ring)
+  - **Addressables Integration**: Naming conventions (warfare-starwars/projectiles/*, warfare-starwars/vfx/*, warfare-starwars/ui/*), manifest entry schema, runtime loading pattern
+  - **YAML Schema & Pack Integration**: Projectile definitions for weapons.yaml, projectile.schema.json compatibility, weapon-to-projectile linkage examples
+  - **Color Palette Reference**: Emissive hex values (#4488FF Republic blue, #FF4400 CIS red-orange, #FFFF44 electrostaff yellow, #44FF44 green lightsaber, #FF44FF Grievous purple) with RGB breakdown
+  - **Implementation Roadmap**: v1.0 (schema complete), v1.1 (projectile meshes + particle systems + UI prefabs, 3-4 weeks), v1.2 (ability VFX, 2-3 weeks), v1.3+ (polish, cosmetics, community contributions)
+  - **Community Contribution Guide**: Step-by-step workflows for VFX artists (Blender modeling → Unity import → Addressables → DINO testing), priority asset list (B1 Droid, Clone Trooper, super droid, walkers, Jedi, Grievous), submission checklist with validation commands
+  - **Appendices**: Particle system template (copy-paste foundation), troubleshooting common VFX issues (visibility, occlusion, direction, Addressables mismatch), external resource links
+
 ### Fixed
 - **Native menu Mods button EventSystem navigation conflict** — Fixed issue where the injected Mods button was not visually selectable and clicking it would open the Options menu instead. Implemented dual-strategy fix:
   - **Strategy 1**: Explicitly set EventSystem selection to the new Mods button via `EventSystem.current.SetSelectedGameObject()`

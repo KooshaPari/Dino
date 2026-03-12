@@ -11,8 +11,6 @@
     <GameInstalled Condition="Exists('$(ManagedDir)\UnityEngine.dll')">true</GameInstalled>
     <GameInstalled Condition="!Exists('$(ManagedDir)\UnityEngine.dll')">false</GameInstalled>
     <DeployToGame Condition="'$(DeployToGame)' == ''">false</DeployToGame>
-    <BuildProjectReferences Condition="'$(SolutionPath)' != ''">false</BuildProjectReferences>
-
     <!-- Copy SDK and its dependencies alongside Runtime DLL for deployment (game install only) -->
     <CopyLocalLockFileAssemblies Condition="'$(GameInstalled)' == 'true' and '$(DeployToGame)' == 'true'">true</CopyLocalLockFileAssemblies>
 
@@ -201,8 +199,21 @@
     <Compile Remove="Bridge\WaveInjector.cs" />
   </ItemGroup>
 
-  <!-- SDK project reference - provides pack loading, registries, schemas -->
-  <ItemGroup>
+  <!--
+    Solution builds currently hit an opaque nested-MSBuild failure while resolving
+    Runtime's project references. Use direct assembly references in that path and
+    keep project references for standalone Runtime builds.
+  -->
+  <ItemGroup Condition="'$(SolutionPath)' != ''">
+    <Reference Include="DINOForge.SDK">
+      <HintPath>..\SDK\bin\$(Configuration)\netstandard2.0\DINOForge.SDK.dll</HintPath>
+    </Reference>
+    <Reference Include="DINOForge.Bridge.Protocol">
+      <HintPath>..\Bridge\Protocol\bin\$(Configuration)\netstandard2.0\DINOForge.Bridge.Protocol.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(SolutionPath)' == ''">
     <ProjectReference Include="..\SDK\DINOForge.SDK.csproj"
                       SetTargetFramework="TargetFramework=netstandard2.0"
                       SkipGetTargetFrameworkProperties="true" />
