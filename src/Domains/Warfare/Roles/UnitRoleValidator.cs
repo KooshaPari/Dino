@@ -85,7 +85,7 @@ namespace DINOForge.Domains.Warfare.Roles
                 else
                 {
                     filled.Add(role);
-                    roleMap[role] = unitId;
+                    roleMap[role] = unitId!;
                 }
             }
 
