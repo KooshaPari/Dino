@@ -9,9 +9,26 @@ This guide walks you through setting up DINOForge for development or mod authori
 - Diplomacy is Not an Option (Steam)
 - Git
 
-## Install BepInEx
+## Install BepInEx and DINOForge
 
 DINOForge runs on a **modified BepInEx 5** build with Unity ECS support. Standard BepInEx from GitHub will not work.
+
+### Option A: Automated Installer (Recommended for Users)
+
+DINOForge includes a GUI installer that handles BepInEx and DINOForge setup automatically.
+
+1. Download the latest DINOForge installer from [Releases](https://github.com/KooshaPari/Dino/releases)
+2. Run `DINOForge.Installer.exe`
+3. Select your DINO game installation directory
+4. The installer will:
+   - Download and extract the modified BepInEx 5
+   - Install DINOForge Runtime and example packs
+   - Verify the installation
+5. Launch the game and verify mods load (F10 to open mod menu)
+
+### Option B: Manual Installation (For Developers)
+
+If you prefer manual setup or the installer doesn't work for you:
 
 1. Download **BepInEx 5 with Unity ECS Support** from [Nexus Mods](https://www.nexusmods.com/diplomacyisnotanoption/mods/1)
 2. Extract into your DINO game directory (where the `.exe` lives)
@@ -32,6 +49,7 @@ Standard BepInEx does **not** work with DINO. The game uses full Unity ECS (DOTS
 :::
 
 4. Launch the game once to let BepInEx initialize, then close it.
+5. Copy the built `DINOForge.Runtime.dll` to `BepInEx/ecs_plugins/`
 
 ## Clone and Build
 
