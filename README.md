@@ -180,6 +180,15 @@ Visit [kooshapari.github.io/Dino](https://kooshapari.github.io/Dino) for full do
 - **ADD** (Agent-Driven Development) — fully agent-authored codebase
 - **CDD** (Contract-Driven Development) — schemas as contracts between packs and engine
 
+## Formal Governance
+
+- **Coverage** — Code coverage is published to Codecov from CI and governed by `codecov.yml`.
+- **Versioning** — public releases use SemVer tags (`vX.Y.Z`) with `VERSION` tracking the latest released version.
+- **Changelog** — `CHANGELOG.md` follows Keep a Changelog with a permanent `[Unreleased]` section.
+- **Ownership** — `.github/CODEOWNERS` is the review-routing source of truth.
+- **Release Process** — see [RELEASING.md](RELEASING.md).
+- **Shared KooshaPari semantics** — see [docs/reference/kooshapari-project-semantics.md](docs/reference/kooshapari-project-semantics.md).
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.

@@ -44,6 +44,19 @@ jobs:
         if: inputs.dry_run != true
         run: versionize --workingDirectory . --tag-only
 
+      - name: Validate SemVer and changelog governance
+        run: |
+          VERSION=$(tr -d '[:space:]' < VERSION)
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'; then
+            echo "VERSION must contain valid SemVer (found: $VERSION)" >&2
+            exit 1
+          fi
+          if ! grep -q '^## \[Unreleased\]$' CHANGELOG.md; then
+            echo "CHANGELOG.md must retain an [Unreleased] section" >&2
+            exit 1
+          fi
+          echo "Version governance: OK ($VERSION)"
+
       - name: Push changes and tags
         if: inputs.dry_run != true
         run: |

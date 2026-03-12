@@ -72,9 +72,9 @@ jobs:
         if: always()
         with:
           files: '**/coverage/*.xml'
-          fail_ci_if_error: false
-          # Configure CODECOV_TOKEN secret in repository settings for authenticated uploads
-          # This enables better coverage tracking and historical comparisons
+          flags: ci
+          fail_ci_if_error: true
+          verbose: true
 
       - name: Publish test report
         uses: dorny/test-reporter@d61b558e8df85cb60d09ca3e5b09653b4477cea7 # v1
