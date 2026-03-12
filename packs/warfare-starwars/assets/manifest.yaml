@@ -1,6 +1,7 @@
 # warfare-starwars Asset Manifest
-# All entries are placeholders - community contributions welcome
 # Art style: low-poly TABS aesthetic (see ASSET_PIPELINE.md)
+# Source assets downloaded to source/ — see source/SOURCES.md for full index
+# Placeholders still require Blender assembly from source files listed below
 
 schema_version: "1.0"
 pack_id: warfare-starwars
@@ -24,14 +25,20 @@ units:
         file: meshes/rep_clone_militia.fbx
         poly_budget: 300
         placeholder: true
+        source_file: source/kenney/mini-characters-1/Models/FBX format/character-male-a.fbx
+        license: CC0
         source_hint: >
-          Kenney.nl "Character Pack" (CC0) - humanoid soldier base; Sketchfab search "clone trooper low poly"
-          CC0/CC-BY; PolyPizza "Military" category.
+          BASE: source/kenney/mini-characters-1 character-male-a.fbx (CC0, Kenney.nl).
+          Modifications needed: add dome helmet, chest plates, arm vambraces, short carbine
+          (use source/kenney/blaster-kit blaster-b.fbx). TABS-style exaggeration of proportions.
       - id: rep_clone_militia_texture
         type: Texture
         file: textures/rep_clone_militia_albedo.png
         placeholder: true
-        source_hint: Flat white (#F5F5F5) base with blue (#1A3A6B) stripe accent. Kenney texture atlas compatible.
+        license: CC0
+        source_hint: >
+          Derive from source/kenney/mini-characters-1/Models/Textures/ atlas (CC0).
+          Repaint: flat white (#F5F5F5) base with blue (#1A3A6B) stripe accent.
 
   - id: rep_clone_trooper
     display_name: Clone Trooper
@@ -47,9 +54,12 @@ units:
         file: meshes/rep_clone_trooper.fbx
         poly_budget: 350
         placeholder: true
+        source_file: source/kenney/mini-characters-1/Models/FBX format/character-male-b.fbx
+        license: CC0
         source_hint: >
-          Kenney.nl "Character Pack" (CC0) humanoid base; PolyPizza search "soldier sci-fi";
-          Sketchfab "phase 2 clone trooper" free/CC-BY section.
+          BASE: source/kenney/mini-characters-1 character-male-b.fbx (CC0, Kenney.nl).
+          Rifle: source/kenney/blaster-kit blaster-a.fbx (CC0).
+          Modifications: T-visor helmet dome, shoulder pauldrons, forearm vambraces in Blender.
       - id: rep_clone_trooper_texture
         type: Texture
         file: textures/rep_clone_trooper_albedo.png
@@ -112,9 +122,13 @@ units:
         file: meshes/rep_barc_speeder.fbx
         poly_budget: 500
         placeholder: true
+        source_file: source/kenney/space-kit/Models/FBX format/craft_speederA.fbx
+        license: CC0
         source_hint: >
-          Kenney.nl "Space Kit" (CC0) hover bike elements; PolyPizza "vehicle sci-fi" category;
-          Sketchfab "speeder bike low poly" free section.
+          BASE: source/kenney/space-kit craft_speederA.fbx (CC0, Kenney.nl).
+          Alternatives: craft_speederB/C/D.fbx in same pack.
+          Alt base: source/opengameart/sci-fi-hover-tank/sci-fi-hover-tank.zip (CC-BY 3.0, Kingshemboo).
+          Modifications: white/blue repaint (#F5F5F5/#1A3A6B), add pilot figure from mini-characters.
       - id: rep_barc_speeder_texture
         type: Texture
         file: textures/rep_barc_speeder_albedo.png
@@ -135,9 +149,13 @@ units:
         file: meshes/rep_atte.fbx
         poly_budget: 1200
         placeholder: true
+        source_file: source/opengameart/walker-rigged/walker_rigged.zip
+        license: CC-BY 3.0
         source_hint: >
-          Sketchfab "AT-TE low poly" free/CC-BY section; PolyPizza "mech walker";
-          KenneyNL robotics kit (CC0) legs can be adapted.
+          BASE: source/opengameart/walker-rigged/walker_rigged.zip (CC-BY 3.0) — rigged quadruped walker.
+          ATTRIBUTION REQUIRED for CC-BY: see source/SOURCES.md.
+          Top cannon: source/kenney/space-kit turret_double.fbx (CC0).
+          Modifications: replicate legs ×6, add boxy rectangular hull, white/gray paint scheme.
       - id: rep_atte_texture
         type: Texture
         file: textures/rep_atte_albedo.png
@@ -318,9 +336,13 @@ units:
         file: meshes/cis_b1_battle_droid.fbx
         poly_budget: 250
         placeholder: true
+        source_file: source/opengameart/sci-fi-soldier/sci-fi-soldiers.zip
+        license: CC0
         source_hint: >
-          Kenney.nl "Robot" pack (CC0) thin humanoid variant; PolyPizza "robot skeleton";
-          Sketchfab "B1 battle droid low poly" free/CC-BY.
+          BASE: source/opengameart/sci-fi-soldier/sci-fi-soldiers.zip (CC0) — extract and use as body reference.
+          Alt base: source/kenney/mini-characters-1 character-male-a.fbx (CC0).
+          Modifications: replace head with triangular CIS droid head, thin all limbs to stick-figure proportions,
+          remove organic details, add E-5 blaster from source/kenney/blaster-kit blaster-e.fbx.
       - id: cis_b1_texture
         type: Texture
         file: textures/cis_b1_battle_droid_albedo.png
@@ -403,8 +425,11 @@ units:
         file: meshes/cis_stap.fbx
         poly_budget: 200
         placeholder: true
+        source_file: source/kenney/space-kit/Models/FBX format/craft_speederB.fbx
+        license: CC0
         source_hint: >
-          Kenney.nl "Space Kit" (CC0) hover platform adapted; PolyPizza sci-fi vehicle.
+          BASE: source/kenney/space-kit craft_speederB.fbx (CC0, Kenney.nl).
+          Modifications: narrow chassis to single-rider width, add vertical thrust pods, handlebars at top.
       - id: cis_stap_pilot_mesh
         type: Mesh
         file: meshes/cis_stap_pilot_combined.fbx
@@ -431,9 +456,13 @@ units:
         file: meshes/cis_aat.fbx
         poly_budget: 1000
         placeholder: true
+        source_file: source/opengameart/sci-fi-hover-tank/sci-fi-hover-tank.zip
+        license: CC-BY 3.0
         source_hint: >
-          Sketchfab "AAT tank low poly" free/CC-BY; PolyPizza "tank sci-fi";
-          Kenney.nl "Vehicle Pack" (CC0) tank body adapted.
+          BASE: source/opengameart/sci-fi-hover-tank/sci-fi-hover-tank.zip (CC-BY 3.0, Kingshemboo).
+          ATTRIBUTION REQUIRED — credit "Kingshemboo" in packs/warfare-starwars/CREDITS.md.
+          Modifications: widen hull to flattened-dome AAT profile, add central long cannon cylinder,
+          two side blaster stubs, repaint tan/brown (#C8A87A) with olive panels (#4A5A2A).
       - id: cis_aat_texture
         type: Texture
         file: textures/cis_aat_albedo.png
@@ -629,9 +658,13 @@ buildings:
         file: meshes/buildings/rep_command_center.fbx
         poly_budget: 600
         placeholder: true
+        source_file: source/kenney/space-kit/Models/FBX format/hangar_largeA.fbx
+        license: CC0
         source_hint: >
-          Kenney.nl "Modular Buildings" (CC0); PolyPizza "military base" buildings;
-          Sketchfab "sci-fi command center low poly" free/CC-BY.
+          BASE: source/kenney/space-kit hangar_largeA.fbx (CC0, Kenney.nl).
+          Communication dish: source/kenney/space-kit satelliteDish.fbx (CC0).
+          Antenna array from: source/kenney/space-kit machine_wireless.fbx (CC0).
+          Combine into single command center structure in Blender.
       - id: rep_command_center_texture
         type: Texture
         file: textures/buildings/rep_command_center_albedo.png
@@ -652,7 +685,11 @@ buildings:
         file: meshes/buildings/rep_clone_facility.fbx
         poly_budget: 400
         placeholder: true
-        source_hint: Kenney.nl "Modular Buildings" (CC0) barracks variant; PolyPizza military barracks.
+        source_file: source/kenney/space-kit/Models/FBX format/hangar_smallA.fbx
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/space-kit hangar_smallA.fbx (CC0, Kenney.nl).
+          Extend with source/kenney/space-kit corridor.fbx + corridor_window.fbx (CC0) for barracks wings.
       - id: rep_clone_facility_texture
         type: Texture
         file: textures/buildings/rep_clone_facility_albedo.png
@@ -673,7 +710,13 @@ buildings:
         file: meshes/buildings/rep_weapons_factory.fbx
         poly_budget: 450
         placeholder: true
-        source_hint: Kenney.nl "Modular Buildings" (CC0) factory variant; PolyPizza industrial.
+        source_file: source/kenney/space-kit/Models/FBX format/structure_closed.fbx
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/space-kit structure_closed.fbx (CC0, Kenney.nl).
+          Chimneys: source/kenney/space-kit chimney.fbx (CC0).
+          Bay doors: source/kenney/space-kit gate_complex.fbx (CC0).
+          Crates: source/kenney/blaster-kit crate-wide.fbx (CC0).
       - id: rep_weapons_factory_texture
         type: Texture
         file: textures/buildings/rep_weapons_factory_albedo.png
@@ -694,7 +737,11 @@ buildings:
         file: meshes/buildings/rep_vehicle_bay.fbx
         poly_budget: 500
         placeholder: true
-        source_hint: Kenney.nl "Modular Buildings" (CC0) hangar; PolyPizza garage/hangar.
+        source_file: source/kenney/space-kit/Models/FBX format/hangar_largeB.fbx
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/space-kit hangar_largeB.fbx (CC0, Kenney.nl).
+          Floor markings: apply texture; hangar doors implied by open face geometry.
       - id: rep_vehicle_bay_texture
         type: Texture
         file: textures/buildings/rep_vehicle_bay_albedo.png
@@ -714,7 +761,12 @@ buildings:
         file: meshes/buildings/rep_guard_tower.fbx
         poly_budget: 250
         placeholder: true
-        source_hint: Kenney.nl "Modular Buildings" (CC0) tower; PolyPizza guard tower.
+        source_file: source/kenney/space-kit/Models/FBX format/structure.fbx
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/space-kit structure.fbx (CC0, Kenney.nl).
+          Turret: source/kenney/space-kit turret_double.fbx (CC0) mounted on top.
+          Rails: source/kenney/space-kit rail.fbx (CC0) for observation deck railing.
       - id: rep_guard_tower_texture
         type: Texture
         file: textures/buildings/rep_guard_tower_albedo.png
@@ -735,9 +787,12 @@ buildings:
         file: meshes/buildings/rep_shield_generator.fbx
         poly_budget: 350
         placeholder: true
+        source_file: source/kenney/space-kit/Models/FBX format/satelliteDish_large.fbx
+        license: CC0
         source_hint: >
-          Kenney.nl "Space Kit" (CC0) pylon/emitter elements; PolyPizza energy generator;
-          Sketchfab "shield generator low poly" free/CC-BY.
+          BASE: source/kenney/space-kit satelliteDish_large.fbx (CC0, Kenney.nl).
+          Emitter dish: source/kenney/space-kit satelliteDish_detailed.fbx (CC0).
+          Generator base: source/kenney/space-kit machine_generatorLarge.fbx (CC0).
       - id: rep_shield_generator_texture
         type: Texture
         file: textures/buildings/rep_shield_generator_albedo.png
@@ -757,7 +812,12 @@ buildings:
         file: meshes/buildings/rep_supply_station.fbx
         poly_budget: 300
         placeholder: true
-        source_hint: Kenney.nl "Modular Buildings" (CC0) warehouse; PolyPizza supply depot.
+        source_file: source/kenney/space-kit/Models/FBX format/hangar_roundA.fbx
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/space-kit hangar_roundA.fbx (CC0, Kenney.nl).
+          Cargo crates: source/kenney/blaster-kit crate-medium.fbx + crate-wide.fbx (CC0) as props.
+          Barrels: source/kenney/space-kit barrel.fbx + barrels_rail.fbx (CC0).
       - id: rep_supply_station_texture
         type: Texture
         file: textures/buildings/rep_supply_station_albedo.png
@@ -778,7 +838,12 @@ buildings:
         file: meshes/buildings/rep_tibanna_refinery.fbx
         poly_budget: 400
         placeholder: true
-        source_hint: Kenney.nl "Modular Buildings" (CC0) industrial; PolyPizza refinery/factory.
+        source_file: source/kenney/space-kit/Models/FBX format/machine_generatorLarge.fbx
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/space-kit machine_generatorLarge.fbx (CC0, Kenney.nl).
+          Gas tanks: source/kenney/space-kit chimney.fbx + chimney_detailed.fbx (CC0).
+          Pipes: source/kenney/space-kit pipe_straight.fbx + pipe_corner.fbx (CC0).
       - id: rep_tibanna_refinery_texture
         type: Texture
         file: textures/buildings/rep_tibanna_refinery_albedo.png
@@ -799,7 +864,12 @@ buildings:
         file: meshes/buildings/rep_research_lab.fbx
         poly_budget: 380
         placeholder: true
-        source_hint: Kenney.nl "Modular Buildings" (CC0) office/tech variant; PolyPizza research lab.
+        source_file: source/kenney/modular-space-kit/Models/FBX format/room-small.fbx
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/modular-space-kit room-small.fbx (CC0, Kenney.nl).
+          Windows: source/kenney/modular-space-kit template-wall-detail-a.fbx (CC0).
+          Entry gate: source/kenney/modular-space-kit gate-door-window.fbx (CC0).
       - id: rep_research_lab_texture
         type: Texture
         file: textures/buildings/rep_research_lab_albedo.png
@@ -820,7 +890,12 @@ buildings:
         file: meshes/buildings/rep_blast_wall.fbx
         poly_budget: 80
         placeholder: true
-        source_hint: Kenney.nl "Modular Buildings" (CC0) wall segment; simple box with beveled edges.
+        source_file: source/kenney/space-kit/Models/FBX format/corridor_wall.fbx
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/space-kit corridor_wall.fbx (CC0, Kenney.nl).
+          Alt: corridor_wallCorner.fbx (CC0) for corner segments.
+          Simple tile — minimal Blender modification needed.
       - id: rep_blast_wall_texture
         type: Texture
         file: textures/buildings/rep_blast_wall_albedo.png
@@ -845,7 +920,12 @@ buildings:
         file: meshes/buildings/cis_tactical_center.fbx
         poly_budget: 500
         placeholder: true
-        source_hint: Kenney.nl "Modular Buildings" (CC0) command variant; PolyPizza industrial command.
+        source_file: source/kenney/space-kit/Models/FBX format/structure_detailed.fbx
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/space-kit structure_detailed.fbx (CC0, Kenney.nl).
+          Supports: source/kenney/space-kit supports_high.fbx (CC0).
+          Platforms: source/kenney/space-kit platform_large.fbx (CC0) as base pad.
       - id: cis_tactical_center_texture
         type: Texture
         file: textures/buildings/cis_tactical_center_albedo.png
@@ -866,7 +946,13 @@ buildings:
         file: meshes/buildings/cis_droid_factory.fbx
         poly_budget: 600
         placeholder: true
-        source_hint: Kenney.nl "Modular Buildings" (CC0) factory; PolyPizza droid factory/industrial.
+        source_file: source/kenney/space-kit/Models/FBX format/hangar_largeA.fbx
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/space-kit hangar_largeA.fbx (CC0, Kenney.nl) — wide flat-roofed shell.
+          Chimneys: source/kenney/space-kit chimney.fbx + chimney_detailed.fbx (CC0).
+          Pipes: source/kenney/space-kit pipe_*.fbx family (CC0).
+          Monorail conveyor line: source/kenney/space-kit monorail_trainBox.fbx (CC0).
       - id: cis_droid_factory_texture
         type: Texture
         file: textures/buildings/cis_droid_factory_albedo.png
@@ -886,7 +972,12 @@ buildings:
         file: meshes/buildings/cis_assembly_line.fbx
         poly_budget: 400
         placeholder: true
-        source_hint: Kenney.nl "Modular Buildings" (CC0) workshop; PolyPizza assembly/workshop.
+        source_file: source/kenney/modular-space-kit/Models/FBX format/room-large.fbx
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/modular-space-kit room-large.fbx (CC0, Kenney.nl).
+          Variation: room-large-variation.fbx (CC0) for alternate layout.
+          Corridors: corridor.fbx + corridor-corner.fbx (CC0) for connecting bays.
       - id: cis_assembly_line_texture
         type: Texture
         file: textures/buildings/cis_assembly_line_albedo.png
@@ -907,7 +998,12 @@ buildings:
         file: meshes/buildings/cis_heavy_foundry.fbx
         poly_budget: 550
         placeholder: true
-        source_hint: Kenney.nl "Modular Buildings" (CC0) industrial heavy; PolyPizza foundry.
+        source_file: source/kenney/modular-space-kit/Models/FBX format/room-wide.fbx
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/modular-space-kit room-wide.fbx (CC0, Kenney.nl).
+          Blast furnace stack: source/kenney/space-kit chimney_detailed.fbx (CC0).
+          Gate: source/kenney/modular-space-kit gate-door.fbx (CC0) for wide bay entry.
       - id: cis_heavy_foundry_texture
         type: Texture
         file: textures/buildings/cis_heavy_foundry_albedo.png
@@ -927,7 +1023,12 @@ buildings:
         file: meshes/buildings/cis_sentry_turret.fbx
         poly_budget: 150
         placeholder: true
-        source_hint: Kenney.nl "Platformer Kit" (CC0) turret; PolyPizza automated turret.
+        source_file: source/kenney/space-kit/Models/FBX format/turret_single.fbx
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/space-kit turret_single.fbx (CC0, Kenney.nl).
+          Alt: turret_double.fbx from same pack (CC0).
+          Repaint dark gray (#555555) for CIS aesthetic; add red sensor eye prop.
       - id: cis_sentry_turret_texture
         type: Texture
         file: textures/buildings/cis_sentry_turret_albedo.png
