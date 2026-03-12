@@ -147,9 +147,9 @@ internal sealed class AssetctlPipeline
     }
 
     /// <summary>
-    /// Builds normalized placeholders and updates technical status.
+    /// Normalizes asset via Blender headless CLI with LOD generation.
     /// </summary>
-    public AssetctlNormalizeResult Normalize(string assetId, string pipelineRoot)
+    public AssetctlNormalizeResult Normalize(string assetId, string pipelineRoot, string? blenderPath = null, int targetPolycount = 3000)
     {
         string? manifestPath = FindManifestPath(assetId, pipelineRoot);
         if (manifestPath is null)
@@ -161,34 +161,98 @@ internal sealed class AssetctlPipeline
             };
         }
 
+        AssetManifest manifest = ReadManifest(manifestPath);
+
+        // Find source GLB file
+        string rawDir = Path.GetDirectoryName(manifestPath) ?? pipelineRoot;
+        string sourceGlb = Path.Combine(rawDir, "source_download.glb");
+        if (!File.Exists(sourceGlb))
+        {
+            UpdateManifestError(manifestPath, manifest, "source_download.glb not found - run download first");
+            return new AssetctlNormalizeResult
+            {
+                Success = false,
+                Message = "Source GLB not found - download asset first"
+            };
+        }
+
         string workingDir = Path.Combine(pipelineRoot, "working", assetId);
         Directory.CreateDirectory(workingDir);
-        string sourceManifestDir = Path.GetDirectoryName(manifestPath) ?? pipelineRoot;
 
-        File.WriteAllText(Path.Combine(workingDir, "normalized.blend"), "# placeholder normalized blend");
-        File.WriteAllText(Path.Combine(workingDir, "normalized.glb"), "# placeholder normalized glb");
-        File.WriteAllText(Path.Combine(workingDir, "preview.png"), "placeholder");
-        File.WriteAllText(Path.Combine(workingDir, "validation_report.json"), JsonSerializer.Serialize(new
+        try
         {
-            status = "ready_for_prototype",
-            triangle_count = 2400,
-            material_count = 3,
-            recommendation = "ready_for_validation"
-        }, _jsonOptions));
+            // Resolve Blender executable
+            string blenderExe = ResolveBlenderPath(blenderPath);
+            string scriptPath = ResolveNormalizeScript();
 
-        AssetManifest manifest = ReadManifest(manifestPath);
-        manifest.TechnicalStatus = "normalized";
-        manifest.LocalPath = Path.Combine("working", assetId, "normalized.glb");
-        File.WriteAllText(Path.Combine(workingDir, "asset_manifest.json"), JsonSerializer.Serialize(manifest, _jsonOptions));
-        File.WriteAllText(Path.Combine(sourceManifestDir, "asset_manifest.json"), JsonSerializer.Serialize(manifest, _jsonOptions));
+            // Run Blender with script
+            var psi = new System.Diagnostics.ProcessStartInfo(blenderExe)
+            {
+                ArgumentList = { "--background", "--python", scriptPath, "--", sourceGlb, workingDir, targetPolycount.ToString() },
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false
+            };
 
-        return new AssetctlNormalizeResult
+            using var proc = System.Diagnostics.Process.Start(psi) ?? throw new InvalidOperationException("Failed to start Blender");
+            string stdout = proc.StandardOutput.ReadToEnd();
+            string stderr = proc.StandardError.ReadToEnd();
+            proc.WaitForExit();
+
+            if (proc.ExitCode != 0)
+            {
+                string errMsg = $"Blender exited with code {proc.ExitCode}: {stderr.Trim()}";
+                UpdateManifestError(manifestPath, manifest, errMsg);
+                return new AssetctlNormalizeResult { Success = false, Message = errMsg };
+            }
+
+            // Parse normalization_report.json
+            string reportPath = Path.Combine(workingDir, "normalization_report.json");
+            if (!File.Exists(reportPath))
+            {
+                UpdateManifestError(manifestPath, manifest, "Blender did not produce normalization_report.json");
+                return new AssetctlNormalizeResult { Success = false, Message = "Normalization report not found" };
+            }
+
+            NormalizationReport report = JsonSerializer.Deserialize<NormalizationReport>(File.ReadAllText(reportPath))
+                ?? throw new InvalidOperationException("Failed to parse normalization report");
+
+            if (!report.Success)
+            {
+                UpdateManifestError(manifestPath, manifest, "Blender normalization failed");
+                return new AssetctlNormalizeResult { Success = false, Message = "Blender script reported failure" };
+            }
+
+            // Compute SHA256 of normalized.glb
+            string normalizedGlb = Path.Combine(workingDir, "normalized.glb");
+            string sha256 = ComputeSha256(normalizedGlb);
+
+            // Update manifest
+            manifest.TechnicalStatus = "normalized";
+            manifest.LocalPath = Path.Combine("working", assetId, "normalized.glb");
+            manifest.PolycountEstimate = report.Lod0Polycount;
+            manifest.Sha256 = sha256;
+            var notes = manifest.Notes?.ToList() ?? new List<string>();
+            notes.Add($"Normalized via Blender. LOD0={report.Lod0Polycount} LOD1={report.Lod1Polycount} LOD2={report.Lod2Polycount} triangles");
+            manifest.Notes = notes.ToArray();
+
+            // Write manifest to both locations
+            File.WriteAllText(Path.Combine(workingDir, "asset_manifest.json"), JsonSerializer.Serialize(manifest, _jsonOptions));
+            File.WriteAllText(manifestPath, JsonSerializer.Serialize(manifest, _jsonOptions));
+
+            return new AssetctlNormalizeResult
+            {
+                Success = true,
+                AssetId = assetId,
+                WorkingDir = workingDir,
+                WorkingManifestPath = Path.Combine(workingDir, "asset_manifest.json")
+            };
+        }
+        catch (Exception ex)
         {
-            Success = true,
-            AssetId = assetId,
-            WorkingDir = workingDir,
-            WorkingManifestPath = Path.Combine(workingDir, "asset_manifest.json")
-        };
+            UpdateManifestError(manifestPath, manifest, $"Normalization failed: {ex.Message}");
+            return new AssetctlNormalizeResult { Success = false, Message = ex.Message };
+        }
     }
 
     /// <summary>
@@ -238,9 +302,10 @@ internal sealed class AssetctlPipeline
     }
 
     /// <summary>
-    /// Adds stylization marker and moves status.
+    /// Stylizes asset via Blender with faction-specific palettes.
     /// </summary>
-    public AssetctlStylizeResult Stylize(string assetId, string profile, string pipelineRoot)
+    public AssetctlStylizeResult Stylize(string assetId, string profile, string pipelineRoot,
+        string? factionOverride = null, string? blenderPath = null, bool dryRun = false)
     {
         string? manifestPath = FindManifestPath(assetId, pipelineRoot);
         if (manifestPath is null)
@@ -253,28 +318,116 @@ internal sealed class AssetctlPipeline
         }
 
         AssetManifest manifest = ReadManifest(manifestPath);
-        manifest.TechnicalStatus = "ready_for_prototype";
-        List<string> notes = manifest.Notes is null ? new List<string>() : manifest.Notes.ToList();
-        notes.Add($"stylized with profile: {profile}");
-        manifest.Notes = notes.ToArray();
-        manifest.ValidationReport = null;
-        File.WriteAllText(manifestPath, JsonSerializer.Serialize(manifest, _jsonOptions));
 
-        string stylizePath = Path.Combine(Path.GetDirectoryName(manifestPath) ?? pipelineRoot, "stylize.json");
-        File.WriteAllText(stylizePath, JsonSerializer.Serialize(new
+        // Verify prerequisite: must be normalized or validated
+        if (manifest.TechnicalStatus != "normalized" && manifest.TechnicalStatus != "validated")
         {
-            asset_id = manifest.AssetId,
-            profile,
-            applied_at_utc = DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture)
-        }, _jsonOptions));
+            return new AssetctlStylizeResult
+            {
+                Success = false,
+                Message = $"Asset must be normalized first (current: {manifest.TechnicalStatus})"
+            };
+        }
 
-        return new AssetctlStylizeResult
+        string workingDir = Path.Combine(pipelineRoot, "working", assetId);
+        string normalizedGlb = Path.Combine(workingDir, "normalized.glb");
+        if (!File.Exists(normalizedGlb))
         {
-            Success = true,
-            AssetId = assetId,
-            Profile = profile,
-            StylizeReportPath = stylizePath
-        };
+            return new AssetctlStylizeResult
+            {
+                Success = false,
+                Message = "normalized.glb not found in working directory"
+            };
+        }
+
+        // Resolve faction from override, manifest tags, or default to neutral
+        string faction = factionOverride
+            ?? (manifest.Tags?.FirstOrDefault(t => t.Equals("republic", StringComparison.OrdinalIgnoreCase)
+                || t.Equals("cis", StringComparison.OrdinalIgnoreCase)
+                || t.Equals("neutral", StringComparison.OrdinalIgnoreCase)) ?? "neutral");
+
+        FactionPalette palette = BuildFactionPalette(faction, assetId);
+
+        // If dry run, return palette preview without running Blender
+        if (dryRun)
+        {
+            return new AssetctlStylizeResult
+            {
+                Success = true,
+                AssetId = assetId,
+                Profile = profile,
+                DryRunPalette = JsonSerializer.Serialize(palette, _jsonOptions)
+            };
+        }
+
+        // Write palette to temp JSON file for Blender
+        string paletteTempPath = Path.Combine(Path.GetTempPath(), $"palette_{assetId}_{Guid.NewGuid():N}.json");
+        try
+        {
+            File.WriteAllText(paletteTempPath, JsonSerializer.Serialize(palette, _jsonOptions));
+
+            // Resolve Blender executable
+            string blenderExe = ResolveBlenderPath(blenderPath);
+            string scriptPath = ResolveStylizeScript();
+
+            // Run Blender with stylize script
+            var psi = new System.Diagnostics.ProcessStartInfo(blenderExe)
+            {
+                ArgumentList = { "--background", "--python", scriptPath, "--", normalizedGlb, workingDir, paletteTempPath },
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false
+            };
+
+            using var proc = System.Diagnostics.Process.Start(psi) ?? throw new InvalidOperationException("Failed to start Blender");
+            string stdout = proc.StandardOutput.ReadToEnd();
+            string stderr = proc.StandardError.ReadToEnd();
+            proc.WaitForExit();
+
+            if (proc.ExitCode != 0)
+            {
+                string errMsg = $"Blender stylize failed (exit {proc.ExitCode}): {stderr.Trim()}";
+                UpdateManifestError(manifestPath, manifest, errMsg);
+                return new AssetctlStylizeResult { Success = false, Message = errMsg };
+            }
+
+            // Parse stylization_report.json
+            string reportPath = Path.Combine(workingDir, "stylization_report.json");
+            if (!File.Exists(reportPath))
+            {
+                UpdateManifestError(manifestPath, manifest, "Blender did not produce stylization_report.json");
+                return new AssetctlStylizeResult { Success = false, Message = "Stylization report not found" };
+            }
+
+            StylizationReport report = JsonSerializer.Deserialize<StylizationReport>(File.ReadAllText(reportPath))
+                ?? throw new InvalidOperationException("Failed to parse stylization report");
+
+            // Update manifest
+            manifest.TechnicalStatus = "ready_for_prototype";
+            var notes = manifest.Notes?.ToList() ?? new List<string>();
+            notes.Add($"Stylized with faction '{faction}' palette (profile: {profile})");
+            manifest.Notes = notes.ToArray();
+
+            File.WriteAllText(manifestPath, JsonSerializer.Serialize(manifest, _jsonOptions));
+            File.WriteAllText(Path.Combine(workingDir, "asset_manifest.json"), JsonSerializer.Serialize(manifest, _jsonOptions));
+
+            return new AssetctlStylizeResult
+            {
+                Success = true,
+                AssetId = assetId,
+                Profile = profile,
+                StylizeReportPath = reportPath
+            };
+        }
+        finally
+        {
+            // Clean up temp palette file
+            if (File.Exists(paletteTempPath))
+            {
+                try { File.Delete(paletteTempPath); }
+                catch { /* ignore cleanup errors */ }
+            }
+        }
     }
 
     /// <summary>
@@ -1003,6 +1156,132 @@ internal sealed class AssetctlPipeline
                 ConfidenceScore = 0.35,
                 ProvenanceConfidence = 0.42,
                 IpStatus = "unknown_provenance"
+            }
+        };
+    }
+
+    // ===== Helper Methods for Normalization and Stylization =====
+
+    private static string ResolveBlenderPath(string? overridePath)
+    {
+        if (!string.IsNullOrWhiteSpace(overridePath) && File.Exists(overridePath))
+            return overridePath;
+
+        string? envPath = Environment.GetEnvironmentVariable("BLENDER_PATH");
+        if (!string.IsNullOrWhiteSpace(envPath) && File.Exists(envPath))
+            return envPath;
+
+        // Check common Blender install paths
+        string[] candidates = new[]
+        {
+            @"C:\Program Files\Blender Foundation\Blender 4.1\blender.exe",
+            @"C:\Program Files\Blender Foundation\Blender 4.0\blender.exe",
+            @"C:\Program Files\Blender Foundation\Blender 3.6\blender.exe",
+            "/Applications/Blender.app/Contents/MacOS/Blender",
+            "/usr/bin/blender",
+            "/usr/local/bin/blender",
+            "blender"
+        };
+
+        foreach (string path in candidates)
+        {
+            if (File.Exists(path))
+                return path;
+        }
+
+        // Fallback: assume it's on PATH
+        return "blender";
+    }
+
+    private static string ResolveNormalizeScript()
+    {
+        // Try relative to CWD
+        string relative = Path.Combine("scripts", "blender", "normalize_asset.py");
+        if (File.Exists(relative))
+            return relative;
+
+        // Try relative to assembly location, walking up
+        string? dir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        while (dir is not null)
+        {
+            string candidate = Path.Combine(dir, "scripts", "blender", "normalize_asset.py");
+            if (File.Exists(candidate))
+                return candidate;
+            dir = Path.GetDirectoryName(dir);
+        }
+
+        throw new FileNotFoundException("normalize_asset.py not found in scripts/blender/");
+    }
+
+    private static string ResolveStylizeScript()
+    {
+        // Try relative to CWD
+        string relative = Path.Combine("scripts", "blender", "stylize_asset.py");
+        if (File.Exists(relative))
+            return relative;
+
+        // Try relative to assembly location, walking up
+        string? dir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        while (dir is not null)
+        {
+            string candidate = Path.Combine(dir, "scripts", "blender", "stylize_asset.py");
+            if (File.Exists(candidate))
+                return candidate;
+            dir = Path.GetDirectoryName(dir);
+        }
+
+        throw new FileNotFoundException("stylize_asset.py not found in scripts/blender/");
+    }
+
+    private static string ComputeSha256(string filePath)
+    {
+        using SHA256 sha = SHA256.Create();
+        using FileStream fs = File.OpenRead(filePath);
+        return Convert.ToHexString(sha.ComputeHash(fs)).ToLowerInvariant();
+    }
+
+    private void UpdateManifestError(string manifestPath, AssetManifest manifest, string error)
+    {
+        manifest.TechnicalStatus = "rejected_technical";
+        var notes = manifest.Notes?.ToList() ?? new List<string>();
+        notes.Add($"ERROR: {error}");
+        manifest.Notes = notes.ToArray();
+        File.WriteAllText(manifestPath, JsonSerializer.Serialize(manifest, _jsonOptions));
+    }
+
+    private static FactionPalette BuildFactionPalette(string faction, string assetId)
+    {
+        return faction.ToLowerInvariant() switch
+        {
+            "republic" => new FactionPalette
+            {
+                Faction = "republic",
+                AssetName = assetId,
+                Primary = "#F5F5F5",      // White armor
+                Secondary = "#1A3A6B",    // Navy stripe
+                Accent = "#FFD700",       // Gold trim
+                Visor = "#00DDFF",        // Cyan visor
+                Roughness = 0.3,
+                Metallic = 0.1
+            },
+            "cis" => new FactionPalette
+            {
+                Faction = "cis",
+                AssetName = assetId,
+                Primary = "#C8A87A",      // Tan base
+                Secondary = "#5C3D1E",    // Dark brown joints
+                Accent = "#CC2222",       // Red eye
+                Steel = "#3A4A5A",        // Steel
+                Roughness = 0.7,
+                Metallic = 0.2
+            },
+            _ => new FactionPalette
+            {
+                Faction = "neutral",
+                AssetName = assetId,
+                Primary = "#888888",
+                Roughness = 0.5,
+                Metallic = 0.0
             }
         };
     }

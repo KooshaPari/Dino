@@ -206,6 +206,12 @@ public sealed class AssetctlStylizeResult
     /// </summary>
     [JsonPropertyName("stylize_report_path")]
     public string? StylizeReportPath { get; set; }
+
+    /// <summary>
+    /// JSON palette (for --dry-run mode preview).
+    /// </summary>
+    [JsonPropertyName("dry_run_palette")]
+    public string? DryRunPalette { get; set; }
 }
 
 /// <summary>
@@ -278,4 +284,82 @@ public sealed class AssetctlExportResult
     /// </summary>
     [JsonPropertyName("export_dir")]
     public string? ExportDir { get; set; }
+}
+
+/// <summary>
+/// Normalization report from Blender script output.
+/// </summary>
+internal sealed class NormalizationReport
+{
+    [JsonPropertyName("success")]
+    public bool Success { get; set; }
+
+    [JsonPropertyName("original_polycount")]
+    public int OriginalPolycount { get; set; }
+
+    [JsonPropertyName("lod0_polycount")]
+    public int Lod0Polycount { get; set; }
+
+    [JsonPropertyName("lod1_polycount")]
+    public int Lod1Polycount { get; set; }
+
+    [JsonPropertyName("lod2_polycount")]
+    public int Lod2Polycount { get; set; }
+
+    [JsonPropertyName("material_count")]
+    public int MaterialCount { get; set; }
+
+    [JsonPropertyName("output_files")]
+    public string[] OutputFiles { get; set; } = [];
+}
+
+/// <summary>
+/// Faction palette for stylization.
+/// </summary>
+internal sealed class FactionPalette
+{
+    [JsonPropertyName("faction")]
+    public string Faction { get; set; } = "neutral";
+
+    [JsonPropertyName("asset_name")]
+    public string AssetName { get; set; } = string.Empty;
+
+    [JsonPropertyName("primary")]
+    public string Primary { get; set; } = "#888888";
+
+    [JsonPropertyName("secondary")]
+    public string? Secondary { get; set; }
+
+    [JsonPropertyName("accent")]
+    public string? Accent { get; set; }
+
+    [JsonPropertyName("visor")]
+    public string? Visor { get; set; }
+
+    [JsonPropertyName("steel")]
+    public string? Steel { get; set; }
+
+    [JsonPropertyName("roughness")]
+    public double Roughness { get; set; } = 0.5;
+
+    [JsonPropertyName("metallic")]
+    public double Metallic { get; set; } = 0.0;
+}
+
+/// <summary>
+/// Stylization report from Blender script output.
+/// </summary>
+internal sealed class StylizationReport
+{
+    [JsonPropertyName("success")]
+    public bool Success { get; set; }
+
+    [JsonPropertyName("faction")]
+    public string? Faction { get; set; }
+
+    [JsonPropertyName("material_count")]
+    public int MaterialCount { get; set; }
+
+    [JsonPropertyName("output_files")]
+    public string[] OutputFiles { get; set; } = [];
 }

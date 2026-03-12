@@ -1,5 +1,7 @@
 #nullable enable
+using System.Diagnostics;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 
 namespace DINOForge.Tools.Cli.Assetctl.Sketchfab;
@@ -391,7 +393,116 @@ public sealed class SketchfabClient : IDisposable
         if (string.IsNullOrWhiteSpace(modelId))
             throw new ArgumentNullException(nameof(modelId));
 
-        throw new NotImplementedException("DownloadModelAsync() pending implementation.");
+        var sw = Stopwatch.StartNew();
+
+        // Step 1: Get download URLs from the download endpoint
+        var downloadInfoUrl = $"{_apiBaseUrl}/models/{Uri.EscapeDataString(modelId)}/download";
+        var infoRequest = new HttpRequestMessage(HttpMethod.Get, downloadInfoUrl);
+
+        HttpResponseMessage infoResponse;
+        try
+        {
+            infoResponse = await _httpClient.SendAsync(infoRequest, ct).ConfigureAwait(false);
+            UpdateRateLimitState(infoResponse);
+        }
+        catch (Exception ex)
+        {
+            throw new SketchfabApiException($"Failed to retrieve download URLs: {ex.Message}", ex);
+        }
+
+        if (infoResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+            throw new SketchfabModelNotFoundException($"Model {modelId} not found");
+
+        if (infoResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            throw new SketchfabAuthenticationException("API token is invalid or expired");
+
+        if (infoResponse.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            throw new SketchfabApiException("License does not allow download for this model");
+
+        infoResponse.EnsureSuccessStatusCode();
+
+        var infoJson = await infoResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+        var downloadUrls = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, DownloadUrlEntry>>(
+            infoJson,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        if (downloadUrls is null || !downloadUrls.ContainsKey(format.ToLowerInvariant()))
+            throw new SketchfabApiException($"Format '{format}' not available for model {modelId}");
+
+        var fileUrl = downloadUrls[format.ToLowerInvariant()].Url;
+
+        // Step 2: Stream-download the file with SHA256 computation
+        string tempPath = Path.Combine(
+            _options.TempDirectory ?? Path.GetTempPath(),
+            $"sf_{modelId}_{Guid.NewGuid():N}.{format}");
+        string finalPath = outputPath ?? tempPath;
+
+        // Ensure output directory exists
+        var outputDir = Path.GetDirectoryName(finalPath);
+        if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
+        {
+            Directory.CreateDirectory(outputDir);
+        }
+
+        string sha256hex;
+        long fileSize;
+
+        try
+        {
+            using var dlResponse = await _httpClient.SendAsync(
+                new HttpRequestMessage(HttpMethod.Get, fileUrl),
+                HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
+
+            dlResponse.EnsureSuccessStatusCode();
+
+            using var sha = SHA256.Create();
+            using var fileStream = File.Create(tempPath);
+            using var cryptoStream = new CryptoStream(fileStream, sha, CryptoStreamMode.Write);
+
+            await dlResponse.Content.CopyToAsync(cryptoStream, ct).ConfigureAwait(false);
+            await cryptoStream.FlushFinalBlockAsync(ct).ConfigureAwait(false);
+
+            fileSize = new FileInfo(tempPath).Length;
+            sha256hex = Convert.ToHexString(sha.Hash!).ToLowerInvariant();
+        }
+        catch (Exception ex) when (!(ex is SketchfabApiException))
+        {
+            // Clean up temp file on error
+            if (File.Exists(tempPath))
+            {
+                try { File.Delete(tempPath); }
+                catch { /* ignore cleanup errors */ }
+            }
+            throw new SketchfabApiException($"Download failed: {ex.Message}", ex);
+        }
+
+        // Move temp to final if different
+        if (tempPath != finalPath)
+        {
+            File.Move(tempPath, finalPath, overwrite: true);
+        }
+
+        sw.Stop();
+
+        return new SketchfabDownloadResult
+        {
+            FilePath = finalPath,
+            FileSizeBytes = fileSize,
+            Sha256 = sha256hex,
+            DurationMs = sw.ElapsedMilliseconds
+        };
+    }
+
+    /// <summary>
+    /// Local record for deserializing download URL responses from Sketchfab.
+    /// </summary>
+    private sealed record DownloadUrlEntry
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("url")]
+        public string Url { get; set; } = string.Empty;
+
+        [System.Text.Json.Serialization.JsonPropertyName("size")]
+        public long Size { get; set; }
     }
 
     /// <summary>
@@ -450,7 +561,61 @@ public sealed class SketchfabClient : IDisposable
     public async Task<SketchfabTokenValidation> ValidateTokenAsync(CancellationToken ct = default)
     {
         ThrowIfDisposed();
-        throw new NotImplementedException("ValidateTokenAsync() pending implementation.");
+
+        // Send GET /models?q=test&limit=1 to validate token and extract quota info
+        var testUrl = $"{_apiBaseUrl}/models?q=test&limit=1&sort_by=-relevance";
+        var request = new HttpRequestMessage(HttpMethod.Get, testUrl);
+
+        try
+        {
+            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            UpdateRateLimitState(response);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                throw new SketchfabAuthenticationException("API token is invalid or expired");
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            // Extract rate limit to determine plan type
+            var quota = GetRateLimitState();
+            string plan = "Free";
+            if (response.Headers.TryGetValues("X-RateLimit-Limit", out var limitValues))
+            {
+                if (int.TryParse(limitValues.FirstOrDefault(), out var limit))
+                {
+                    plan = limit switch
+                    {
+                        >= 500 => "Pro",
+                        _ => "Free"
+                    };
+                }
+            }
+
+            var dailyLimit = quota?.Remaining ?? 50;
+            if (response.Headers.TryGetValues("X-RateLimit-Limit", out var dailyLimitValues))
+            {
+                if (int.TryParse(dailyLimitValues.FirstOrDefault(), out var dlimit))
+                    dailyLimit = dlimit;
+            }
+
+            return new SketchfabTokenValidation
+            {
+                IsValid = true,
+                Plan = plan,
+                RemainingQuota = quota?.Remaining ?? 0,
+                DailyLimit = dailyLimit
+            };
+        }
+        catch (SketchfabApiException)
+        {
+            throw;
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new SketchfabApiException("Token validation failed due to network error", ex);
+        }
     }
 
     /// <summary>
