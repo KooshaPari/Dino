@@ -86,9 +86,24 @@ namespace DINOForge.SDK.Validation
     /// <summary>Result of a total conversion validation check.</summary>
     public class TcValidationResult
     {
+        /// <summary>
+        /// The identifier of the total conversion manifest being validated.
+        /// </summary>
         public string ManifestId { get; set; } = "";
+
+        /// <summary>
+        /// Whether the total conversion passed all validation checks.
+        /// </summary>
         public bool IsValid { get; set; }
+
+        /// <summary>
+        /// List of validation errors that prevent the total conversion from loading.
+        /// </summary>
         public List<string> Errors { get; set; } = new();
+
+        /// <summary>
+        /// List of validation warnings that don't prevent loading but indicate issues.
+        /// </summary>
         public List<string> Warnings { get; set; } = new();
     }
 }

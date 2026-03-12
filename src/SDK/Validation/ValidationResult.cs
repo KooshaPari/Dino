@@ -52,6 +52,12 @@ namespace DINOForge.SDK.Validation
         /// </summary>
         public string Rule { get; }
 
+        /// <summary>
+        /// Initializes a new <see cref="ValidationError"/> with the given violation details.
+        /// </summary>
+        /// <param name="path">Dot-separated path to the offending field.</param>
+        /// <param name="message">Human-readable description of the violation.</param>
+        /// <param name="rule">Identifier of the violated schema rule.</param>
         public ValidationError(string path, string message, string rule)
         {
             Path = path;

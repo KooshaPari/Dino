@@ -215,6 +215,11 @@ namespace DINOForge.SDK.Universe
         /// </summary>
         public bool IsClean => Warnings.Count == 0;
 
+        /// <summary>
+        /// Initializes a new <see cref="PackGeneratorResult"/> with generated files and warnings.
+        /// </summary>
+        /// <param name="generatedFiles">List of file paths that were generated.</param>
+        /// <param name="warnings">List of warnings encountered during generation.</param>
         public PackGeneratorResult(IReadOnlyList<string> generatedFiles, IReadOnlyList<string> warnings)
         {
             GeneratedFiles = generatedFiles;

@@ -136,7 +136,7 @@ namespace DINOForge.SDK
         }
 
         /// <summary>
-        /// Checks if a version satisfies a single constraint like ">=1.0.0" or "<2.0.0".
+        /// Checks if a version satisfies a single constraint like "&gt;=1.0.0" or "&lt;2.0.0".
         /// </summary>
         private static bool IsSingleConstraintSatisfied(string version, string constraint)
         {

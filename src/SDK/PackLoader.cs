@@ -13,6 +13,9 @@ namespace DINOForge.SDK
     {
         private readonly IDeserializer _deserializer;
 
+        /// <summary>
+        /// Initializes a new <see cref="PackLoader"/> with a configured YAML deserializer.
+        /// </summary>
         public PackLoader()
         {
             _deserializer = new DeserializerBuilder()
