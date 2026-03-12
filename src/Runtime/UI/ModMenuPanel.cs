@@ -89,9 +89,13 @@ namespace DINOForge.Runtime.UI
         /// <summary>Replaces the pack list and refreshes the UI.</summary>
         public void SetPacks(IEnumerable<PackDisplayInfo> packs)
         {
+            int beforeCount = _packs.Count;
             _packs.Clear();
             _packs.AddRange(packs);
             _selectedPackIndex = _packs.Count > 0 ? 0 : -1;
+
+            Debug.Log($"[ModMenuPanel] SetPacks called: before={beforeCount}, after={_packs.Count}, _listContent={(_listContent != null ? _listContent.name : "NULL")}");
+
             RebuildPackList();
             RefreshDetail();
         }
@@ -256,9 +260,20 @@ namespace DINOForge.Runtime.UI
             lhTitleLe.flexibleWidth = 1f;
 
             // Scroll view for pack items
+            Debug.Log("[ModMenuPanel.BuildListPane] Creating scroll view for pack list...");
             (ScrollRect scrollRect, RectTransform content) = UiBuilder.MakeScrollView(
                 pane.transform, "PackListScroll",
                 new Vector2(ListWidth, 0f));
+
+            // Validate the result
+            if (content == null || scrollRect == null)
+            {
+                Debug.LogError("[ModMenuPanel.BuildListPane] CRITICAL: MakeScrollView failed! " +
+                    $"scrollRect={scrollRect != null}, content={content != null}. " +
+                    "Pack list will not be rendered. Check UiBuilder.MakeScrollView for exceptions.");
+                _listContent = null;
+                return;
+            }
 
             RectTransform scrollRt = scrollRect.GetComponent<RectTransform>();
             scrollRt.anchorMin = Vector2.zero;
@@ -268,6 +283,8 @@ namespace DINOForge.Runtime.UI
             scrollRt.sizeDelta = Vector2.zero;
 
             _listContent = content;
+            Debug.Log($"[ModMenuPanel.BuildListPane] SUCCESS: Scroll view initialized, " +
+                $"content={content.name}, active={content.gameObject.activeSelf}");
         }
 
         private void BuildDetailPane(Transform parent)
@@ -398,7 +415,13 @@ namespace DINOForge.Runtime.UI
 
         private void RebuildPackList()
         {
-            if (_listContent == null) return;
+            if (_listContent == null)
+            {
+                Debug.LogError("[ModMenuPanel] FATAL: RebuildPackList called but _listContent is null. " +
+                    "This indicates Build() was never called or MakeScrollView failed. " +
+                    "Pack list will not render until Build() is properly initialized.");
+                return;
+            }
 
             // Destroy existing items
             for (int i = _listContent.childCount - 1; i >= 0; i--)
@@ -406,6 +429,7 @@ namespace DINOForge.Runtime.UI
                 Destroy(_listContent.GetChild(i).gameObject);
             }
 
+            Debug.Log($"[ModMenuPanel] RebuildPackList: Rendering {_packs.Count} packs");
             for (int i = 0; i < _packs.Count; i++)
             {
                 BuildPackListItem(_packs[i], i);
@@ -414,7 +438,13 @@ namespace DINOForge.Runtime.UI
 
         private void BuildPackListItem(PackDisplayInfo pack, int index)
         {
-            if (_listContent == null) return;
+            if (_listContent == null)
+            {
+                Debug.LogWarning($"[ModMenuPanel] BuildPackListItem: _listContent is NULL for pack {pack.Id}");
+                return;
+            }
+
+            Debug.Log($"[ModMenuPanel] BuildPackListItem: Creating item {index}: {pack.Name}, _listContent.childCount before={_listContent.childCount}");
 
             bool isSelected = index == _selectedPackIndex;
             bool hasErrors = pack.Errors.Count > 0;
@@ -508,6 +538,8 @@ namespace DINOForge.Runtime.UI
             btn.colors = cb;
             btn.targetGraphic = card.GetComponent<Image>();
             btn.onClick.AddListener(() => SelectPack(capturedIndex));
+
+            Debug.Log($"[ModMenuPanel] BuildPackListItem: Added item {index} ({pack.Name}), _listContent.childCount after={_listContent.childCount}, card.activeInHierarchy={card.activeInHierarchy}");
         }
 
         private void SelectPack(int index)

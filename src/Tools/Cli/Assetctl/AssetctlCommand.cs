@@ -229,7 +229,7 @@ internal static class AssetctlCommand
             if (!IsJsonOutput(outputFormat))
             {
                 AnsiConsole.MarkupLine("[green]✓[/] Intake created.");
-                AnsiConsole.MarkupLine($"  Asset ID: [bold]{Markup.Escape(result.AssetId)}[/]");
+                AnsiConsole.MarkupLine($"  Asset ID: [bold]{Markup.Escape(result.AssetId ?? string.Empty)}[/]");
                 AnsiConsole.MarkupLine($"  Manifest: [dim]{Markup.Escape(result.ManifestPath ?? string.Empty)}[/]");
                 if (!string.IsNullOrEmpty(result.RawDir))
                 {
@@ -288,7 +288,7 @@ internal static class AssetctlCommand
             if (!IsJsonOutput(outputFormat))
             {
                 AnsiConsole.MarkupLine("[green]✓[/] Asset normalized.");
-                AnsiConsole.MarkupLine($"  Asset ID: [bold]{Markup.Escape(result.AssetId)}[/]");
+                AnsiConsole.MarkupLine($"  Asset ID: [bold]{Markup.Escape(result.AssetId ?? string.Empty)}[/]");
                 AnsiConsole.MarkupLine($"  Working Dir: [dim]{Markup.Escape(result.WorkingDir ?? string.Empty)}[/]");
                 return;
             }
@@ -342,7 +342,7 @@ internal static class AssetctlCommand
             if (!IsJsonOutput(outputFormat))
             {
                 AnsiConsole.MarkupLine("[green]✓[/] Asset validated.");
-                AnsiConsole.MarkupLine($"  Asset ID: [bold]{Markup.Escape(result.AssetId)}[/]");
+                AnsiConsole.MarkupLine($"  Asset ID: [bold]{Markup.Escape(result.AssetId ?? string.Empty)}[/]");
                 AnsiConsole.MarkupLine($"  Technical status: [dim]{Markup.Escape(result.TechnicalStatus ?? "n/a")}[/]");
                 return;
             }

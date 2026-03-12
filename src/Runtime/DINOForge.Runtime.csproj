@@ -38,13 +38,6 @@
     <Compile Remove="UI\UiBuilder.cs" />
   </ItemGroup>
 
-  <!-- SDK reference for HotReload bridge and content loading -->
-  <ItemGroup>
-    <ProjectReference Include="..\SDK\DINOForge.SDK.csproj">
-      <Private>true</Private>
-    </ProjectReference>
-  </ItemGroup>
-
   <!-- BepInEx core - only when game is installed -->
   <ItemGroup Condition="'$(GameInstalled)' == 'true'">
     <Reference Include="BepInEx">

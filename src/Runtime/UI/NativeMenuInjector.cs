@@ -138,29 +138,61 @@ namespace DINOForge.Runtime.UI
         {
             try
             {
+                // If already injected and button is alive, skip scan
+                if (_injected && _injectedButton != null)
+                {
+                    return;
+                }
+
                 Canvas[] allCanvases = Resources.FindObjectsOfTypeAll<Canvas>();
-                LogInfo($"[NativeMenuInjector] Scanning {allCanvases.Length} canvases...");
+                LogInfo($"[NativeMenuInjector] Scan started: found {allCanvases.Length} canvases total");
+
+                int activeCount = 0;
+                int matchCount = 0;
 
                 foreach (Canvas canvas in allCanvases)
                 {
-                    if (!IsCanvasActive(canvas)) continue;
-                    if (!IsCanvasNameMatch(canvas.name)) continue;
+                    // Check if canvas is active in hierarchy
+                    if (!IsCanvasActive(canvas))
+                    {
+                        LogInfo($"[NativeMenuInjector]   Canvas '{canvas.name}': inactive (skipped)");
+                        continue;
+                    }
+                    activeCount++;
+
+                    // Check if canvas name matches our candidates
+                    if (!IsCanvasNameMatch(canvas.name))
+                    {
+                        LogInfo($"[NativeMenuInjector]   Canvas '{canvas.name}': name doesn't match candidates (skipped)");
+                        continue;
+                    }
+                    matchCount++;
+
+                    LogInfo($"[NativeMenuInjector]   Canvas '{canvas.name}': name matched, searching for Settings/Options button...");
 
                     Button? settingsButton = FindSettingsButton(canvas);
-                    if (settingsButton == null) continue;
+                    if (settingsButton == null)
+                    {
+                        LogInfo($"[NativeMenuInjector]   Canvas '{canvas.name}': no Settings/Options button found");
+                        continue;
+                    }
 
-                    LogInfo($"[NativeMenuInjector] Found Settings button in canvas '{canvas.name}'. Injecting Mods button.");
+                    LogInfo($"[NativeMenuInjector] SUCCESS: Found Settings button '{settingsButton.name}' in canvas '{canvas.name}'. Injecting Mods button...");
 
                     InjectButton(settingsButton);
 
-                    if (_injected) return;
+                    if (_injected)
+                    {
+                        LogInfo($"[NativeMenuInjector] Injection successful! Mods button is now active.");
+                        return;
+                    }
                 }
 
-                LogInfo("[NativeMenuInjector] No suitable menu found this scan. Will retry.");
+                LogInfo($"[NativeMenuInjector] Scan complete: {allCanvases.Length} total, {activeCount} active, {matchCount} name-matched, 0 Settings buttons found. Will retry in {RescanInterval}s.");
             }
             catch (Exception ex)
             {
-                LogWarning($"[NativeMenuInjector] TryInjectMenuButton failed: {ex.Message}");
+                LogWarning($"[NativeMenuInjector] TryInjectMenuButton exception: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -171,15 +203,28 @@ namespace DINOForge.Runtime.UI
         {
             try
             {
+                // Try to find Settings button
                 Button? settings = NativeUiHelper.FindButtonByText(canvas.transform, "Settings");
-                if (settings != null) return settings;
+                if (settings != null)
+                {
+                    LogInfo($"[NativeMenuInjector]     Found 'Settings' button: '{settings.name}'");
+                    return settings;
+                }
 
+                // Try to find Options button
                 Button? options = NativeUiHelper.FindButtonByText(canvas.transform, "Options");
-                return options;
+                if (options != null)
+                {
+                    LogInfo($"[NativeMenuInjector]     Found 'Options' button: '{options.name}'");
+                    return options;
+                }
+
+                LogInfo($"[NativeMenuInjector]     No 'Settings' or 'Options' button found in canvas");
+                return null;
             }
             catch (Exception ex)
             {
-                LogWarning($"[NativeMenuInjector] FindSettingsButton exception: {ex.Message}");
+                LogWarning($"[NativeMenuInjector] FindSettingsButton exception: {ex.Message}\n{ex.StackTrace}");
                 return null;
             }
         }
@@ -192,6 +237,12 @@ namespace DINOForge.Runtime.UI
         {
             try
             {
+                if (settingsButton == null)
+                {
+                    LogWarning("[NativeMenuInjector] InjectButton called with null settingsButton!");
+                    return;
+                }
+
                 // Guard: don't inject twice into the same parent
                 Transform parent = settingsButton.transform.parent;
                 if (parent != null)
@@ -212,7 +263,16 @@ namespace DINOForge.Runtime.UI
                     }
                 }
 
+                LogInfo($"[NativeMenuInjector] Cloning Settings button '{settingsButton.name}' to create Mods button...");
                 Button modsButton = NativeUiHelper.CloneButton(settingsButton, "Mods");
+
+                if (modsButton == null)
+                {
+                    LogWarning("[NativeMenuInjector] CloneButton returned null!");
+                    return;
+                }
+
+                LogInfo($"[NativeMenuInjector] Clone successful: '{modsButton.name}'. Positioning...");
 
                 // Position adjacent to Settings button
                 RectTransform modsRect = modsButton.GetComponent<RectTransform>();
@@ -220,23 +280,55 @@ namespace DINOForge.Runtime.UI
                 if (modsRect != null && settingsRect != null)
                 {
                     NativeUiHelper.PositionAfterSibling(modsRect, settingsRect);
+                    LogInfo($"[NativeMenuInjector] Positioned after Settings button (sibling index: {modsButton.transform.GetSiblingIndex()})");
+                }
+                else
+                {
+                    LogWarning($"[NativeMenuInjector] Could not position: modsRect={modsRect != null}, settingsRect={settingsRect != null}");
+                }
+
+                // Ensure button is fully interactive
+                modsButton.gameObject.SetActive(true);
+                modsButton.interactable = true;
+                LogInfo($"[NativeMenuInjector] Button activated: active={modsButton.gameObject.activeSelf}, interactable={modsButton.interactable}");
+
+                // Ensure CanvasGroup doesn't block interaction
+                CanvasGroup? cg = modsButton.GetComponent<CanvasGroup>();
+                if (cg != null)
+                {
+                    cg.interactable = true;
+                    cg.blocksRaycasts = true;
+                    LogInfo($"[NativeMenuInjector] CanvasGroup found and configured (interactable={cg.interactable}, blocksRaycasts={cg.blocksRaycasts})");
+                }
+                else
+                {
+                    LogInfo($"[NativeMenuInjector] No CanvasGroup on button");
                 }
 
                 // Wire onClick
                 modsButton.onClick.RemoveAllListeners();
                 modsButton.onClick.AddListener(OnModsButtonClicked);
+                LogInfo($"[NativeMenuInjector] onClick listener attached");
 
-                // Activate in case the source was inactive
-                modsButton.gameObject.SetActive(true);
+                // Log detailed button state for debugging
+                LogInfo($"[NativeMenuInjector] Final button state: " +
+                    $"name='{modsButton.name}', " +
+                    $"parent='{modsButton.transform.parent?.name}', " +
+                    $"active={modsButton.gameObject.activeSelf}, " +
+                    $"interactable={modsButton.interactable}, " +
+                    $"navigation={modsButton.navigation.mode}, " +
+                    $"raycastTarget={modsButton.targetGraphic?.raycastTarget ?? false}, " +
+                    $"sibling_index={modsButton.transform.GetSiblingIndex()}, " +
+                    $"overlay_ref={(_overlay != null ? "set" : "NULL")}");
 
                 _injectedButton = modsButton;
                 _injected = true;
 
-                LogInfo("[NativeMenuInjector] Mods button injected successfully.");
+                LogInfo("[NativeMenuInjector] ✓ Mods button injection SUCCESSFUL.");
             }
             catch (Exception ex)
             {
-                LogWarning($"[NativeMenuInjector] InjectButton failed: {ex.Message}");
+                LogWarning($"[NativeMenuInjector] InjectButton exception: {ex.Message}\n{ex.StackTrace}");
             }
         }
 

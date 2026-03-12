@@ -1138,6 +1138,651 @@ buildings:
         source_hint: Dark gray (#555555) corrugated panel, black brace supports.
 
 # =============================================================================
+# VANILLA BUILDING RESKINS — REPUBLIC
+# Maps vanilla DINO building types to Republic Star Wars replacements.
+# See crosswalk_republic_vanilla.yaml for full swap registry entries.
+# =============================================================================
+
+  - id: rep_house_clone_quarters
+    vanilla_id: house
+    display_name: Clone Quarters Pod
+    type: Prefab
+    placeholder: true
+    description: >
+      Modular circular habitat unit. White durasteel panels, blue stripe, clone crest emblem,
+      low dome roof. TABS-style squat proportions (~250 tris).
+    meshes:
+      - id: rep_house_clone_quarters_mesh
+        type: Mesh
+        file: meshes/buildings/rep_house_clone_quarters.fbx
+        poly_budget: 250
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-C.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-C.obj (CC0, Kenney.nl).
+          Palette: white (#F5F5F5) body, blue (#1A3A6B) stripe, Republic emblem decal on front face.
+      - id: rep_house_clone_quarters_texture
+        type: Texture
+        file: textures/buildings/rep_house_clone_quarters_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Flat white with blue accent stripe. Clone crest badge on front panel.
+
+  - id: rep_farm_hydroponic
+    vanilla_id: farm
+    display_name: Hydroponic Farm Array
+    type: Prefab
+    placeholder: true
+    description: >
+      Tiered planting bays with energy grow-lights and nutrient feed tubes. Transparent wall panels
+      with blue-green interior glow. Clean Republic aesthetic (~300 tris).
+    meshes:
+      - id: rep_farm_hydroponic_mesh
+        type: Mesh
+        file: meshes/buildings/rep_farm_hydroponic.fbx
+        poly_budget: 300
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-E.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-E.obj (CC0). Add grow-light emissive strips on
+          interior ceiling bands. Piping details from sci-fi-rts pipe kit.
+      - id: rep_farm_hydroponic_texture
+        type: Texture
+        file: textures/buildings/rep_farm_hydroponic_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: White/grey body, teal (#00CED1) grow-light emissive strip. Transparent wall = add alpha.
+
+  - id: rep_granary_synthesizer
+    vanilla_id: granary
+    display_name: Nutrient Synthesizer
+    type: Prefab
+    placeholder: true
+    description: >
+      Tall cylindrical silo with Republic emblem, side access hatch, and data display panel.
+      Metallic white/blue industrial finish (~280 tris).
+    meshes:
+      - id: rep_granary_synthesizer_mesh
+        type: Mesh
+        file: meshes/buildings/rep_granary_synthesizer.fbx
+        poly_budget: 280
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-D.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-D.obj tall variant (CC0). Add side hatch detail
+          and flat display panel on cylinder face. Republic emblem on top band.
+      - id: rep_granary_synthesizer_texture
+        type: Texture
+        file: textures/buildings/rep_granary_synthesizer_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Metallic silver (#B8B8B8), blue (#1A3A6B) band at top and bottom.
+
+  - id: rep_hospital_medbay
+    vanilla_id: hospital
+    display_name: Clone Medical Bay
+    type: Prefab
+    placeholder: true
+    description: >
+      Forward surgical facility. White prefab panel walls, Republic red insignia (not a cross),
+      clean interior suggestion through window slits (~280 tris).
+    meshes:
+      - id: rep_hospital_medbay_mesh
+        type: Mesh
+        file: meshes/buildings/rep_hospital_medbay.fbx
+        poly_budget: 280
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-B.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-B.obj (CC0). Remove any cross-like detail.
+          Add Republic red insignia panel above entry. Window slit on each wall face.
+      - id: rep_hospital_medbay_texture
+        type: Texture
+        file: textures/buildings/rep_hospital_medbay_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: White (#FFFFFF) walls, red (#CC2222) insignia badge, gray trim.
+
+  - id: rep_forester_extraction_post
+    vanilla_id: forester_house
+    display_name: Resource Extraction Post
+    type: Prefab
+    placeholder: true
+    description: >
+      Small outpost with sensor array and resource gathering arm. Compact footprint, antenna dish,
+      Republic branding on side panel (~200 tris).
+    meshes:
+      - id: rep_forester_extraction_post_mesh
+        type: Mesh
+        file: meshes/buildings/rep_forester_extraction_post.fbx
+        poly_budget: 200
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-A.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-A.obj small variant (CC0). Add small satellite
+          dish from space-kit/satelliteDish_small.fbx on roof. Resource arm = pipe + claw end.
+      - id: rep_forester_extraction_post_texture
+        type: Texture
+        file: textures/buildings/rep_forester_extraction_post_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: White (#F0F0F0) body, blue (#1A3A6B) Republic badge, gray sensor array.
+
+  - id: rep_stone_durasteel_refinery
+    vanilla_id: stone_cutter
+    display_name: Durasteel Refinery
+    type: Prefab
+    placeholder: true
+    description: >
+      Industrial smelter converting raw ore to durasteel plating. Two chimneys, molten-glow windows,
+      conveyor input on one side. Republic white/grey industrial finish (~380 tris).
+    meshes:
+      - id: rep_stone_durasteel_refinery_mesh
+        type: Mesh
+        file: meshes/buildings/rep_stone_durasteel_refinery.fbx
+        poly_budget: 380
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-F.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-F.obj (CC0). Add two chimney cylinders on roof,
+          glow-window texture strip on side. Conveyor belt input arm on left face.
+      - id: rep_stone_durasteel_refinery_texture
+        type: Texture
+        file: textures/buildings/rep_stone_durasteel_refinery_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Dark grey (#666666) industrial body, orange (#FF6600) emissive glow on window slits.
+
+  - id: rep_iron_tibanna_extractor
+    vanilla_id: iron_mine
+    display_name: Tibanna Gas Extractor
+    type: Prefab
+    placeholder: true
+    description: >
+      Derrick-style atmospheric extraction rig. Tall derrick frame with pressurized storage tanks and
+      gas conduit tubing. Republic insignia on tank. (~350 tris)
+    meshes:
+      - id: rep_iron_tibanna_extractor_mesh
+        type: Mesh
+        file: meshes/buildings/rep_iron_tibanna_extractor.fbx
+        poly_budget: 350
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/tower-A.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts tower-A.obj (CC0). Add pressurized tank cylinders at base,
+          conduit tubing connecting tank to tower. Republic emblem painted on tank.
+      - id: rep_iron_tibanna_extractor_texture
+        type: Texture
+        file: textures/buildings/rep_iron_tibanna_extractor_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: White/grey tower, silver tanks, blue Republic badge. Conduit tubes in dark grey.
+
+  - id: rep_iron_deep_core_rig
+    vanilla_id: infinite_iron_mine
+    display_name: Deep-Core Tibanna Rig
+    type: Prefab
+    placeholder: true
+    description: >
+      Expanded twin-derrick heavy extraction platform. Two derrick towers mirrored, larger pad footprint,
+      flare exhaust stack between towers. Variant of rep_iron_tibanna_extractor (~500 tris).
+    meshes:
+      - id: rep_iron_deep_core_rig_mesh
+        type: Mesh
+        file: meshes/buildings/rep_iron_deep_core_rig.fbx
+        poly_budget: 500
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/tower-A.obj
+        license: CC0
+        source_hint: >
+          Duplicate and mirror rep_iron_tibanna_extractor in Blender. Add central flare stack (cylinder
+          + cone tip with orange emissive). Shared base platform connecting both towers.
+      - id: rep_iron_deep_core_rig_texture
+        type: Texture
+        file: textures/buildings/rep_iron_deep_core_rig_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Same palette as tibanna_extractor. Flare cone = orange (#FF8C00) emissive tip.
+
+  - id: rep_soul_crystal_excavator
+    vanilla_id: soul_mine
+    display_name: Force Crystal Excavator
+    type: Prefab
+    placeholder: true
+    description: >
+      Kyber crystal mining facility. Angular cage frame structure with purple/blue crystal resonance
+      glow visible inside lattice. Subtle Force energy visual effect (~400 tris).
+    meshes:
+      - id: rep_soul_crystal_excavator_mesh
+        type: Mesh
+        file: meshes/buildings/rep_soul_crystal_excavator.fbx
+        poly_budget: 400
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/tower-B.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts tower-B.obj lattice frame (CC0). Add crystal shard geometry
+          inside cage (low-poly faceted shapes). Apply emissive shader: purple (#9B59B6) / blue (#1A8CFF).
+      - id: rep_soul_crystal_excavator_texture
+        type: Texture
+        file: textures/buildings/rep_soul_crystal_excavator_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: >
+          Dark cage (#333333), crystal interior = emissive purple-blue gradient. Requires custom
+          Blender emission material; bake glow into texture or use Unity emission channel.
+
+  - id: rep_builder_engineer_corps
+    vanilla_id: builder_house
+    display_name: Republic Engineer Corps
+    type: Prefab
+    placeholder: true
+    description: >
+      Mobile engineering depot with crane arm and tool racks. Supply crates stacked outside,
+      Republic Corps emblem on facade, functional industrial look (~300 tris).
+    meshes:
+      - id: rep_builder_engineer_corps_mesh
+        type: Mesh
+        file: meshes/buildings/rep_builder_engineer_corps.fbx
+        poly_budget: 300
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-B.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-B.obj (CC0). Add crane arm extending from roof
+          (L-shaped box primitive + cable suggestion). Stacked crate details at base sides.
+      - id: rep_builder_engineer_corps_texture
+        type: Texture
+        file: textures/buildings/rep_builder_engineer_corps_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: White/grey body, yellow (#FFD700) crane arm, Republic emblem badge.
+
+  - id: rep_guild_engineering_lab
+    vanilla_id: engineer_guild
+    display_name: Advanced Engineering Lab
+    type: Prefab
+    placeholder: true
+    description: >
+      Multi-bay R&D facility for weapon and vehicle research. Large multi-wing footprint with holographic
+      display dome on central hub. Republic white/blue, symmetrical layout (~600 tris).
+    meshes:
+      - id: rep_guild_engineering_lab_mesh
+        type: Mesh
+        file: meshes/buildings/rep_guild_engineering_lab.fbx
+        poly_budget: 600
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-G.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-G.obj (CC0) central hub. Add two wing extensions
+          using structure-B.obj on each side. Dome = sphere primitive on hub roof with emissive blue glow.
+      - id: rep_guild_engineering_lab_texture
+        type: Texture
+        file: textures/buildings/rep_guild_engineering_lab_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: White primary, blue panel accents, holographic dome = semi-transparent blue emissive.
+
+  - id: rep_gate_blast_gate
+    vanilla_id: gate
+    display_name: Republic Blast Gate
+    type: Prefab
+    placeholder: true
+    description: >
+      Reinforced horizontal blast door with two flanking guard pillar towers. Republic insignia above
+      door frame. White/grey durasteel with blue energy trim (~350 tris).
+    meshes:
+      - id: rep_gate_blast_gate_mesh
+        type: Mesh
+        file: meshes/buildings/rep_gate_blast_gate.fbx
+        poly_budget: 350
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/wall-gate.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts wall-gate.obj (CC0). Add two pillar towers flanking door
+          using wall-corner.obj. Republic emblem above door arch. Blue energy strip on door face.
+      - id: rep_gate_blast_gate_texture
+        type: Texture
+        file: textures/buildings/rep_gate_blast_gate_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: White (#F0F0F0) gate panels, blue (#1A3A6B) energy trim edge, grey pillar towers.
+
+# =============================================================================
+# VANILLA BUILDING RESKINS — CIS
+# Maps vanilla DINO building types to CIS Star Wars replacements.
+# See crosswalk_cis_vanilla.yaml for full swap registry entries.
+# =============================================================================
+
+  - id: cis_house_droid_pod
+    vanilla_id: house
+    display_name: Droid Storage Pod
+    type: Prefab
+    placeholder: true
+    description: >
+      Stacked droid deactivation rack structure. Dark grey / rust-orange palette with organic curves
+      and droid silhouettes visible inside. CIS techno-organic aesthetic (~250 tris).
+    meshes:
+      - id: cis_house_droid_pod_mesh
+        type: Mesh
+        file: meshes/buildings/cis_house_droid_pod.fbx
+        poly_budget: 250
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-C.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-C.obj (CC0). Palette: dark grey (#444444) body,
+          rust-orange (#B35A00) panel trim. Add B1 droid silhouette cutout texture on one panel face.
+      - id: cis_house_droid_pod_texture
+        type: Texture
+        file: textures/buildings/cis_house_droid_pod_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Dark grey body, orange trim bands, droid silhouette implied via texture.
+
+  - id: cis_farm_fuel_harvester
+    vanilla_id: farm
+    display_name: Fuel Cell Harvester
+    type: Prefab
+    placeholder: true
+    description: >
+      Ground-boring fuel extractor with alien techno-organic aesthetic. Rotating bore head suggestion,
+      red liquid conduit glow, alien panel overlays (~300 tris).
+    meshes:
+      - id: cis_farm_fuel_harvester_mesh
+        type: Mesh
+        file: meshes/buildings/cis_farm_fuel_harvester.fbx
+        poly_budget: 300
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-E.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-E.obj (CC0). Add bore head cone at base (inverted
+          cone primitive). Red conduit pipes on structure sides. CIS roundel on top panel.
+      - id: cis_farm_fuel_harvester_texture
+        type: Texture
+        file: textures/buildings/cis_farm_fuel_harvester_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Dark grey body, red (#CC0000) conduit emissive, rust-orange CIS branding.
+
+  - id: cis_granary_power_depot
+    vanilla_id: granary
+    display_name: Power Cell Depot
+    type: Prefab
+    placeholder: true
+    description: >
+      Battery and capacitor bank for CIS energy storage. Stacked rectangular cells with hazard stripes
+      and red energy indicator display. Dark gunmetal palette (~280 tris).
+    meshes:
+      - id: cis_granary_power_depot_mesh
+        type: Mesh
+        file: meshes/buildings/cis_granary_power_depot.fbx
+        poly_budget: 280
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-D.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-D.obj tall variant (CC0). Add rectangular battery
+          cell stack detail on one face. Hazard stripe diagonal pattern and red LED indicator strip.
+      - id: cis_granary_power_depot_texture
+        type: Texture
+        file: textures/buildings/cis_granary_power_depot_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Gunmetal (#555555) body, yellow/black hazard stripes, red (#CC0000) energy indicator.
+
+  - id: cis_hospital_repair_station
+    vanilla_id: hospital
+    display_name: Droid Repair Station
+    type: Prefab
+    placeholder: true
+    description: >
+      Open-frame repair cradle with articulated maintenance arm. Exposed structural frame,
+      dangling tool arms, droid parts visible on racks (~280 tris).
+    meshes:
+      - id: cis_hospital_repair_station_mesh
+        type: Mesh
+        file: meshes/buildings/cis_hospital_repair_station.fbx
+        poly_budget: 280
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-B.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-B.obj (CC0) open variant — remove solid walls,
+          keep frame only. Add maintenance arm (L-shaped arm with claw end) on crane track. Droid
+          part implied via texture scatter on floor plane.
+      - id: cis_hospital_repair_station_texture
+        type: Texture
+        file: textures/buildings/cis_hospital_repair_station_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Exposed dark metal (#444444) frame, orange (#B35A00) CIS accent, rusty floor plate.
+
+  - id: cis_forester_raw_extractor
+    vanilla_id: forester_house
+    display_name: Raw Material Extractor
+    type: Prefab
+    placeholder: true
+    description: >
+      Small automated extractor with spider-leg anchors. Four anchor legs splayed outward, rotating
+      claw head on top, minimal CIS branding (~220 tris).
+    meshes:
+      - id: cis_forester_raw_extractor_mesh
+        type: Mesh
+        file: meshes/buildings/cis_forester_raw_extractor.fbx
+        poly_budget: 220
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-A.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-A.obj (CC0). Add 4 diagonal leg struts in Blender
+          (tapered cylinders). Claw head = 3 curved prongs on rotating socket atop structure.
+      - id: cis_forester_raw_extractor_texture
+        type: Texture
+        file: textures/buildings/cis_forester_raw_extractor_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Gunmetal (#555555) body, rust-orange (#B35A00) leg joints, CIS glyph on central pod.
+
+  - id: cis_stone_scrap_works
+    vanilla_id: stone_cutter
+    display_name: Scrap Metal Works
+    type: Prefab
+    placeholder: true
+    description: >
+      Low-tech ore crusher with shrapnel aesthetic. Exposed gears, jagged mesh panels,
+      debris pile suggestion at base, VFX sparks emitter point (~350 tris).
+    meshes:
+      - id: cis_stone_scrap_works_mesh
+        type: Mesh
+        file: meshes/buildings/cis_stone_scrap_works.fbx
+        poly_budget: 350
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-F.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-F.obj (CC0). Add gear disc overlays on side wall.
+          Jagged edge trim on roofline. Debris/scrap pile = scattered cube primitives at base corners.
+      - id: cis_stone_scrap_works_texture
+        type: Texture
+        file: textures/buildings/cis_stone_scrap_works_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Rust-brown (#774400) weathered body, dark grey gears, scattered scrap orange highlights.
+
+  - id: cis_iron_ore_plant
+    vanilla_id: iron_mine
+    display_name: Ore Processing Plant
+    type: Prefab
+    placeholder: true
+    description: >
+      Compact CIS mining tower with ore conveyor belt. Rust-orange paint, conveyor arm,
+      grinder housing. Techno Union industrial branding (~340 tris).
+    meshes:
+      - id: cis_iron_ore_plant_mesh
+        type: Mesh
+        file: meshes/buildings/cis_iron_ore_plant.fbx
+        poly_budget: 340
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/tower-A.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts tower-A.obj (CC0). Add conveyor belt arm on one side (flat
+          ribbon along inclined ramp). Grinder housing = box with intake opening at base. TU emblem.
+      - id: cis_iron_ore_plant_texture
+        type: Texture
+        file: textures/buildings/cis_iron_ore_plant_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Rust-orange (#B35A00) primary, gunmetal (#555555) grinder housing, dark conveyor belt.
+
+  - id: cis_iron_endless_extractor
+    vanilla_id: infinite_iron_mine
+    display_name: Endless Ore Extractor
+    type: Prefab
+    placeholder: true
+    description: >
+      Dual-bore heavy extraction with Techno Union branding. Two bore towers side by side,
+      shared pad footprint, larger scale. Variant of cis_iron_ore_plant (~480 tris).
+    meshes:
+      - id: cis_iron_endless_extractor_mesh
+        type: Mesh
+        file: meshes/buildings/cis_iron_endless_extractor.fbx
+        poly_budget: 480
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/tower-A.obj
+        license: CC0
+        source_hint: >
+          Duplicate and offset cis_iron_ore_plant in Blender. Mirror along Y axis. Add shared base
+          platform connecting both towers. Techno Union insignia on central connecting beam.
+      - id: cis_iron_endless_extractor_texture
+        type: Texture
+        file: textures/buildings/cis_iron_endless_extractor_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Same palette as cis_iron_ore_plant. Shared platform = gunmetal (#555555).
+
+  - id: cis_soul_dark_energy_tap
+    vanilla_id: soul_mine
+    display_name: Dark Side Energy Tap
+    type: Prefab
+    placeholder: true
+    description: >
+      Sith-adjacent dark energy extraction lattice. Black lattice frame structure with red/purple
+      resonance glow and alien rune engravings visible on frame members (~380 tris).
+    meshes:
+      - id: cis_soul_dark_energy_tap_mesh
+        type: Mesh
+        file: meshes/buildings/cis_soul_dark_energy_tap.fbx
+        poly_budget: 380
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/tower-B.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts tower-B.obj lattice frame (CC0). Apply near-black palette.
+          Add crystal/energy core inside cage: dark red (#800000) / deep purple (#4B0082) emissive
+          core geometry. Rune engravings = texture overlay on frame bars.
+      - id: cis_soul_dark_energy_tap_texture
+        type: Texture
+        file: textures/buildings/cis_soul_dark_energy_tap_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: >
+          Near-black frame (#111111), dark red emissive glow (#800000), alien rune texture overlay.
+          Requires custom Blender emission shader; bake or use Unity emission channel.
+
+  - id: cis_builder_droid_bay
+    vanilla_id: builder_house
+    display_name: Construction Droid Bay
+    type: Prefab
+    placeholder: true
+    description: >
+      Droid-operated assembly depot with lifting arm and B1 worker droid storage rack.
+      Lifting arm on overhead track, CIS grey/orange finish (~300 tris).
+    meshes:
+      - id: cis_builder_droid_bay_mesh
+        type: Mesh
+        file: meshes/buildings/cis_builder_droid_bay.fbx
+        poly_budget: 300
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-B.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-B.obj (CC0). Add overhead I-beam track on interior
+          with trolley hook block. B1 droid silhouettes on rack = texture painted silhouettes.
+          CIS roundel on exterior facade.
+      - id: cis_builder_droid_bay_texture
+        type: Texture
+        file: textures/buildings/cis_builder_droid_bay_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Gunmetal (#555555) body, orange (#B35A00) CIS trim, droid outline silhouettes.
+
+  - id: cis_guild_techno_workshop
+    vanilla_id: engineer_guild
+    display_name: Techno Union Workshop
+    type: Prefab
+    placeholder: true
+    description: >
+      Wat Tambor's engineering faction facility. Asymmetric wing layout, organic-tech hybrid paneling,
+      Techno Union logo, alien architectural sensibility (~580 tris).
+    meshes:
+      - id: cis_guild_techno_workshop_mesh
+        type: Mesh
+        file: meshes/buildings/cis_guild_techno_workshop.fbx
+        poly_budget: 580
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/structure-G.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts structure-G.obj (CC0) central hub. Add asymmetric wing on
+          left only using structure-B.obj (CIS wing=larger). Right side add antenna/dish cluster
+          instead of wing. Techno Union emblem on hub front face.
+      - id: cis_guild_techno_workshop_texture
+        type: Texture
+        file: textures/buildings/cis_guild_techno_workshop_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Dark grey (#444444) body, rust-orange (#B35A00) Techno Union accent panels, alien surface detail.
+
+  - id: cis_gate_security_barrier
+    vanilla_id: gate
+    display_name: CIS Security Barrier
+    type: Prefab
+    placeholder: true
+    description: >
+      Armored sliding gate with sentry droid alcoves in flanking pillars. Dark armored barrier plate,
+      red energy field indicator stripe, recessed droid niches (~340 tris).
+    meshes:
+      - id: cis_gate_security_barrier_mesh
+        type: Mesh
+        file: meshes/buildings/cis_gate_security_barrier.fbx
+        poly_budget: 340
+        placeholder: true
+        source_file: source/kenney/sci-fi-rts/Models/wall-gate.obj
+        license: CC0
+        source_hint: >
+          BASE: source/kenney/sci-fi-rts wall-gate.obj (CC0). Apply dark CIS palette. Add recessed
+          niche box on each pillar face (B1 droid silhouette implied by texture). Red energy strip
+          along gate door face.
+      - id: cis_gate_security_barrier_texture
+        type: Texture
+        file: textures/buildings/cis_gate_security_barrier_albedo.png
+        placeholder: true
+        license: CC0
+        source_hint: Dark grey (#333333) gate panel, red (#CC0000) energy strip emissive, gunmetal pillars.
+
+# =============================================================================
 # WEAPONS (projectile VFX assets)
 # =============================================================================
 

@@ -393,6 +393,13 @@ namespace DINOForge.Runtime
                     _nativeMenuInjector.SetModMenuOverlay(proxy);
                 }
 
+                // Wire UGUI DebugPanel to ModPlatform so it displays platform status
+                if (_dfCanvas.DebugPanel != null && _modPlatform != null)
+                {
+                    _dfCanvas.DebugPanel.SetModPlatform(_modPlatform);
+                    _log.LogInfo("[RuntimeDriver] UGUI DebugPanel wired to ModPlatform.");
+                }
+
                 _modMenuOverlay   = proxy;
                 _modSettingsPanel = settingsPanel;
 

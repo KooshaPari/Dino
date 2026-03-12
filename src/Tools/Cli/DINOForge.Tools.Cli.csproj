@@ -5,6 +5,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <BuildInParallel>false</BuildInParallel>
+    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
     <RootNamespace>DINOForge.Tools.Cli</RootNamespace>
     <AssemblyName>DINOForge.Tools.Cli</AssemblyName>
     <Description>DINOForge CLI - command-line interface for the DINO mod platform</Description>
@@ -27,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Bridge\Client\DINOForge.Bridge.Client.csproj" />
+    <ProjectReference Include="..\..\Bridge\Protocol\DINOForge.Bridge.Protocol.csproj" />
     <ProjectReference Include="..\..\SDK\DINOForge.SDK.csproj" />
   </ItemGroup>
 
