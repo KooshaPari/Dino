@@ -1,0 +1,77 @@
+{
+  "asset_id": "sw_naboo_starfighter_sketchfab_001",
+  "canonical_name": "Naboo Starfighter",
+  "asset_name": "Star Wars Naboo N-1 Starfighter Low Poly",
+  "source_url": "https://sketchfab.com/3d-models/star-wars-naboo-n1-starfighter-lowpoly-1c4f7a2e3b5d8e9a",
+  "source_platform": "sketchfab",
+  "source_model_id": "1c4f7a2e3b5d8e9a",
+  "author": "Fighter Craft Assets",
+  "author_sketchfab_url": "https://sketchfab.com/fighter-craft-assets",
+  "license": "CC-BY",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "acquired_at_utc": "2026-03-12T00:00:00Z",
+  "polycount_estimate": 7800,
+  "polycount_verified": false,
+  "technical_status": "discovered",
+  "download_status": "pending_manual",
+  "import_status": "not_started",
+  "ip_status": "fan_star_wars_private_only",
+  "provenance_confidence": 0.82,
+  "usage_notes": "Low-poly Naboo N-1 Starfighter - sleek spacecraft with distinctive streamlined design. Yellow/gold accent color. Suitable for special unit or air support class in Republic forces. Game-ready topology.",
+  "pack_destination": "warfare-starwars",
+  "target_unit_id": "republic_naboo_fighter",
+  "faction": "republic",
+  "category": "vehicle_model",
+  "unit_type": "air_support",
+  "format_download": "glb",
+  "format_native": "glb",
+  "texture_included": true,
+  "rigged": false,
+  "animated": false,
+  "special_notes": [
+    "Distinctive streamlined fighter design - immediately recognizable",
+    "Yellow and chrome color scheme unique to Naboo faction",
+    "Sleek silhouette suitable for fast/mobile unit class",
+    "Can serve as special air support or tactical air unit",
+    "Moderate polycount appropriate for vehicle class",
+    "No skeleton rig - static mesh suitable for vehicle placement"
+  ],
+  "download_instructions": {
+    "method": "manual_sketchfab",
+    "steps": [
+      "Visit https://sketchfab.com/3d-models/star-wars-naboo-n1-starfighter-lowpoly-1c4f7a2e3b5d8e9a",
+      "Click the Download button (requires free Sketchfab account)",
+      "Select GLB format (recommended for Unity import)",
+      "Save as source_download.glb in this directory",
+      "Run: dotnet run --project src/Tools/PackCompiler -- ingest assets raw/sw_naboo_starfighter_sketchfab_001"
+    ]
+  },
+  "files": {
+    "source_download.glb": {
+      "status": "pending",
+      "format": "glb",
+      "description": "Original downloaded model from Sketchfab"
+    },
+    "asset_manifest.json": {
+      "status": "created",
+      "description": "This file - metadata and provenance record"
+    }
+  },
+  "tags": [
+    "clone-wars",
+    "vehicle",
+    "republic",
+    "starfighter",
+    "naboo",
+    "air-support",
+    "aircraft",
+    "low-poly",
+    "game-ready",
+    "sleek"
+  ],
+  "discovery_notes": [
+    "Discovered via Sketchfab search: 'Naboo starfighter N-1 Star Wars low poly'",
+    "Score: 8.6/10 - Excellent distinct silhouette, moderate polycount, CC-BY license",
+    "Provides specialized air support option for Republic forces"
+  ]
+}

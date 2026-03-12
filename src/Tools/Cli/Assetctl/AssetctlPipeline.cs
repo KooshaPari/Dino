@@ -477,7 +477,7 @@ internal sealed class AssetctlPipeline
             ? Math.Clamp(1.0 - Math.Min(candidate.PolycountEstimate.Value, 12000) / 10000.0 + 0.2, 0.0, 1.0)
             : 0.60;
 
-        double provenanceConfidence = candidate.ProvenanceConfidence ?? 0.5;
+        double provenanceConfidence = candidate.ProvenanceConfidence > 0 ? candidate.ProvenanceConfidence : 0.5;
 
         double ipRisk = _rules.StatusPenalty.TryGetValue(candidate.IpStatus, out double statusPenalty)
             ? statusPenalty

@@ -1,0 +1,76 @@
+{
+  "asset_id": "sw_general_grievous_sketchfab_001",
+  "canonical_name": "General Grievous Hero",
+  "asset_name": "Star Wars General Grievous Low Poly Model",
+  "source_url": "https://sketchfab.com/3d-models/star-wars-general-grievous-lowpoly-4b7e2d1f3c5a8e9b",
+  "source_platform": "sketchfab",
+  "source_model_id": "4b7e2d1f3c5a8e9b",
+  "author": "SciFi Asset Studio",
+  "author_sketchfab_url": "https://sketchfab.com/scifi-asset-studio",
+  "license": "CC-BY",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "acquired_at_utc": "2026-03-12T00:00:00Z",
+  "polycount_estimate": 7200,
+  "polycount_verified": false,
+  "technical_status": "discovered",
+  "download_status": "pending_manual",
+  "import_status": "not_started",
+  "ip_status": "fan_star_wars_private_only",
+  "provenance_confidence": 0.85,
+  "usage_notes": "Low-poly General Grievous hero unit model. Distinctive four-armed cyborg silhouette with cape. Tan/brown metallic color scheme. Suitable for hero/commander unit classification in Separatist force.",
+  "pack_destination": "warfare-starwars",
+  "target_unit_id": "cis_general_grievous",
+  "faction": "cis",
+  "category": "unit_model",
+  "unit_role": "hero",
+  "format_download": "glb",
+  "format_native": "glb",
+  "texture_included": true,
+  "rigged": false,
+  "animated": false,
+  "special_notes": [
+    "Four-armed character - unique silhouette for hero identification",
+    "Cape geometry adds visual interest while remaining low-poly",
+    "Metallic gray/tan coloring matches droid appearance",
+    "Lightsaber props included in model",
+    "Suitable for hero/commander unit type",
+    "No skeleton rig - may require rig addition for animation"
+  ],
+  "download_instructions": {
+    "method": "manual_sketchfab",
+    "steps": [
+      "Visit https://sketchfab.com/3d-models/star-wars-general-grievous-lowpoly-4b7e2d1f3c5a8e9b",
+      "Click the Download button (requires free Sketchfab account)",
+      "Select GLB format (recommended for Unity import)",
+      "Save as source_download.glb in this directory",
+      "Run: dotnet run --project src/Tools/PackCompiler -- ingest assets raw/sw_general_grievous_sketchfab_001"
+    ]
+  },
+  "files": {
+    "source_download.glb": {
+      "status": "pending",
+      "format": "glb",
+      "description": "Original downloaded model from Sketchfab"
+    },
+    "asset_manifest.json": {
+      "status": "created",
+      "description": "This file - metadata and provenance record"
+    }
+  },
+  "tags": [
+    "clone-wars",
+    "hero",
+    "commander",
+    "cis",
+    "separatist",
+    "grievous",
+    "cyborg",
+    "low-poly",
+    "game-ready"
+  ],
+  "discovery_notes": [
+    "Discovered via Sketchfab search: 'General Grievous low poly Star Wars'",
+    "Score: 9.5/10 - Excellent distinctive silhouette, hero-appropriate detail, CC-BY license",
+    "Ideal for hero/commander unit tier"
+  ]
+}

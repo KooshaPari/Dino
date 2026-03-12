@@ -591,8 +591,9 @@ public sealed class AssetDownloader
         // Sort results by original index order
         lock (resultsLock)
         {
+            var candidatesList = candidates is List<AssetCandidate> list ? list : candidates.ToList();
             results.Sort((a, b) =>
-                candidates.IndexOf(a.Candidate).CompareTo(candidates.IndexOf(b.Candidate)));
+                candidatesList.IndexOf(a.Candidate).CompareTo(candidatesList.IndexOf(b.Candidate)));
         }
 
         return results;

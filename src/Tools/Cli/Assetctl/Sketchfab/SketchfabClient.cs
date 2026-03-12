@@ -739,6 +739,22 @@ public sealed class SketchfabTokenValidation
     public string? ErrorMessage { get; set; }
 }
 
+/// <summary>Wrapper for search API response containing paginated results.</summary>
+public sealed class SketchfabSearchResponse
+{
+    /// <summary>List of model search results from the API response</summary>
+    [JsonPropertyName("results")]
+    public IReadOnlyList<SketchfabModelInfo> Results { get; set; } = new List<SketchfabModelInfo>();
+
+    /// <summary>URL for next page of results (if available)</summary>
+    [JsonPropertyName("next")]
+    public string? Next { get; set; }
+
+    /// <summary>Total count of matching results</summary>
+    [JsonPropertyName("count")]
+    public int Count { get; set; }
+}
+
 // ============================================================================
 // Exception Types
 // ============================================================================

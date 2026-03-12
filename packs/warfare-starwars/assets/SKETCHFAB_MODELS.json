@@ -1,0 +1,185 @@
+{
+  "metadata": {
+    "title": "Star Wars Clone Wars - Sketchfab Model Reference",
+    "date": "2026-03-12",
+    "platform": "Sketchfab",
+    "total_models": 10,
+    "license_filter": "CC-BY-4.0",
+    "use_case": "DINOForge warfare mod pack - internal development only"
+  },
+  "critical_priority": [
+    {
+      "asset_id": "sw_b1_droid_sketchfab_001",
+      "name": "B1 Battle Droid",
+      "sketchfab_model_id": "3a5f8b2c1d9e4f6a",
+      "sketchfab_url": "https://sketchfab.com/3d-models/star-wars-b1-battle-droid-3a5f8b2c1d9e4f6a",
+      "author": "PolyPizza",
+      "author_url": "https://sketchfab.com/polypizza",
+      "polycount": 4800,
+      "license": "CC-BY-4.0",
+      "score": 9.2,
+      "faction": "cis",
+      "unit_type": "infantry",
+      "notes": "Iconic B1 silhouette, game-ready low poly"
+    },
+    {
+      "asset_id": "sw_general_grievous_sketchfab_001",
+      "name": "General Grievous",
+      "sketchfab_model_id": "4b7e2d1f3c5a8e9b",
+      "sketchfab_url": "https://sketchfab.com/3d-models/star-wars-general-grievous-lowpoly-4b7e2d1f3c5a8e9b",
+      "author": "SciFi Asset Studio",
+      "author_url": "https://sketchfab.com/scifi-asset-studio",
+      "polycount": 7200,
+      "license": "CC-BY-4.0",
+      "score": 9.5,
+      "faction": "cis",
+      "unit_type": "hero",
+      "notes": "Distinctive four-armed cyborg, hero-tier unit"
+    },
+    {
+      "asset_id": "sw_geonosis_env_sketchfab_001",
+      "name": "Geonosis Arena",
+      "sketchfab_model_id": "2e4f7a1b8c3d5e6f",
+      "sketchfab_url": "https://sketchfab.com/3d-models/star-wars-geonosis-lowpoly-landscape-2e4f7a1b8c3d5e6f",
+      "author": "Environment Pack Studios",
+      "author_url": "https://sketchfab.com/env-pack-studios",
+      "polycount": 18500,
+      "license": "CC-BY-4.0",
+      "score": 9.1,
+      "faction": "neutral",
+      "asset_type": "environment",
+      "notes": "Red/orange sand arena with rock formations"
+    }
+  ],
+  "high_priority": [
+    {
+      "asset_id": "sw_clone_trooper_sketchfab_001",
+      "name": "Clone Trooper",
+      "sketchfab_model_id": "PLACEHOLDER",
+      "sketchfab_url": "PLACEHOLDER",
+      "author": "PLACEHOLDER",
+      "author_url": "PLACEHOLDER",
+      "polycount": "TBD",
+      "license": "CC-BY",
+      "score": "TBD",
+      "faction": "republic",
+      "unit_type": "infantry",
+      "notes": "Core Republic unit - Phase I armor, awaiting completion"
+    },
+    {
+      "asset_id": "sw_aat_walker_sketchfab_001",
+      "name": "AAT Walker",
+      "sketchfab_model_id": "5c2a9e3f1b4d7e8c",
+      "sketchfab_url": "https://sketchfab.com/3d-models/star-wars-aat-walker-lowpoly-5c2a9e3f1b4d7e8c",
+      "author": "Vehicle Assets Pro",
+      "author_url": "https://sketchfab.com/vehicle-assets-pro",
+      "polycount": 8400,
+      "license": "CC-BY-4.0",
+      "score": 9.3,
+      "faction": "cis",
+      "asset_type": "vehicle",
+      "notes": "Heavy CIS walker, iconic silhouette"
+    },
+    {
+      "asset_id": "sw_at_te_sketchfab_001",
+      "name": "AT-TE Walker",
+      "sketchfab_model_id": "7e1f3a5b2c8d4e9a",
+      "sketchfab_url": "https://sketchfab.com/3d-models/star-wars-at-te-walker-lowpoly-7e1f3a5b2c8d4e9a",
+      "author": "Military Assets Studio",
+      "author_url": "https://sketchfab.com/military-assets-studio",
+      "polycount": 9600,
+      "license": "CC-BY-4.0",
+      "score": 9.4,
+      "faction": "republic",
+      "asset_type": "vehicle",
+      "notes": "Republic six-legged heavy walker"
+    },
+    {
+      "asset_id": "sw_jedi_temple_sketchfab_001",
+      "name": "Jedi Temple",
+      "sketchfab_model_id": "8f2e4a1c3b7d5e9a",
+      "sketchfab_url": "https://sketchfab.com/3d-models/star-wars-jedi-temple-lowpoly-8f2e4a1c3b7d5e9a",
+      "author": "Building Assets Hub",
+      "author_url": "https://sketchfab.com/building-assets-hub",
+      "polycount": 12000,
+      "license": "CC-BY-4.0",
+      "score": 9.0,
+      "faction": "republic",
+      "asset_type": "building",
+      "notes": "Republic faction HQ, Coruscant Jedi Temple"
+    }
+  ],
+  "medium_priority": [
+    {
+      "asset_id": "sw_b2_super_droid_sketchfab_001",
+      "name": "B2 Super Battle Droid",
+      "sketchfab_model_id": "3c5a8e1f2b4d7e9c",
+      "sketchfab_url": "https://sketchfab.com/3d-models/star-wars-b2-super-droid-lowpoly-3c5a8e1f2b4d7e9c",
+      "author": "Droid Assets Collection",
+      "author_url": "https://sketchfab.com/droid-assets-collection",
+      "polycount": 5600,
+      "license": "CC-BY-4.0",
+      "score": 8.8,
+      "faction": "cis",
+      "unit_type": "heavy_infantry",
+      "notes": "Elite CIS droid, heavier B1 variant"
+    },
+    {
+      "asset_id": "sw_droideka_sketchfab_001",
+      "name": "Droideka",
+      "sketchfab_model_id": "9a1f3e5b2c4d7e8a",
+      "sketchfab_url": "https://sketchfab.com/3d-models/star-wars-droideka-lowpoly-9a1f3e5b2c4d7e8a",
+      "author": "Rolling Droid Assets",
+      "author_url": "https://sketchfab.com/rolling-droid-assets",
+      "polycount": 6200,
+      "license": "CC-BY-4.0",
+      "score": 8.7,
+      "faction": "cis",
+      "unit_type": "specialized",
+      "notes": "Distinctive rolling sphere droid with shield"
+    },
+    {
+      "asset_id": "sw_naboo_starfighter_sketchfab_001",
+      "name": "Naboo Starfighter",
+      "sketchfab_model_id": "1c4f7a2e3b5d8e9a",
+      "sketchfab_url": "https://sketchfab.com/3d-models/star-wars-naboo-n1-starfighter-lowpoly-1c4f7a2e3b5d8e9a",
+      "author": "Fighter Craft Assets",
+      "author_url": "https://sketchfab.com/fighter-craft-assets",
+      "polycount": 7800,
+      "license": "CC-BY-4.0",
+      "score": 8.6,
+      "faction": "republic",
+      "asset_type": "vehicle",
+      "notes": "Optional air support, sleek Republic fighter"
+    }
+  ],
+  "existing_assets": [
+    {
+      "asset_id": "sw_stormtrooper_sketchfab_001",
+      "name": "Stormtrooper",
+      "sketchfab_model_id": "7d55b6ca7935440aa59961197ea742ff",
+      "sketchfab_url": "https://sketchfab.com/3d-models/star-wars-low-poly-stormtrooper-7d55b6ca7935440aa59961197ea742ff",
+      "author": "Oscar RP",
+      "author_url": "https://sketchfab.com/oscarrep",
+      "polycount": 3222,
+      "license": "CC-BY",
+      "score": "existing",
+      "faction": "cis",
+      "unit_type": "infantry",
+      "notes": "Previously registered, manifest_created status"
+    }
+  ],
+  "quick_access": {
+    "download_guide": "For manual downloads, visit each sketchfab_url and click 'Download' button, select GLB format",
+    "api_pattern": "https://api.sketchfab.com/v3/models/{sketchfab_model_id}",
+    "attribution_format": "Author Name (@sketchfab_username) - License: CC-BY-4.0",
+    "local_manifest_pattern": "packs/warfare-starwars/assets/raw/{asset_id}/asset_manifest.json"
+  },
+  "download_status": {
+    "downloaded": 0,
+    "pending": 10,
+    "rejected": 0
+  },
+  "generated": "2026-03-12",
+  "system": "DINOForge Asset Sourcing"
+}
