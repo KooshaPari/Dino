@@ -63,7 +63,7 @@ jobs:
             exit 1
           fi
 
-          RELEASE_VERSION=$(echo "$RELEASE_HEADER" | sed -E 's/^## \[([^\]]+)\].*/\1/')
+          RELEASE_VERSION=$(echo "$RELEASE_HEADER" | grep -oE '\[[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.]+)?\]' | tr -d '[]')
           if [ "$RELEASE_VERSION" != "$VERSION" ]; then
             echo "::error::VERSION ($VERSION) must match the latest released changelog section ($RELEASE_VERSION)"
             exit 1
