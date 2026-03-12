@@ -4,6 +4,7 @@ using DINOForge.Domains.Scenario;
 using DINOForge.Domains.Scenario.Balance;
 using DINOForge.Domains.Scenario.Models;
 using DINOForge.Domains.Scenario.Scripting;
+using DINOForge.Domains.Scenario.Validation;
 using DINOForge.SDK.Models;
 using DINOForge.SDK.Registry;
 using FluentAssertions;
@@ -330,6 +331,424 @@ namespace DINOForge.Tests
 
             Action act = () => plugin.ValidatePack("", new List<ScenarioDefinition>());
             act.Should().Throw<ArgumentException>();
+        }
+
+        // ── VictoryCondition Types ──────────────────────────────
+
+        [Fact]
+        public void ScenarioRunner_Victory_DestroyTarget()
+        {
+            ScenarioRunner runner = new ScenarioRunner();
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "destroy-target",
+                VictoryConditions = new List<VictoryCondition>
+                {
+                    new VictoryCondition
+                    {
+                        ConditionType = VictoryConditionType.DestroyTarget,
+                        TargetId = "boss-building"
+                    }
+                }
+            };
+            runner.Initialize(scenario);
+
+            // Target not destroyed yet
+            GameState state1 = new GameState { BuildingsBuilt = new HashSet<string> { "boss-building" } };
+            runner.CheckVictoryConditions(state1).Should().BeFalse();
+
+            // Target destroyed (removed from BuildingsBuilt)
+            GameState state2 = new GameState { BuildingsBuilt = new HashSet<string>() };
+            runner.CheckVictoryConditions(state2).Should().BeTrue();
+        }
+
+        [Fact]
+        public void ScenarioRunner_Victory_TimeSurvival()
+        {
+            ScenarioRunner runner = new ScenarioRunner();
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "time-survival",
+                VictoryConditions = new List<VictoryCondition>
+                {
+                    new VictoryCondition
+                    {
+                        ConditionType = VictoryConditionType.TimeSurvival,
+                        TargetValue = 300
+                    }
+                }
+            };
+            runner.Initialize(scenario);
+
+            // Not enough time elapsed
+            GameState earlyState = new GameState { ElapsedSeconds = 200 };
+            runner.CheckVictoryConditions(earlyState).Should().BeFalse();
+
+            // Target time reached
+            GameState lateState = new GameState { ElapsedSeconds = 300 };
+            runner.CheckVictoryConditions(lateState).Should().BeTrue();
+
+            // Exceeded target time
+            GameState veryLateState = new GameState { ElapsedSeconds = 400 };
+            runner.CheckVictoryConditions(veryLateState).Should().BeTrue();
+        }
+
+        [Fact]
+        public void ScenarioRunner_Victory_Custom()
+        {
+            ScenarioRunner runner = new ScenarioRunner();
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "custom-victory",
+                VictoryConditions = new List<VictoryCondition>
+                {
+                    new VictoryCondition { ConditionType = VictoryConditionType.Custom }
+                }
+            };
+            runner.Initialize(scenario);
+
+            // Custom conditions never auto-trigger
+            GameState state = new GameState();
+            runner.CheckVictoryConditions(state).Should().BeFalse();
+        }
+
+        // ── DefeatCondition Types ───────────────────────────────
+
+        [Fact]
+        public void ScenarioRunner_Defeat_TimeExpired()
+        {
+            ScenarioRunner runner = new ScenarioRunner();
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "time-expired",
+                DefeatConditions = new List<DefeatCondition>
+                {
+                    new DefeatCondition
+                    {
+                        ConditionType = DefeatConditionType.TimeExpired,
+                        TargetValue = 600
+                    }
+                }
+            };
+            runner.Initialize(scenario);
+
+            // Time not expired
+            GameState earlyState = new GameState { ElapsedSeconds = 500 };
+            runner.CheckDefeatConditions(earlyState).Should().BeFalse();
+
+            // Time expired
+            GameState expiredState = new GameState { ElapsedSeconds = 600 };
+            runner.CheckDefeatConditions(expiredState).Should().BeTrue();
+
+            // Time far exceeded
+            GameState overState = new GameState { ElapsedSeconds = 1000 };
+            runner.CheckDefeatConditions(overState).Should().BeTrue();
+        }
+
+        [Fact]
+        public void ScenarioRunner_Defeat_ResourceDepleted()
+        {
+            ScenarioRunner runner = new ScenarioRunner();
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "resource-depleted",
+                DefeatConditions = new List<DefeatCondition>
+                {
+                    new DefeatCondition { ConditionType = DefeatConditionType.ResourceDepleted }
+                }
+            };
+            runner.Initialize(scenario);
+
+            // All resources at zero
+            GameState depletedState = new GameState
+            {
+                Resources = new Dictionary<string, int>
+                {
+                    { "food", 0 },
+                    { "wood", 0 },
+                    { "stone", 0 }
+                }
+            };
+            runner.CheckDefeatConditions(depletedState).Should().BeTrue();
+
+            // At least one resource available
+            GameState resourceState = new GameState
+            {
+                Resources = new Dictionary<string, int>
+                {
+                    { "food", 10 },
+                    { "wood", 0 }
+                }
+            };
+            runner.CheckDefeatConditions(resourceState).Should().BeFalse();
+
+            // Empty resources dict also triggers defeat
+            GameState emptyState = new GameState { Resources = new Dictionary<string, int>() };
+            runner.CheckDefeatConditions(emptyState).Should().BeTrue();
+        }
+
+        [Fact]
+        public void ScenarioRunner_Defeat_Custom()
+        {
+            ScenarioRunner runner = new ScenarioRunner();
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "custom-defeat",
+                DefeatConditions = new List<DefeatCondition>
+                {
+                    new DefeatCondition { ConditionType = DefeatConditionType.Custom }
+                }
+            };
+            runner.Initialize(scenario);
+
+            // Custom defeat never auto-triggers
+            GameState state = new GameState();
+            runner.CheckDefeatConditions(state).Should().BeFalse();
+        }
+
+        // ── ScriptedEvent Triggers ──────────────────────────────
+
+        [Fact]
+        public void ScenarioRunner_Event_OnTime()
+        {
+            ScenarioRunner runner = new ScenarioRunner();
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "event-time",
+                ScriptedEvents = new List<ScriptedEvent>
+                {
+                    new ScriptedEvent
+                    {
+                        Id = "time-event",
+                        TriggerType = TriggerType.OnTime,
+                        TriggerValue = 120,
+                        Actions = new List<EventAction> { new EventAction { ActionType = ActionType.ShowMessage } }
+                    }
+                }
+            };
+            runner.Initialize(scenario);
+
+            // Time not reached
+            GameState earlyState = new GameState { ElapsedSeconds = 100 };
+            runner.GetPendingEvents(earlyState).Should().BeEmpty();
+
+            // Time reached
+            GameState timeState = new GameState { ElapsedSeconds = 120 };
+            IReadOnlyList<ScriptedEvent> events = runner.GetPendingEvents(timeState);
+            events.Should().HaveCount(1);
+            events[0].Id.Should().Be("time-event");
+        }
+
+        [Fact]
+        public void ScenarioRunner_Event_OnPopulation()
+        {
+            ScenarioRunner runner = new ScenarioRunner();
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "event-pop",
+                ScriptedEvents = new List<ScriptedEvent>
+                {
+                    new ScriptedEvent
+                    {
+                        Id = "pop-event",
+                        TriggerType = TriggerType.OnPopulation,
+                        TriggerValue = 50,
+                        Actions = new List<EventAction> { new EventAction { ActionType = ActionType.ShowMessage } }
+                    }
+                }
+            };
+            runner.Initialize(scenario);
+
+            // Population not reached
+            GameState lowPopState = new GameState { Population = 30 };
+            runner.GetPendingEvents(lowPopState).Should().BeEmpty();
+
+            // Population threshold met
+            GameState popState = new GameState { Population = 50 };
+            IReadOnlyList<ScriptedEvent> events = runner.GetPendingEvents(popState);
+            events.Should().HaveCount(1);
+            events[0].Id.Should().Be("pop-event");
+        }
+
+        [Fact]
+        public void ScenarioRunner_Event_OnResource()
+        {
+            ScenarioRunner runner = new ScenarioRunner();
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "event-resource",
+                ScriptedEvents = new List<ScriptedEvent>
+                {
+                    new ScriptedEvent
+                    {
+                        Id = "gold-event",
+                        TriggerType = TriggerType.OnResource,
+                        TriggerValue = 1000,
+                        TriggerTarget = "gold",
+                        Actions = new List<EventAction> { new EventAction { ActionType = ActionType.ShowMessage } }
+                    }
+                }
+            };
+            runner.Initialize(scenario);
+
+            // Insufficient resource
+            GameState lowResState = new GameState
+            {
+                Resources = new Dictionary<string, int> { { "gold", 500 } }
+            };
+            runner.GetPendingEvents(lowResState).Should().BeEmpty();
+
+            // Resource threshold met
+            GameState resState = new GameState
+            {
+                Resources = new Dictionary<string, int> { { "gold", 1000 } }
+            };
+            IReadOnlyList<ScriptedEvent> events = runner.GetPendingEvents(resState);
+            events.Should().HaveCount(1);
+            events[0].Id.Should().Be("gold-event");
+        }
+
+        [Fact]
+        public void ScenarioRunner_Event_OnBuildingBuilt()
+        {
+            ScenarioRunner runner = new ScenarioRunner();
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "event-building",
+                ScriptedEvents = new List<ScriptedEvent>
+                {
+                    new ScriptedEvent
+                    {
+                        Id = "barracks-event",
+                        TriggerType = TriggerType.OnBuildingBuilt,
+                        TriggerTarget = "barracks",
+                        Actions = new List<EventAction> { new EventAction { ActionType = ActionType.ShowMessage } }
+                    }
+                }
+            };
+            runner.Initialize(scenario);
+
+            // Building not built
+            GameState noBuildState = new GameState { BuildingsBuilt = new HashSet<string>() };
+            runner.GetPendingEvents(noBuildState).Should().BeEmpty();
+
+            // Building constructed
+            GameState buildState = new GameState { BuildingsBuilt = new HashSet<string> { "barracks" } };
+            IReadOnlyList<ScriptedEvent> events = runner.GetPendingEvents(buildState);
+            events.Should().HaveCount(1);
+            events[0].Id.Should().Be("barracks-event");
+        }
+
+        [Fact]
+        public void ScenarioRunner_Event_OnUnitKilled()
+        {
+            ScenarioRunner runner = new ScenarioRunner();
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "event-kills",
+                ScriptedEvents = new List<ScriptedEvent>
+                {
+                    new ScriptedEvent
+                    {
+                        Id = "kill-event",
+                        TriggerType = TriggerType.OnUnitKilled,
+                        TriggerValue = 25,
+                        Actions = new List<EventAction> { new EventAction { ActionType = ActionType.ShowMessage } }
+                    }
+                }
+            };
+            runner.Initialize(scenario);
+
+            // Insufficient kills
+            GameState fewKillsState = new GameState { UnitsKilled = 10 };
+            runner.GetPendingEvents(fewKillsState).Should().BeEmpty();
+
+            // Kill threshold met
+            GameState killState = new GameState { UnitsKilled = 25 };
+            IReadOnlyList<ScriptedEvent> events = runner.GetPendingEvents(killState);
+            events.Should().HaveCount(1);
+            events[0].Id.Should().Be("kill-event");
+        }
+
+        // ── ScenarioValidator Tests ─────────────────────────────
+
+        [Fact]
+        public void ScenarioValidator_ValidScenario()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioValidator validator = new ScenarioValidator(registries);
+
+            ScenarioDefinition validScenario = new ScenarioDefinition
+            {
+                Id = "valid-scenario",
+                DisplayName = "Valid Test Scenario",
+                WaveCount = 10,
+                StartingResources = new ResourceCost { Food = 100, Wood = 50, Stone = 30, Iron = 20, Gold = 10 },
+                AllowedFactions = new List<string>(),
+                VictoryConditions = new List<VictoryCondition>
+                {
+                    new VictoryCondition { ConditionType = VictoryConditionType.SurviveWaves, TargetValue = 10 }
+                },
+                DefeatConditions = new List<DefeatCondition>
+                {
+                    new DefeatCondition { ConditionType = DefeatConditionType.CommandCenterDestroyed }
+                },
+                ScriptedEvents = new List<ScriptedEvent>()
+            };
+
+            IReadOnlyList<string> errors = validator.Validate(validScenario);
+            errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ScenarioValidator_MissingId()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioValidator validator = new ScenarioValidator(registries);
+
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "",
+                DisplayName = "Test",
+                WaveCount = 5
+            };
+
+            IReadOnlyList<string> errors = validator.Validate(scenario);
+            errors.Should().Contain(e => e.Contains("Scenario ID is required"));
+        }
+
+        [Fact]
+        public void ScenarioValidator_MissingDisplayName()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioValidator validator = new ScenarioValidator(registries);
+
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "test-scenario",
+                DisplayName = "",
+                WaveCount = 5
+            };
+
+            IReadOnlyList<string> errors = validator.Validate(scenario);
+            errors.Should().Contain(e => e.Contains("missing a display name"));
+        }
+
+        [Fact]
+        public void ScenarioValidator_ZeroWaveCount()
+        {
+            RegistryManager registries = new RegistryManager();
+            ScenarioValidator validator = new ScenarioValidator(registries);
+
+            ScenarioDefinition scenario = new ScenarioDefinition
+            {
+                Id = "zero-waves",
+                DisplayName = "Zero Waves Test",
+                WaveCount = 0
+            };
+
+            IReadOnlyList<string> errors = validator.Validate(scenario);
+            errors.Should().Contain(e => e.Contains("invalid wave count"));
         }
     }
 }
