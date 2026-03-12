@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using DINOForge.Domains.Economy;
+using DINOForge.Domains.Economy.Balance;
 using DINOForge.Domains.Economy.Models;
 using DINOForge.Domains.Economy.Rates;
 using DINOForge.Domains.Economy.Trade;
+using DINOForge.Domains.Economy.Validation;
 using DINOForge.SDK.Models;
 using DINOForge.SDK.Registry;
 using FluentAssertions;
@@ -281,6 +283,258 @@ namespace DINOForge.Tests
                 new List<TradeRoute>());
 
             act.Should().Throw<System.ArgumentException>();
+        }
+
+        // ── ProductionCalculator.CalculateFactionProduction ──
+
+        [Fact]
+        public void ProductionCalculator_CalculateFactionProduction_AggregatesOutputFromMultipleBuildings()
+        {
+            ProductionCalculator calc = new ProductionCalculator();
+            RegistryManager registries = new RegistryManager();
+
+            BuildingDefinition farm = new BuildingDefinition
+            {
+                Id = "farm",
+                Production = new Dictionary<string, int> { { "food", 10 } }
+            };
+            BuildingDefinition mill = new BuildingDefinition
+            {
+                Id = "mill",
+                Production = new Dictionary<string, int> { { "food", 5 } }
+            };
+
+            registries.Buildings.Register(farm.Id, farm, RegistrySource.Pack, "test-pack");
+            registries.Buildings.Register(mill.Id, mill, RegistrySource.Pack, "test-pack");
+
+            EconomyProfile profile = new EconomyProfile();
+            List<string> buildingIds = new List<string> { "farm", "mill" };
+
+            Dictionary<string, float> production = calc.CalculateFactionProduction(
+                "faction1", profile, registries.Buildings, buildingIds);
+
+            production["food"].Should().Be(15f); // 10 + 5
+        }
+
+        [Fact]
+        public void ProductionCalculator_CalculateFactionProduction_EmptyBuildings_ReturnsZero()
+        {
+            ProductionCalculator calc = new ProductionCalculator();
+            RegistryManager registries = new RegistryManager();
+            EconomyProfile profile = new EconomyProfile();
+            List<string> buildingIds = new List<string>();
+
+            Dictionary<string, float> production = calc.CalculateFactionProduction(
+                "faction1", profile, registries.Buildings, buildingIds);
+
+            production.Should().HaveCount(5);
+            foreach (string resourceType in ResourceRate.ValidResourceTypes)
+            {
+                production[resourceType].Should().Be(0f);
+            }
+        }
+
+        // ── ProductionCalculator.CalculateUnitConsumption ──
+
+        [Fact]
+        public void ProductionCalculator_CalculateUnitConsumption_CalculatesUpkeepCorrectly()
+        {
+            ProductionCalculator calc = new ProductionCalculator();
+            RegistryManager registries = new RegistryManager();
+
+            UnitDefinition unit = new UnitDefinition
+            {
+                Id = "soldier",
+                Stats = new UnitStats { Cost = new ResourceCost { Food = 5, Wood = 2, Stone = 1, Iron = 0, Gold = 0 } }
+            };
+
+            registries.Units.Register(unit.Id, unit, RegistrySource.Pack, "test-pack");
+
+            EconomyProfile profile = new EconomyProfile();
+            Dictionary<string, int> unitCounts = new Dictionary<string, int> { { "soldier", 10 } };
+
+            Dictionary<string, float> consumption = calc.CalculateUnitConsumption(
+                registries.Units, unitCounts, profile);
+
+            consumption["food"].Should().Be(50f); // 5 * 10
+            consumption["wood"].Should().Be(20f); // 2 * 10
+            consumption["stone"].Should().Be(10f); // 1 * 10
+        }
+
+        [Fact]
+        public void ProductionCalculator_CalculateUnitConsumption_EmptyUnits_ReturnsEmpty()
+        {
+            ProductionCalculator calc = new ProductionCalculator();
+            RegistryManager registries = new RegistryManager();
+            EconomyProfile profile = new EconomyProfile();
+            Dictionary<string, int> unitCounts = new Dictionary<string, int>();
+
+            Dictionary<string, float> consumption = calc.CalculateUnitConsumption(
+                registries.Units, unitCounts, profile);
+
+            consumption.Should().BeEmpty();
+        }
+
+        // ── EconomyBalanceCalculator.GenerateReport ──
+
+        [Fact]
+        public void EconomyBalanceCalculator_GenerateReport_ReturnsNonNullReportWithPackId()
+        {
+            RegistryManager registries = new RegistryManager();
+
+            FactionDefinition faction = new FactionDefinition
+            {
+                Faction = new FactionInfo { Id = "knights" },
+                Buildings = new FactionBuildings(),
+                Economy = new FactionEconomy()
+            };
+            registries.Factions.Register(faction.Faction.Id, faction, RegistrySource.Pack, "test-pack");
+
+            ProductionCalculator prodCalc = new ProductionCalculator();
+            TradeEngine tradeEngine = new TradeEngine();
+            EconomyBalanceCalculator balanceCalc = new EconomyBalanceCalculator(prodCalc, tradeEngine);
+
+            Dictionary<string, EconomyProfile> profiles = new Dictionary<string, EconomyProfile>();
+            List<TradeRoute> routes = new List<TradeRoute>();
+
+            EconomyBalanceReport report = balanceCalc.GenerateReport(
+                "test-pack", registries, profiles, routes);
+
+            report.Should().NotBeNull();
+            report.PackId.Should().Be("test-pack");
+        }
+
+        // ── EconomyValidator.Validate_ValidPack ──
+
+        [Fact]
+        public void EconomyValidator_Validate_ValidPack_PassesValidation()
+        {
+            RegistryManager registries = new RegistryManager();
+
+            EconomyProfile profile = new EconomyProfile
+            {
+                Id = "economy1",
+                DisplayName = "Standard Economy",
+                StartingResources = new ResourceCost { Food = 100, Wood = 50, Stone = 50, Iron = 20, Gold = 0 }
+            };
+
+            TradeRoute route = new TradeRoute
+            {
+                Id = "wood-to-gold",
+                SourceResource = "wood",
+                TargetResource = "gold",
+                ExchangeRate = 10.0f,
+                Enabled = true
+            };
+
+            EconomyValidator validator = new EconomyValidator();
+            EconomyValidationResult result = validator.Validate(
+                "test-pack",
+                registries,
+                new List<EconomyProfile> { profile },
+                new List<TradeRoute> { route });
+
+            result.IsValid.Should().BeTrue();
+            result.Errors.Should().BeEmpty();
+        }
+
+        // ── EconomyValidator.Validate_EmptyPackId ──
+
+        [Fact]
+        public void EconomyValidator_Validate_EmptyPackId_Throws()
+        {
+            RegistryManager registries = new RegistryManager();
+            EconomyValidator validator = new EconomyValidator();
+
+            System.Action act = () => validator.Validate(
+                "",
+                registries,
+                new List<EconomyProfile>(),
+                new List<TradeRoute>());
+
+            act.Should().Throw<System.ArgumentException>();
+        }
+
+        // ── EconomyValidator.Validate_NoProfiles ──
+
+        [Fact]
+        public void EconomyValidator_Validate_NoProfiles_ReturnsValid()
+        {
+            RegistryManager registries = new RegistryManager();
+            EconomyValidator validator = new EconomyValidator();
+
+            EconomyValidationResult result = validator.Validate(
+                "test-pack",
+                registries,
+                new List<EconomyProfile>(),
+                new List<TradeRoute>());
+
+            // No profiles is valid; validator just doesn't find any to check
+            result.IsValid.Should().BeTrue();
+        }
+
+        // ── TradeEngine.GetOptimalTrades with disabled route ──
+
+        [Fact]
+        public void TradeEngine_GetOptimalTrades_DisabledRoute_IsNotSuggested()
+        {
+            TradeEngine engine = new TradeEngine();
+            List<TradeRoute> routes = new List<TradeRoute>
+            {
+                new TradeRoute
+                {
+                    Id = "disabled-trade",
+                    SourceResource = "wood",
+                    TargetResource = "gold",
+                    ExchangeRate = 10.0f,
+                    Enabled = false // Disabled
+                }
+            };
+            EconomyProfile profile = new EconomyProfile();
+            Dictionary<string, float> available = new Dictionary<string, float>
+            {
+                { "wood", 1000f }, { "gold", 0f }
+            };
+            Dictionary<string, float> balance = new Dictionary<string, float>
+            {
+                { "wood", 50f }, { "gold", -20f }
+            };
+
+            List<TradeSuggestion> suggestions = engine.GetOptimalTrades(routes, profile, available, balance);
+
+            suggestions.Should().BeEmpty();
+        }
+
+        // ── TradeEngine.GetOptimalTrades with zero resources ──
+
+        [Fact]
+        public void TradeEngine_GetOptimalTrades_ZeroAvailableResources_ReturnsNoSuggestions()
+        {
+            TradeEngine engine = new TradeEngine();
+            List<TradeRoute> routes = new List<TradeRoute>
+            {
+                new TradeRoute
+                {
+                    Id = "wood-to-gold",
+                    SourceResource = "wood",
+                    TargetResource = "gold",
+                    ExchangeRate = 10.0f,
+                    Enabled = true
+                }
+            };
+            EconomyProfile profile = new EconomyProfile();
+            Dictionary<string, float> available = new Dictionary<string, float>
+            {
+                { "wood", 0f }, { "gold", 0f }
+            };
+            Dictionary<string, float> balance = new Dictionary<string, float>
+            {
+                { "wood", 0f }, { "gold", -20f }
+            };
+
+            List<TradeSuggestion> suggestions = engine.GetOptimalTrades(routes, profile, available, balance);
+
+            suggestions.Should().BeEmpty();
         }
     }
 }
