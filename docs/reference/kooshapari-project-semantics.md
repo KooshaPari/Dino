@@ -86,7 +86,7 @@ Dino has a few strong patterns worth carrying outward:
 
 - ADR discipline for architecture decisions
 - explicit release and changelog governance
-- schema/contract centric thinking
+- schema/contract-centric thinking
 - artifact checksum expectations for shipped binaries
 
 ## What Dino should import from the wider KooshaPari portfolio

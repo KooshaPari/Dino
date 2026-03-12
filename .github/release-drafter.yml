@@ -33,6 +33,9 @@ categories:
       - ci
       - build
       - dependencies
+      - perf
+      - revert
+      - security
 
 change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
 no-changes-template: '- No categorized changes.'
