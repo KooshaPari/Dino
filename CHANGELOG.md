@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Native menu Mods button EventSystem navigation conflict** — Fixed issue where the injected Mods button was not visually selectable and clicking it would open the Options menu instead. Implemented dual-strategy fix:
+  - **Strategy 1**: Explicitly set EventSystem selection to the new Mods button via `EventSystem.current.SetSelectedGameObject()`
+  - **Strategy 2**: Isolate the Mods button from the navigation graph by setting `Navigation.mode = None`, preventing the Options button from "stealing" focus back
+  - Added comprehensive logging of EventSystem state before/after injection and navigation mode debugging
+  - File: `src/Runtime/UI/NativeMenuInjector.cs` (InjectButton method)
+
 ### Phase 2: Sketchfab NuGet Integration Analysis - COMPLETED
 - **SketchfabCSharp NuGet Availability**: NOT available on NuGet.org
   - Package Type: Unity-only source library (GitHub: https://github.com/Zoe-Immersive/SketchfabCSharp)
