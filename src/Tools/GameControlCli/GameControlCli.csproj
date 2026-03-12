@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AssemblyName>dinoforge</AssemblyName>
+    <RootNamespace>DINOForge.Tools.GameControlCli</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.24324.3" />
+    <PackageReference Include="Spectre.Console" Version="0.49.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Bridge\Client\DINOForge.Bridge.Client.csproj" />
+    <ProjectReference Include="..\..\Bridge\Protocol\DINOForge.Bridge.Protocol.csproj" />
+  </ItemGroup>
+
+</Project>

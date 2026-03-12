@@ -26,6 +26,13 @@
     <!-- Reproducible builds: lock NuGet package versions -->
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RestoreLockedMode Condition="'$(CI)' == 'true'">true</RestoreLockedMode>
+
+    <!--
+      When building via the solution, MSBuild's default recursive project-reference
+      builds can fail opaquely in this environment. Let the solution drive project
+      order and suppress nested project builds from child projects.
+    -->
+    <BuildProjectReferences Condition="'$(SolutionPath)' != '' and '$(DesignTimeBuild)' != 'true'">false</BuildProjectReferences>
   </PropertyGroup>
 
   <!-- MinVer: git-tag-based versioning for all projects -->

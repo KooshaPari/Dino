@@ -2,6 +2,7 @@
 using System;
 using BepInEx.Logging;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -50,6 +51,11 @@ namespace DINOForge.Runtime.UI
         private bool _injected;
         private float _rescanTimer;
 
+        // ===== DIAGNOSTIC FIELDS =====
+        private readonly string _sessionId = System.Guid.NewGuid().ToString().Substring(0, 8);
+        private int _injectionAttemptCount;
+        private long _buttonClickCount;
+
         // ------------------------------------------------------------------ //
         // Public wiring surface
         // ------------------------------------------------------------------ //
@@ -80,11 +86,13 @@ namespace DINOForge.Runtime.UI
         private void Awake()
         {
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
-            LogInfo("[NativeMenuInjector] Awake — subscribed to scene changes.");
+            LogInfo($"[NativeMenuInjector::{_sessionId}] ===== PLUGIN SESSION START ===== Awake at {System.DateTime.UtcNow:HH:mm:ss.fff} UTC");
+            LogInfo("[NativeMenuInjector] Subscribed to scene changes.");
         }
 
         private void Start()
         {
+            LogInfo($"[NativeMenuInjector::{_sessionId}] Start() called at {System.DateTime.UtcNow:HH:mm:ss.fff} UTC");
             TryInjectMenuButton();
         }
 
@@ -96,7 +104,7 @@ namespace DINOForge.Runtime.UI
             // Button was destroyed (e.g. scene unloaded) — reset and re-scan.
             if (_injected && _injectedButton == null)
             {
-                LogInfo("[NativeMenuInjector] Injected button was destroyed; will re-inject.");
+                LogWarning($"[NativeMenuInjector::{_sessionId}] ⚠ INJECTED BUTTON WAS DESTROYED! Resetting injection flag at {System.DateTime.UtcNow:HH:mm:ss.fff} UTC");
                 _injected = false;
             }
 
@@ -110,6 +118,7 @@ namespace DINOForge.Runtime.UI
         private void OnDestroy()
         {
             SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+            LogInfo($"[NativeMenuInjector::{_sessionId}] OnDestroy called. Injector cleanup complete.");
         }
 
         // ------------------------------------------------------------------ //
@@ -136,16 +145,22 @@ namespace DINOForge.Runtime.UI
         /// </summary>
         private void TryInjectMenuButton()
         {
+            _injectionAttemptCount++;
+            long attemptId = _injectionAttemptCount;
+
             try
             {
+                LogInfo($"[NativeMenuInjector::{_sessionId}] ═══ INJECTION ATTEMPT #{attemptId} at {System.DateTime.UtcNow:HH:mm:ss.fff} UTC ═══");
+
                 // If already injected and button is alive, skip scan
                 if (_injected && _injectedButton != null)
                 {
+                    LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}: Already injected + button alive, skipping scan");
                     return;
                 }
 
                 Canvas[] allCanvases = Resources.FindObjectsOfTypeAll<Canvas>();
-                LogInfo($"[NativeMenuInjector] Scan started: found {allCanvases.Length} canvases total");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}: Scan started — found {allCanvases.Length} canvases total");
 
                 int activeCount = 0;
                 int matchCount = 0;
@@ -155,7 +170,7 @@ namespace DINOForge.Runtime.UI
                     // Check if canvas is active in hierarchy
                     if (!IsCanvasActive(canvas))
                     {
-                        LogInfo($"[NativeMenuInjector]   Canvas '{canvas.name}': inactive (skipped)");
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   Canvas '{canvas.name}': INACTIVE (skipped)");
                         continue;
                     }
                     activeCount++;
@@ -163,36 +178,36 @@ namespace DINOForge.Runtime.UI
                     // Check if canvas name matches our candidates
                     if (!IsCanvasNameMatch(canvas.name))
                     {
-                        LogInfo($"[NativeMenuInjector]   Canvas '{canvas.name}': name doesn't match candidates (skipped)");
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   Canvas '{canvas.name}': name DOES NOT MATCH candidates (skipped)");
                         continue;
                     }
                     matchCount++;
 
-                    LogInfo($"[NativeMenuInjector]   Canvas '{canvas.name}': name matched, searching for Settings/Options button...");
+                    LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   Canvas '{canvas.name}': NAME MATCHED ✓ searching for Settings/Options button...");
 
                     Button? settingsButton = FindSettingsButton(canvas);
                     if (settingsButton == null)
                     {
-                        LogInfo($"[NativeMenuInjector]   Canvas '{canvas.name}': no Settings/Options button found");
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   Canvas '{canvas.name}': NO Settings/Options button found");
                         continue;
                     }
 
-                    LogInfo($"[NativeMenuInjector] SUCCESS: Found Settings button '{settingsButton.name}' in canvas '{canvas.name}'. Injecting Mods button...");
+                    LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId} ✓✓✓ SUCCESS FOUND Settings button '{settingsButton.name}' in canvas '{canvas.name}'. INJECTING Mods button...");
 
-                    InjectButton(settingsButton);
+                    InjectButton(settingsButton, attemptId);
 
                     if (_injected)
                     {
-                        LogInfo($"[NativeMenuInjector] Injection successful! Mods button is now active.");
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId} ✓✓✓✓✓ INJECTION SUCCESSFUL! Mods button is now ACTIVE.");
                         return;
                     }
                 }
 
-                LogInfo($"[NativeMenuInjector] Scan complete: {allCanvases.Length} total, {activeCount} active, {matchCount} name-matched, 0 Settings buttons found. Will retry in {RescanInterval}s.");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId} SCAN COMPLETE: {allCanvases.Length} total, {activeCount} active, {matchCount} name-matched, 0 Settings buttons found. Will retry in {RescanInterval}s.");
             }
             catch (Exception ex)
             {
-                LogWarning($"[NativeMenuInjector] TryInjectMenuButton exception: {ex.Message}\n{ex.StackTrace}");
+                LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId} TryInjectMenuButton EXCEPTION: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -233,15 +248,17 @@ namespace DINOForge.Runtime.UI
         /// Clones the reference button, labels it "Mods", positions it after the original,
         /// and wires its onClick event.
         /// </summary>
-        private void InjectButton(Button settingsButton)
+        private void InjectButton(Button settingsButton, long attemptId)
         {
             try
             {
                 if (settingsButton == null)
                 {
-                    LogWarning("[NativeMenuInjector] InjectButton called with null settingsButton!");
+                    LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId} InjectButton called with NULL settingsButton! ABORT.");
                     return;
                 }
+
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId} InjectButton starting with settingsButton='{settingsButton.name}'");
 
                 // Guard: don't inject twice into the same parent
                 Transform parent = settingsButton.transform.parent;
@@ -256,79 +273,197 @@ namespace DINOForge.Runtime.UI
                             {
                                 _injectedButton = existing;
                                 _injected = true;
-                                LogInfo("[NativeMenuInjector] Mods button already present; skipping re-inject.");
+                                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId} ✓ Mods button already present in parent; SKIPPING re-inject, using existing.");
                                 return;
                             }
                         }
                     }
                 }
 
-                LogInfo($"[NativeMenuInjector] Cloning Settings button '{settingsButton.name}' to create Mods button...");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 1: Cloning Settings button '{settingsButton.name}' to create Mods button...");
                 Button modsButton = NativeUiHelper.CloneButton(settingsButton, "Mods");
 
                 if (modsButton == null)
                 {
-                    LogWarning("[NativeMenuInjector] CloneButton returned null!");
+                    LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   ⚠ STEP 1 FAILED: CloneButton returned null! ABORT.");
                     return;
                 }
 
-                LogInfo($"[NativeMenuInjector] Clone successful: '{modsButton.name}'. Positioning...");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 1 OK: Clone successful: '{modsButton.name}'");
 
                 // Position adjacent to Settings button
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 2: Positioning Mods button after Settings button...");
                 RectTransform modsRect = modsButton.GetComponent<RectTransform>();
                 RectTransform settingsRect = settingsButton.GetComponent<RectTransform>();
                 if (modsRect != null && settingsRect != null)
                 {
                     NativeUiHelper.PositionAfterSibling(modsRect, settingsRect);
-                    LogInfo($"[NativeMenuInjector] Positioned after Settings button (sibling index: {modsButton.transform.GetSiblingIndex()})");
+                    LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 2 OK: Positioned (sibling index: {modsButton.transform.GetSiblingIndex()})");
                 }
                 else
                 {
-                    LogWarning($"[NativeMenuInjector] Could not position: modsRect={modsRect != null}, settingsRect={settingsRect != null}");
+                    LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   ⚠ STEP 2 WARN: Could not position: modsRect={modsRect != null}, settingsRect={settingsRect != null}");
                 }
 
                 // Ensure button is fully interactive
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 3: Ensuring button is fully interactive...");
                 modsButton.gameObject.SetActive(true);
                 modsButton.interactable = true;
-                LogInfo($"[NativeMenuInjector] Button activated: active={modsButton.gameObject.activeSelf}, interactable={modsButton.interactable}");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 3 OK: Button activated: active={modsButton.gameObject.activeSelf}, interactable={modsButton.interactable}");
 
                 // Ensure CanvasGroup doesn't block interaction
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 4: Checking CanvasGroup...");
                 CanvasGroup? cg = modsButton.GetComponent<CanvasGroup>();
                 if (cg != null)
                 {
                     cg.interactable = true;
                     cg.blocksRaycasts = true;
-                    LogInfo($"[NativeMenuInjector] CanvasGroup found and configured (interactable={cg.interactable}, blocksRaycasts={cg.blocksRaycasts})");
+                    LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 4 OK: CanvasGroup configured (interactable={cg.interactable}, blocksRaycasts={cg.blocksRaycasts})");
                 }
                 else
                 {
-                    LogInfo($"[NativeMenuInjector] No CanvasGroup on button");
+                    LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 4 INFO: No CanvasGroup on button (OK, not required)");
                 }
 
-                // Wire onClick
+                // ===== STEP 5: RAYCAST DIAGNOSTICS =====
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 5: Raycast diagnostics...");
+
+                // Check button's own raycast target
+                Image? btnImage = modsButton.targetGraphic as Image;
+                if (btnImage != null)
+                {
+                    LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - targetGraphic raycastTarget: {btnImage.raycastTarget}");
+                    if (!btnImage.raycastTarget)
+                    {
+                        LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     ⚠ raycastTarget is FALSE - ENABLING");
+                        btnImage.raycastTarget = true;
+                    }
+                }
+                else
+                {
+                    LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     ⚠ targetGraphic is not an Image or is null");
+                }
+
+                // Check all parent CanvasGroups
+                CanvasGroup[] parentCGs = modsButton.GetComponentsInParent<CanvasGroup>();
+                if (parentCGs.Length > 0)
+                {
+                    LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     Found {parentCGs.Length} parent CanvasGroup(s):");
+                    foreach (var parentCg in parentCGs)
+                    {
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}       - CanvasGroup '{parentCg.gameObject.name}': blocksRaycasts={parentCg.blocksRaycasts}, interactable={parentCg.interactable}");
+                        if (!parentCg.blocksRaycasts)
+                        {
+                            LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}       ⚠ CanvasGroup '{parentCg.gameObject.name}' has blocksRaycasts=FALSE - may block raycasts");
+                        }
+                    }
+                }
+                else
+                {
+                    LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     No parent CanvasGroups found");
+                }
+
+                // Check sorting order
+                Canvas? canvas = modsButton.GetComponentInParent<Canvas>();
+                if (canvas != null)
+                {
+                    LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     Canvas '{canvas.name}': sortingOrder={canvas.sortingOrder}, renderMode={canvas.renderMode}");
+                }
+                else
+                {
+                    LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     ⚠ No parent Canvas found");
+                }
+
+                // Check for GraphicRaycaster on parent canvas
+                if (canvas != null)
+                {
+                    GraphicRaycaster? raycaster = canvas.GetComponent<GraphicRaycaster>();
+                    if (raycaster != null)
+                    {
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     GraphicRaycaster on canvas: enabled={raycaster.enabled}");
+                        if (!raycaster.enabled)
+                        {
+                            LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     ⚠ GraphicRaycaster is disabled - ENABLING");
+                            raycaster.enabled = true;
+                        }
+                    }
+                    else
+                    {
+                        LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     ⚠ No GraphicRaycaster on canvas - raycasts may not work");
+                    }
+                }
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 5 OK: Raycast diagnostics complete");
+                // ===== END RAYCAST DIAGNOSTICS =====
+
+                // STEP 6: Wire onClick
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 6: Wiring onClick listener...");
                 modsButton.onClick.RemoveAllListeners();
                 modsButton.onClick.AddListener(OnModsButtonClicked);
-                LogInfo($"[NativeMenuInjector] onClick listener attached");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 6 OK: onClick listener attached");
 
-                // Log detailed button state for debugging
-                LogInfo($"[NativeMenuInjector] Final button state: " +
-                    $"name='{modsButton.name}', " +
-                    $"parent='{modsButton.transform.parent?.name}', " +
-                    $"active={modsButton.gameObject.activeSelf}, " +
-                    $"interactable={modsButton.interactable}, " +
-                    $"navigation={modsButton.navigation.mode}, " +
-                    $"raycastTarget={modsButton.targetGraphic?.raycastTarget ?? false}, " +
-                    $"sibling_index={modsButton.transform.GetSiblingIndex()}, " +
-                    $"overlay_ref={(_overlay != null ? "set" : "NULL")}");
+                // STEP 7: Fix EventSystem navigation conflict
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 7: Configuring EventSystem selection...");
+                try
+                {
+                    LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.1] Getting EventSystem.current...");
+                    EventSystem es = EventSystem.current;
+                    if (es != null)
+                    {
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.2] EventSystem found, getting current selection...");
+                        GameObject? currentSelected = es.currentSelectedGameObject;
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.3] BEFORE: current selection = {currentSelected?.name ?? "NULL"}");
+
+                        // Strategy 1: Explicitly set the Mods button as the selected object
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.4] Calling SetSelectedGameObject({modsButton.gameObject.name})...");
+                        es.SetSelectedGameObject(modsButton.gameObject);
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.5] SetSelectedGameObject completed");
+                        GameObject? afterSelect = es.currentSelectedGameObject;
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.6] AFTER SetSelectedGameObject: selection = {afterSelect?.name ?? "NULL"}");
+
+                        // Strategy 2: Isolate the Mods button from navigation graph to prevent
+                        // Options button from "stealing" focus back
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.7] Setting navigation mode to None...");
+                        Navigation modsNav = modsButton.navigation;
+                        modsNav.mode = Navigation.Mode.None;
+                        modsButton.navigation = modsNav;
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.8] Mods button navigation mode: {modsNav.mode} (ISOLATED)");
+
+                        // Log navigation mode for both buttons for debugging
+                        Navigation settingsNav = settingsButton.navigation;
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.9] Settings button navigation mode: {settingsNav.mode}");
+                    }
+                    else
+                    {
+                        LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     ⚠ EventSystem.current is NULL!");
+                    }
+                }
+                catch (Exception exEs)
+                {
+                    LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     ⚠ EventSystem fix exception TYPE: {exEs.GetType().Name}");
+                    LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     ⚠ Message: '{exEs.Message}'");
+                    LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     ⚠ StackTrace: {exEs.StackTrace}");
+                }
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 7 OK: EventSystem configuration complete");
+
+                // STEP 8: Final button state verification
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 8: FINAL BUTTON STATE VERIFICATION");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - gameObject.activeSelf: {modsButton.gameObject.activeSelf}");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - gameObject.activeInHierarchy: {modsButton.gameObject.activeInHierarchy}");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - interactable: {modsButton.interactable}");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - navigation.mode: {modsButton.navigation.mode}");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - targetGraphic.raycastTarget: {modsButton.targetGraphic?.raycastTarget ?? false}");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - sibling_index: {modsButton.transform.GetSiblingIndex()}");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - overlay_ref: {(_overlay != null ? "READY" : "NULL")}");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 8 OK: All checks passed");
 
                 _injectedButton = modsButton;
                 _injected = true;
 
-                LogInfo("[NativeMenuInjector] ✓ Mods button injection SUCCESSFUL.");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId} ✓✓✓✓✓✓ MODS BUTTON INJECTION FULLY SUCCESSFUL ✓✓✓✓✓✓");
             }
             catch (Exception ex)
             {
-                LogWarning($"[NativeMenuInjector] InjectButton exception: {ex.Message}\n{ex.StackTrace}");
+                LogWarning($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId} ⚠⚠⚠ InjectButton EXCEPTION: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -338,21 +473,27 @@ namespace DINOForge.Runtime.UI
 
         private void OnModsButtonClicked()
         {
+            _buttonClickCount++;
+            long clickId = _buttonClickCount;
+
             try
             {
-                if (_overlay != null)
+                LogInfo($"[NativeMenuInjector::{_sessionId}] ═══ MODS BUTTON CLICKED #{clickId} at {System.DateTime.UtcNow:HH:mm:ss.fff} UTC ═══");
+
+                if (_overlay == null)
                 {
-                    _overlay.Toggle();
-                    LogInfo("[NativeMenuInjector] Mods menu toggled via native button.");
+                    LogWarning($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ⚠ overlay reference is NULL! Cannot toggle menu.");
+                    return;
                 }
-                else
-                {
-                    LogWarning("[NativeMenuInjector] OnModsButtonClicked — overlay reference is null.");
-                }
+
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId}   overlay.IsVisible BEFORE toggle: {_overlay.IsVisible}");
+                _overlay.Toggle();
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId}   overlay.IsVisible AFTER toggle: {_overlay.IsVisible}");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ✓ Mods menu TOGGLED successfully");
             }
             catch (Exception ex)
             {
-                LogWarning($"[NativeMenuInjector] OnModsButtonClicked exception: {ex.Message}");
+                LogWarning($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ⚠ OnModsButtonClicked exception: {ex.Message}\n{ex.StackTrace}");
             }
         }
 

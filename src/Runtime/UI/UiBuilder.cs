@@ -129,7 +129,17 @@ namespace DINOForge.Runtime.UI
             t.fontSize = fontSize;
             t.color = color;
             t.alignment = alignment;
-            t.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            Font arialFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            if (arialFont == null)
+            {
+                Debug.LogError($"[UiBuilder.MakeText] CRITICAL: Arial.ttf font not found! Text '{text}' will not render. Trying alternative: 'Arial'");
+                arialFont = Resources.Load<Font>("Arial");
+                if (arialFont == null)
+                {
+                    Debug.LogError($"[UiBuilder.MakeText] CRITICAL FALLBACK FAILED: No Arial font available at all!");
+                }
+            }
+            t.font = arialFont;
             t.fontStyle = bold ? FontStyle.Bold : FontStyle.Normal;
             t.supportRichText = true;
             t.horizontalOverflow = HorizontalWrapMode.Wrap;
