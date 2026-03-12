@@ -13,16 +13,16 @@ namespace DINOForge.Runtime.UI
     public static class UiBuilder
     {
         // ── Palette ─────────────────────────────────────────────────────────────
-        public static readonly Color BgDeep        = HexColor("#0d1a0f", 0.92f);
-        public static readonly Color BgSurface      = HexColor("#1c2b1e", 1f);
-        public static readonly Color TextPrimary    = HexColor("#e8d5b0", 1f);
-        public static readonly Color TextSecondary  = HexColor("#a89070", 1f);
-        public static readonly Color Accent         = HexColor("#c9a84c", 1f);
-        public static readonly Color Success        = HexColor("#4caf7d", 1f);
-        public static readonly Color Error          = HexColor("#e05252", 1f);
-        public static readonly Color Warning        = HexColor("#e8a020", 1f);
-        public static readonly Color Border         = HexColor("#2d4a32", 1f);
-        public static readonly Color Transparent    = new Color(0f, 0f, 0f, 0f);
+        public static readonly Color BgDeep = HexColor("#0d1a0f", 0.92f);
+        public static readonly Color BgSurface = HexColor("#1c2b1e", 1f);
+        public static readonly Color TextPrimary = HexColor("#e8d5b0", 1f);
+        public static readonly Color TextSecondary = HexColor("#a89070", 1f);
+        public static readonly Color Accent = HexColor("#c9a84c", 1f);
+        public static readonly Color Success = HexColor("#4caf7d", 1f);
+        public static readonly Color Error = HexColor("#e05252", 1f);
+        public static readonly Color Warning = HexColor("#e8a020", 1f);
+        public static readonly Color Border = HexColor("#2d4a32", 1f);
+        public static readonly Color Transparent = new Color(0f, 0f, 0f, 0f);
 
         // ── Color helpers ────────────────────────────────────────────────────────
 
@@ -85,8 +85,8 @@ namespace DINOForge.Runtime.UI
             if (panelSprite != null)
             {
                 img.sprite = panelSprite;
-                img.type   = Image.Type.Sliced;
-                img.color  = bgColor; // tints the sprite; pass Color.white for unmodified sprite
+                img.type = Image.Type.Sliced;
+                img.color = bgColor; // tints the sprite; pass Color.white for unmodified sprite
             }
             else
             {
@@ -155,8 +155,8 @@ namespace DINOForge.Runtime.UI
             if (btnSprite != null)
             {
                 img.sprite = btnSprite;
-                img.type   = Image.Type.Sliced;
-                img.color  = bgColor; // tints sprite; pass Color.white for unmodified
+                img.type = Image.Type.Sliced;
+                img.color = bgColor; // tints sprite; pass Color.white for unmodified
             }
             else
             {
@@ -170,21 +170,21 @@ namespace DINOForge.Runtime.UI
             Sprite? btnPressedSprite = UiAssets.ButtonPressed;
             if (btnPressedSprite != null)
             {
-                ss.pressedSprite     = btnPressedSprite;
+                ss.pressedSprite = btnPressedSprite;
                 ss.highlightedSprite = btnSprite; // same as normal — colour block handles highlight
-                btn.spriteState      = ss;
-                btn.transition       = Selectable.Transition.SpriteSwap;
+                btn.spriteState = ss;
+                btn.transition = Selectable.Transition.SpriteSwap;
             }
 
             // Colour tint block (also applies when using SpriteSwap for tint overlay)
             ColorBlock cb = btn.colors;
-            cb.normalColor      = bgColor;
+            cb.normalColor = bgColor;
             cb.highlightedColor = Color.Lerp(bgColor, Color.white, 0.15f);
-            cb.pressedColor     = Color.Lerp(bgColor, Color.black, 0.2f);
-            cb.selectedColor    = bgColor;
-            cb.disabledColor    = new Color(bgColor.r, bgColor.g, bgColor.b, 0.4f);
-            cb.colorMultiplier  = 1f;
-            cb.fadeDuration     = 0.1f;
+            cb.pressedColor = Color.Lerp(bgColor, Color.black, 0.2f);
+            cb.selectedColor = bgColor;
+            cb.disabledColor = new Color(bgColor.r, bgColor.g, bgColor.b, 0.4f);
+            cb.colorMultiplier = 1f;
+            cb.fadeDuration = 0.1f;
             btn.colors = cb;
 
             btn.onClick.AddListener(() => onClick());

@@ -13,24 +13,24 @@ namespace DINOForge.Runtime.UI
     public class DebugPanel : MonoBehaviour
     {
         // ── Constants ─────────────────────────────────────────────────────────────
-        private const float PanelWidth   = 380f;
+        private const float PanelWidth = 380f;
         private const float HeaderHeight = 44f;
         private const float AnimDuration = 0.15f;
 
         // ── State ─────────────────────────────────────────────────────────────────
         private ModPlatform? _modPlatform;
 
-        private CanvasGroup?    _canvasGroup;
-        private RectTransform?  _panelRt;
-        private float           _animT;
-        private bool            _targetVisible;
+        private CanvasGroup? _canvasGroup;
+        private RectTransform? _panelRt;
+        private float _animT;
+        private bool _targetVisible;
 
         // Section toggle state
-        private bool _showPlatform  = true;
-        private bool _showWorlds    = true;
-        private bool _showSystems   = false;
+        private bool _showPlatform = true;
+        private bool _showWorlds = true;
+        private bool _showSystems = false;
         private bool _showArchetypes = false;
-        private bool _showErrors    = false;
+        private bool _showErrors = false;
 
         // Content area for dynamic updates
         private RectTransform? _contentRoot;
@@ -51,14 +51,14 @@ namespace DINOForge.Runtime.UI
             RectTransform rootRt = rootGo.GetComponent<RectTransform>();
             rootRt.anchorMin = new Vector2(1f, 0f);
             rootRt.anchorMax = Vector2.one;
-            rootRt.pivot     = new Vector2(1f, 0.5f);
+            rootRt.pivot = new Vector2(1f, 0.5f);
             rootRt.offsetMin = new Vector2(-PanelWidth, 0f);
             rootRt.offsetMax = Vector2.zero;
 
             _panelRt = rootRt;
             _canvasGroup = UiBuilder.EnsureCanvasGroup(rootGo);
-            _canvasGroup.alpha          = 0f;
-            _canvasGroup.interactable   = false;
+            _canvasGroup.alpha = 0f;
+            _canvasGroup.interactable = false;
             _canvasGroup.blocksRaycasts = false;
 
             BuildHeader(rootGo.transform);
@@ -79,7 +79,7 @@ namespace DINOForge.Runtime.UI
             _targetVisible = true;
             if (_canvasGroup != null)
             {
-                _canvasGroup.interactable   = true;
+                _canvasGroup.interactable = true;
                 _canvasGroup.blocksRaycasts = true;
             }
         }
@@ -90,7 +90,7 @@ namespace DINOForge.Runtime.UI
             _targetVisible = false;
             if (_canvasGroup != null)
             {
-                _canvasGroup.interactable   = false;
+                _canvasGroup.interactable = false;
                 _canvasGroup.blocksRaycasts = false;
             }
         }
@@ -140,7 +140,7 @@ namespace DINOForge.Runtime.UI
             RectTransform hRt = header.GetComponent<RectTransform>();
             hRt.anchorMin = new Vector2(0f, 1f);
             hRt.anchorMax = Vector2.one;
-            hRt.pivot     = new Vector2(0.5f, 1f);
+            hRt.pivot = new Vector2(0.5f, 1f);
             hRt.offsetMin = Vector2.zero;
             hRt.offsetMax = Vector2.zero;
             hRt.sizeDelta = new Vector2(0f, HeaderHeight);
@@ -163,7 +163,7 @@ namespace DINOForge.Runtime.UI
                 UiBuilder.BgDeep, UiBuilder.TextSecondary,
                 () => Hide());
             LayoutElement closeLe = closeBtn.gameObject.AddComponent<LayoutElement>();
-            closeLe.preferredWidth  = 28f;
+            closeLe.preferredWidth = 28f;
             closeLe.preferredHeight = 28f;
 
             // Separator
@@ -171,7 +171,7 @@ namespace DINOForge.Runtime.UI
             RectTransform sepRt = sep.GetComponent<RectTransform>();
             sepRt.anchorMin = new Vector2(0f, 1f);
             sepRt.anchorMax = Vector2.one;
-            sepRt.pivot     = new Vector2(0.5f, 1f);
+            sepRt.pivot = new Vector2(0.5f, 1f);
             sepRt.anchoredPosition = new Vector2(0f, -HeaderHeight);
             sepRt.sizeDelta = new Vector2(0f, 1f);
         }
@@ -239,7 +239,7 @@ namespace DINOForge.Runtime.UI
                     CopyErrorsToClipboard);
                 LayoutElement copyLe = copyBtn.gameObject.AddComponent<LayoutElement>();
                 copyLe.preferredHeight = 30f;
-                copyLe.flexibleWidth   = 1f;
+                copyLe.flexibleWidth = 1f;
             }
         }
 
@@ -255,7 +255,7 @@ namespace DINOForge.Runtime.UI
             GameObject section = new GameObject($"Section_{title}", typeof(RectTransform));
             section.transform.SetParent(parent, false);
             VerticalLayoutGroup sectionVlg = section.AddComponent<VerticalLayoutGroup>();
-            sectionVlg.childForceExpandWidth  = true;
+            sectionVlg.childForceExpandWidth = true;
             sectionVlg.childForceExpandHeight = false;
             sectionVlg.spacing = 0f;
             LayoutElement sectionLe = section.AddComponent<LayoutElement>();
@@ -268,12 +268,12 @@ namespace DINOForge.Runtime.UI
                 UiBuilder.BgSurface, new Vector2(0f, 28f));
             LayoutElement headerLe = headerRow.AddComponent<LayoutElement>();
             headerLe.preferredHeight = 28f;
-            headerLe.flexibleWidth   = 1f;
+            headerLe.flexibleWidth = 1f;
 
             HorizontalLayoutGroup headerHlg = headerRow.AddComponent<HorizontalLayoutGroup>();
             headerHlg.spacing = 6f;
             headerHlg.padding = new RectOffset(10, 6, 4, 4);
-            headerHlg.childForceExpandWidth  = false;
+            headerHlg.childForceExpandWidth = false;
             headerHlg.childForceExpandHeight = true;
 
             Text chevron = UiBuilder.MakeText(headerRow.transform, "Chevron",
@@ -291,7 +291,7 @@ namespace DINOForge.Runtime.UI
             GameObject contentGo = new GameObject("SectionContent", typeof(RectTransform));
             contentGo.transform.SetParent(section.transform, false);
             VerticalLayoutGroup contentVlg = contentGo.AddComponent<VerticalLayoutGroup>();
-            contentVlg.childForceExpandWidth  = true;
+            contentVlg.childForceExpandWidth = true;
             contentVlg.childForceExpandHeight = false;
             contentVlg.spacing = 2f;
             contentVlg.padding = new RectOffset(14, 6, 4, 4);
@@ -307,11 +307,11 @@ namespace DINOForge.Runtime.UI
             // Click header to toggle
             Button headerBtn = headerRow.AddComponent<Button>();
             ColorBlock cb = headerBtn.colors;
-            cb.normalColor      = UiBuilder.BgSurface;
+            cb.normalColor = UiBuilder.BgSurface;
             cb.highlightedColor = Color.Lerp(UiBuilder.BgSurface, Color.white, 0.08f);
-            cb.pressedColor     = Color.Lerp(UiBuilder.BgSurface, Color.black, 0.1f);
-            cb.selectedColor    = UiBuilder.BgSurface;
-            cb.colorMultiplier  = 1f;
+            cb.pressedColor = Color.Lerp(UiBuilder.BgSurface, Color.black, 0.1f);
+            cb.selectedColor = UiBuilder.BgSurface;
+            cb.colorMultiplier = 1f;
             headerBtn.colors = cb;
             headerBtn.targetGraphic = headerRow.GetComponent<Image>();
             headerBtn.onClick.AddListener(() =>
@@ -327,9 +327,9 @@ namespace DINOForge.Runtime.UI
         {
             switch (title)
             {
-                case "Platform Status":  _showPlatform   = !_showPlatform; break;
-                case "ECS Worlds":       _showWorlds     = !_showWorlds; break;
-                case "Systems":          _showSystems    = !_showSystems; break;
+                case "Platform Status": _showPlatform = !_showPlatform; break;
+                case "ECS Worlds": _showWorlds = !_showWorlds; break;
+                case "Systems": _showSystems = !_showSystems; break;
                 case string s when s.StartsWith("Archetypes"):
                     _showArchetypes = !_showArchetypes; break;
                 case string s when s.StartsWith("Errors"):
@@ -410,7 +410,7 @@ namespace DINOForge.Runtime.UI
 
                     try
                     {
-                        Unity.Entities.NoAllocReadOnlyCollection<Unity.Entities.ComponentSystemBase> systems = world.Systems;
+                        var systems = world.Systems;
                         int limit = Math.Min(systems.Count, 30);
                         for (int i = 0; i < limit; i++)
                         {
@@ -468,11 +468,11 @@ namespace DINOForge.Runtime.UI
             row.transform.SetParent(parent, false);
             HorizontalLayoutGroup rowHlg = row.AddComponent<HorizontalLayoutGroup>();
             rowHlg.spacing = 4f;
-            rowHlg.childForceExpandWidth  = false;
+            rowHlg.childForceExpandWidth = false;
             rowHlg.childForceExpandHeight = false;
             LayoutElement rowLe = row.AddComponent<LayoutElement>();
             rowLe.preferredHeight = 16f;
-            rowLe.flexibleWidth   = 1f;
+            rowLe.flexibleWidth = 1f;
 
             Text keyText = UiBuilder.MakeText(row.transform, "Key", key, 11, UiBuilder.TextSecondary);
             LayoutElement keyLe = keyText.gameObject.AddComponent<LayoutElement>();

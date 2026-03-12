@@ -83,14 +83,12 @@ namespace DINOForge.Runtime.UI
         }
 
         // ── Unity lifecycle ────────────────────────────────────────────────────────
+        // NOTE: F10 toggling has been moved to RuntimeDriver.Update() so that the
+        // key always works regardless of which UI layer is active.
+        // Escape is kept here as a convenience when the overlay is already visible.
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F10))
-            {
-                Toggle();
-            }
-
             if (_visible && Input.GetKeyDown(KeyCode.Escape))
             {
                 _visible = false;

@@ -35,8 +35,8 @@ namespace DINOForge.Runtime.UI
 
         // ── Private state ─────────────────────────────────────────────────────────
         private ManualLogSource? _log;
-        private Canvas?          _canvas;
-        private bool             _ready;
+        private Canvas? _canvas;
+        private bool _ready;
 
         // Mouse tracking for HUD hover
         private RectTransform? _hudStripRt;
@@ -44,13 +44,29 @@ namespace DINOForge.Runtime.UI
         // ── Bootstrap ─────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Initializes DFCanvas and builds the full UGUI hierarchy.
+        /// Callback invoked when DFCanvas fails to build its canvas hierarchy in Start().
+        /// RuntimeDriver sets this before the first frame so it can activate the IMGUI
+        /// fallback if UGUI setup fails after the component is already added.
+        /// </summary>
+        public Action? OnInitFailed;
+
+        /// <summary>
+        /// Whether the canvas hierarchy has been successfully built and is ready for use.
+        /// False until Start() completes without error.
+        /// </summary>
+        public bool IsReady => _ready;
+
+        /// <summary>
+        /// Initializes DFCanvas and stores the logger.
+        /// Canvas hierarchy is built in Start() (next frame) to allow Unity to finish
+        /// initialising the component.
         /// Must be called from the main thread immediately after AddComponent.
         /// </summary>
         /// <param name="log">BepInEx logger for diagnostics.</param>
         public void Initialize(ManualLogSource log)
         {
             _log = log;
+            _log.LogInfo("[DFCanvas] Component added — canvas hierarchy will build in Start().");
         }
 
         private void Start()
@@ -63,8 +79,10 @@ namespace DINOForge.Runtime.UI
             }
             catch (Exception ex)
             {
-                _log?.LogError($"[DFCanvas] Canvas setup failed: {ex}");
+                _log?.LogWarning($"[DFCanvas] Canvas setup failed — IMGUI fallback will activate: {ex.Message}");
+                _log?.LogWarning($"[DFCanvas] Full exception: {ex}");
                 _ready = false;
+                OnInitFailed?.Invoke();
             }
         }
 
@@ -112,16 +130,13 @@ namespace DINOForge.Runtime.UI
         }
 
         // ── Input handling ────────────────────────────────────────────────────────
+        // NOTE: F9/F10 key handling has been intentionally moved to RuntimeDriver.Update()
+        // so that key bindings always work regardless of whether UGUI initialised
+        // successfully.  DFCanvas only handles Escape (close panels) and HUD hover.
 
         private void Update()
         {
             if (!_ready) return;
-
-            if (Input.GetKeyDown(KeyCode.F10))
-                ToggleModMenu();
-
-            if (Input.GetKeyDown(KeyCode.F9))
-                ToggleDebug();
 
             if (Input.GetKeyDown(KeyCode.Escape))
                 HideAll();

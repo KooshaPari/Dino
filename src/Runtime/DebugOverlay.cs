@@ -37,14 +37,22 @@ namespace DINOForge.Runtime
             _modPlatform = modPlatform;
         }
 
+        /// <summary>
+        /// Toggles the debug overlay visibility.
+        /// Called by RuntimeDriver.Update() which owns all F-key handling.
+        /// </summary>
+        public void Toggle()
+        {
+            _visible = !_visible;
+        }
+
         // ── Unity lifecycle ────────────────────────────────────────────────────────
+        // NOTE: F9 handling has been moved to RuntimeDriver.Update() so that the
+        // shortcut always fires regardless of which UI layer is active.
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F9))
-            {
-                _visible = !_visible;
-            }
+            // No key handling here — RuntimeDriver.Update() owns F9/F10.
         }
 
         private void OnGUI()

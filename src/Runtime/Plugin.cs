@@ -131,6 +131,9 @@ namespace DINOForge.Runtime
     /// gets destroyed before the ECS world is ready.
     ///
     /// Hosts all UI components (debug overlay on F9, mod menu on F10).
+    ///
+    /// Key design: F9/F10 handling lives HERE, not in DFCanvas or ModMenuOverlay,
+    /// so the shortcuts always work regardless of which UI layer is active.
     /// </summary>
     internal class RuntimeDriver : MonoBehaviour
     {
@@ -141,14 +144,23 @@ namespace DINOForge.Runtime
 
         private ModPlatform? _modPlatform;
 
-        // UGUI system (preferred)
+        // UGUI system (preferred). Null if UGUI setup failed.
         private DFCanvas? _dfCanvas;
 
-        // IMGUI fallback (kept alive in case UGUI setup fails)
+        // IMGUI overlay components.
+        // _modMenuOverlay is always set to the active menu (either UGUI proxy or IMGUI).
+        // _debugOverlay is ALWAYS added (it owns the IMGUI F9 debug panel).
         private ModMenuOverlay? _modMenuOverlay;
         private ModSettingsPanel? _modSettingsPanel;
         private DebugOverlayBehaviour? _debugOverlay;
         private HudIndicator? _hudIndicator;
+
+        // _uguiReady: true once DFCanvas.Start() reports success via IsReady.
+        // We check this each Update() because DFCanvas.Start() runs after Initialize().
+        private bool _uguiReady;
+        // _uguiChecked: we only need to check DFCanvas readiness once after it has
+        // had at least one frame to run its Start().
+        private bool _uguiChecked;
 
         private bool _worldFound;
         private bool _initialized;
@@ -207,65 +219,54 @@ namespace DINOForge.Runtime
             try
             {
                 gameObject.AddComponent<Bridge.MainThreadDispatcher>();
-                _log.LogInfo("[RuntimeDriver] MainThreadDispatcher added.");
+                _log.LogInfo("[RuntimeDriver] Added MainThreadDispatcher.");
             }
             catch (Exception ex)
             {
                 _log.LogError($"[RuntimeDriver] MainThreadDispatcher setup failed: {ex.Message}");
             }
 
-            // Attempt to set up the UGUI canvas system (preferred).
-            // Falls back to legacy IMGUI components if setup fails.
-            bool uguiReady = false;
+            // ── Step 1: Always add DebugOverlayBehaviour ────────────────────────────
+            // This component owns the IMGUI F9 debug panel and must always be present
+            // so F9 works even when UGUI is active or fails.  DFCanvas also shows a
+            // UGUI debug panel (DebugPanel) when healthy, but DebugOverlayBehaviour
+            // is the guaranteed fallback.
+            try
+            {
+                _debugOverlay = gameObject.AddComponent<DebugOverlayBehaviour>();
+                _log.LogInfo("[RuntimeDriver] Added DebugOverlayBehaviour (guaranteed F9 handler).");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[RuntimeDriver] DebugOverlayBehaviour setup failed: {ex.Message}");
+            }
+
+            // ── Step 2: Attempt UGUI canvas setup ───────────────────────────────────
+            // DFCanvas.Initialize() only stores the logger; the actual canvas hierarchy
+            // is built in DFCanvas.Start() which Unity calls on the NEXT frame.
+            // We register an OnInitFailed callback so that if Start() throws, we can
+            // activate the IMGUI fallback from Update() on the same frame it fails.
+            bool uguiAddedOk = false;
             try
             {
                 _dfCanvas = gameObject.AddComponent<DFCanvas>();
                 _dfCanvas.Initialize(_log);
 
-                // ModMenuPanel exposes the same API as ModMenuOverlay.
-                // ModPlatform.SetUI still expects ModMenuOverlay + ModSettingsPanel.
-                // We wire the UGUI panel callbacks manually to keep ModPlatform untouched.
-                if (_dfCanvas.ModMenuPanel != null && _modPlatform != null)
+                // Register failure callback — called by DFCanvas.Start() if BuildCanvas throws.
+                _dfCanvas.OnInitFailed = () =>
                 {
-                    // Wire reload callback — triggers pack reload and shows HUD strip toast.
-                    _dfCanvas.ModMenuPanel.OnReloadRequested = () => _modPlatform?.LoadPacks();
+                    _log.LogWarning("[RuntimeDriver] DFCanvas.OnInitFailed — activating IMGUI fallback.");
+                    _uguiReady = false;
+                    _uguiChecked = true;
+                    ActivateImguiFallback();
+                };
 
-                    // Use a legacy ModMenuOverlay shim for ModPlatform.SetUI typing.
-                    // We create a disabled IMGUI overlay purely as a typed carrier;
-                    // it will never render (no F10 key handler in it once DFCanvas owns F10).
-                    _modMenuOverlay = gameObject.AddComponent<ModMenuOverlay>();
-                    _modMenuOverlay.enabled = false; // disable Update/OnGUI
-
-                    _modSettingsPanel = gameObject.AddComponent<ModSettingsPanel>();
-                    _modSettingsPanel.enabled = false;
-
-                    // Route ModPlatform events back to the UGUI panel
-                    _modMenuOverlay.OnReloadRequested = () =>
-                        _dfCanvas?.ModMenuPanel?.OnReloadRequested?.Invoke();
-                    _modMenuOverlay.OnPackToggled = (id, enabled) =>
-                        _dfCanvas?.ModMenuPanel?.OnPackToggled?.Invoke(id, enabled);
-
-                    // ModPlatform calls SetPacks/SetStatus on _modMenuOverlay.
-                    // We subclass those by forwarding via an override in the shim.
-                    // Since ModMenuOverlay is not abstract, we use a thin proxy wrapper.
-                    ModMenuOverlayProxy proxy = gameObject.AddComponent<ModMenuOverlayProxy>();
-                    proxy.enabled = false;
-                    proxy.SetTarget(_dfCanvas.ModMenuPanel);
-
-                    // Replace the shim with the proxy for ModPlatform wiring
-                    Destroy(_modMenuOverlay); // remove the duplicate
-                    _modMenuOverlay = proxy;
-
-                    _modPlatform.SetUI(_modMenuOverlay, _modSettingsPanel);
-                }
-
-                uguiReady = true;
-                _log.LogInfo("[RuntimeDriver] UGUI DFCanvas initialized (F9 debug, F10 mod menu).");
+                uguiAddedOk = true;
+                _log.LogInfo("[RuntimeDriver] Added DFCanvas — canvas hierarchy deferred to Start().");
             }
             catch (Exception ex)
             {
-                _log.LogWarning($"[RuntimeDriver] UGUI setup failed, falling back to IMGUI: {ex.Message}");
-                uguiReady = false;
+                _log.LogWarning($"[RuntimeDriver] DFCanvas AddComponent failed, falling back to IMGUI immediately: {ex.Message}");
 
                 if (_dfCanvas != null)
                 {
@@ -274,61 +275,152 @@ namespace DINOForge.Runtime
                 }
             }
 
-            // IMGUI fallback — only activated if UGUI failed
-            if (!uguiReady)
+            if (!uguiAddedOk)
             {
-                try
-                {
-                    _modMenuOverlay   = gameObject.AddComponent<ModMenuOverlay>();
-                    _modSettingsPanel = gameObject.AddComponent<ModSettingsPanel>();
-                    _debugOverlay     = gameObject.AddComponent<DebugOverlayBehaviour>();
-
-                    // Wire settings panel into mod menu so its inline Settings button works
-                    _modMenuOverlay.SetSettingsPanel(_modSettingsPanel);
-
-                    if (_modPlatform != null)
-                    {
-                        _modPlatform.SetUI(_modMenuOverlay, _modSettingsPanel);
-                    }
-
-                    _log.LogInfo("[RuntimeDriver] IMGUI fallback UI added (F9 debug, F10 mod menu).");
-                }
-                catch (Exception ex)
-                {
-                    _log.LogError($"[RuntimeDriver] IMGUI fallback UI setup failed: {ex.Message}");
-                }
+                // UGUI component could not even be added — activate IMGUI now.
+                _uguiChecked = true;
+                ActivateImguiFallback();
             }
 
-            // HUD indicator — only used in IMGUI fallback mode.
-            // When UGUI is active, DFCanvas.HudStrip provides equivalent functionality.
-            if (!uguiReady)
-            {
-                try
-                {
-                    _hudIndicator = gameObject.AddComponent<HudIndicator>();
-                    _hudIndicator.SetModMenu(_modMenuOverlay);
-
-                    if (_modMenuOverlay != null)
-                    {
-                        _modMenuOverlay.OnReloadRequested += () => _hudIndicator?.ShowToast("Packs reloaded");
-                    }
-
-                    _log.LogInfo("[RuntimeDriver] HudIndicator added (IMGUI mode).");
-                }
-                catch (Exception ex)
-                {
-                    _log.LogWarning($"[RuntimeDriver] HudIndicator setup failed: {ex.Message}");
-                }
-            }
-
+            // ── Step 3: Log key handler registration ────────────────────────────────
+            _log.LogInfo($"[RuntimeDriver] F9/F10 key handlers registered on {gameObject.name}.");
             _log.LogInfo("[RuntimeDriver] Waiting for ECS World (Update polling)...");
+        }
+
+        /// <summary>
+        /// Activates the IMGUI fallback UI (ModMenuOverlay + ModSettingsPanel + HudIndicator).
+        /// Safe to call from Update() as well as Initialize().
+        /// No-ops if already activated.
+        /// </summary>
+        private void ActivateImguiFallback()
+        {
+            // Guard: only activate once
+            if (_modMenuOverlay != null) return;
+
+            try
+            {
+                ModMenuOverlay overlay = gameObject.AddComponent<ModMenuOverlay>();
+                ModSettingsPanel settingsPanel = gameObject.AddComponent<ModSettingsPanel>();
+
+                // Wire settings panel into mod menu for its inline Settings button
+                overlay.SetSettingsPanel(settingsPanel);
+
+                if (_modPlatform != null)
+                {
+                    _modPlatform.SetUI(overlay, settingsPanel);
+                }
+
+                _modMenuOverlay   = overlay;
+                _modSettingsPanel = settingsPanel;
+
+                _log.LogInfo("[RuntimeDriver] IMGUI fallback — Added ModMenuOverlay + ModSettingsPanel.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[RuntimeDriver] IMGUI fallback ModMenuOverlay setup failed: {ex.Message}");
+            }
+
+            try
+            {
+                _hudIndicator = gameObject.AddComponent<HudIndicator>();
+                _hudIndicator.SetModMenu(_modMenuOverlay);
+
+                if (_modMenuOverlay != null)
+                {
+                    _modMenuOverlay.OnReloadRequested += () => _hudIndicator?.ShowToast("Packs reloaded");
+                }
+
+                _log.LogInfo("[RuntimeDriver] IMGUI fallback — Added HudIndicator.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[RuntimeDriver] HudIndicator setup failed: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Wires UGUI DFCanvas to ModPlatform once DFCanvas.Start() has succeeded.
+        /// Called the first frame that DFCanvas.IsReady becomes true.
+        /// </summary>
+        private void WireUguiToModPlatform()
+        {
+            if (_dfCanvas == null || _modPlatform == null) return;
+
+            try
+            {
+                // ModMenuPanel exposes the same API as ModMenuOverlay.
+                // ModPlatform.SetUI still expects ModMenuOverlay + ModSettingsPanel.
+                // We use a thin proxy wrapper (ModMenuOverlayProxy) to bridge them.
+                ModMenuOverlayProxy proxy = gameObject.AddComponent<ModMenuOverlayProxy>();
+                proxy.enabled = false; // disable IMGUI Update/OnGUI — UGUI owns rendering
+
+                if (_dfCanvas.ModMenuPanel != null)
+                {
+                    proxy.SetTarget(_dfCanvas.ModMenuPanel);
+                    _dfCanvas.ModMenuPanel.OnReloadRequested = () => _modPlatform?.LoadPacks();
+                }
+
+                ModSettingsPanel settingsPanel = gameObject.AddComponent<ModSettingsPanel>();
+                settingsPanel.enabled = false;
+
+                _modPlatform.SetUI(proxy, settingsPanel);
+
+                _modMenuOverlay   = proxy;
+                _modSettingsPanel = settingsPanel;
+
+                _log.LogInfo("[RuntimeDriver] UGUI wired to ModPlatform via ModMenuOverlayProxy.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[RuntimeDriver] UGUI→ModPlatform wiring failed, activating IMGUI fallback: {ex.Message}");
+                _uguiReady = false;
+                ActivateImguiFallback();
+            }
         }
 
         private void Update()
         {
-            if (!_initialized || _worldFound) return;
+            if (!_initialized) return;
 
-            // Poll for ECS world on a timer instead of every frame
+            // ── F9/F10 key handling — always runs regardless of UI layer ─────────
+            // These handlers are intentionally on RuntimeDriver so they work even if
+            // DFCanvas or ModMenuOverlay fails to initialise.
+            if (Input.GetKeyDown(KeyCode.F9))
+            {
+                // Prefer UGUI DebugPanel when available; fall back to IMGUI overlay
+                if (_uguiReady && _dfCanvas != null)
+                    _dfCanvas.ToggleDebug();
+                else
+                    _debugOverlay?.Toggle();
+            }
+
+            if (Input.GetKeyDown(KeyCode.F10))
+            {
+                // Prefer UGUI ModMenuPanel when available; fall back to IMGUI overlay
+                if (_uguiReady && _dfCanvas != null)
+                    _dfCanvas.ToggleModMenu();
+                else
+                    _modMenuOverlay?.Toggle();
+            }
+
+            // ── Check whether DFCanvas.Start() has run yet ───────────────────────
+            // DFCanvas.Start() is deferred by Unity so we can't know in Initialize()
+            // whether UGUI succeeded.  We check IsReady each frame until confirmed.
+            if (!_uguiChecked && _dfCanvas != null)
+            {
+                if (_dfCanvas.IsReady)
+                {
+                    _uguiReady    = true;
+                    _uguiChecked  = true;
+                    _log.LogInfo("[RuntimeDriver] DFCanvas confirmed ready — UGUI active.");
+                    WireUguiToModPlatform();
+                }
+                // If not yet ready, keep waiting (OnInitFailed callback handles failure)
+            }
+
+            // ── ECS world poll ───────────────────────────────────────────────────
+            if (_worldFound) return;
+
             _worldPollTimer += Time.deltaTime;
             if (_worldPollTimer < WorldPollInterval) return;
             _worldPollTimer = 0f;
