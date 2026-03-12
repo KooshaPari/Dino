@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- **esbuild CVE fix** — added `overrides.esbuild >=0.25.0` in `package.json` to resolve moderate vulnerability in transitive esbuild dependency pulled in by VitePress; `npm audit` now reports 0 vulnerabilities.
+- **SECURITY.md** — added security policy at repo root documenting vulnerability reporting process and supported version matrix.
+- **Pinned GitHub Actions** — replaced all mutable tag references (`@v4`, `@v3`, `@v2`, `@v1`, `@v5`, `@v6`, `@v7`) with immutable commit SHAs across all 12 workflow files to satisfy OpenSSF Scorecard `Token-Permissions` and `Pinned-Dependencies` checks.
+
 ### Added
 - **Installer: repair/update/uninstall flow** — when DINOForge is already installed, the Avalonia GUI installer now detects the existing installation on startup (checks `BepInEx/plugins/DINOForge.Runtime.dll` and reads version from `dinoforge_version.txt` sidecar), skips the normal wizard, and shows a `MaintenancePage` with three actions:
   - **Repair** — re-copies all DINOForge binaries and re-runs verification (force-overwrite, same install path as fresh install)
