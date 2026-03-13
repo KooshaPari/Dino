@@ -33,7 +33,7 @@ jobs:
           CI: 'true'
 
       - name: Build
-        run: dotnet build src/DINOForge.CI.sln --no-restore --configuration Release
+        run: dotnet build src/DINOForge.CI.sln --no-restore --configuration Release /p:BuildInParallel=false
 
       - name: Test with coverage
         run: |
