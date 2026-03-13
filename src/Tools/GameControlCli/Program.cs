@@ -39,6 +39,7 @@ public static class Program
             "toggle-ui" => await HandleToggleUiCommand(args.Skip(1).FirstOrDefault()),
             "scan-scene" => await HandleScanSceneCommand(args.Skip(1).FirstOrDefault()),
             "invoke-method" => await HandleInvokeMethodCommand(args.Skip(1).ToArray()),
+            "ui-tree" => await HandleUiTreeCommand(args.Skip(1).FirstOrDefault()),
             "demo" => await HandleDemoCommand(),
             "--help" or "-h" => ShowHelpAndReturn(0),
             _ => ShowHelpAndReturn(1)
@@ -66,6 +67,7 @@ public static class Program
         AnsiConsole.MarkupLine("  toggle-ui [target]  - Toggle DINOForge UI: modmenu (F10) or debug (F9)");
         AnsiConsole.MarkupLine("  scan-scene [filter] - Dump active MonoBehaviours + their void() methods");
         AnsiConsole.MarkupLine("  invoke-method <target> <method> - Call a void() method on matching MB");
+        AnsiConsole.MarkupLine("  ui-tree [selector]  - Snapshot the live Unity UI hierarchy (Playwright-style DOM)");
         AnsiConsole.MarkupLine("  demo             - Full end-to-end demo: menu → mods → F9/F10 → save → gameplay");
         AnsiConsole.MarkupLine("  --help, -h       - Show this help");
     }

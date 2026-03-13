@@ -72,5 +72,11 @@ namespace DINOForge.Bridge.Protocol
         /// <summary>Click the first live Unity UI node matching the given selector.</summary>
         /// <param name="selector">Selector such as "name=DINOForge_ModsButton" or "role=button&&text=Mods".</param>
         UiActionResult ClickUi(string selector);
+
+        /// <summary>Wait for a live Unity UI selector to reach the requested state.</summary>
+        /// <param name="selector">Selector such as "role=button&&text=Mods".</param>
+        /// <param name="state">Target state: visible, hidden, or interactable.</param>
+        /// <param name="timeoutMs">Timeout in milliseconds.</param>
+        UiWaitResult WaitForUi(string selector, string? state, int? timeoutMs);
     }
 }

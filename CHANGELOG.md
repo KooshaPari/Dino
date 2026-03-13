@@ -9,6 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Phase 2C-B: Star Wars Clone Wars CIS Unit Sourcing Manifest
+- **Comprehensive gap analysis** — Identified all 58 missing CIS units for vanilla-dino parity (14/72 current → 72/72 target)
+- **Priority 1 gaps** (critical):
+  - AntiArmor: 7 units (tank killers, armor-piercing specialists)
+  - Artillery: 5 units (cannon platforms, AAT variants)
+  - HeavySiege: 5 units (advanced siege droids)
+  - WalkerHeavy: 7 units (multi-legged walkers, AT-TE equivalent)
+- **Priority 2 gaps** (high value):
+  - CoreLineInfantry: 10 more (B1 variants, heavy line droids)
+  - HeavyInfantry: 6 more (B2 variants)
+  - MilitiaLight: 6 more (B1 cannon fodder, swarms)
+  - ShockMelee: 6 more (MagnaGuard variants, melee droids)
+  - FastVehicle: 6 more (STAP variants, speeders)
+  - Skirmisher: 4 more (spider droid variants)
+  - EliteLineInfantry: 3 more (BX variants, tactical droids)
+- **Sourcing manifest** — `/packs/warfare-starwars/PHASE_2C_CIS_SOURCING.md` with:
+  - Unit class mapping to vanilla-dino architecture
+  - 10 Sketchfab search strategies (droid, walker, cannon, etc.)
+  - Model evaluation criteria (license, quality, polycount, uniqueness)
+  - Ready for Phase 2D model download & import workflow
+
+#### Asset Pipeline Phase 2-3 Complete: 3 Core Star Wars Assets Normalized & Stylized
+- **Blender 4.5 LTS integration** — Full headless normalization & stylization pipeline operational
+- **3 core assets fully processed** (Clone Trooper Phase II, B2 Super Droid, AAT Lego Walker):
+  - Clone Trooper Phase II: 35.6K → 17.8K → 8.9K polys (Republic palette)
+  - B2 Super Droid: 49.0K → 24.5K → 12.2K polys (CIS palette)
+  - AAT Lego Walker: 1.4K → 706 → 361 polys (CIS palette)
+  - All assets: Normalized, LOD-decimated (3 levels), faction-stylized, .blend project files saved
+- **Asset pipeline execution** — All three phases working end-to-end:
+  - Phase 1: Download ✅ (Sketchfab API)
+  - Phase 2: Normalize ✅ (Blender headless LOD decimation)
+  - Phase 3: Stylize ✅ (Faction palette application + preview renders)
+- **Manifest tracking** — technical_status updated: `downloaded` → `normalized` → `ready_for_prototype`
+
 #### UI Automation and Game Control API
 - **`click-button [name]`** CLI command — clicks named Unity UI buttons (e.g., `DINOForge_ModsButton`)
   - `GameClient.ClickButtonAsync(buttonName)` — Bridge client method for programmatic button clicks

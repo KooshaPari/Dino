@@ -211,6 +211,12 @@ public sealed class GameClient : IDisposable
         SendRequestAsync<UiActionResult>("clickUi", new { selector }, ct);
 
     /// <summary>
+    /// Waits for a live Unity UI selector to reach the requested state.
+    /// </summary>
+    public Task<UiWaitResult> WaitForUiAsync(string selector, string? state = null, int? timeoutMs = null, CancellationToken ct = default) =>
+        SendRequestAsync<UiWaitResult>("waitForUi", new { selector, state, timeoutMs }, ct);
+
+    /// <summary>
     /// Sends a JSON-RPC request and returns the deserialized result.
     /// Handles serialization, pipe I/O, error checking, timeout, and retries.
     /// </summary>

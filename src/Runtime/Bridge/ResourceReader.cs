@@ -86,20 +86,28 @@ namespace DINOForge.Runtime.Bridge
                 object? data = genericGet.Invoke(em, new object[] { entity });
                 if (data == null) return 0;
 
-                // Read the target field (usually "value")
-                string fieldName = mapping.TargetFieldName ?? "value";
-                FieldInfo? field = clrType.GetField(fieldName,
-                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                // Read the target field — supports dotted paths like "valueContainer.value"
+                string fieldPath = mapping.TargetFieldName ?? "value";
+                string[] segments = fieldPath.Split('.');
+                object? current = data;
+                Type currentType = clrType;
 
-                if (field == null)
+                foreach (string seg in segments)
                 {
-                    WriteDebug($"[ResourceReader] Field '{fieldName}' not found on {clrType.FullName}");
-                    return 0;
+                    if (current == null) return 0;
+                    FieldInfo? field = currentType.GetField(seg,
+                        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (field == null)
+                    {
+                        WriteDebug($"[ResourceReader] Field '{seg}' not found on {currentType.FullName} (path: {fieldPath})");
+                        return 0;
+                    }
+                    current = field.GetValue(current);
+                    currentType = field.FieldType;
                 }
 
-                object? rawValue = field.GetValue(data);
-                if (rawValue is int intVal) return intVal;
-                if (rawValue is float floatVal) return (int)floatVal;
+                if (current is int intVal) return intVal;
+                if (current is float floatVal) return (int)floatVal;
 
                 return 0;
             }
