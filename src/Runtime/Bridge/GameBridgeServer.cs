@@ -260,6 +260,10 @@ namespace DINOForge.Runtime.Bridge
                     return HandlePressKey(parameters);
                 case "dismissLoadScreen":
                     return HandleDismissLoadScreen();
+                case "clickButton":
+                    return HandleClickButton(parameters);
+                case "toggleUi":
+                    return HandleToggleUi(parameters);
                 default:
                     throw new InvalidOperationException($"Method not found: {method}");
             }
