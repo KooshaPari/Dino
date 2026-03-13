@@ -54,11 +54,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All tests remain passing (pre-existing build issues in AssetctlCommand are unrelated to NuGet strategy)
 
 ### Security
+- **Security disclosure hardening** — `SECURITY.md` now requires private disclosure, defines acknowledgement and triage targets, and clarifies supported-version expectations.
 - **esbuild CVE fix** — added `overrides.esbuild >=0.25.0` in `package.json` to resolve moderate vulnerability in transitive esbuild dependency pulled in by VitePress; `npm audit` now reports 0 vulnerabilities.
 - **SECURITY.md** — added security policy at repo root documenting vulnerability reporting process and supported version matrix.
 - **Pinned GitHub Actions** — replaced all mutable tag references (`@v4`, `@v3`, `@v2`, `@v1`, `@v5`, `@v6`, `@v7`) with immutable commit SHAs across all 12 workflow files to satisfy OpenSSF Scorecard `Token-Permissions` and `Pinned-Dependencies` checks.
 
 ### Added
+- **Formal release governance** — added `RELEASING.md`, `codecov.yml`, `.github/CODEOWNERS`, and a KooshaPari cross-project semantics reference to make release, coverage, and ownership controls explicit.
 - **SketchfabAdapter: Wrapping Strategy Complete (Phases 1-3)** — pivoted from custom implementation to wrapping existing libraries per "wrap, don't handroll" principle:
   - **Phase 1**: Researched 3 existing implementations: SketchfabCSharp (Unity-only, incompatible), Sketchfab-dl (CLI patterns), Official API v3 (fallback)
   - **Phase 2**: Added SketchFabApi.Net v1.0.4 NuGet dependency (community-maintained, .NET Standard compatible, MIT license, zero transitive deps)
@@ -113,7 +115,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `docs/reference/asset-intake/blender-normalization-worker.md`
   - `docs/reference/asset-intake/unity-import-contract.md`
   - `docs/reference/asset-intake/faction-taxonomy.md`
-
 - **Installer: repair/update/uninstall flow** — when DINOForge is already installed, the Avalonia GUI installer now detects the existing installation on startup (checks `BepInEx/plugins/DINOForge.Runtime.dll` and reads version from `dinoforge_version.txt` sidecar), skips the normal wizard, and shows a `MaintenancePage` with three actions:
   - **Repair** — re-copies all DINOForge binaries and re-runs verification (force-overwrite, same install path as fresh install)
   - **Update** — same as repair; shown only when the installer version is newer than the installed version
@@ -221,6 +222,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `GetUnitsByComponentType()` query helper in EntityQueries
 
 ### Changed
+
+- **Coverage governance** — consolidated coverage reporting into the main CI workflow and removed the duplicate standalone coverage workflow so Codecov, thresholds, and artifacts share one source of truth.
+- **Release policy enforcement** — `policy-gate.yml` and `version-bump.yml` now validate the SemVer and Keep a Changelog contract directly from repo metadata.
 
 - Pack registry schema now includes optional `requires_spawner` boolean field
 - Updated warfare pack entries (modern, starwars, guerrilla) to flag M9 dependency

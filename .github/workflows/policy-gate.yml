@@ -4,6 +4,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   governance:
     runs-on: ubuntu-latest
@@ -33,6 +37,40 @@ jobs:
           fi
           echo "CHANGELOG.md: OK"
 
+      - name: Check formal governance assets
+        run: |
+          test -f .github/CODEOWNERS || { echo "::error::.github/CODEOWNERS is required"; exit 1; }
+          test -f codecov.yml || { echo "::error::codecov.yml is required"; exit 1; }
+          test -f RELEASING.md || { echo "::error::RELEASING.md is required"; exit 1; }
+          echo "Formal governance assets: OK"
+
+      - name: Check SemVer and changelog contract
+        run: |
+          VERSION=$(tr -d '[:space:]' < VERSION)
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'; then
+            echo "::error::VERSION must contain a valid Semantic Version (found: $VERSION)"
+            exit 1
+          fi
+
+          if ! grep -q '^## \[Unreleased\]$' CHANGELOG.md; then
+            echo "::error::CHANGELOG.md must contain an [Unreleased] section"
+            exit 1
+          fi
+
+          RELEASE_HEADER=$(grep -E '^## \[[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.]+)?\] - [0-9]{4}-[0-9]{2}-[0-9]{2}$' CHANGELOG.md | head -1 || true)
+          if [ -z "$RELEASE_HEADER" ]; then
+            echo "::error::CHANGELOG.md must contain at least one released version heading in Keep a Changelog format"
+            exit 1
+          fi
+
+          RELEASE_VERSION=$(echo "$RELEASE_HEADER" | grep -oE '\[[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.]+)?\]' | tr -d '[]')
+          if [ "$RELEASE_VERSION" != "$VERSION" ]; then
+            echo "::error::VERSION ($VERSION) must match the latest released changelog section ($RELEASE_VERSION)"
+            exit 1
+          fi
+
+          echo "SemVer and changelog contract: OK ($VERSION)"
+
       - name: Check public types have XML doc comments
         run: |
           # Find public classes/interfaces/structs/records missing /// summary
@@ -61,7 +99,7 @@ jobs:
         run: |
           # Verify PR title follows conventional commits
           PR_TITLE="${{ github.event.pull_request.title }}"
-          if ! echo "$PR_TITLE" | grep -qE "^(feat|fix|docs|test|perf|refactor|chore|ci|build|style)(\(.+\))?!?: .+"; then
+          if ! echo "$PR_TITLE" | grep -qE "^(feat|fix|docs|test|perf|refactor|chore|ci|build|style|revert)(\(.+\))?!?: .+"; then
             echo "::error::PR title must follow conventional commits format: type(scope): description"
             exit 1
           fi
