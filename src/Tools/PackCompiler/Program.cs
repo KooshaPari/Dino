@@ -206,7 +206,14 @@ namespace DINOForge.Tools.PackCompiler
             rootCommand.Subcommands.Add(assetPipelineCommand);
             rootCommand.Subcommands.Add(packCommand);
 
+            Console.WriteLine("[DEBUG] About to call Parse...");
+            Console.Out.Flush();
+
             ParseResult parseResultObj = rootCommand.Parse(args);
+
+            Console.WriteLine("[DEBUG] Parse completed, about to invoke...");
+            Console.Out.Flush();
+
             return await parseResultObj.InvokeAsync();
         }
 
@@ -872,11 +879,17 @@ namespace DINOForge.Tools.PackCompiler
         {
             try
             {
+                Console.WriteLine("[DEBUG] AssetImport starting...");
+                Console.Out.Flush();
+
                 AnsiConsole.MarkupLine("[bold blue]Asset Import Pipeline[/]");
                 AnsiConsole.MarkupLine($"Pack: {packPath}");
                 AnsiConsole.WriteLine();
 
                 string configPath = Path.Combine(packPath, "asset_pipeline.yaml");
+                Console.WriteLine($"[DEBUG] Config path: {configPath}");
+                Console.Out.Flush();
+
                 if (!File.Exists(configPath))
                 {
                     AnsiConsole.MarkupLine("[bold red]Error:[/] asset_pipeline.yaml not found");
@@ -884,18 +897,30 @@ namespace DINOForge.Tools.PackCompiler
                     return;
                 }
 
+                Console.WriteLine("[DEBUG] Creating DeserializerBuilder...");
+                Console.Out.Flush();
+
                 var deserializer = new DeserializerBuilder()
                     .WithNamingConvention(UnderscoredNamingConvention.Instance)
                     .IgnoreUnmatchedProperties()
                     .Build();
 
+                Console.WriteLine("[DEBUG] DeserializerBuilder created, reading YAML file...");
+                Console.Out.Flush();
+
                 var configYaml = File.ReadAllText(configPath);
+
+                Console.WriteLine("[DEBUG] YAML file read, deserializing...");
+                Console.Out.Flush();
 
                 // Deserialize with timeout
                 var deserializeTask = Task.Run(() =>
                 {
                     return deserializer.Deserialize<AssetPipelineConfig>(configYaml);
                 });
+
+                Console.WriteLine("[DEBUG] Task.Run created, waiting for result...");
+                Console.Out.Flush();
 
                 if (!deserializeTask.Wait(TimeSpan.FromSeconds(10)))
                 {

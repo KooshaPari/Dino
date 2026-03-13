@@ -121,55 +121,9 @@ phases:
           priority: critical
           note: "FIXES MAPPING BUG: Currently maps to V-19 Torrent (aircraft). Replace with proper AT-TE."
 
-      - id: jedi_temple
-        file: raw/sw_jedi_temple_sketchfab_001/model.glb
-        type: building
-        faction: republic
-        polycount_target: 106500
-        scale: 1.5
-        lod:
-          enabled: true
-          levels: [100, 60, 30]
-          screen_sizes: [100, 50, 20]
-        material: republic
-        addressable_key: sw-jedi-temple
-        output_prefab: prefabs/Jedi_Temple_Republic.prefab
-        update_definition:
-          enabled: true
-          file: buildings/republic_buildings.yaml
-          id: command_center
-          field: visual_asset
-        metadata:
-          sketchfab_id: 317dedec15a845cbb1abc8c90804b840
-          priority: critical
-          note: "FIRST BUILDING VISUAL: Coruscant Jedi Temple, untextured architecture"
-
   v0_8_0_elite:
-    description: "Elite units and specialized units (4 models, progression to ~48% coverage)"
+    description: "Elite units (1 valid model: arc_trooper, 36% coverage)"
     models:
-      - id: clone_trooper_phase2_alt
-        file: raw/sw_clone_trooper_phase2_alt_sketchfab_001/model.glb
-        type: infantry
-        faction: republic
-        polycount_target: 41500
-        scale: 1.0
-        lod:
-          enabled: true
-          levels: [100, 60, 30]
-          screen_sizes: [100, 50, 20]
-        material: republic
-        addressable_key: sw-clone-trooper-phase2-alt
-        output_prefab: prefabs/Clone_Trooper_Phase2_Alt.prefab
-        update_definition:
-          enabled: true
-          file: units/republic_units.yaml
-          id: clone_trooper_alt
-          field: visual_asset
-        metadata:
-          sketchfab_id: 0f022ffbbf2342f992f413f7935e221c
-          priority: high
-          note: "Alternative Clone Trooper for visual variety"
-
       - id: arc_trooper
         file: raw/sw_arc_trooper_sketchfab_001/model.glb
         type: elite
@@ -192,52 +146,6 @@ phases:
           sketchfab_id: 8ac7323517e04efb91abb5edcafc1871
           priority: high
           note: "Elite clone armor, shows unit progression"
-
-      - id: droideka
-        file: raw/sw_droideka_sketchfab_001/model.glb
-        type: specialized
-        faction: cis
-        polycount_target: 257000
-        scale: 1.0
-        lod:
-          enabled: true
-          levels: [100, 60, 30]
-          screen_sizes: [100, 50, 20]
-        material: cis
-        addressable_key: sw-droideka
-        output_prefab: prefabs/Droideka_CIS.prefab
-        update_definition:
-          enabled: true
-          file: units/cis_units.yaml
-          id: droideka
-          field: visual_asset
-        metadata:
-          sketchfab_id: 42b2a42130f94d73a29eda6ecfdce98f
-          priority: high
-          note: "VERY HIGH DETAIL (257k poly). Requires aggressive LOD reduction. Rolling shield droid."
-
-      - id: aat_walker
-        file: raw/sw_aat_walker_sketchfab_001/model.glb
-        type: vehicle
-        faction: cis
-        polycount_target: 4000
-        scale: 1.0
-        lod:
-          enabled: true
-          levels: [100, 60, 30]
-          screen_sizes: [100, 50, 20]
-        material: cis
-        addressable_key: sw-aat-tank
-        output_prefab: prefabs/AAT_Tank_CIS.prefab
-        update_definition:
-          enabled: true
-          file: units/cis_units.yaml
-          id: aat_crew
-          field: visual_asset
-        metadata:
-          sketchfab_id: 7bdce26cbd3440fa8cbcfc135c698b1d
-          priority: high
-          note: "ULTRA LOW-POLY (4k), game-ready tank, excellent for optimization"
 
   v0_9_0_future:
     description: "Remaining 19 building models (planned, not yet sourced)"
