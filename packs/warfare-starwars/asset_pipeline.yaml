@@ -333,7 +333,7 @@ phases:
     description: "Phase 4: Building structures LOD optimization (10 buildings, 50% coverage)"
     models:
       - id: rep_clone_barracks
-        file: raw/rep_clone_barracks/model.glb
+        file: raw/rep_clone_barracks_sketchfab_001/model.glb
         type: building
         faction: republic
         building_type: production
@@ -356,7 +356,7 @@ phases:
           note: "Clone Training Facility - barracks for militia and standard clone troopers"
 
       - id: rep_weapons_factory
-        file: raw/rep_weapons_factory/model.glb
+        file: raw/rep_weapons_factory_sketchfab_001/model.glb
         type: building
         faction: republic
         building_type: production
@@ -379,7 +379,7 @@ phases:
           note: "Weapons Factory - produces heavy troopers and ARC troopers"
 
       - id: rep_vehicle_bay
-        file: raw/rep_vehicle_bay/model.glb
+        file: raw/rep_vehicle_bay_sketchfab_001/model.glb
         type: building
         faction: republic
         building_type: production
@@ -402,7 +402,7 @@ phases:
           note: "Vehicle Bay - motor pool for AT-TE walkers and BARC speeders"
 
       - id: rep_guard_tower
-        file: raw/rep_guard_tower/model.glb
+        file: raw/rep_guard_tower_sketchfab_001/model.glb
         type: building
         faction: republic
         building_type: defense
@@ -425,7 +425,7 @@ phases:
           note: "Guard Tower - elevated defensive position with blaster turret"
 
       - id: rep_shield_generator
-        file: raw/rep_shield_generator/model.glb
+        file: raw/rep_shield_generator_sketchfab_001/model.glb
         type: building
         faction: republic
         building_type: defense
@@ -448,7 +448,7 @@ phases:
           note: "Shield Generator - deflector shield protecting wide area"
 
       - id: cis_droid_factory
-        file: raw/cis_droid_factory/model.glb
+        file: raw/cis_droid_factory_sketchfab_001/model.glb
         type: building
         faction: cis
         building_type: production
@@ -471,7 +471,7 @@ phases:
           note: "Droid Factory - automated mass production of B1 battle droids"
 
       - id: cis_assembly_line
-        file: raw/cis_assembly_line/model.glb
+        file: raw/cis_assembly_line_sketchfab_001/model.glb
         type: building
         faction: cis
         building_type: production
@@ -494,7 +494,7 @@ phases:
           note: "Advanced Assembly Line - heavy manufacturing for B2 and commando droids"
 
       - id: cis_heavy_foundry
-        file: raw/cis_heavy_foundry/model.glb
+        file: raw/cis_heavy_foundry_sketchfab_001/model.glb
         type: building
         faction: cis
         building_type: production
@@ -517,7 +517,7 @@ phases:
           note: "Heavy Foundry - vehicle and heavy weapons production (AATs, droidekas)"
 
       - id: cis_sentry_turret
-        file: raw/cis_sentry_turret/model.glb
+        file: raw/cis_sentry_turret_sketchfab_001/model.glb
         type: building
         faction: cis
         building_type: defense
@@ -540,7 +540,7 @@ phases:
           note: "Sentry Turret - automated blaster turret for perimeter defense"
 
       - id: cis_ray_shield
-        file: raw/cis_ray_shield/model.glb
+        file: raw/cis_ray_shield_sketchfab_001/model.glb
         type: building
         faction: cis
         building_type: defense
@@ -561,6 +561,139 @@ phases:
         metadata:
           priority: high
           note: "Ray Shield - droid-operated shield projector blocking incoming fire"
+
+  v0_9_0_cis_droids:
+    description: "Phase 2B: CIS droid units (6 models, elite/specialized roles)"
+    models:
+      - id: cis_b1_battle_droid
+        file: raw/cis_b1_battle_droid_sketchfab_001/model.glb
+        type: infantry
+        faction: cis
+        polycount_target: 4500
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: cis
+        addressable_key: sw-b1-battle-droid
+        output_prefab: prefabs/B1_Battle_Droid_CIS.prefab
+        update_definition:
+          enabled: true
+          file: units/cis_units.yaml
+          id: b1_battle_droid
+          field: visual_asset
+        metadata:
+          sketchfab_id: 5e098a79422b476388f59b189c5bbd4e
+          artist: SmeagolGollum
+          source_url: "https://sketchfab.com/3d-models/b1-battle-droid-5e098a79422b476388f59b189c5bbd4e"
+          license: "CC Attribution-ShareAlike"
+          priority: high
+          note: "CIS basic infantry droid unit"
+
+      - id: cis_sniper_droid
+        file: raw/cis_sniper_droid_sketchfab_001/model.glb
+        type: infantry_ranged
+        faction: cis
+        polycount_target: 6800
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: cis
+        addressable_key: sw-cis-sniper-droid
+        output_prefab: prefabs/CIS_Sniper_Droid.prefab
+        update_definition:
+          enabled: true
+          file: units/cis_units.yaml
+          id: cis_sniper_droid
+          field: visual_asset
+        metadata:
+          sketchfab_id: f6b41f2f3efe4143a51a2dfe901d7bb9
+          artist: urizel
+          source_url: "https://sketchfab.com/3d-models/eyegee-droid-f6b41f2f3efe4143a51a2dfe901d7bb9"
+          license: "CC Attribution"
+          priority: high
+          note: "CIS infantry ranged specialist (marksman)"
+
+      - id: cis_bx_commando_droid
+        file: raw/cis_bx_commando_droid_sketchfab_001/model.glb
+        type: elite
+        faction: cis
+        polycount_target: 8200
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: cis
+        addressable_key: sw-bx-commando-droid
+        output_prefab: prefabs/BX_Commando_Droid_CIS.prefab
+        update_definition:
+          enabled: true
+          file: units/cis_units.yaml
+          id: bx_commando_droid
+          field: visual_asset
+        metadata:
+          sketchfab_id: a81e788ebf864caa87a678cb49f97744
+          artist: TheGuayeah
+          source_url: "https://sketchfab.com/3d-models/commando-droid-bx-series-a81e788ebf864caa87a678cb49f97744"
+          license: "CC Attribution"
+          priority: high
+          note: "CIS elite commando droid, specialized combat unit"
+
+      - id: cis_droideka
+        file: raw/cis_droideka_sketchfab_001/model.glb
+        type: heavy
+        faction: cis
+        polycount_target: 9500
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: cis
+        addressable_key: sw-droideka
+        output_prefab: prefabs/Droideka_CIS.prefab
+        update_definition:
+          enabled: true
+          file: units/cis_units.yaml
+          id: droideka
+          field: visual_asset
+        metadata:
+          sketchfab_id: 6383e06620c1493f9202d3b1c8112c6e
+          artist: Unknown
+          source_url: "https://sketchfab.com/3d-models/droideka-6383e06620c1493f9202d3b1c8112c6e"
+          license: "CC Attribution"
+          priority: high
+          note: "CIS elite guard droid, rolling shield variant (replaces Magnaguard)"
+
+      - id: cis_probe_droid
+        file: raw/cis_probe_droid_sketchfab_001/model.glb
+        type: utility
+        faction: cis
+        polycount_target: 3200
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: cis
+        addressable_key: sw-probe-droid
+        output_prefab: prefabs/Probe_Droid_CIS.prefab
+        update_definition:
+          enabled: true
+          file: units/cis_units.yaml
+          id: probe_droid
+          field: visual_asset
+        metadata:
+          sketchfab_id: 495f6c8ded324807b37a9783faa7ec02
+          artist: kennysergoff
+          source_url: "https://sketchfab.com/3d-models/arakyd-viper-probe-droid-495f6c8ded324807b37a9783faa7ec02"
+          license: "CC Attribution"
+          priority: high
+          note: "CIS reconnaissance/probe droid unit"
 
   v0_9_0_future:
     description: "Phase 5+: Future expansion buildings (planned)"
