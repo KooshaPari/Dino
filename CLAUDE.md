@@ -187,3 +187,106 @@ loads:
 - Property-based tests for balance/combat model validation
 - Pack validation tests (schema, references, completeness)
 - Integration tests against mock ECS runtime
+
+## Asset Pipeline Governance (v0.7.0+)
+
+### Unified Asset Workflows in PackCompiler
+
+All asset operations (3D models, textures, VFX, etc.) MUST go through **PackCompiler commands**, never fragmented tools:
+
+```bash
+# Asset import pipeline (unified, declarative)
+dotnet run --project src/Tools/PackCompiler -- assets import <pack>
+dotnet run --project src/Tools/PackCompiler -- assets validate <pack>
+dotnet run --project src/Tools/PackCompiler -- assets optimize <pack>
+dotnet run --project src/Tools/PackCompiler -- assets generate <pack>
+dotnet run --project src/Tools/PackCompiler -- assets build <pack>
+
+# Content sync
+dotnet run --project src/Tools/PackCompiler -- sync download <pack> --phase <version>
+
+# VFX generation (wraps VFXPrefabGenerator)
+dotnet run --project src/Tools/PackCompiler -- vfx generate <pack>
+```
+
+### Asset Configuration: asset_pipeline.yaml
+
+Every pack with assets MUST define `asset_pipeline.yaml` with:
+- Model sources (GLB/FBX file paths)
+- LOD targets (polycount percentages, screen thresholds)
+- Material definitions (faction colors, emission)
+- Addressables keys (for runtime loading)
+- Definition updates (inject visual_asset references)
+
+**Schema**: `schemas/asset_pipeline.schema.json` (validates all configs)
+
+### Mandatory Asset Workflow Steps
+
+Agents importing assets MUST follow this sequence **in order**:
+
+1. **Define** — Create/update `asset_pipeline.yaml` in pack root
+2. **Download** — `dotnet run -- sync download <pack>`
+3. **Import** — `dotnet run -- assets import <pack>`
+4. **Validate** — `dotnet run -- assets validate <pack>`
+5. **Optimize** — `dotnet run -- assets optimize <pack>` (generates LOD)
+6. **Generate** — `dotnet run -- assets generate <pack>` (creates prefabs)
+7. **Verify** — `dotnet run -- assets build <pack>` (full pipeline + tests)
+8. **Commit** — Git commit all artifacts + updated definitions
+
+**Agents MUST NOT**:
+- Manually edit game definitions when assets change
+- Skip validation/optimization steps
+- Create ad-hoc asset directories outside `packs/<pack>/assets/`
+- Hardcode polycount targets or LOD percentages in C#
+- Use separate/legacy tools (old download scripts, etc.)
+
+### Asset Services (PackCompiler)
+
+Core services in `src/Tools/PackCompiler/Services/`:
+
+| Service | Responsibility | Tests |
+|---------|-----------------|-------|
+| `AssetImportService` | GLB/FBX → JSON (via AssimpNet) | 4+ tests |
+| `AssetOptimizationService` | Mesh decimation → LOD variants | 4+ tests |
+| `PrefabGenerationService` | JSON → .prefab (serialized) | 4+ tests |
+| `AddressablesService` | YAML → catalog entries | 2+ tests |
+| `DefinitionUpdateService` | Inject visual_asset into YAML | 2+ tests |
+
+### Extension Pattern
+
+Custom asset processors/validators can be registered:
+
+```csharp
+// In PackCompiler/Program.cs DI setup
+public static IServiceCollection AddCustomAssetProcessors(this IServiceCollection services)
+{
+    services.AddAssetProcessor<CustomLightsaberGlowProcessor>();
+    services.AddAssetValidator<StarWarsColorValidator>();
+    services.AddAssetExporter<AlternativeFormatExporter>();
+    return services;
+}
+```
+
+Implementations MUST inherit from `IAssetProcessor`, `IAssetValidator`, `IAssetExporter` interfaces defined in PackCompiler.
+
+### Testing Requirements for Assets
+
+New asset features MUST include:
+
+- **Unit tests** for each service (import, optimize, generate)
+- **Integration tests** for full pipeline (download → build)
+- **Regression tests** for known assets (v0.6.0 models, v0.7.0 critical)
+- **Performance tests** (import < 5s/model, full pipeline < 5min for 9 models)
+- **Schema validation tests** (asset_pipeline.yaml)
+
+All asset tests live in `src/Tests/AssetPipelineTests.cs`
+
+### Documentation Requirements
+
+Agents changing asset workflows MUST update:
+
+1. `ASSET_PIPELINE_CLI.md` — Command reference
+2. `asset_pipeline.schema.json` — Config schema
+3. `CLAUDE.md` (this section) — Governance changes
+4. Inline XML docs in PackCompiler services
+5. Test cases documenting new behavior
