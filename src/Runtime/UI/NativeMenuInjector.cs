@@ -271,6 +271,7 @@ namespace DINOForge.Runtime.UI
                             Button existing = parent.GetChild(i).GetComponent<Button>();
                             if (existing != null)
                             {
+                                RewireModsButtonClick(existing, attemptId);
                                 _injectedButton = existing;
                                 _injected = true;
                                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId} ✓ Mods button already present in parent; SKIPPING re-inject, using existing.");
@@ -397,8 +398,7 @@ namespace DINOForge.Runtime.UI
 
                 // STEP 6: Wire onClick
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 6: Wiring onClick listener...");
-                modsButton.onClick.RemoveAllListeners();
-                modsButton.onClick.AddListener(OnModsButtonClicked);
+                RewireModsButtonClick(modsButton, attemptId);
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 6 OK: onClick listener attached");
 
                 // STEP 7: Fix EventSystem navigation conflict
@@ -495,6 +495,17 @@ namespace DINOForge.Runtime.UI
             {
                 LogWarning($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ⚠ OnModsButtonClicked exception: {ex.Message}\n{ex.StackTrace}");
             }
+        }
+
+        /// <summary>
+        /// Replaces all click handlers on a Mods button with only the DINOForge toggle.
+        /// This avoids inherited persistent callbacks from cloned Settings/Options buttons.
+        /// </summary>
+        private void RewireModsButtonClick(Button modsButton, long attemptId)
+        {
+            modsButton.onClick = new Button.ButtonClickedEvent();
+            modsButton.onClick.AddListener(OnModsButtonClicked);
+            LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     Click handler replaced with DINOForge toggle only");
         }
 
         // ------------------------------------------------------------------ //

@@ -156,6 +156,19 @@ public sealed class GameClient : IDisposable
     public Task<StartGameResult> LoadSaveAsync(string saveName = "AUTOSAVE_1", CancellationToken ct = default) =>
         SendRequestAsync<StartGameResult>("loadSave", new { saveName }, ct);
 
+    /// <summary>
+    /// Clicks a named Unity UI button. Pass empty string to list all active buttons.
+    /// Use "DINOForge_ModsButton" to click the injected Mods button.
+    /// </summary>
+    public Task<StartGameResult> ClickButtonAsync(string buttonName, CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("clickButton", new { buttonName }, ct);
+
+    /// <summary>
+    /// Toggles a DINOForge UI panel. target="modmenu" (F10) or "debug" (F9).
+    /// </summary>
+    public Task<StartGameResult> ToggleUiAsync(string target = "modmenu", CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("toggleUi", new { target }, ct);
+
     /// <inheritdoc />
     public Task<VerifyResult> VerifyModAsync(string packPath, CancellationToken ct = default) =>
         SendRequestAsync<VerifyResult>("verifyMod", new { packPath }, ct);
