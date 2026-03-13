@@ -1174,6 +1174,139 @@ namespace DINOForge.Runtime.Bridge
             return JToken.FromObject(result.Result);
         }
 
+        /// <summary>
+        /// Clicks a named Unity UI button. Pass buttonName="DINOForge_ModsButton" to test
+        /// the injected Mods button, or any other button name visible in the active scene.
+        /// </summary>
+        private JToken HandleClickButton(JObject? parameters)
+        {
+            string buttonName = parameters?.Value<string>("buttonName") ?? "";
+
+            var result = MainThreadDispatcher.RunOnMainThread(() =>
+            {
+                try
+                {
+                    var allButtons = Resources.FindObjectsOfTypeAll<UnityEngine.UI.Button>();
+                    var summary = new System.Text.StringBuilder();
+                    UnityEngine.UI.Button? target = null;
+
+                    foreach (var btn in allButtons)
+                    {
+                        if (btn == null) continue;
+                        if (!btn.gameObject.activeInHierarchy) continue;
+                        string name = btn.name;
+                        var txt   = btn.GetComponentInChildren<UnityEngine.UI.Text>();
+                        var tmptxt = btn.GetComponentInChildren<TMPro.TMP_Text>();
+                        string label = (txt?.text ?? tmptxt?.text ?? "").Trim();
+                        summary.Append($"[{name}:'{label}'] ");
+
+                        if (string.IsNullOrEmpty(buttonName))
+                            continue; // just listing
+
+                        if (name == buttonName ||
+                            name.Equals(buttonName, StringComparison.OrdinalIgnoreCase) ||
+                            label.Equals(buttonName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            target = btn;
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(buttonName))
+                        return new { success = true, message = $"Buttons: {summary.ToString().Substring(0, Math.Min(800, summary.Length))}" };
+
+                    if (target == null)
+                        return new { success = false, message = $"Button '{buttonName}' not found. Active buttons: {summary.ToString().Substring(0, Math.Min(600, summary.Length))}" };
+
+                    UnityEngine.EventSystems.ExecuteEvents.Execute(
+                        target.gameObject,
+                        new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current),
+                        UnityEngine.EventSystems.ExecuteEvents.pointerClickHandler);
+
+                    WriteDebug($"[GameBridgeServer] Clicked button: {target.name}");
+                    return new { success = true, message = $"Clicked '{target.name}'" };
+                }
+                catch (Exception ex)
+                {
+                    return new { success = false, message = ex.Message };
+                }
+            });
+
+            bool completed = result.Wait(5000);
+            if (!completed) return JToken.FromObject(new { success = false, message = "Timed out" });
+            return JToken.FromObject(result.Result);
+        }
+
+        /// <summary>
+        /// Toggles DINOForge UI panels. target="modmenu" (F10 equivalent) or "debug" (F9 equivalent).
+        /// Finds DFCanvas via MonoBehaviour reflection and calls ToggleModMenu()/ToggleDebug().
+        /// Falls back to ModMenuOverlay.Toggle() if DFCanvas is not available.
+        /// </summary>
+        private JToken HandleToggleUi(JObject? parameters)
+        {
+            string target = (parameters?.Value<string>("target") ?? "modmenu").ToLowerInvariant();
+
+            var result = MainThreadDispatcher.RunOnMainThread(() =>
+            {
+                try
+                {
+                    // Find DFCanvas (the UGUI canvas manager) via MonoBehaviour scan
+                    var allMBs = Resources.FindObjectsOfTypeAll<MonoBehaviour>();
+                    MonoBehaviour? dfCanvas = null;
+                    MonoBehaviour? debugOverlay = null;
+                    MonoBehaviour? modMenuOverlay = null;
+
+                    foreach (var mb in allMBs)
+                    {
+                        if (mb == null) continue;
+                        string tName = mb.GetType().Name;
+                        if (tName == "DFCanvas") dfCanvas = mb;
+                        else if (tName == "DebugOverlayBehaviour") debugOverlay = mb;
+                        else if (tName == "ModMenuOverlay") modMenuOverlay = mb;
+                    }
+
+                    // Try DFCanvas first (UGUI path)
+                    if (dfCanvas != null)
+                    {
+                        string methodName = target == "debug" ? "ToggleDebug" : "ToggleModMenu";
+                        MethodInfo? m = dfCanvas.GetType().GetMethod(methodName,
+                            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (m != null)
+                        {
+                            m.Invoke(dfCanvas, null);
+                            WriteDebug($"[GameBridgeServer] ToggleUi: called DFCanvas.{methodName}");
+                            return new { success = true, message = $"DFCanvas.{methodName}() invoked" };
+                        }
+                    }
+
+                    // Fallback: ModMenuOverlay.Toggle() / DebugOverlayBehaviour.Toggle()
+                    MonoBehaviour? fallback = target == "debug" ? debugOverlay : modMenuOverlay;
+                    if (fallback != null)
+                    {
+                        MethodInfo? toggleMethod = fallback.GetType().GetMethod("Toggle",
+                            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (toggleMethod != null)
+                        {
+                            toggleMethod.Invoke(fallback, null);
+                            WriteDebug($"[GameBridgeServer] ToggleUi: called {fallback.GetType().Name}.Toggle()");
+                            return new { success = true, message = $"{fallback.GetType().Name}.Toggle() invoked" };
+                        }
+                    }
+
+                    // Last resort: find any active component whose name contains the target
+                    string sbAll = string.Join(", ", Array.ConvertAll(allMBs, mb => mb?.GetType().Name ?? "null"));
+                    return new { success = false, message = $"No UI handler found for '{target}'. MBs: {sbAll.Substring(0, Math.Min(400, sbAll.Length))}" };
+                }
+                catch (Exception ex)
+                {
+                    return new { success = false, message = ex.Message };
+                }
+            });
+
+            bool completed = result.Wait(5000);
+            if (!completed) return JToken.FromObject(new { success = false, message = "Timed out" });
+            return JToken.FromObject(result.Result);
+        }
+
         private JToken HandleListSaves()
         {
             var result = MainThreadDispatcher.RunOnMainThread(() =>
