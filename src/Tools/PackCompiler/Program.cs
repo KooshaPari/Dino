@@ -890,7 +890,21 @@ namespace DINOForge.Tools.PackCompiler
                     .Build();
 
                 var configYaml = File.ReadAllText(configPath);
-                var config = deserializer.Deserialize<AssetPipelineConfig>(configYaml);
+
+                // Deserialize with timeout
+                var deserializeTask = Task.Run(() =>
+                {
+                    return deserializer.Deserialize<AssetPipelineConfig>(configYaml);
+                });
+
+                if (!deserializeTask.Wait(TimeSpan.FromSeconds(10)))
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] YAML deserialization timeout");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                var config = deserializeTask.Result;
 
                 if (config == null)
                 {
@@ -969,7 +983,19 @@ namespace DINOForge.Tools.PackCompiler
                     .Build();
 
                 var configYaml = File.ReadAllText(configPath);
-                var config = deserializer.Deserialize<AssetPipelineConfig>(configYaml);
+
+                AnsiConsole.MarkupLine("[dim]Parsing configuration...[/]");
+                AssetPipelineConfig? config = null;
+                try
+                {
+                    config = deserializer.Deserialize<AssetPipelineConfig>(configYaml);
+                }
+                catch (Exception ex)
+                {
+                    AnsiConsole.MarkupLine($"[bold red]Error:[/] Failed to parse YAML: {ex.Message}");
+                    Environment.Exit(1);
+                    return;
+                }
 
                 if (config == null)
                 {
@@ -1031,7 +1057,21 @@ namespace DINOForge.Tools.PackCompiler
                     .Build();
 
                 var configYaml = File.ReadAllText(configPath);
-                var config = deserializer.Deserialize<AssetPipelineConfig>(configYaml);
+
+                // Deserialize with timeout
+                var deserializeTask = Task.Run(() =>
+                {
+                    return deserializer.Deserialize<AssetPipelineConfig>(configYaml);
+                });
+
+                if (!deserializeTask.Wait(TimeSpan.FromSeconds(10)))
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] YAML deserialization timeout");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                var config = deserializeTask.Result;
 
                 if (config == null)
                 {
@@ -1119,7 +1159,21 @@ namespace DINOForge.Tools.PackCompiler
                     .Build();
 
                 var configYaml = File.ReadAllText(configPath);
-                var config = deserializer.Deserialize<AssetPipelineConfig>(configYaml);
+
+                // Deserialize with timeout
+                var deserializeTask = Task.Run(() =>
+                {
+                    return deserializer.Deserialize<AssetPipelineConfig>(configYaml);
+                });
+
+                if (!deserializeTask.Wait(TimeSpan.FromSeconds(10)))
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] YAML deserialization timeout");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                var config = deserializeTask.Result;
 
                 if (config == null)
                 {
