@@ -9,6 +9,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Vanilla DINO Canonical Reference Pack (Complete)
+- **`packs/vanilla-dino/pack.yaml`** — Master pack manifest defining the canonical vanilla DINO reference with all 100+ units, 6 factions, buildings, weapons, and doctrines (load_order: 10, canonical: true)
+- **Faction Definitions** (6 files) — Complete faction YAML with economy modifiers, army characteristics, unit rosters, building references:
+  - `factions/lords-troops.yaml` — Order archetype, balanced combined-arms doctrine
+  - `factions/rebels.yaml` — Chaos archetype, mass assault with volatile morale
+  - `factions/royal-army.yaml` — Defense archetype, disciplined formations
+  - `factions/sarranga.yaml` — Magic archetype, elemental specialization
+  - `factions/undead.yaml` — Swarm archetype, relentless corpse mastery (1.3x unit cap)
+  - `factions/bugs.yaml` — Swarm archetype, hive coordination (1.5x spawn rate)
+- **Unit Definitions** (6 files, 70+ units total):
+  - `units/lords-troops-units.yaml` — 14 units across 3 tiers (Swordsman → Foot Knight → Trebuchet/Chimera)
+  - `units/rebels-units.yaml` — 13 units (Pitchfork → Hulk, cheap + volatile)
+  - `units/royal-army-units.yaml` — 15 units (Footman → Paladin, expensive + disciplined)
+  - `units/sarranga-units.yaml` — 7 units with magic/elemental mechanics (Swordtail → Bombus)
+  - `units/undead-units.yaml` — 23 units including reanimated lord's troops variants (Walking Corpse → Drake)
+  - `units/bugs-units.yaml` — 5 units with biological/hive mechanics (Larva → Queen, no morale)
+  - Each unit includes: id, display_name, description, unit_class, faction_id, tier, vanilla_dino_name, wiki_reference, full stats (hp, damage, armor, range, speed, accuracy, fire_rate, morale), cost breakdown, defense_tags, behavior_tags, weapon reference
+- **Building Definitions** (6 files, ~20 buildings total):
+  - `buildings/lords-troops-buildings.yaml` — Barracks, Stables, Engineer Guild, Siege Workshop, Lord's Hall
+  - `buildings/rebels-buildings.yaml` — Rebel Barracks, Smithy, Meeting Hall
+  - `buildings/royal-army-buildings.yaml` — Royal Barracks, Stables, Armory, Siege Workshop, Throne Room
+  - `buildings/sarranga-buildings.yaml` — Training Grounds, Enchantry, Mystical Circle
+  - `buildings/undead-buildings.yaml` — Tomb, Necromancy Lab, Crypt
+  - `buildings/bugs-buildings.yaml` — Nest, Hive
+  - Each building includes: id, display_name, description, faction_id, building_type, wiki_reference, cost, upkeep, production_slots, units_produced
+- **Weapon Definitions** (`weapons/vanilla-weapons.yaml` — 30+ weapons):
+  - Melee: sword, axe, pike, hammer, lance, club, pitchfork, scythe, dagger, claws, enchanted variants, staffs, stinger, mandibles, siege ram
+  - Ranged: bow, crossbow, mounted bow, enchanted bow, catapult, ballista, trebuchet, magic projectile, firebomb
+  - Support: magic staff, none
+  - Each weapon includes: id, display_name, damage_type, wiki_reference, base_damage, armor_penetration, knockback, attack_range, special effects (mounted_bonus, structure_bonus, area_damage, poison_damage, magic_damage, etc.)
+- **Doctrine Definitions** (`doctrines/vanilla-doctrines.yaml` — 12 doctrines):
+  - Lords Troops: Combined Arms, Heavy Cavalry, Siege Mastery
+  - Rebels: Mass Assault, Guerrilla Tactics
+  - Royal Army: Defensive Formations, Discipline
+  - Sarranga: Elemental Mastery, Mystical Binding
+  - Undead: Corpse Mastery, Plague Spreading
+  - Bugs: Hive Coordination, Reproductive Surge
+  - Each doctrine includes: id, display_name, description, faction_id, wiki_reference, doctrinal_effects (numeric modifiers for faction bonuses)
+- **Purpose**: Serves as canonical reference baseline for all mods to extend/map to via `vanilla_mapping` field in mod units; enables efficient CRUD operations on units, factions, and buildings; establishes consistent naming and stat conventions across the entire mod ecosystem
+
 #### Aviation Subsystem (v0.1.0)
 - **`src/Runtime/Aviation/AerialUnitComponent.cs`** — ECS `IComponentData` struct marking units as aerial; stores `CruiseAltitude`, `AscendSpeed`, `DescendSpeed`, `IsAttacking`
 - **`src/Runtime/Aviation/AntiAirComponent.cs`** — ECS `IComponentData` struct for anti-air capable units/buildings; stores `AntiAirRange`, `AntiAirDamageBonus`

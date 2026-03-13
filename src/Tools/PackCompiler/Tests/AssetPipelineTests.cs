@@ -178,7 +178,7 @@ namespace DINOForge.Tools.PackCompiler.Tests
         private readonly AssetOptimizationService _optimizationService = new();
 
         [Fact]
-        public async Task PrepareForLODAsync_WithValidAsset_ReturnsSeparateLODs()
+        public async Task OptimizeAsync_WithValidAsset_GeneratesLODVariants()
         {
             // Arrange
             var vertices = new float[3000];  // 1000 vertices
@@ -216,7 +216,7 @@ namespace DINOForge.Tools.PackCompiler.Tests
             };
 
             // Act
-            var result = await _optimizationService.PrepareForLODAsync(asset, definition);
+            var result = await _optimizationService.OptimizeAsync(asset, definition);
 
             // Assert
             result.Should().NotBeNull();
@@ -224,7 +224,10 @@ namespace DINOForge.Tools.PackCompiler.Tests
             result.LOD0.Should().NotBeNull();
             result.LOD1.Should().NotBeNull();
             result.LOD2.Should().NotBeNull();
-            result.Metadata.OriginalPolyCount.Should().Be(1000);
+            result.LOD0.TriangleCount.Should().Be(1000);
+            result.LOD1.TriangleCount.Should().BeLessThan(result.LOD0.TriangleCount);
+            result.LOD2.TriangleCount.Should().BeLessThan(result.LOD1.TriangleCount);
+            result.Metadata.OptimizationMethod.Should().Contain("Decimation");
         }
     }
 

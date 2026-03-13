@@ -57,5 +57,6 @@ jobs:
         if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          gh release upload ${{ github.ref_name }} sbom-sdk.json sbom-runtime.json --clobber
+          gh release upload "$RELEASE_TAG" sbom-sdk.json sbom-runtime.json --clobber
