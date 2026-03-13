@@ -74,7 +74,8 @@
         "localization": { "type": "array", "items": { "type": "string" } },
         "wave_templates": { "type": "array", "items": { "type": "string" } },
         "tech_nodes": { "type": "array", "items": { "type": "string" } },
-        "scenarios": { "type": "array", "items": { "type": "string" } }
+        "scenarios": { "type": "array", "items": { "type": "string" } },
+        "faction_patches": { "type": "array", "items": { "type": "string" }, "description": "Faction patch definition IDs to apply to existing factions." }
       },
       "additionalProperties": false
     },

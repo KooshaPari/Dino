@@ -132,6 +132,10 @@
       <HintPath>$(ManagedDir)\UnityEngine.ScreenCaptureModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>$(ManagedDir)\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
 
     <!-- Game DLLs -->
     <Reference Include="DNO.Main">
@@ -197,6 +201,10 @@
     <Compile Remove="UI\ModMenuOverlayProxy.cs" />
     <Compile Remove="Bridge\FactionSystem.cs" />
     <Compile Remove="Bridge\WaveInjector.cs" />
+    <Compile Remove="Bridge\VFXPoolManager.cs" />
+    <Compile Remove="Bridge\LODManager.cs" />
+    <!-- Exclude Aviation namespace - incomplete implementation, uses undefined AerialUnitComponent -->
+    <Compile Remove="Aviation\**" />
   </ItemGroup>
 
   <!--

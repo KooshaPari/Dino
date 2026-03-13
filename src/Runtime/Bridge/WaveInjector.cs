@@ -194,11 +194,12 @@ namespace DINOForge.Runtime.Bridge
                 {
                     float spawnX = wave.Request.SpawnX;
                     float spawnZ = wave.Request.SpawnZ;
+                    float spawnY = wave.Request.SpawnY;
 
-                    PackUnitSpawner.RequestSpawnStatic(group.UnitId, spawnX, spawnZ, wave.Request.UseEnemyFaction);
+                    PackUnitSpawner.RequestSpawnStatic(group.UnitId, spawnX, spawnZ, wave.Request.UseEnemyFaction, spawnY);
 
                     WriteDebug($"Spawned unit from wave {wave.Definition.Id}: {group.UnitId} " +
-                        $"(group {unitIndex}) at ({spawnX}, {spawnZ})");
+                        $"(group {unitIndex}) at ({spawnX}, {spawnY}, {spawnZ})");
                 }
                 catch (Exception ex)
                 {
@@ -313,6 +314,9 @@ namespace DINOForge.Runtime.Bridge
 
         /// <summary>World Z coordinate for spawn location. Default 0.</summary>
         public float SpawnZ { get; set; } = 0f;
+
+        /// <summary>World Y coordinate (altitude) for spawn location. Default 0.</summary>
+        public float SpawnY { get; set; } = 0f;
     }
 
     /// <summary>

@@ -35,6 +35,9 @@ namespace DINOForge.SDK.Registry
         /// <summary>Registry for squad definitions.</summary>
         public IRegistry<SquadDefinition> Squads { get; }
 
+        /// <summary>Registry for faction patch definitions.</summary>
+        public IRegistry<FactionPatchDefinition> FactionPatches { get; }
+
         /// <summary>
         /// Initializes a new <see cref="RegistryManager"/> with empty registries for all content types.
         /// </summary>
@@ -49,6 +52,7 @@ namespace DINOForge.SDK.Registry
             Skills = new Registry<SkillDefinition>();
             Waves = new Registry<WaveDefinition>();
             Squads = new Registry<SquadDefinition>();
+            FactionPatches = new Registry<FactionPatchDefinition>();
         }
     }
 }

@@ -18,6 +18,12 @@ namespace DINOForge.Runtime.Bridge
         public float X { get; set; }
 
         /// <summary>
+        /// World Y coordinate (vertical altitude). Default 0 (ground level).
+        /// Aerial units set this to their CruiseAltitude via AerialUnitMapper.
+        /// </summary>
+        public float Y { get; set; }
+
+        /// <summary>
         /// World Z coordinate (forward-backward).
         /// </summary>
         public float Z { get; set; }
@@ -28,10 +34,11 @@ namespace DINOForge.Runtime.Bridge
         /// </summary>
         public bool IsEnemy { get; set; }
 
-        public UnitSpawnRequest(string unitDefinitionId, float x, float z, bool isEnemy = false)
+        public UnitSpawnRequest(string unitDefinitionId, float x, float z, bool isEnemy = false, float y = 0f)
         {
             UnitDefinitionId = unitDefinitionId;
             X = x;
+            Y = y;
             Z = z;
             IsEnemy = isEnemy;
         }
@@ -39,7 +46,7 @@ namespace DINOForge.Runtime.Bridge
         public override string ToString()
         {
             string faction = IsEnemy ? "enemy" : "player";
-            return $"UnitSpawnRequest({UnitDefinitionId}, pos=({X}, {Z}), faction={faction})";
+            return $"UnitSpawnRequest({UnitDefinitionId}, pos=({X}, {Y}, {Z}), faction={faction})";
         }
     }
 }
