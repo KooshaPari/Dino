@@ -98,6 +98,9 @@ phases:
           priority: critical
           note: "CIS heavy unit, elite droid"
 
+  v0_7_1_vehicles:
+    description: "Phase 3C: Vehicle units with higher LOD detail (6 vehicles, 30% coverage)"
+    models:
       - id: barc_speeder
         file: raw/rep_barc_speeder_sketchfab_001/Barc Speeder Exported2.fbx
         type: vehicle
@@ -230,25 +233,6 @@ phases:
         metadata:
           priority: high
           note: "Walking tank vehicle for CIS"
-
-      - id: at_te_walker_old
-        file: raw/sw_at_te_walker_sketchfab_001/model.glb
-        type: vehicle
-        faction: republic
-        polycount_target: 61000
-        scale: 1.0
-        lod:
-          enabled: true
-          levels: [100, 70, 40]
-          screen_sizes: [150, 75, 30]
-        material: republic
-        addressable_key: sw-at-te-walker-old
-        output_prefab: prefabs/AT_TE_Walker_Republic_Old.prefab
-        update_definition:
-          enabled: false
-        metadata:
-          priority: medium
-          note: "Backup AT-TE model (GLB variant)"
 
   v0_8_0_elite:
     description: "Elite units (1 valid model: arc_trooper, 36% coverage)"
