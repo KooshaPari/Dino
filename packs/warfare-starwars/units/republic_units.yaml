@@ -364,3 +364,35 @@
       iron: 60
       gold: 55
       population: 2
+
+# 14. Aerial Fighter - V-19 Torrent Starfighter
+- id: rep_v19_torrent
+  display_name: V-19 Torrent Starfighter
+  description: Advanced Republic starfighter with dual laser cannons and ion missiles. Provides air superiority and strike capability.
+  unit_class: AirstrikeProxy
+  faction_id: republic
+  tier: 3
+  weapon: v19_laser_cannons
+  vanilla_mapping: aerial_fighter
+  defense_tags: [Mechanical, Aerial]
+  behavior_tags: [Aerial, AdvanceFire, Charge]
+  stats:
+    hp: 140.0
+    damage: 18.0
+    armor: 5.0
+    range: 25.0
+    speed: 12.0
+    accuracy: 0.75
+    fire_rate: 3.0
+    morale: 100.0
+    cost:
+      food: 0
+      wood: 0
+      stone: 0
+      iron: 40
+      gold: 50
+      population: 2
+  aerial:
+    cruise_altitude: 20.0
+    ascend_speed: 8.0
+    descend_speed: 5.0

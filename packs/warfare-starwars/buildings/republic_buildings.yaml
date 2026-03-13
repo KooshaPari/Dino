@@ -148,3 +148,21 @@
     gold: 0
     population: 0
   production: {}
+
+- id: rep_skyshield_generator
+  display_name: Skyshield Generator
+  description: Orbital shield platform providing air defense against starfighters and aerial bombardment.
+  building_type: defense
+  health: 1200
+  cost:
+    food: 0
+    wood: 10
+    stone: 80
+    iron: 90
+    gold: 70
+    population: 0
+  production: {}
+  defense_tags: [AntiAir]
+  anti_air:
+    range: 40.0
+    damage_bonus: 1.4

@@ -429,15 +429,14 @@ namespace DINOForge.Runtime
                     _dfCanvas.ModMenuPanel.OnReloadRequested = () => _modPlatform?.LoadPacks();
                 }
 
-                ModSettingsPanel settingsPanel = gameObject.AddComponent<ModSettingsPanel>();
-                settingsPanel.enabled = false;
+                IModSettingsHost settingsHost = new NoOpSettingsHost();
 
                 if (_dfCanvas.ModMenuPanel == null)
                 {
                     throw new InvalidOperationException("DFCanvas did not create ModMenuPanel.");
                 }
 
-                _modPlatform.SetUI(_dfCanvas.ModMenuPanel, settingsPanel);
+                _modPlatform.SetUI(_dfCanvas.ModMenuPanel, settingsHost);
 
                 // Wire the active UGUI menu host into NativeMenuInjector for the native Mods button
                 if (_nativeMenuInjector != null)
@@ -453,7 +452,7 @@ namespace DINOForge.Runtime
                 }
 
                 _modMenuHost = _dfCanvas.ModMenuPanel;
-                _modSettingsHost = settingsPanel;
+                _modSettingsHost = settingsHost;
 
                 _log.LogInfo("[RuntimeDriver] UGUI wired to ModPlatform via IModMenuHost.");
             }

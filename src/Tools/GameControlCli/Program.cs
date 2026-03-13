@@ -37,6 +37,8 @@ public static class Program
             "dismiss" => await HandleDismissCommand(),
             "click-button" => await HandleClickButtonCommand(args.Skip(1).FirstOrDefault()),
             "toggle-ui" => await HandleToggleUiCommand(args.Skip(1).FirstOrDefault()),
+            "scan-scene" => await HandleScanSceneCommand(args.Skip(1).FirstOrDefault()),
+            "invoke-method" => await HandleInvokeMethodCommand(args.Skip(1).ToArray()),
             "demo" => await HandleDemoCommand(),
             "--help" or "-h" => ShowHelpAndReturn(0),
             _ => ShowHelpAndReturn(1)
@@ -62,6 +64,8 @@ public static class Program
         AnsiConsole.MarkupLine("  dismiss          - Dismiss 'Press Any Key to Continue' loading screen");
         AnsiConsole.MarkupLine("  click-button [name] - Click a named Unity UI button (e.g. DINOForge_ModsButton)");
         AnsiConsole.MarkupLine("  toggle-ui [target]  - Toggle DINOForge UI: modmenu (F10) or debug (F9)");
+        AnsiConsole.MarkupLine("  scan-scene [filter] - Dump active MonoBehaviours + their void() methods");
+        AnsiConsole.MarkupLine("  invoke-method <target> <method> - Call a void() method on matching MB");
         AnsiConsole.MarkupLine("  demo             - Full end-to-end demo: menu → mods → F9/F10 → save → gameplay");
         AnsiConsole.MarkupLine("  --help, -h       - Show this help");
     }
@@ -405,6 +409,59 @@ public static class Program
             await client.ConnectAsync();
             AnsiConsole.MarkupLine($"[cyan]Toggling UI '{target}'...[/]");
             var result = await client.ToggleUiAsync(target);
+            string msg = Markup.Escape(result.Message ?? "");
+            if (result.Success)
+                AnsiConsole.MarkupLine($"[green]✓[/] {msg}");
+            else
+                AnsiConsole.MarkupLine($"[red]✗[/] {msg}");
+            client.Disconnect();
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {Markup.Escape(ex.Message)}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleScanSceneCommand(string? filter)
+    {
+        filter ??= "";
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine($"[cyan]Scanning active MonoBehaviours{(string.IsNullOrEmpty(filter) ? "" : $" (filter: {filter})")}...[/]");
+            var result = await client.ScanSceneAsync(filter);
+            string msg = result.Message ?? "";
+            // Print each line
+            foreach (var line in msg.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                AnsiConsole.MarkupLine(Markup.Escape(line));
+            client.Disconnect();
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {Markup.Escape(ex.Message)}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleInvokeMethodCommand(string[] args)
+    {
+        if (args.Length < 2)
+        {
+            AnsiConsole.MarkupLine("[red]Usage: invoke-method <target> <method>[/]");
+            return 1;
+        }
+        string target = args[0];
+        string method = args[1];
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine($"[cyan]Invoking {target}.{method}()...[/]");
+            var result = await client.InvokeMethodAsync(target, method);
             string msg = Markup.Escape(result.Message ?? "");
             if (result.Success)
                 AnsiConsole.MarkupLine($"[green]✓[/] {msg}");

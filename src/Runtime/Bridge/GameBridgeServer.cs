@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -264,6 +265,8 @@ namespace DINOForge.Runtime.Bridge
                     return HandleClickButton(parameters);
                 case "toggleUi":
                     return HandleToggleUi(parameters);
+                case "invokeMethod":
+                    return HandleInvokeMethod(parameters);
                 default:
                     throw new InvalidOperationException($"Method not found: {method}");
             }
@@ -1138,30 +1141,89 @@ namespace DINOForge.Runtime.Bridge
 
         private JToken HandlePressKey(JObject? parameters)
         {
-            string keyName = parameters?.Value<string>("key") ?? "space";
+            // scanScene: dump all active MonoBehaviours + their public/private void methods
+            // filter: optional substring filter on type name
+            string filter = parameters?.Value<string>("filter") ?? "";
 
             var result = MainThreadDispatcher.RunOnMainThread(() =>
             {
                 try
                 {
-                    // Use Unity's Input simulation — unfortunately legacy Input doesn't support injection
-                    // But we can try to find the component that's waiting for input and trigger it
-                    WriteDebug($"[GameBridgeServer] PressKey: {keyName}");
-
-                    // Look for any component that has an Update loop listening for Input.anyKeyDown
-                    // These are usually named things like: PressAnyKey, LoadingTip, LoadingScreen
                     var allMBs = Resources.FindObjectsOfTypeAll<MonoBehaviour>();
-                    var candidates = new System.Text.StringBuilder();
+                    var sb = new System.Text.StringBuilder();
                     foreach (var mb in allMBs)
                     {
                         if (mb == null || !mb.gameObject.activeInHierarchy) continue;
-                        string n = mb.GetType().Name;
-                        if (n.Length < 30 && !n.StartsWith("Unity") && !n.StartsWith("System"))
-                            candidates.Append($"[{n}] ");
-                    }
-                    WriteDebug($"[GameBridgeServer] Active MBs: {candidates.ToString().Substring(0, Math.Min(500, candidates.Length))}");
+                        string tName = mb.GetType().Name;
+                        if (!string.IsNullOrEmpty(filter) &&
+                            tName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0 &&
+                            mb.gameObject.name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0)
+                            continue;
 
-                    return new { success = false, message = "Key press via bridge not implemented yet" };
+                        // List void methods with 0 params
+                        var methods = mb.GetType().GetMethods(
+                            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                            .Where(m => m.ReturnType == typeof(void) && m.GetParameters().Length == 0)
+                            .Select(m => m.Name)
+                            .Where(n => !n.StartsWith("get_") && !n.StartsWith("set_") && n != "Finalize")
+                            .Take(8);
+                        sb.AppendLine($"[{mb.gameObject.name}] {tName}: {string.Join(", ", methods)}");
+                    }
+                    string output = sb.Length > 0 ? sb.ToString().Substring(0, Math.Min(2000, sb.Length)) : "No matches";
+                    return new { success = true, message = output };
+                }
+                catch (Exception ex)
+                {
+                    return new { success = false, message = ex.Message };
+                }
+            });
+
+            bool completed = result.Wait(8000);
+            if (!completed) return JToken.FromObject(new { success = false, message = "Timed out" });
+            return JToken.FromObject(result.Result);
+        }
+
+        /// <summary>
+        /// Invokes a named void(0-param) method on any MonoBehaviour whose type name or
+        /// gameObject name contains <c>target</c>. Use to call dialog confirm handlers, etc.
+        /// </summary>
+        private JToken HandleInvokeMethod(JObject? parameters)
+        {
+            string target = parameters?.Value<string>("target") ?? "";
+            string method = parameters?.Value<string>("method") ?? "";
+
+            var result = MainThreadDispatcher.RunOnMainThread(() =>
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(target) || string.IsNullOrEmpty(method))
+                        return new { success = false, message = "Provide target (type/go name) and method" };
+
+                    var allMBs = Resources.FindObjectsOfTypeAll<MonoBehaviour>();
+                    var invoked = new List<string>();
+                    foreach (var mb in allMBs)
+                    {
+                        if (mb == null || !mb.gameObject.activeInHierarchy) continue;
+                        string tName = mb.GetType().Name;
+                        string goName = mb.gameObject.name;
+                        bool matches = tName.IndexOf(target, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                       goName.IndexOf(target, StringComparison.OrdinalIgnoreCase) >= 0;
+                        if (!matches) continue;
+
+                        MethodInfo? mi = mb.GetType().GetMethod(method,
+                            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                            null, Type.EmptyTypes, null);
+                        if (mi == null) continue;
+
+                        mi.Invoke(mb, null);
+                        invoked.Add($"{tName}.{method}()");
+                        WriteDebug($"[GameBridgeServer] InvokeMethod: {tName}.{method}()");
+                    }
+
+                    if (invoked.Count == 0)
+                        return new { success = false, message = $"No active MonoBehaviour matching '{target}' with method '{method}' found" };
+
+                    return new { success = true, message = $"Invoked: {string.Join(", ", invoked)}" };
                 }
                 catch (Exception ex)
                 {
@@ -1217,6 +1279,10 @@ namespace DINOForge.Runtime.Bridge
                     if (target == null)
                         return new { success = false, message = $"Button '{buttonName}' not found. Active buttons: {summary.ToString().Substring(0, Math.Min(600, summary.Length))}" };
 
+                    // Primary: onClick.Invoke() fires the UnityEvent directly (works for modal dialogs)
+                    target.onClick.Invoke();
+
+                    // Secondary: also fire pointer click for components that listen to IPointerClickHandler
                     UnityEngine.EventSystems.ExecuteEvents.Execute(
                         target.gameObject,
                         new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current),

@@ -47,6 +47,9 @@ namespace DINOForge.Runtime.UI
             clone.name = "DINOForge_ModsButton";
             Button cloneBtn = clone.GetComponent<Button>();
 
+            // Drop any persistent/runtime callbacks inherited from the source button.
+            cloneBtn.onClick = new Button.ButtonClickedEvent();
+
             // Reset navigation to prevent inherited EventSystem conflicts from original button's menu layout
             Navigation nav = cloneBtn.navigation;
             nav.mode = Navigation.Mode.Automatic;

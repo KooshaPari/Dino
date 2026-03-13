@@ -148,3 +148,21 @@
     gold: 0
     population: 0
   production: {}
+
+- id: cis_vulture_nest
+  display_name: Vulture Droid Nest
+  description: Automated droid starfighter launch platform providing air superiority through coordinated swarms.
+  building_type: defense
+  health: 900
+  cost:
+    food: 0
+    wood: 0
+    stone: 50
+    iron: 70
+    gold: 40
+    population: 0
+  production: {}
+  defense_tags: [AntiAir]
+  anti_air:
+    range: 38.0
+    damage_bonus: 1.5

@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### UI Automation and Game Control API
+- **`click-button [name]`** CLI command — clicks named Unity UI buttons (e.g., `DINOForge_ModsButton`)
+  - `GameClient.ClickButtonAsync(buttonName)` — Bridge client method for programmatic button clicks
+  - Lists all active buttons when invoked with empty name
+- **`toggle-ui [target]`** CLI command — toggles DINOForge UI panels
+  - `GameClient.ToggleUiAsync(target)` — Bridge client method for toggling modmenu (F10) or debug (F9)
+  - Targets: `modmenu` (default) or `debug`
+- **`demo`** CLI command — Full end-to-end automation demo
+  - Screenshot main menu → click Mods button → F9 debug → F10 modmenu → load save → dismiss loading → gameplay
+  - Demonstrates coordinated UI automation and game control
+- **Bridge handlers**: `HandleClickButton` and `HandleToggleUi` for game-side UI control
+- **ModMenuPanel enhancements** — Support for click-to-close and F10 keyboard toggle
+- **NativeMenuInjector improvements** — Proper button state tracking and click event propagation
+
 #### Autonomous Game World Loading Pipeline
 - **`load-save [name]`** CLI command — loads a save file by creating `Components.RawComponents.LoadRequest` ECS entity (bypasses menu UI entirely)
 - **`list-saves`** CLI command — discovers save files from DINO's `DNOPersistentData/` directory structure

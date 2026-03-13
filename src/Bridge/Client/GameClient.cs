@@ -169,6 +169,19 @@ public sealed class GameClient : IDisposable
     public Task<StartGameResult> ToggleUiAsync(string target = "modmenu", CancellationToken ct = default) =>
         SendRequestAsync<StartGameResult>("toggleUi", new { target }, ct);
 
+    /// <summary>
+    /// Dumps active MonoBehaviours and their void() methods. filter narrows by type/GO name.
+    /// Uses the pressKey bridge endpoint (repurposed as scanScene).
+    /// </summary>
+    public Task<StartGameResult> ScanSceneAsync(string filter = "", CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("pressKey", new { filter }, ct);
+
+    /// <summary>
+    /// Invokes a void(0-param) method on any active MonoBehaviour matching target (type or GO name).
+    /// </summary>
+    public Task<StartGameResult> InvokeMethodAsync(string target, string method, CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("invokeMethod", new { target, method }, ct);
+
     /// <inheritdoc />
     public Task<VerifyResult> VerifyModAsync(string packPath, CancellationToken ct = default) =>
         SendRequestAsync<VerifyResult>("verifyMod", new { packPath }, ct);

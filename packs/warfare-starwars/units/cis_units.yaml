@@ -364,3 +364,35 @@
       iron: 50
       gold: 40
       population: 2
+
+# 14. Aerial Fighter - Tri-Fighter
+- id: cis_tri_fighter
+  display_name: Tri-Fighter
+  description: Automated droid starfighter with three-pronged design and rapid-fire plasma cannons. Multiple units form deadly swarms.
+  unit_class: AirstrikeProxy
+  faction_id: cis
+  tier: 2
+  weapon: tri_fighter_plasma_cannons
+  vanilla_mapping: aerial_fighter
+  defense_tags: [Mechanical, Aerial]
+  behavior_tags: [Aerial, AdvanceFire, Kite]
+  stats:
+    hp: 110.0
+    damage: 14.0
+    armor: 3.0
+    range: 20.0
+    speed: 13.0
+    accuracy: 0.6
+    fire_rate: 4.0
+    morale: 200.0
+    cost:
+      food: 0
+      wood: 0
+      stone: 0
+      iron: 25
+      gold: 30
+      population: 1
+  aerial:
+    cruise_altitude: 18.0
+    ascend_speed: 10.0
+    descend_speed: 6.0
