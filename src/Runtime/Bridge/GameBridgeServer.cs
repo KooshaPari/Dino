@@ -95,12 +95,15 @@ namespace DINOForge.Runtime.Bridge
                 NamedPipeServerStream? pipe = null;
                 try
                 {
+                    // Use None (synchronous mode) — this server runs on a dedicated background
+                    // thread so async pipe mode is not needed and causes ReadLine() to block
+                    // indefinitely on Windows when no data is available.
                     pipe = new NamedPipeServerStream(
                         PipeName,
                         PipeDirection.InOut,
                         1,
                         PipeTransmissionMode.Byte,
-                        PipeOptions.Asynchronous);
+                        PipeOptions.None);
 
                     _currentPipe = pipe;
                     WriteDebug("[GameBridgeServer] Waiting for connection...");
