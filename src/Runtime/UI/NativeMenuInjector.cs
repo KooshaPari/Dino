@@ -271,6 +271,7 @@ namespace DINOForge.Runtime.UI
                             Button existing = parent.GetChild(i).GetComponent<Button>();
                             if (existing != null)
                             {
+                                SyncButtonVisualStyle(existing, settingsButton, attemptId);
                                 RewireModsButtonClick(existing, attemptId);
                                 _injectedButton = existing;
                                 _injected = true;
@@ -291,6 +292,7 @@ namespace DINOForge.Runtime.UI
                 }
 
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 1 OK: Clone successful: '{modsButton.name}'");
+                SyncButtonVisualStyle(modsButton, settingsButton, attemptId);
 
                 // Position adjacent to Settings button
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 2: Positioning Mods button after Settings button...");
@@ -506,6 +508,54 @@ namespace DINOForge.Runtime.UI
             modsButton.onClick = new Button.ButtonClickedEvent();
             modsButton.onClick.AddListener(OnModsButtonClicked);
             LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     Click handler replaced with DINOForge toggle only");
+        }
+
+        /// <summary>
+        /// Mirrors source button selectable and label style onto the injected Mods button.
+        /// Keeps hover/pressed visuals aligned with the native menu skin.
+        /// </summary>
+        private void SyncButtonVisualStyle(Button target, Button source, long attemptId)
+        {
+            target.transition = source.transition;
+            target.colors = source.colors;
+            target.spriteState = source.spriteState;
+            target.animationTriggers = source.animationTriggers;
+
+            if (source.targetGraphic != null)
+            {
+                string path = GetRelativePath(source.targetGraphic.transform, source.transform);
+                Transform? matching = string.IsNullOrEmpty(path) ? target.transform : target.transform.Find(path);
+                target.targetGraphic = matching?.GetComponent(source.targetGraphic.GetType()) as Graphic;
+            }
+
+            Text? sourceText = source.GetComponentInChildren<Text>(includeInactive: true);
+            Text? targetText = target.GetComponentInChildren<Text>(includeInactive: true);
+            if (sourceText != null && targetText != null)
+            {
+                targetText.font = sourceText.font;
+                targetText.fontStyle = sourceText.fontStyle;
+                targetText.fontSize = sourceText.fontSize;
+                targetText.color = sourceText.color;
+                targetText.alignment = sourceText.alignment;
+                targetText.material = sourceText.material;
+            }
+
+            LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     Synced native button visual style");
+        }
+
+        private static string GetRelativePath(Transform node, Transform root)
+        {
+            if (node == root) return string.Empty;
+
+            System.Collections.Generic.Stack<string> parts = new System.Collections.Generic.Stack<string>();
+            Transform? current = node;
+            while (current != null && current != root)
+            {
+                parts.Push(current.name);
+                current = current.parent;
+            }
+
+            return string.Join("/", parts.ToArray());
         }
 
         // ------------------------------------------------------------------ //

@@ -24,7 +24,7 @@ namespace DINOForge.Runtime.Aviation
         {
             WriteDebug("AviationPlugin.Awake: Aviation subsystem loaded");
             WriteDebug("  AerialUnitComponent, AntiAirComponent registered via assembly scan");
-            WriteDebug("  AerialMovementSystem and AerialSpawnSystem will auto-register with SimulationSystemGroup");
+            WriteDebug("  AerialMovementSystem, AerialSpawnSystem, AerialTargetingSystem will auto-register with SimulationSystemGroup");
         }
 
         private static void WriteDebug(string msg)
