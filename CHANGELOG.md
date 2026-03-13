@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Aviation Subsystem (v0.1.0)
+- **`src/Runtime/Aviation/AerialUnitComponent.cs`** — ECS `IComponentData` struct marking units as aerial; stores `CruiseAltitude`, `AscendSpeed`, `DescendSpeed`, `IsAttacking`
+- **`src/Runtime/Aviation/AntiAirComponent.cs`** — ECS `IComponentData` struct for anti-air capable units/buildings; stores `AntiAirRange`, `AntiAirDamageBonus`
+- **`src/Runtime/Aviation/AerialMovementSystem.cs`** — `SystemBase` in `SimulationSystemGroup`; maintains altitude via `Translation.y` writes each frame; handles attack descent/re-ascent; bypasses NavMesh for straight-line aerial movement
+- **`src/Runtime/Aviation/AerialSpawnSystem.cs`** — `SystemBase`; initializes newly-spawned aerial units at cruise altitude (configurable via `SpawnAtAltitude`)
+- **`src/Runtime/Aviation/AerialUnitMapper.cs`** — Static mapper; reads `BehaviorTags` ("Aerial", "AntiAir") from `UnitDefinition` and attaches ECS components post-spawn
+- **`src/Runtime/Aviation/AviationPlugin.cs`** — BepInEx plugin entry point (`com.dinoforge.aviation`); hard-depends on `com.dinoforge.runtime`
+- **`src/SDK/Models/AerialProperties.cs`** — POCO deserialized from `aerial:` YAML block (`CruiseAltitude`, `AscendSpeed`, `DescendSpeed`, `AntiAir`)
+- **`src/SDK/Models/FactionPatchDefinition.cs`** — Model for extending existing vanilla factions with new units, buildings, and doctrines without creating new factions
+- **`UnitDefinition.cs`** — Added `AerialProperties? Aerial` property for aerial unit configuration
+- **`UnitSpawnRequest.cs`** — Added `float Y` property (default `0f`) enabling elevation spawning
+- **`PackUnitSpawner.cs`** — Fixed hardcoded `0f` Y spawn position to use `request.Y`; added `AerialUnitMapper.ApplyAerialComponents` call post-spawn; updated `RequestSpawnStatic` to accept `float y = 0f`
+- **`WaveInjector.cs`** — Added `float SpawnY` to `WaveSpawnRequest`; passes elevation through to `PackUnitSpawner.RequestSpawnStatic`
+- **`RegistryManager.cs`** — Added `FactionPatches` registry (`IRegistry<FactionPatchDefinition>`)
+- **`ContentLoader.cs`** — Added `faction_patches` content type loading and registration
+- **`PackManifest.cs`** — Added `FactionPatches` to `PackLoads` with `faction_patches` YAML alias
+
 #### VFX Prefab Generation System (Complete)
 - **VFXPrefabGenerator.cs** (318 lines) — Unity Editor utility for automated generation of 11 VFX binary prefabs:
   - Editor menu: `DINOForge > Generate VFX Prefabs`
