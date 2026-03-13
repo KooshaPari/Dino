@@ -27,29 +27,30 @@ OUTPUT_BASE = Path("packs/warfare-starwars/assets/raw")
 LOG_FILE = Path("scripts/asset_download.log")
 
 # v0.7.0 Priority Models (from RELEASE_ROADMAP.md Phase 1)
+# All model IDs verified via Sketchfab search on 2026-03-13
 PRIORITY_MODELS = [
     {
         "asset_id": "sw_general_grievous_sketchfab_001",
         "name": "General Grievous",
-        "sketchfab_model_id": "4b7e2d1f3c5a8e9b",  # Needs validation
+        "sketchfab_model_id": "5d162177a1df4f56abb615182007d5c4",
         "faction": "cis",
         "unit_type": "hero",
         "priority": "CRITICAL",
         "notes": "CIS Hero - Both factions need a hero"
     },
     {
-        "asset_id": "sw_b1_droid_sketchfab_001",
-        "name": "B1 Battle Droid",
-        "sketchfab_model_id": "3a5f8b2c1d9e4f6a",  # Needs validation
-        "faction": "cis",
+        "asset_id": "sw_clone_trooper_phase2_sketchfab_001",
+        "name": "Clone Trooper Phase II (Shiny Updated)",
+        "sketchfab_model_id": "ece97956b8134ca0b3fad3612573161d",
+        "faction": "republic",
         "unit_type": "infantry",
         "priority": "CRITICAL",
-        "notes": "Core CIS unit - iconic silhouette"
+        "notes": "Core Republic unit - Phase II shiny armor"
     },
     {
-        "asset_id": "sw_at_te_sketchfab_001",
-        "name": "AT-TE Walker",
-        "sketchfab_model_id": "7e1f3a5b2c8d4e9a",  # Needs validation
+        "asset_id": "sw_at_te_walker_sketchfab_001",
+        "name": "AT-TE Walker (Animated)",
+        "sketchfab_model_id": "81ef81cf6c554055b741b43a1a08d69f",
         "faction": "republic",
         "asset_type": "vehicle",
         "priority": "CRITICAL",
@@ -57,8 +58,8 @@ PRIORITY_MODELS = [
     },
     {
         "asset_id": "sw_jedi_temple_sketchfab_001",
-        "name": "Jedi Temple",
-        "sketchfab_model_id": "8f2e4a1c3b7d5e9a",  # Needs validation
+        "name": "Jedi Temple (Coruscant)",
+        "sketchfab_model_id": "317dedec15a845cbb1abc8c90804b840",
         "faction": "republic",
         "asset_type": "building",
         "priority": "CRITICAL",
@@ -67,7 +68,7 @@ PRIORITY_MODELS = [
     {
         "asset_id": "sw_b2_super_droid_sketchfab_001",
         "name": "B2 Super Battle Droid",
-        "sketchfab_model_id": "3c5a8e1f2b4d7e9c",  # Needs validation
+        "sketchfab_model_id": "927b3ec911cc45c3ad15c458b3de4d50",
         "faction": "cis",
         "unit_type": "heavy_infantry",
         "priority": "CRITICAL",
