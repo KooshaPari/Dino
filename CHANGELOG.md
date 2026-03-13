@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### Autonomous Game World Loading Pipeline
+- **`load-save [name]`** CLI command — loads a save file by creating `Components.RawComponents.LoadRequest` ECS entity (bypasses menu UI entirely)
+- **`list-saves`** CLI command — discovers save files from DINO's `DNOPersistentData/` directory structure
+- **`dismiss`** CLI command — dismisses "PRESS ANY KEY TO CONTINUE" loading screen by invoking `UI.LoadingProgressBar._startAction` via reflection
+- **`HandleLoadSave`** bridge handler — creates `LoadRequest` with `NameToLoad` (FixedString128Bytes) and `FromMenu=true`
+- **`HandleListSaves`** bridge handler — enumerates `{persistentDataPath}/DNOPersistentData/{branch}/*.dat` save files
+- **`HandleDismissLoadScreen`** bridge handler — invokes `LoadingProgressBar._startAction` to bypass loading screen
+- **TextMeshPro reference** added to Runtime project for button label inspection
+- Full end-to-end autonomous load verified: menu → LoadRequest entity → loading screen → dismiss → gameplay (82K entities)
+
 #### Vanilla DINO Canonical Reference Pack (Complete)
 - **`packs/vanilla-dino/pack.yaml`** — Master pack manifest defining the canonical vanilla DINO reference with all 100+ units, 6 factions, buildings, weapons, and doctrines (load_order: 10, canonical: true)
 - **Faction Definitions** (6 files) — Complete faction YAML with economy modifiers, army characteristics, unit rosters, building references:

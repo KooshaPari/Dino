@@ -110,46 +110,50 @@ namespace DINOForge.Runtime.Bridge
                     pipe.WaitForConnection();
                     WriteDebug("[GameBridgeServer] Client connected.");
 
-                    using (StreamReader reader = new StreamReader(pipe, Encoding.UTF8, false, 4096, leaveOpen: true))
-                    using (StreamWriter writer = new StreamWriter(pipe, Encoding.UTF8, 4096, leaveOpen: true))
+                    WriteDebug("[GameBridgeServer] Setting up line reader");
+                    // Read lines manually byte-by-byte to avoid StreamReader buffering issues
+                    // on Mono with synchronous named pipes.
+                    while (_running && pipe.IsConnected)
                     {
-                        writer.AutoFlush = true;
-
-                        while (_running && pipe.IsConnected)
+                        string? line = null;
+                        try
                         {
-                            string? line = null;
-                            try
-                            {
-                                line = reader.ReadLine();
-                            }
-                            catch (IOException)
-                            {
-                                break;
-                            }
-                            catch (ObjectDisposedException)
-                            {
-                                break;
-                            }
+                            WriteDebug("[GameBridgeServer] Reading line...");
+                            line = ReadLineFromPipe(pipe);
+                            WriteDebug($"[GameBridgeServer] Got line: {(line == null ? "null" : $"len={line.Length}")}");
+                        }
+                        catch (IOException ex)
+                        {
+                            WriteDebug($"[GameBridgeServer] Read IOException: {ex.Message}");
+                            break;
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            break;
+                        }
 
-                            if (line == null) break;
-                            if (string.IsNullOrWhiteSpace(line)) continue;
+                        if (line == null) break;
+                        if (string.IsNullOrWhiteSpace(line)) continue;
 
-                            string response = ProcessMessage(line);
+                        string response = ProcessMessage(line);
 
-                            try
-                            {
-                                writer.WriteLine(response);
-                            }
-                            catch (IOException)
-                            {
-                                break;
-                            }
-                            catch (ObjectDisposedException)
-                            {
-                                break;
-                            }
+                        try
+                        {
+                            byte[] responseBytes = Encoding.UTF8.GetBytes(response + "\n");
+                            pipe.Write(responseBytes, 0, responseBytes.Length);
+                            pipe.Flush();
+                        }
+                        catch (IOException ex)
+                        {
+                            WriteDebug($"[GameBridgeServer] Write IOException: {ex.Message}");
+                            break;
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            break;
                         }
                     }
+                    WriteDebug("[GameBridgeServer] Exited read loop");
 
                     WriteDebug("[GameBridgeServer] Client disconnected.");
                 }
@@ -214,36 +218,48 @@ namespace DINOForge.Runtime.Bridge
         /// </summary>
         private JToken DispatchMethod(string method, JObject? parameters)
         {
-            switch (method)
+            // Normalize: accept both "game.status" and "status" formats
+            string m = method.StartsWith("game.") ? method.Substring(5) : method;
+            switch (m)
             {
-                case "game.ping":
+                case "ping":
                     return HandlePing();
-                case "game.status":
+                case "status":
                     return HandleStatus();
-                case "game.getCatalog":
+                case "getCatalog":
                     return HandleGetCatalog();
-                case "game.getComponentMap":
+                case "getComponentMap":
                     return HandleGetComponentMap(parameters);
-                case "game.getStat":
+                case "getStat":
                     return HandleGetStat(parameters);
-                case "game.applyOverride":
+                case "applyOverride":
                     return HandleApplyOverride(parameters);
-                case "game.queryEntities":
+                case "queryEntities":
                     return HandleQueryEntities(parameters);
-                case "game.reloadPacks":
+                case "reloadPacks":
                     return HandleReloadPacks(parameters);
-                case "game.getResources":
+                case "getResources":
                     return HandleGetResources();
-                case "game.screenshot":
+                case "screenshot":
                     return HandleScreenshot(parameters);
-                case "game.dumpState":
+                case "dumpState":
                     return HandleDumpState(parameters);
-                case "game.verifyMod":
+                case "verifyMod":
                     return HandleVerifyMod(parameters);
-                case "game.waitForWorld":
+                case "waitForWorld":
                     return HandleWaitForWorld(parameters);
-                case "game.loadScene":
+                case "loadScene":
                     return HandleLoadScene(parameters);
+                case "startGame":
+                    return HandleStartGame(parameters);
+                case "loadSave":
+                    return HandleLoadSave(parameters);
+                case "listSaves":
+                    return HandleListSaves();
+                case "pressKey":
+                    return HandlePressKey(parameters);
+                case "dismissLoadScreen":
+                    return HandleDismissLoadScreen();
                 default:
                     throw new InvalidOperationException($"Method not found: {method}");
             }
@@ -530,23 +546,37 @@ namespace DINOForge.Runtime.Bridge
 
         private JToken HandleLoadScene(JObject? parameters)
         {
-            string sceneName = parameters?.Value<string>("scene") ?? "Sandbox";
+            string sceneName = parameters?.Value<string>("scene") ?? "level0";
             int buildIndex = parameters?.Value<int>("buildIndex") ?? -1;
 
-            bool dispatched = MainThreadDispatcher.RunOnMainThread(() =>
+            // If scene is purely numeric, treat as build index
+            if (buildIndex < 0 && int.TryParse(sceneName, out int parsed))
+                buildIndex = parsed;
+
+            var loadResult = MainThreadDispatcher.RunOnMainThread(() =>
             {
+                int count = UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings;
+                WriteDebug($"[GameBridgeServer] LoadScene: buildIndex={buildIndex} sceneName={sceneName} totalScenes={count}");
                 try
                 {
                     if (buildIndex >= 0)
                         UnityEngine.SceneManagement.SceneManager.LoadScene(buildIndex);
                     else
                         UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
-                    return true;
+                    return new { success = true, sceneCount = count };
                 }
-                catch { return false; }
-            }).Result;
+                catch (Exception ex)
+                {
+                    WriteDebug($"[GameBridgeServer] LoadScene failed: {ex.Message}");
+                    return new { success = false, sceneCount = count };
+                }
+            });
 
-            return JToken.FromObject(new { success = dispatched, scene = sceneName });
+            bool timedOut = !loadResult.Wait(5000);
+            bool success = !timedOut && loadResult.Result.success;
+            int sceneCount = timedOut ? -1 : loadResult.Result.sceneCount;
+
+            return JToken.FromObject(new { success, scene = sceneName, buildIndex, sceneCount });
         }
 
         private JToken HandleScreenshot(JObject? parameters)
@@ -975,6 +1005,514 @@ namespace DINOForge.Runtime.Bridge
                 Resolved = mapping.ResolvedType != null,
                 Description = mapping.Description ?? ""
             };
+        }
+
+        private JToken HandleStartGame(JObject? parameters)
+        {
+            string saveName = parameters?.Value<string>("saveName") ?? "";
+
+            // Trigger the game's own world-loading system by creating the
+            // BeginGameWorldLoadingSingleton ECS entity, which SceneLoadingSystem listens for.
+            var result = MainThreadDispatcher.RunOnMainThread(() =>
+            {
+                try
+                {
+                    World? world = World.DefaultGameObjectInjectionWorld;
+                    if (world == null || !world.IsCreated)
+                        return new { success = false, message = "No ECS world" };
+
+                    // Resolve BeginGameWorldLoadingSingleton type dynamically
+                    Type? singletonType = null;
+                    foreach (System.Reflection.Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        singletonType = asm.GetType("Components.SingletonComponents.BeginGameWorldLoadingSingleton");
+                        if (singletonType != null) break;
+                    }
+
+                    if (singletonType == null)
+                        return new { success = false, message = "BeginGameWorldLoadingSingleton type not found" };
+
+                    // Dump the singleton's fields for diagnostics
+                    FieldInfo[] fields = singletonType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    string fieldList = string.Join(", ", System.Array.ConvertAll(fields, f => $"{f.FieldType.Name} {f.Name}"));
+                    WriteDebug($"[GameBridgeServer] BeginGameWorldLoadingSingleton fields: [{fieldList}]");
+
+                    ComponentType ct = ComponentType.ReadWrite(singletonType);
+                    Entity e = world.EntityManager.CreateEntity(ct);
+                    WriteDebug($"[GameBridgeServer] Created BeginGameWorldLoadingSingleton entity {e.Index}");
+
+                    // If the singleton has a NameToLoad field, try to set it via reflection
+                    // (ECS components are structs so we use SetComponentData via reflection)
+                    if (!string.IsNullOrEmpty(saveName))
+                    {
+                        FieldInfo? nameField = singletonType.GetField("NameToLoad",
+                            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        WriteDebug($"[GameBridgeServer] NameToLoad field: {(nameField == null ? "not found" : nameField.FieldType.Name)}");
+                    }
+
+                    return new { success = true, message = $"Created singleton entity {e.Index}, fields=[{fieldList}]" };
+                }
+                catch (Exception ex)
+                {
+                    WriteDebug($"[GameBridgeServer] HandleStartGame failed: {ex.Message}");
+                    return new { success = false, message = ex.Message };
+                }
+            });
+
+            bool completed = result.Wait(5000);
+            if (!completed) return JToken.FromObject(new { success = false, message = "Timed out" });
+            return JToken.FromObject(result.Result);
+        }
+
+        private JToken HandleDismissLoadScreen()
+        {
+            var result = MainThreadDispatcher.RunOnMainThread(() =>
+            {
+                try
+                {
+                    // DINO's loading screen uses UI.LoadingProgressBar which has a _startAction field
+                    // (a UnityAction) that gets invoked when the player presses any key.
+                    var allMBs = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>();
+                    string found = "";
+                    foreach (var mb in allMBs)
+                    {
+                        if (mb == null) continue;
+                        string tName = mb.GetType().Name;
+                        found += $"[{tName}]";
+
+                        // Target: UI.LoadingProgressBar
+                        if (tName == "LoadingProgressBar")
+                        {
+                            // Try _startAction field (UnityAction)
+                            FieldInfo? startField = mb.GetType().GetField("_startAction",
+                                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (startField != null)
+                            {
+                                object? action = startField.GetValue(mb);
+                                if (action is UnityEngine.Events.UnityAction ua)
+                                {
+                                    ua.Invoke();
+                                    return new { success = true, message = $"Invoked _startAction on LoadingProgressBar" };
+                                }
+                                // Try invoking as delegate
+                                if (action is System.Delegate del)
+                                {
+                                    del.DynamicInvoke();
+                                    return new { success = true, message = $"DynamicInvoked _startAction on LoadingProgressBar" };
+                                }
+                                WriteDebug($"[GameBridgeServer] _startAction type: {(action?.GetType().Name ?? "null")}");
+                            }
+
+                            // Fallback: call Update() to simulate time passing with anyKeyDown
+                            // Actually try GetComponent on the progress GameObject
+                            FieldInfo? progressField = mb.GetType().GetField("_progress",
+                                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            if (progressField != null)
+                            {
+                                UnityEngine.GameObject? progressGO = progressField.GetValue(mb) as UnityEngine.GameObject;
+                                if (progressGO != null)
+                                    progressGO.SetActive(false); // hide progress bar panel
+                            }
+
+                            // Try destroying the component to let the scene proceed
+                            return new { success = false, message = $"LoadingProgressBar found but _startAction invoke failed. Action type: {startField?.GetValue(mb)?.GetType().Name ?? "null"}" };
+                        }
+                    }
+
+                    return new { success = false, message = $"No dismiss handler found. MBs: {found}" };
+                }
+                catch (Exception ex)
+                {
+                    return new { success = false, message = ex.Message };
+                }
+            });
+
+            bool completed = result.Wait(5000);
+            if (!completed) return JToken.FromObject(new { success = false, message = "Timed out" });
+            return JToken.FromObject(result.Result);
+        }
+
+        private JToken HandlePressKey(JObject? parameters)
+        {
+            string keyName = parameters?.Value<string>("key") ?? "space";
+
+            var result = MainThreadDispatcher.RunOnMainThread(() =>
+            {
+                try
+                {
+                    // Use Unity's Input simulation — unfortunately legacy Input doesn't support injection
+                    // But we can try to find the component that's waiting for input and trigger it
+                    WriteDebug($"[GameBridgeServer] PressKey: {keyName}");
+
+                    // Look for any component that has an Update loop listening for Input.anyKeyDown
+                    // These are usually named things like: PressAnyKey, LoadingTip, LoadingScreen
+                    var allMBs = Resources.FindObjectsOfTypeAll<MonoBehaviour>();
+                    var candidates = new System.Text.StringBuilder();
+                    foreach (var mb in allMBs)
+                    {
+                        if (mb == null || !mb.gameObject.activeInHierarchy) continue;
+                        string n = mb.GetType().Name;
+                        if (n.Length < 30 && !n.StartsWith("Unity") && !n.StartsWith("System"))
+                            candidates.Append($"[{n}] ");
+                    }
+                    WriteDebug($"[GameBridgeServer] Active MBs: {candidates.ToString().Substring(0, Math.Min(500, candidates.Length))}");
+
+                    return new { success = false, message = "Key press via bridge not implemented yet" };
+                }
+                catch (Exception ex)
+                {
+                    return new { success = false, message = ex.Message };
+                }
+            });
+
+            bool completed = result.Wait(5000);
+            if (!completed) return JToken.FromObject(new { success = false, message = "Timed out" });
+            return JToken.FromObject(result.Result);
+        }
+
+        private JToken HandleListSaves()
+        {
+            var result = MainThreadDispatcher.RunOnMainThread(() =>
+            {
+                try
+                {
+                    // Find save manager via reflection
+                    Type? saveManagerType = null;
+                    foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        foreach (string typeName in new[] {
+                            "Systems.SaveLoadSystem", "Systems.GameWorldLoaderSystem",
+                            "Systems.Save.SaveSystem", "Systems.SaveSystem",
+                            "SaveManager", "SaveSystem"
+                        })
+                        {
+                            saveManagerType = asm.GetType(typeName);
+                            if (saveManagerType != null) break;
+                        }
+                        if (saveManagerType != null) break;
+                    }
+
+                    // Search for saves in DNO's actual paths
+                    string persistPath = Application.persistentDataPath;
+                    var saves = new List<string>();
+
+                    // DINO saves: persistentDataPath/DNOPersistentData/<branch>/
+                    string dnoDataDir = System.IO.Path.Combine(persistPath, "DNOPersistentData");
+                    string saveDir = dnoDataDir;
+                    if (System.IO.Directory.Exists(dnoDataDir))
+                    {
+                        foreach (string branchDir in System.IO.Directory.GetDirectories(dnoDataDir))
+                        {
+                            string branchName = System.IO.Path.GetFileName(branchDir);
+                            foreach (var f in System.IO.Directory.GetFiles(branchDir, "*.dat"))
+                                saves.Add($"{branchName}/{System.IO.Path.GetFileNameWithoutExtension(f)}");
+                        }
+                    }
+                    else
+                    {
+                        // Fallback to standard Saves dir
+                        saveDir = System.IO.Path.Combine(persistPath, "Saves");
+                        if (System.IO.Directory.Exists(saveDir))
+                        {
+                            foreach (var f in System.IO.Directory.GetFiles(saveDir, "*.sav"))
+                                saves.Add(System.IO.Path.GetFileNameWithoutExtension(f));
+                            foreach (var f in System.IO.Directory.GetFiles(saveDir, "*.dat"))
+                                saves.Add(System.IO.Path.GetFileNameWithoutExtension(f));
+                        }
+                    }
+
+                    return new {
+                        saveManagerType = saveManagerType?.FullName ?? "not found",
+                        persistentDataPath = persistPath,
+                        saveDir = saveDir,
+                        saveDirExists = System.IO.Directory.Exists(saveDir),
+                        saves = saves,
+                        dataPath = Application.dataPath
+                    };
+                }
+                catch (Exception ex)
+                {
+                    return new {
+                        saveManagerType = "error",
+                        persistentDataPath = "",
+                        saveDir = "",
+                        saveDirExists = false,
+                        saves = new List<string>(),
+                        dataPath = ex.Message
+                    };
+                }
+            });
+
+            bool completed = result.Wait(5000);
+            if (!completed) return JToken.FromObject(new { error = "Timed out" });
+            return JToken.FromObject(result.Result);
+        }
+
+        private JToken HandleLoadSave(JObject? parameters)
+        {
+            string saveName = parameters?.Value<string>("saveName") ?? "AutoSave_1";
+
+            var result = MainThreadDispatcher.RunOnMainThread(() =>
+            {
+                try
+                {
+                    WriteDebug($"[GameBridgeServer] HandleLoadSave: '{saveName}'");
+
+                    // Strategy 0: Create a LoadRequest ECS entity — the game's SaveLoadSystem
+                    // reads Components.RawComponents.LoadRequest singletons and triggers a load.
+                    // Fields: NameToLoad (FixedString128Bytes), FromMenu (Boolean)
+                    World? world = World.DefaultGameObjectInjectionWorld;
+                    if (world != null && world.IsCreated)
+                    {
+                        Type? loadRequestType = null;
+                        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                        {
+                            loadRequestType = asm.GetType("Components.RawComponents.LoadRequest");
+                            if (loadRequestType != null) break;
+                        }
+
+                        if (loadRequestType != null)
+                        {
+                            WriteDebug($"[GameBridgeServer] Found LoadRequest type: {loadRequestType.FullName}");
+
+                            // Create the component value
+                            object loadRequest = System.Activator.CreateInstance(loadRequestType);
+
+                            // Set NameToLoad — it's a Unity.Collections.FixedString128Bytes
+                            FieldInfo? nameField = loadRequestType.GetField("NameToLoad",
+                                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            FieldInfo? fromMenuField = loadRequestType.GetField("FromMenu",
+                                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                            if (nameField != null)
+                            {
+                                // FixedString128Bytes can be set from a regular string via implicit conversion
+                                // We need to box/unbox correctly
+                                Type fsType = nameField.FieldType; // Unity.Collections.FixedString128Bytes
+                                // Try to create FixedString128Bytes from string
+                                try
+                                {
+                                    // FixedString128Bytes has implicit operator from string in Unity
+                                    MethodInfo? op = fsType.GetMethod("op_Implicit",
+                                        BindingFlags.Public | BindingFlags.Static,
+                                        null, new[] { typeof(string) }, null);
+                                    if (op != null)
+                                    {
+                                        object? fs = op.Invoke(null, new object[] { saveName });
+                                        nameField.SetValue(loadRequest, fs);
+                                        WriteDebug($"[GameBridgeServer] Set NameToLoad = '{saveName}' via op_Implicit");
+                                    }
+                                    else
+                                    {
+                                        // Try ctor with string
+                                        System.Reflection.ConstructorInfo? ctor = fsType.GetConstructor(new[] { typeof(string) });
+                                        if (ctor != null)
+                                        {
+                                            object? fs = ctor.Invoke(new object[] { saveName });
+                                            nameField.SetValue(loadRequest, fs);
+                                            WriteDebug($"[GameBridgeServer] Set NameToLoad via ctor");
+                                        }
+                                        else
+                                        {
+                                            WriteDebug($"[GameBridgeServer] No string ctor or op_Implicit for {fsType.Name}");
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    WriteDebug($"[GameBridgeServer] NameToLoad set failed: {ex.Message}");
+                                }
+                            }
+
+                            if (fromMenuField != null)
+                                fromMenuField.SetValue(loadRequest, true);
+
+                            // Create entity and add LoadRequest component
+                            try
+                            {
+                                ComponentType ct = ComponentType.ReadWrite(loadRequestType);
+                                Entity e = world.EntityManager.CreateEntity(ct);
+
+                                // Set the component data via reflection
+                                MethodInfo? setComp = typeof(EntityManager).GetMethod("SetComponentData",
+                                    BindingFlags.Public | BindingFlags.Instance);
+                                if (setComp != null)
+                                {
+                                    MethodInfo genSet = setComp.MakeGenericMethod(loadRequestType);
+                                    genSet.Invoke(world.EntityManager, new object[] { e, loadRequest });
+                                    WriteDebug($"[GameBridgeServer] Created LoadRequest entity {e.Index} with NameToLoad='{saveName}'");
+                                    return new { success = true, message = $"Created LoadRequest entity {e.Index} NameToLoad='{saveName}'", foundPath = "" };
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                WriteDebug($"[GameBridgeServer] LoadRequest entity creation failed: {ex.Message}");
+                            }
+                        }
+                        else
+                        {
+                            WriteDebug($"[GameBridgeServer] LoadRequest type NOT found");
+                        }
+                    }
+
+                    // Find the save file in DINO's DNOPersistentData structure
+                    string persistPath = Application.persistentDataPath;
+                    string dnoDataDir = System.IO.Path.Combine(persistPath, "DNOPersistentData");
+
+                    string foundPath = "";
+                    if (System.IO.Directory.Exists(dnoDataDir))
+                    {
+                        foreach (string branchDir in System.IO.Directory.GetDirectories(dnoDataDir))
+                        {
+                            foreach (string f in System.IO.Directory.GetFiles(branchDir, "*.dat"))
+                            {
+                                string fn = System.IO.Path.GetFileNameWithoutExtension(f).ToUpperInvariant();
+                                string sn = saveName.ToUpperInvariant();
+                                if (fn.Contains(sn) || sn.Contains(fn))
+                                {
+                                    foundPath = f;
+                                    break;
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(foundPath)) break;
+                        }
+                    }
+
+                    WriteDebug($"[GameBridgeServer] Save file found: '{foundPath}'");
+                    WriteDebug($"[GameBridgeServer] PersistentDataPath: {persistPath}");
+
+                    // Strategy 3: Find the game's native UI buttons via Unity's UI system
+                    // Use Resources.FindObjectsOfTypeAll to find ALL button instances including inactive
+                    var allButtons = Resources.FindObjectsOfTypeAll<UnityEngine.UI.Button>();
+                    WriteDebug($"[GameBridgeServer] Found {allButtons.Length} buttons (Resources.FindObjectsOfTypeAll)");
+
+                    // Also try FindObjectsOfType (scene-only)
+                    var sceneButtons = UnityEngine.Object.FindObjectsOfType<UnityEngine.UI.Button>();
+                    WriteDebug($"[GameBridgeServer] Found {sceneButtons.Length} buttons (FindObjectsOfType scene-only)");
+
+                    // Dump ALL GameObjects to find what the menu uses
+                    if (allButtons.Length == 0 && sceneButtons.Length == 0)
+                    {
+                        // Search for any MonoBehaviour with "Click" or "Button" in name
+                        var allMBs = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>();
+                        var interesting = new System.Text.StringBuilder();
+                        foreach (var mb in allMBs)
+                        {
+                            if (mb == null) continue;
+                            string tName = mb.GetType().Name;
+                            if (tName.Contains("Button") || tName.Contains("Click") || tName.Contains("Menu") || tName.Contains("Interactable"))
+                                interesting.Append($"[{tName}:{mb.gameObject.name}] ");
+                        }
+                        WriteDebug($"[GameBridgeServer] Button-like MonoBehaviours: {interesting}");
+                    }
+
+                    var saveNameUpper = saveName.ToUpperInvariant();
+                    UnityEngine.UI.Button? targetButton = null;
+                    UnityEngine.UI.Button? continueButton = null;
+                    UnityEngine.UI.Button? okButton = null;
+                    var buttonSummary = new System.Text.StringBuilder();
+
+                    foreach (var btn in allButtons)
+                    {
+                        if (btn == null) continue;
+                        // Skip the DINOForge mods button only
+                        if (btn.name == "DINOForge_ModsButton") continue;
+                        // Skip inactive
+                        if (!btn.gameObject.activeInHierarchy) continue;
+
+                        var txt = btn.GetComponentInChildren<UnityEngine.UI.Text>();
+                        var tmptxt = btn.GetComponentInChildren<TMPro.TMP_Text>();
+                        string label = (txt?.text ?? tmptxt?.text ?? "").Trim();
+                        string btnName = btn.name;
+                        buttonSummary.Append($"[{btnName}:'{label}'] ");
+
+                        string labelUpper = label.ToUpperInvariant();
+                        string nameUpper = btnName.ToUpperInvariant();
+
+                        if (labelUpper == "OK" && nameUpper == "BUTTON_INTERCEPTED")
+                        {
+                            // Only capture unnamed "Button" as OK — not named buttons like Continue
+                            if (okButton == null) okButton = btn;
+                        }
+                        string nameBase = btnName.Replace("_intercepted", "").ToUpperInvariant();
+                        if (nameBase == "CONTINUE" || labelUpper == "CONTINUE")
+                        {
+                            continueButton = btn;
+                        }
+                        if (!string.IsNullOrEmpty(saveNameUpper))
+                        {
+                            // Match save name against button label or name
+                            if (labelUpper.Contains(saveNameUpper) || nameBase.Contains(saveNameUpper))
+                            {
+                                targetButton = btn;
+                            }
+                            // Special: if searching for CONTINUE, match the Continue button
+                            if (saveNameUpper == "CONTINUE" && (nameBase == "CONTINUE" || labelUpper == "CONTINUE"))
+                                targetButton = btn;
+                            // Special: if searching for OK or CONFIRM, match the ok button
+                            if ((saveNameUpper == "OK" || saveNameUpper == "CONFIRM") && labelUpper == "OK")
+                                targetButton = btn;
+                            // Match Load buttons: LOAD_1, LOAD buttons by date position
+                            if (saveNameUpper.StartsWith("LOAD") && nameBase == "LOAD")
+                            {
+                                if (targetButton == null) targetButton = btn; // first Load button
+                            }
+                        }
+                    }
+
+                    WriteDebug($"[GameBridgeServer] Active buttons: {buttonSummary}");
+                    WriteDebug($"[GameBridgeServer] okButton={okButton?.name ?? "null"} continueButton={continueButton?.name ?? "null"} targetButton={targetButton?.name ?? "null"}");
+
+                    // Priority: explicit name match > CONTINUE > OK fallback
+                    UnityEngine.UI.Button? toInvoke = targetButton ?? continueButton ?? okButton;
+                    if (toInvoke != null)
+                    {
+                        WriteDebug($"[GameBridgeServer] Invoking button: {toInvoke.name}");
+                        // Try ExecuteEvents for proper UI simulation, fall back to onClick.Invoke
+                        try
+                        {
+                            UnityEngine.EventSystems.ExecuteEvents.Execute(
+                                toInvoke.gameObject,
+                                new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current),
+                                UnityEngine.EventSystems.ExecuteEvents.pointerClickHandler);
+                        }
+                        catch
+                        {
+                            toInvoke.onClick.Invoke();
+                        }
+                        return new { success = true, message = $"Invoked button '{toInvoke.name}' (label search: '{saveName}')", foundPath };
+                    }
+
+                    return new { success = false, message = $"No suitable button found for '{saveName}'. Active buttons: {buttonSummary}. Save path: '{foundPath}'", foundPath };
+                }
+                catch (Exception ex)
+                {
+                    WriteDebug($"[GameBridgeServer] HandleLoadSave failed: {ex.Message}");
+                    return new { success = false, message = ex.Message, foundPath = "" };
+                }
+            });
+
+            bool completed = result.Wait(10000);
+            if (!completed) return JToken.FromObject(new { success = false, message = "Timed out" });
+            return JToken.FromObject(result.Result);
+        }
+
+        /// <summary>
+        /// Reads a single UTF-8 line from the pipe byte-by-byte.
+        /// Returns null if the pipe is closed. This avoids StreamReader buffering
+        /// issues on Mono where a large buffer causes blocking on partial reads.
+        /// </summary>
+        private static string? ReadLineFromPipe(Stream pipe)
+        {
+            var sb = new System.Text.StringBuilder();
+            int b;
+            while ((b = pipe.ReadByte()) != -1)
+            {
+                char c = (char)b;
+                if (c == '\n') return sb.ToString();
+                if (c != '\r') sb.Append(c);
+            }
+            return sb.Length > 0 ? sb.ToString() : null;
         }
 
         /// <summary>

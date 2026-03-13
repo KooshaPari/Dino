@@ -141,6 +141,22 @@ public sealed class GameClient : IDisposable
         SendRequestAsync<LoadSceneResult>("loadScene", new { scene }, ct);
 
     /// <inheritdoc />
+    public Task<StartGameResult> StartGameAsync(CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("startGame", null, ct);
+
+    /// <summary>Lists available save files discovered by the game bridge.</summary>
+    public Task<JObject> ListSavesAsync(CancellationToken ct = default) =>
+        SendRequestAsync<JObject>("listSaves", null, ct);
+
+    /// <summary>Dismisses the "Press Any Key to Continue" loading screen.</summary>
+    public Task<StartGameResult> DismissLoadScreenAsync(CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("dismissLoadScreen", null, ct);
+
+    /// <summary>Loads a save file by name (e.g. "AUTOSAVE_1" or "CONTINUE").</summary>
+    public Task<StartGameResult> LoadSaveAsync(string saveName = "AUTOSAVE_1", CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("loadSave", new { saveName }, ct);
+
+    /// <inheritdoc />
     public Task<VerifyResult> VerifyModAsync(string packPath, CancellationToken ct = default) =>
         SendRequestAsync<VerifyResult>("verifyMod", new { packPath }, ct);
 

@@ -31,6 +31,10 @@ public static class Program
             "catalog" => await HandleCatalogCommand(args.Skip(1).FirstOrDefault()),
             "entities" => await HandleEntitiesCommand(args.Skip(1).FirstOrDefault()),
             "load-scene" => await HandleLoadSceneCommand(args.Skip(1).FirstOrDefault()),
+            "start-game" => await HandleStartGameCommand(),
+            "list-saves" => await HandleListSavesCommand(),
+            "load-save" => await HandleLoadSaveCommand(args.Skip(1).FirstOrDefault()),
+            "dismiss" => await HandleDismissCommand(),
             "--help" or "-h" => ShowHelpAndReturn(0),
             _ => ShowHelpAndReturn(1)
         };
@@ -48,7 +52,11 @@ public static class Program
         AnsiConsole.MarkupLine("  screenshot       - Capture in-game screenshot");
         AnsiConsole.MarkupLine("  catalog [cat]    - Dump game catalog (units/buildings/projectiles)");
         AnsiConsole.MarkupLine("  entities [comp]  - Query entities by component type");
-        AnsiConsole.MarkupLine("  load-scene [name]- Load a game scene by name (default: Sandbox)");
+        AnsiConsole.MarkupLine("  load-scene [name]- Load a game scene by name/index (11 scenes: level0-level9, etc.)");
+        AnsiConsole.MarkupLine("  start-game       - Trigger game world load via ECS singleton (bypasses menu)");
+        AnsiConsole.MarkupLine("  list-saves       - List save files discovered by the bridge");
+        AnsiConsole.MarkupLine("  load-save [name] - Load a save by name (default: AUTOSAVE_1)");
+        AnsiConsole.MarkupLine("  dismiss          - Dismiss 'Press Any Key to Continue' loading screen");
         AnsiConsole.MarkupLine("  --help, -h       - Show this help");
     }
 
@@ -243,9 +251,108 @@ public static class Program
             AnsiConsole.MarkupLine($"[cyan]Loading scene:[/] {sceneName}");
             var result = await client.LoadSceneAsync(sceneName);
             if (result.Success)
+            {
                 AnsiConsole.MarkupLine($"[green]✓[/] Scene load dispatched: {result.Scene}");
+                if (result.SceneCount > 0)
+                    AnsiConsole.MarkupLine($"[cyan]Total scenes in build:[/] {result.SceneCount}");
+            }
             else
                 AnsiConsole.MarkupLine($"[red]✗[/] Scene load failed");
+            client.Disconnect();
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleStartGameCommand()
+    {
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine("[cyan]Triggering game world load via ECS singleton...[/]");
+            var result = await client.StartGameAsync();
+            if (result.Success)
+                AnsiConsole.MarkupLine($"[green]✓[/] {result.Message}");
+            else
+                AnsiConsole.MarkupLine($"[red]✗[/] {result.Message}");
+            client.Disconnect();
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleDismissCommand()
+    {
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine("[cyan]Dismissing loading screen...[/]");
+            var result = await client.DismissLoadScreenAsync();
+            string msg = Markup.Escape(result.Message ?? "");
+            if (result.Success)
+                AnsiConsole.MarkupLine($"[green]✓[/] {msg}");
+            else
+                AnsiConsole.MarkupLine($"[red]✗[/] {msg}");
+            client.Disconnect();
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {Markup.Escape(ex.Message)}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleListSavesCommand()
+    {
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine("[cyan]Querying save files...[/]");
+            var result = await client.ListSavesAsync();
+            AnsiConsole.MarkupLine($"[cyan]Persistent data path:[/] {result["persistentDataPath"]}");
+            AnsiConsole.MarkupLine($"[cyan]Save dir:[/] {result["saveDir"]} (exists: {result["saveDirExists"]})");
+            AnsiConsole.MarkupLine($"[cyan]Data path:[/] {result["dataPath"]}");
+            AnsiConsole.MarkupLine($"[cyan]Save manager:[/] {result["saveManagerType"]}");
+            var saves = result["saves"]?.ToObject<List<string>>() ?? new List<string>();
+            AnsiConsole.MarkupLine($"[green]Found {saves.Count} save(s):[/]");
+            foreach (var s in saves)
+                AnsiConsole.MarkupLine($"  - {s}");
+            client.Disconnect();
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleLoadSaveCommand(string? saveName)
+    {
+        saveName ??= "AUTOSAVE_1";
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine($"[cyan]Loading save '{saveName}'...[/]");
+            var result = await client.LoadSaveAsync(saveName);
+            string msg = Markup.Escape(result.Message ?? "");
+            if (result.Success)
+                AnsiConsole.MarkupLine($"[green]✓[/] {msg}");
+            else
+                AnsiConsole.MarkupLine($"[red]✗[/] {msg}");
             client.Disconnect();
             return result.Success ? 0 : 1;
         }
