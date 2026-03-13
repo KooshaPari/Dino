@@ -175,6 +175,12 @@ namespace DINOForge.SDK
         /// </summary>
         [YamlMember(Alias = "scenarios")]
         public List<string>? Scenarios { get; set; }
+
+        /// <summary>
+        /// Paths to faction patch definition files.
+        /// </summary>
+        [YamlMember(Alias = "faction_patches")]
+        public List<string>? FactionPatches { get; set; }
     }
 
     /// <summary>

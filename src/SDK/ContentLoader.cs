@@ -52,7 +52,8 @@ namespace DINOForge.SDK
             { "weapons", "weapon" },
             { "projectiles", "projectile" },
             { "doctrines", "doctrine" },
-            { "stats", "stat-override" }
+            { "stats", "stat-override" },
+            { "faction_patches", "faction-patch" }
         };
 
         /// <summary>
@@ -115,6 +116,7 @@ namespace DINOForge.SDK
                 LoadContentType(packDirectory, manifest, "factions", manifest.Loads.Factions, errors);
                 LoadContentType(packDirectory, manifest, "weapons", manifest.Loads.Weapons, errors);
                 LoadContentType(packDirectory, manifest, "doctrines", manifest.Loads.Doctrines, errors);
+                LoadContentType(packDirectory, manifest, "faction_patches", manifest.Loads.FactionPatches, errors);
 
                 // 3. Load stat overrides from Overrides section or conventional stats/ subdirectory
                 if (manifest.Overrides?.Stats != null && manifest.Overrides.Stats.Count > 0)
@@ -404,6 +406,12 @@ namespace DINOForge.SDK
                     RegisterItems<StatOverrideDefinition>(
                         yamlContent,
                         (s) => _loadedOverrides.Add(s));
+                    break;
+
+                case "faction_patches":
+                    RegisterItems<FactionPatchDefinition>(
+                        yamlContent,
+                        (fp) => _registryManager.FactionPatches.Register(fp.TargetFaction, fp, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
                     break;
 
                 default:

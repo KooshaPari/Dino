@@ -83,6 +83,12 @@ namespace DINOForge.SDK.Models
         /// </summary>
         [YamlMember(Alias = "tech_requirement")]
         public string? TechRequirement { get; set; }
+
+        /// <summary>
+        /// Aerial flight parameters. Only relevant for units with behavior_tag "Aerial".
+        /// </summary>
+        [YamlMember(Alias = "aerial")]
+        public AerialProperties? Aerial { get; set; }
     }
 
     /// <summary>

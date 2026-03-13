@@ -73,8 +73,34 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["HoldLine", "AdvanceFire", "Charge", "Kite", "Swarm", "SiegePriority", "AntiStructure", "AntiMass", "AntiArmor", "MoralePressure"]
+        "enum": ["HoldLine", "AdvanceFire", "Charge", "Kite", "Swarm", "SiegePriority", "AntiStructure", "AntiMass", "AntiArmor", "MoralePressure", "Aerial", "AntiAir"]
       }
+    },
+    "aerial": {
+      "type": "object",
+      "description": "Aerial movement and combat properties. Only applicable to units with the 'Aerial' behavior tag.",
+      "properties": {
+        "cruise_altitude": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Operational altitude in world units during normal flight."
+        },
+        "ascend_speed": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Rate of altitude gain in world units per second."
+        },
+        "descend_speed": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Rate of altitude loss in world units per second."
+        },
+        "anti_air": {
+          "type": "boolean",
+          "description": "Whether this aerial unit can engage other aerial targets."
+        }
+      },
+      "additionalProperties": false
     },
     "visuals": {
       "type": "object",
