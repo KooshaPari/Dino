@@ -329,8 +329,241 @@ phases:
           priority: high
           note: "Clone infantry technician/engineer specialist"
 
+  v1_0_0_buildings:
+    description: "Phase 4: Building structures LOD optimization (10 buildings, 50% coverage)"
+    models:
+      - id: rep_clone_barracks
+        file: raw/rep_clone_barracks/model.glb
+        type: building
+        faction: republic
+        building_type: production
+        polycount_target: 45000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: republic
+        addressable_key: sw-clone-barracks
+        output_prefab: prefabs/Clone_Barracks_Republic.prefab
+        update_definition:
+          enabled: true
+          file: buildings/republic_buildings.yaml
+          id: rep_clone_facility
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Clone Training Facility - barracks for militia and standard clone troopers"
+
+      - id: rep_weapons_factory
+        file: raw/rep_weapons_factory/model.glb
+        type: building
+        faction: republic
+        building_type: production
+        polycount_target: 38000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: republic
+        addressable_key: sw-weapons-factory
+        output_prefab: prefabs/Weapons_Factory_Republic.prefab
+        update_definition:
+          enabled: true
+          file: buildings/republic_buildings.yaml
+          id: rep_weapons_factory
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Weapons Factory - produces heavy troopers and ARC troopers"
+
+      - id: rep_vehicle_bay
+        file: raw/rep_vehicle_bay/model.glb
+        type: building
+        faction: republic
+        building_type: production
+        polycount_target: 52000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: republic
+        addressable_key: sw-vehicle-bay
+        output_prefab: prefabs/Vehicle_Bay_Republic.prefab
+        update_definition:
+          enabled: true
+          file: buildings/republic_buildings.yaml
+          id: rep_vehicle_bay
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Vehicle Bay - motor pool for AT-TE walkers and BARC speeders"
+
+      - id: rep_guard_tower
+        file: raw/rep_guard_tower/model.glb
+        type: building
+        faction: republic
+        building_type: defense
+        polycount_target: 28000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: republic
+        addressable_key: sw-guard-tower
+        output_prefab: prefabs/Guard_Tower_Republic.prefab
+        update_definition:
+          enabled: true
+          file: buildings/republic_buildings.yaml
+          id: rep_guard_tower
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Guard Tower - elevated defensive position with blaster turret"
+
+      - id: rep_shield_generator
+        file: raw/rep_shield_generator/model.glb
+        type: building
+        faction: republic
+        building_type: defense
+        polycount_target: 35000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: republic
+        addressable_key: sw-shield-generator
+        output_prefab: prefabs/Shield_Generator_Republic.prefab
+        update_definition:
+          enabled: true
+          file: buildings/republic_buildings.yaml
+          id: rep_shield_generator
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Shield Generator - deflector shield protecting wide area"
+
+      - id: cis_droid_factory
+        file: raw/cis_droid_factory/model.glb
+        type: building
+        faction: cis
+        building_type: production
+        polycount_target: 42000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: cis
+        addressable_key: sw-droid-factory
+        output_prefab: prefabs/Droid_Factory_CIS.prefab
+        update_definition:
+          enabled: true
+          file: buildings/cis_buildings.yaml
+          id: cis_droid_factory
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Droid Factory - automated mass production of B1 battle droids"
+
+      - id: cis_assembly_line
+        file: raw/cis_assembly_line/model.glb
+        type: building
+        faction: cis
+        building_type: production
+        polycount_target: 36000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: cis
+        addressable_key: sw-assembly-line
+        output_prefab: prefabs/Assembly_Line_CIS.prefab
+        update_definition:
+          enabled: true
+          file: buildings/cis_buildings.yaml
+          id: cis_assembly_line
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Advanced Assembly Line - heavy manufacturing for B2 and commando droids"
+
+      - id: cis_heavy_foundry
+        file: raw/cis_heavy_foundry/model.glb
+        type: building
+        faction: cis
+        building_type: production
+        polycount_target: 48000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: cis
+        addressable_key: sw-heavy-foundry
+        output_prefab: prefabs/Heavy_Foundry_CIS.prefab
+        update_definition:
+          enabled: true
+          file: buildings/cis_buildings.yaml
+          id: cis_heavy_foundry
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Heavy Foundry - vehicle and heavy weapons production (AATs, droidekas)"
+
+      - id: cis_sentry_turret
+        file: raw/cis_sentry_turret/model.glb
+        type: building
+        faction: cis
+        building_type: defense
+        polycount_target: 22000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: cis
+        addressable_key: sw-sentry-turret
+        output_prefab: prefabs/Sentry_Turret_CIS.prefab
+        update_definition:
+          enabled: true
+          file: buildings/cis_buildings.yaml
+          id: cis_sentry_turret
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Sentry Turret - automated blaster turret for perimeter defense"
+
+      - id: cis_ray_shield
+        file: raw/cis_ray_shield/model.glb
+        type: building
+        faction: cis
+        building_type: defense
+        polycount_target: 32000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: cis
+        addressable_key: sw-ray-shield
+        output_prefab: prefabs/Ray_Shield_CIS.prefab
+        update_definition:
+          enabled: true
+          file: buildings/cis_buildings.yaml
+          id: cis_ray_shield
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Ray Shield - droid-operated shield projector blocking incoming fire"
+
   v0_9_0_future:
-    description: "Remaining 13 building models (planned, not yet sourced)"
+    description: "Phase 5+: Future expansion buildings (planned)"
     models: []
 
 build:
