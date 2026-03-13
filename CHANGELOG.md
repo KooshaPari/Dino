@@ -48,6 +48,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Bugs: Hive Coordination, Reproductive Surge
   - Each doctrine includes: id, display_name, description, faction_id, wiki_reference, doctrinal_effects (numeric modifiers for faction bonuses)
 - **Purpose**: Serves as canonical reference baseline for all mods to extend/map to via `vanilla_mapping` field in mod units; enables efficient CRUD operations on units, factions, and buildings; establishes consistent naming and stat conventions across the entire mod ecosystem
+- **Economy & Infrastructure** (`buildings/economy-buildings.yaml` — 15 buildings):
+  - Resource Gathering: Lumber Mill, Stone Mine, Farm, Fisherman's Hut, Berry Picker's House, Iron Mine, Gold Mine (with production rates, worker requirements)
+  - Defense: Wooden Gate, Stone Gate, Palisade Wall, Stone Wall, Guard Tower, Stone Obelisk (with HP, armor, defense_bonus)
+  - Housing: House Tier 1 (6 cap), Tier 2 (12 cap), Tier 3 (18 cap) with happiness modifiers
+  - Storage: Granary (food), Storage Building (wood/stone/iron), Market (gold trading)
+  - Government: Town Hall Tier 1-3 with research speed, food storage, and tier-specific unlocks
+  - Special: Hospital (health/disease), University (research speed/welfare)
+- **Technology Trees** (`technologies/vanilla-technologies.yaml` — 25 techs):
+  - Barracks Training: Mongoose Reflexes, Sharpshooter, Quad Cure, Harsh Training, Quick Reload, Blacksmith Guild, Infected Mushroom, Cast-Iron Hammer
+  - Siege Engineering: Conveyor Method, Big Rocks, Manufacturing Production, Shrapnel Projectiles, Foolproof Charge
+  - Economy: Hygiene, Urgency Bonus, General Wards, Dietetics, Urban Planning I-II
+  - Cavalry: Horse Tactics, Heavy Cavalry
+  - Undead-Specific: Corpse Reanimation, Plague Mastery
+  - Magic Spells: Astral Ray, Mass Healing, Meteor
+  - Each tech includes: building_required, cost (60-160 gold), research_time (60-180s), faction_id, doctrinal_effects
+- **Total Pack Statistics**: 23 YAML files, 70+ units, 6 factions, 40+ buildings, 30+ weapons, 25+ technologies, 12 doctrines
 
 #### Aviation Subsystem (v0.1.0)
 - **`src/Runtime/Aviation/AerialUnitComponent.cs`** — ECS `IComponentData` struct marking units as aerial; stores `CruiseAltitude`, `AscendSpeed`, `DescendSpeed`, `IsAttacking`
