@@ -1,0 +1,255 @@
+version: 1.0
+pack_id: warfare-starwars
+target_unity_version: 2021.3.45f2
+
+asset_settings:
+  base_path: assets
+  output_path: ../../Assets/warfare-starwars
+  materials_path: materials
+  texture_quality: high
+  lod_strategy: aggressive
+
+materials:
+  republic:
+    faction: republic
+    base_color: "#4488FF"
+    emission_color: "#2244FF"
+    emission_intensity: 1.5
+    roughness: 0.4
+    metallic: 0.2
+  cis:
+    faction: cis
+    base_color: "#FF4400"
+    emission_color: "#FF2200"
+    emission_intensity: 1.5
+    roughness: 0.5
+    metallic: 0.3
+
+phases:
+  v0_7_0_critical:
+    description: "Core units, heroes, vehicles, and first building (5 models, ~35% coverage)"
+    models:
+      - id: clone_trooper_phase2
+        file: raw/sw_clone_trooper_phase2_sketchfab_001/model.glb
+        type: infantry
+        faction: republic
+        polycount_target: 35600
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: republic
+        addressable_key: sw-clone-trooper-republic
+        output_prefab: prefabs/Clone_Trooper_Republic.prefab
+        update_definition:
+          enabled: true
+          file: units/republic_units.yaml
+          id: clone_trooper
+          field: visual_asset
+        metadata:
+          sketchfab_id: ece97956b8134ca0b3fad3612573161d
+          priority: critical
+          note: "Replaces helmet-only placeholder, core Republic unit"
+
+      - id: general_grievous
+        file: raw/sw_general_grievous_sketchfab_001/model.glb
+        type: hero
+        faction: cis
+        polycount_target: 4500
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: cis
+        addressable_key: sw-general-grievous
+        output_prefab: prefabs/General_Grievous_CIS.prefab
+        update_definition:
+          enabled: true
+          file: units/cis_units.yaml
+          id: general_grievous
+          field: visual_asset
+        metadata:
+          sketchfab_id: 5d162177a1df4f56abb615182007d5c4
+          priority: critical
+          note: "CIS hero, balances Republic Jedi Knight hero"
+
+      - id: b2_super_droid
+        file: raw/sw_b2_super_droid_sketchfab_001/model.glb
+        type: heavy
+        faction: cis
+        polycount_target: 49000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: cis
+        addressable_key: sw-b2-super-droid
+        output_prefab: prefabs/B2_Super_Droid_CIS.prefab
+        update_definition:
+          enabled: true
+          file: units/cis_units.yaml
+          id: b2_super_battle_droid
+          field: visual_asset
+        metadata:
+          sketchfab_id: 927b3ec911cc45c3ad15c458b3de4d50
+          priority: critical
+          note: "CIS heavy unit, elite droid"
+
+      - id: at_te_walker
+        file: raw/sw_at_te_walker_sketchfab_001/model.glb
+        type: vehicle
+        faction: republic
+        polycount_target: 61000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: republic
+        addressable_key: sw-at-te-walker
+        output_prefab: prefabs/AT_TE_Walker_Republic.prefab
+        update_definition:
+          enabled: true
+          file: units/republic_units.yaml
+          id: at_te_crew
+          field: visual_asset
+        metadata:
+          sketchfab_id: 81ef81cf6c554055b741b43a1a08d69f
+          priority: critical
+          note: "FIXES MAPPING BUG: Currently maps to V-19 Torrent (aircraft). Replace with proper AT-TE."
+
+      - id: jedi_temple
+        file: raw/sw_jedi_temple_sketchfab_001/model.glb
+        type: building
+        faction: republic
+        polycount_target: 106500
+        scale: 1.5
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: republic
+        addressable_key: sw-jedi-temple
+        output_prefab: prefabs/Jedi_Temple_Republic.prefab
+        update_definition:
+          enabled: true
+          file: buildings/republic_buildings.yaml
+          id: command_center
+          field: visual_asset
+        metadata:
+          sketchfab_id: 317dedec15a845cbb1abc8c90804b840
+          priority: critical
+          note: "FIRST BUILDING VISUAL: Coruscant Jedi Temple, untextured architecture"
+
+  v0_8_0_elite:
+    description: "Elite units and specialized units (4 models, progression to ~48% coverage)"
+    models:
+      - id: clone_trooper_phase2_alt
+        file: raw/sw_clone_trooper_phase2_alt_sketchfab_001/model.glb
+        type: infantry
+        faction: republic
+        polycount_target: 41500
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: republic
+        addressable_key: sw-clone-trooper-phase2-alt
+        output_prefab: prefabs/Clone_Trooper_Phase2_Alt.prefab
+        update_definition:
+          enabled: true
+          file: units/republic_units.yaml
+          id: clone_trooper_alt
+          field: visual_asset
+        metadata:
+          sketchfab_id: 0f022ffbbf2342f992f413f7935e221c
+          priority: high
+          note: "Alternative Clone Trooper for visual variety"
+
+      - id: arc_trooper
+        file: raw/sw_arc_trooper_sketchfab_001/model.glb
+        type: elite
+        faction: republic
+        polycount_target: 29600
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: republic
+        addressable_key: sw-arc-trooper
+        output_prefab: prefabs/ARC_Trooper_Republic.prefab
+        update_definition:
+          enabled: true
+          file: units/republic_units.yaml
+          id: arc_trooper
+          field: visual_asset
+        metadata:
+          sketchfab_id: 8ac7323517e04efb91abb5edcafc1871
+          priority: high
+          note: "Elite clone armor, shows unit progression"
+
+      - id: droideka
+        file: raw/sw_droideka_sketchfab_001/model.glb
+        type: specialized
+        faction: cis
+        polycount_target: 257000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: cis
+        addressable_key: sw-droideka
+        output_prefab: prefabs/Droideka_CIS.prefab
+        update_definition:
+          enabled: true
+          file: units/cis_units.yaml
+          id: droideka
+          field: visual_asset
+        metadata:
+          sketchfab_id: 42b2a42130f94d73a29eda6ecfdce98f
+          priority: high
+          note: "VERY HIGH DETAIL (257k poly). Requires aggressive LOD reduction. Rolling shield droid."
+
+      - id: aat_walker
+        file: raw/sw_aat_walker_sketchfab_001/model.glb
+        type: vehicle
+        faction: cis
+        polycount_target: 4000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: cis
+        addressable_key: sw-aat-tank
+        output_prefab: prefabs/AAT_Tank_CIS.prefab
+        update_definition:
+          enabled: true
+          file: units/cis_units.yaml
+          id: aat_crew
+          field: visual_asset
+        metadata:
+          sketchfab_id: 7bdce26cbd3440fa8cbcfc135c698b1d
+          priority: high
+          note: "ULTRA LOW-POLY (4k), game-ready tank, excellent for optimization"
+
+  v0_9_0_future:
+    description: "Remaining 19 building models (planned, not yet sourced)"
+    models: []
+
+build:
+  output_directory: ../../Assets/warfare-starwars
+  addressables_output: ../../Assets/warfare-starwars/addressables.yaml
+  log_file: build_report.json
+  generate_html_report: true
+  performance_targets:
+    import_time_sec: 5
+    lod_generation_sec: 10
+    prefab_generation_sec: 2
+    total_pipeline_sec: 120
