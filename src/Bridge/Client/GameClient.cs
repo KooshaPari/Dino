@@ -191,6 +191,26 @@ public sealed class GameClient : IDisposable
         SendRequestAsync<ComponentMapResult>("getComponentMap", sdkPath != null ? new { sdkPath } : null, ct);
 
     /// <summary>
+    /// Captures a live snapshot of the active Unity UI hierarchy.
+    /// </summary>
+    /// <param name="selector">Optional selector string for future filtering.</param>
+    /// <param name="ct">Cancellation token.</param>
+    public Task<UiTreeResult> GetUiTreeAsync(string? selector = null, CancellationToken ct = default) =>
+        SendRequestAsync<UiTreeResult>("getUiTree", selector != null ? new { selector } : null, ct);
+
+    /// <summary>
+    /// Queries the live Unity UI hierarchy using a simple selector grammar.
+    /// </summary>
+    public Task<UiActionResult> QueryUiAsync(string selector, CancellationToken ct = default) =>
+        SendRequestAsync<UiActionResult>("queryUi", new { selector }, ct);
+
+    /// <summary>
+    /// Clicks the first live Unity UI node matching the given selector.
+    /// </summary>
+    public Task<UiActionResult> ClickUiAsync(string selector, CancellationToken ct = default) =>
+        SendRequestAsync<UiActionResult>("clickUi", new { selector }, ct);
+
+    /// <summary>
     /// Sends a JSON-RPC request and returns the deserialized result.
     /// Handles serialization, pipe I/O, error checking, timeout, and retries.
     /// </summary>

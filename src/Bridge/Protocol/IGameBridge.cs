@@ -60,5 +60,17 @@ namespace DINOForge.Bridge.Protocol
         /// <summary>Get the component type mapping table.</summary>
         /// <param name="sdkPath">Optional SDK path filter; null returns all mappings.</param>
         ComponentMapResult GetComponentMap(string? sdkPath);
+
+        /// <summary>Capture a live snapshot of the active Unity UI hierarchy.</summary>
+        /// <param name="selector">Optional selector string for future filtering.</param>
+        UiTreeResult GetUiTree(string? selector);
+
+        /// <summary>Query the live Unity UI hierarchy using a simple selector grammar.</summary>
+        /// <param name="selector">Selector such as "role=button&&text=Mods".</param>
+        UiActionResult QueryUi(string selector);
+
+        /// <summary>Click the first live Unity UI node matching the given selector.</summary>
+        /// <param name="selector">Selector such as "name=DINOForge_ModsButton" or "role=button&&text=Mods".</param>
+        UiActionResult ClickUi(string selector);
     }
 }

@@ -98,18 +98,40 @@ phases:
           priority: critical
           note: "CIS heavy unit, elite droid"
 
-      - id: at_te_walker
-        file: raw/sw_at_te_walker_sketchfab_001/model.glb
+      - id: barc_speeder
+        file: raw/rep_barc_speeder_sketchfab_001/Barc Speeder Exported2.fbx
         type: vehicle
         faction: republic
-        polycount_target: 61000
+        polycount_target: 28000
         scale: 1.0
         lod:
           enabled: true
-          levels: [100, 60, 30]
-          screen_sizes: [100, 50, 20]
+          levels: [100, 70, 40]
+          screen_sizes: [150, 75, 30]
         material: republic
-        addressable_key: sw-at-te-walker
+        addressable_key: sw-barc-speeder
+        output_prefab: prefabs/BARC_Speeder_Republic.prefab
+        update_definition:
+          enabled: true
+          file: units/republic_units.yaml
+          id: barc_speeder
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Fast reconnaissance speeder vehicle for Republic"
+
+      - id: atte_walker
+        file: raw/rep_atte_walker_sketchfab_001/Sketchfab_2023_07_16_01_18_15.blend
+        type: vehicle
+        faction: republic
+        polycount_target: 85000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 70, 40]
+          screen_sizes: [150, 75, 30]
+        material: republic
+        addressable_key: sw-atte-walker
         output_prefab: prefabs/AT_TE_Walker_Republic.prefab
         update_definition:
           enabled: true
@@ -117,9 +139,30 @@ phases:
           id: at_te_crew
           field: visual_asset
         metadata:
-          sketchfab_id: 81ef81cf6c554055b741b43a1a08d69f
           priority: critical
-          note: "FIXES MAPPING BUG: Currently maps to V-19 Torrent (aircraft). Replace with proper AT-TE."
+          note: "Heavy assault walker, 4-legged transport vehicle"
+
+      - id: v19_torrent
+        file: raw/rep_v19_torrent_sketchfab_001/V-19 Torrent.fbx
+        type: vehicle
+        faction: republic
+        polycount_target: 52000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 70, 40]
+          screen_sizes: [150, 75, 30]
+        material: republic
+        addressable_key: sw-v19-torrent
+        output_prefab: prefabs/V19_Torrent_Republic.prefab
+        update_definition:
+          enabled: true
+          file: units/republic_units.yaml
+          id: v19_torrent
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Starfighter aircraft for Republic"
 
       - id: aat_walker
         file: raw/sw_aat_walker_lego_sketchfab_001/model.glb
@@ -129,8 +172,8 @@ phases:
         scale: 1.0
         lod:
           enabled: true
-          levels: [100, 60, 30]
-          screen_sizes: [100, 50, 20]
+          levels: [100, 70, 40]
+          screen_sizes: [150, 75, 30]
         material: cis
         addressable_key: sw-aat-walker
         output_prefab: prefabs/AAT_Walker_CIS.prefab
@@ -143,6 +186,69 @@ phases:
           sketchfab_id: 0122d0c9554646a1bce5d60041c418b7
           priority: critical
           note: "CIS vehicle, armored assault tank. Using Lego variant for consistent art style."
+
+      - id: stap_speeder
+        file: raw/cis_stap_speeder_sketchfab_001/Unity2Skfb.gltf
+        type: vehicle
+        faction: cis
+        polycount_target: 18500
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 70, 40]
+          screen_sizes: [150, 75, 30]
+        material: cis
+        addressable_key: sw-stap-speeder
+        output_prefab: prefabs/STAP_Speeder_CIS.prefab
+        update_definition:
+          enabled: true
+          file: units/cis_units.yaml
+          id: stap
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Fast CIS hover speeder for reconnaissance"
+
+      - id: dwarf_spider_droid
+        file: raw/cis_dwarf_spider_droid_sketchfab_001/Unity2Skfb.gltf
+        type: vehicle
+        faction: cis
+        polycount_target: 42000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 70, 40]
+          screen_sizes: [150, 75, 30]
+        material: cis
+        addressable_key: sw-dwarf-spider-droid
+        output_prefab: prefabs/Dwarf_Spider_Droid_CIS.prefab
+        update_definition:
+          enabled: true
+          file: units/cis_units.yaml
+          id: dwarf_spider_droid
+          field: visual_asset
+        metadata:
+          priority: high
+          note: "Walking tank vehicle for CIS"
+
+      - id: at_te_walker_old
+        file: raw/sw_at_te_walker_sketchfab_001/model.glb
+        type: vehicle
+        faction: republic
+        polycount_target: 61000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 70, 40]
+          screen_sizes: [150, 75, 30]
+        material: republic
+        addressable_key: sw-at-te-walker-old
+        output_prefab: prefabs/AT_TE_Walker_Republic_Old.prefab
+        update_definition:
+          enabled: false
+        metadata:
+          priority: medium
+          note: "Backup AT-TE model (GLB variant)"
 
   v0_8_0_elite:
     description: "Elite units (1 valid model: arc_trooper, 36% coverage)"

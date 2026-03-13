@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using DINOForge.Bridge.Protocol;
+using DINOForge.Runtime.UI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Unity.Collections;
@@ -231,6 +232,12 @@ namespace DINOForge.Runtime.Bridge
                     return HandleGetCatalog();
                 case "getComponentMap":
                     return HandleGetComponentMap(parameters);
+                case "getUiTree":
+                    return HandleGetUiTree(parameters);
+                case "queryUi":
+                    return HandleQueryUi(parameters);
+                case "clickUi":
+                    return HandleClickUi(parameters);
                 case "getStat":
                     return HandleGetStat(parameters);
                 case "applyOverride":
@@ -435,6 +442,76 @@ namespace DINOForge.Runtime.Bridge
             }
 
             return JToken.FromObject(result);
+        }
+
+        private JToken HandleGetUiTree(JObject? parameters)
+        {
+            string? selector = parameters?.Value<string>("selector");
+
+            var result = MainThreadDispatcher.RunOnMainThread(() => UiTreeSnapshotBuilder.Capture(selector));
+            bool completed = result.Wait(5000);
+            if (!completed)
+            {
+                return JToken.FromObject(new UiTreeResult
+                {
+                    Success = false,
+                    Message = "Timed out while capturing UI tree.",
+                    Selector = selector,
+                    GeneratedAtUtc = DateTime.UtcNow.ToString("O"),
+                    NodeCount = 0,
+                    Root = new UiNode
+                    {
+                        Id = "root",
+                        Path = "root",
+                        Name = "root",
+                        Label = "Unity UI",
+                        Role = "root",
+                        ComponentType = "Root",
+                        Active = true,
+                        Visible = true,
+                        Interactable = false,
+                        RaycastTarget = false
+                    }
+                });
+            }
+
+            return JToken.FromObject(result.Result);
+        }
+
+        private JToken HandleQueryUi(JObject? parameters)
+        {
+            string selector = parameters?.Value<string>("selector") ?? string.Empty;
+            var result = MainThreadDispatcher.RunOnMainThread(() => UiSelectorEngine.Query(selector));
+            bool completed = result.Wait(5000);
+            if (!completed)
+            {
+                return JToken.FromObject(new UiActionResult
+                {
+                    Success = false,
+                    Selector = selector,
+                    Message = "Timed out while querying UI."
+                });
+            }
+
+            return JToken.FromObject(result.Result);
+        }
+
+        private JToken HandleClickUi(JObject? parameters)
+        {
+            string selector = parameters?.Value<string>("selector") ?? string.Empty;
+            var result = MainThreadDispatcher.RunOnMainThread(() => UiSelectorEngine.Click(selector));
+            bool completed = result.Wait(5000);
+            if (!completed)
+            {
+                return JToken.FromObject(new UiActionResult
+                {
+                    Success = false,
+                    Selector = selector,
+                    Message = "Timed out while clicking UI."
+                });
+            }
+
+            return JToken.FromObject(result.Result);
         }
 
         private JToken HandleGetStat(JObject? parameters)
