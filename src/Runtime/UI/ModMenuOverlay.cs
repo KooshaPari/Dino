@@ -11,7 +11,7 @@ namespace DINOForge.Runtime.UI
     /// Shows loaded packs, enable/disable toggles, search, status badges, and a reload button.
     /// Hosts an inline Settings button that delegates to <see cref="ModSettingsPanel"/>.
     /// </summary>
-    public class ModMenuOverlay : MonoBehaviour
+    public class ModMenuOverlay : MonoBehaviour, IModMenuHost
     {
         private bool _visible;
         private Rect _windowRect = new Rect(20, 20, 560, 640);
@@ -21,16 +21,16 @@ namespace DINOForge.Runtime.UI
         private string _statusMessage = "";
         private int _errorCount;
         private string _searchText = "";
-        private ModSettingsPanel? _settingsPanel;
+        private IModSettingsHost? _settingsPanel;
 
         private readonly List<PackDisplayInfo> _packs = new List<PackDisplayInfo>();
         private readonly List<int> _filteredIndices = new List<int>();
 
         /// <summary>Callback invoked when the user clicks the Reload Packs button.</summary>
-        public Action? OnReloadRequested;
+        public Action? OnReloadRequested { get; set; }
 
         /// <summary>Callback invoked when a pack is toggled enabled/disabled (packId, isEnabled).</summary>
-        public Action<string, bool>? OnPackToggled;
+        public Action<string, bool>? OnPackToggled { get; set; }
 
         /// <summary>Whether the overlay is currently visible.</summary>
         public bool IsVisible => _visible;
@@ -42,7 +42,7 @@ namespace DINOForge.Runtime.UI
 
         /// <summary>
         /// Updates the list of packs displayed in the overlay.
-        /// Virtual so subclasses (e.g. ModMenuOverlayProxy) can forward to UGUI panels.
+        /// Virtual so adapters can forward to other menu host implementations.
         /// </summary>
         /// <param name="packs">Pack display info objects to show.</param>
         public virtual void SetPacks(IEnumerable<PackDisplayInfo> packs)
@@ -55,7 +55,7 @@ namespace DINOForge.Runtime.UI
 
         /// <summary>
         /// Updates the status bar message.
-        /// Virtual so subclasses (e.g. ModMenuOverlayProxy) can forward to UGUI panels.
+        /// Virtual so adapters can forward to other menu host implementations.
         /// </summary>
         /// <param name="message">Status text to display.</param>
         /// <param name="errorCount">Number of errors to show in the status bar.</param>
@@ -68,16 +68,28 @@ namespace DINOForge.Runtime.UI
         /// <summary>
         /// Toggles the overlay visibility.
         /// </summary>
-        public void Toggle()
+        public virtual void Toggle()
         {
             _visible = !_visible;
+        }
+
+        /// <inheritdoc />
+        public virtual void Show()
+        {
+            _visible = true;
+        }
+
+        /// <inheritdoc />
+        public virtual void Hide()
+        {
+            _visible = false;
         }
 
         /// <summary>
         /// Wires the settings panel reference so the Settings button inside this overlay can show/hide it.
         /// </summary>
         /// <param name="panel">The settings panel instance.</param>
-        public void SetSettingsPanel(ModSettingsPanel? panel)
+        public void SetSettingsPanel(IModSettingsHost? panel)
         {
             _settingsPanel = panel;
         }
@@ -183,7 +195,7 @@ namespace DINOForge.Runtime.UI
             string settingsLabel = settingsActive ? "▼ Settings" : "▶ Settings";
             if (GUILayout.Button(settingsLabel, DinoForgeStyle.ButtonStyle, GUILayout.Width(90), GUILayout.Height(22)))
             {
-                _settingsPanel?.SetVisible(!settingsActive);
+                _settingsPanel?.Toggle();
             }
 
             GUILayout.EndHorizontal();

@@ -15,8 +15,10 @@
     <ImplicitUsings>disable</ImplicitUsings>
 
     <!-- MinVer: git-tag-based versioning for all projects -->
-    <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
-    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <!-- Disable MinVer in MSYS2 bash due to crash issues with native binary execution -->
+    <DisableMinVer Condition="'$(OS)' == 'Windows_NT' and '$(MSYSTEM)' != ''">true</DisableMinVer>
+    <MinVerDefaultPreReleaseIdentifiers Condition="'$(DisableMinVer)' != 'true'">preview.0</MinVerDefaultPreReleaseIdentifiers>
+    <MinVerTagPrefix Condition="'$(DisableMinVer)' != 'true'">v</MinVerTagPrefix>
 
     <!-- Security audit: enforce in CI, avoid failing local/offline builds -->
     <NuGetAudit Condition="'$(CI)' == 'true'">true</NuGetAudit>
@@ -38,6 +40,6 @@
 
   <!-- MinVer: git-tag-based versioning for all projects -->
   <ItemGroup>
-    <PackageReference Include="MinVer" Version="5.*" PrivateAssets="All" />
+    <PackageReference Include="MinVer" Version="5.*" PrivateAssets="All" Condition="'$(DisableMinVer)' != 'true'" />
   </ItemGroup>
 </Project>

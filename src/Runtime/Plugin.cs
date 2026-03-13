@@ -187,11 +187,11 @@ namespace DINOForge.Runtime
         // UGUI system (preferred). Null if UGUI setup failed.
         private DFCanvas? _dfCanvas;
 
-        // IMGUI overlay components.
-        // _modMenuOverlay is always set to the active menu (either UGUI proxy or IMGUI).
+        // Active UI hosts.
+        // _modMenuHost is always set to the active menu (UGUI when healthy, IMGUI fallback otherwise).
         // _debugOverlay is ALWAYS added (it owns the IMGUI F9 debug panel).
-        private ModMenuOverlay? _modMenuOverlay;
-        private ModSettingsPanel? _modSettingsPanel;
+        private IModMenuHost? _modMenuHost;
+        private IModSettingsHost? _modSettingsHost;
         private DebugOverlayBehaviour? _debugOverlay;
         private HudIndicator? _hudIndicator;
         private NativeMenuInjector? _nativeMenuInjector;
@@ -365,7 +365,7 @@ namespace DINOForge.Runtime
         private void ActivateImguiFallback()
         {
             // Guard: only activate once
-            if (_modMenuOverlay != null) return;
+            if (_modMenuHost != null) return;
 
             try
             {
@@ -380,14 +380,14 @@ namespace DINOForge.Runtime
                     _modPlatform.SetUI(overlay, settingsPanel);
                 }
 
-                // Wire ModMenuOverlay into NativeMenuInjector for the native Mods button
+                // Wire the active menu host into NativeMenuInjector for the native Mods button
                 if (_nativeMenuInjector != null)
                 {
-                    _nativeMenuInjector.SetModMenuOverlay(overlay);
+                    _nativeMenuInjector.SetModMenuHost(overlay);
                 }
 
-                _modMenuOverlay   = overlay;
-                _modSettingsPanel = settingsPanel;
+                _modMenuHost   = overlay;
+                _modSettingsHost = settingsPanel;
 
                 _log.LogInfo("[RuntimeDriver] IMGUI fallback — Added ModMenuOverlay + ModSettingsPanel.");
             }
@@ -399,11 +399,11 @@ namespace DINOForge.Runtime
             try
             {
                 _hudIndicator = gameObject.AddComponent<HudIndicator>();
-                _hudIndicator.SetModMenu(_modMenuOverlay);
+                _hudIndicator.SetModMenu(_modMenuHost);
 
-                if (_modMenuOverlay != null)
+                if (_modMenuHost != null)
                 {
-                    _modMenuOverlay.OnReloadRequested += () => _hudIndicator?.ShowToast("Packs reloaded");
+                    _modMenuHost.OnReloadRequested += () => _hudIndicator?.ShowToast("Packs reloaded");
                 }
 
                 _log.LogInfo("[RuntimeDriver] IMGUI fallback — Added HudIndicator.");
@@ -424,27 +424,25 @@ namespace DINOForge.Runtime
 
             try
             {
-                // ModMenuPanel exposes the same API as ModMenuOverlay.
-                // ModPlatform.SetUI still expects ModMenuOverlay + ModSettingsPanel.
-                // We use a thin proxy wrapper (ModMenuOverlayProxy) to bridge them.
-                ModMenuOverlayProxy proxy = gameObject.AddComponent<ModMenuOverlayProxy>();
-                proxy.enabled = false; // disable IMGUI Update/OnGUI — UGUI owns rendering
-
                 if (_dfCanvas.ModMenuPanel != null)
                 {
-                    proxy.SetTarget(_dfCanvas.ModMenuPanel);
                     _dfCanvas.ModMenuPanel.OnReloadRequested = () => _modPlatform?.LoadPacks();
                 }
 
                 ModSettingsPanel settingsPanel = gameObject.AddComponent<ModSettingsPanel>();
                 settingsPanel.enabled = false;
 
-                _modPlatform.SetUI(proxy, settingsPanel);
+                if (_dfCanvas.ModMenuPanel == null)
+                {
+                    throw new InvalidOperationException("DFCanvas did not create ModMenuPanel.");
+                }
 
-                // Wire ModMenuOverlayProxy into NativeMenuInjector for the native Mods button
+                _modPlatform.SetUI(_dfCanvas.ModMenuPanel, settingsPanel);
+
+                // Wire the active UGUI menu host into NativeMenuInjector for the native Mods button
                 if (_nativeMenuInjector != null)
                 {
-                    _nativeMenuInjector.SetModMenuOverlay(proxy);
+                    _nativeMenuInjector.SetModMenuHost(_dfCanvas.ModMenuPanel);
                 }
 
                 // Wire UGUI DebugPanel to ModPlatform so it displays platform status
@@ -454,10 +452,10 @@ namespace DINOForge.Runtime
                     _log.LogInfo("[RuntimeDriver] UGUI DebugPanel wired to ModPlatform.");
                 }
 
-                _modMenuOverlay   = proxy;
-                _modSettingsPanel = settingsPanel;
+                _modMenuHost = _dfCanvas.ModMenuPanel;
+                _modSettingsHost = settingsPanel;
 
-                _log.LogInfo("[RuntimeDriver] UGUI wired to ModPlatform via ModMenuOverlayProxy.");
+                _log.LogInfo("[RuntimeDriver] UGUI wired to ModPlatform via IModMenuHost.");
             }
             catch (Exception ex)
             {
@@ -473,7 +471,7 @@ namespace DINOForge.Runtime
 
             // ── F9/F10 key handling — always runs regardless of UI layer ─────────
             // These handlers are intentionally on RuntimeDriver so they work even if
-            // DFCanvas or ModMenuOverlay fails to initialise.
+            // DFCanvas or the fallback menu host fails to initialise.
             if (Input.GetKeyDown(KeyCode.F9))
             {
                 // Prefer UGUI DebugPanel when available; fall back to IMGUI overlay
@@ -485,11 +483,11 @@ namespace DINOForge.Runtime
 
             if (Input.GetKeyDown(KeyCode.F10))
             {
-                // Prefer UGUI ModMenuPanel when available; fall back to IMGUI overlay
+                // Prefer the UGUI panel when available; fall back to the active menu host
                 if (_uguiReady && _dfCanvas != null)
                     _dfCanvas.ToggleModMenu();
                 else
-                    _modMenuOverlay?.Toggle();
+                    _modMenuHost?.Toggle();
             }
 
             // ── Check whether DFCanvas.Start() has run yet ───────────────────────
@@ -612,9 +610,9 @@ namespace DINOForge.Runtime
                 // Discover settings for the settings panel
                 try
                 {
-                    if (_modSettingsPanel != null)
+                    if (_modSettingsHost is ModSettingsPanel settingsPanel)
                     {
-                        _modSettingsPanel.DiscoverSettings();
+                        settingsPanel.DiscoverSettings();
                         _log.LogInfo("[RuntimeDriver] Mod settings discovered.");
                     }
                 }

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "dependencies": {
-    "net8.0": {
+    "net9.0": {
       "AssimpNet": {
         "type": "Direct",
         "requested": "[4.1.0, )",
@@ -29,12 +29,6 @@
           "Microsoft.CodeCoverage": "17.9.0",
           "Microsoft.TestPlatform.TestHost": "17.9.0"
         }
-      },
-      "MinVer": {
-        "type": "Direct",
-        "requested": "[5.*, )",
-        "resolved": "5.0.0",
-        "contentHash": "ybkgpQMtt0Fo91l5rYtE3TZtD+Nmy5Ko091xvfXXOosQdMi30XO2EZ2+ShZt89gdu7RMmJqZaJ+e1q6d+6+KNw=="
       },
       "SixLabors.ImageSharp": {
         "type": "Direct",

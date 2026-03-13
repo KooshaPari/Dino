@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using DINOForge.SDK.Validation;
 using YamlDotNet.Serialization;
 
@@ -20,6 +21,15 @@ internal sealed class AssetctlPipeline
     private const string DefaultSourceRulesPath = "manifests/asset-intake/source-rules.yaml";
     private const string DefaultSchemaPath = "schemas/asset-manifest.schema.json";
     private static readonly string[] SupportedBundles = ["unit", "vehicle", "prop"];
+
+    /// <summary>
+    /// Lazy-initialized YAML deserializer to avoid YamlDotNet 16.x static type initialization
+    /// deadlock on Windows .NET 8.0 with System.CommandLine. The DeserializerBuilder.Build()
+    /// call is deferred until first use, breaking the static initialization chain that causes
+    /// the hang in CLI context.
+    /// </summary>
+    private static readonly Lazy<IDeserializer> DeserializerLazy = new(() =>
+        new DeserializerBuilder().Build(), LazyThreadSafetyMode.ExecutionAndPublication);
 
     private readonly SourceRulesDocument _rules;
     private readonly NJsonSchemaValidator _schemaValidator;
@@ -892,7 +902,7 @@ internal sealed class AssetctlPipeline
         }
 
         string yaml = File.ReadAllText(DefaultSourceRulesPath);
-        IDeserializer deserializer = new DeserializerBuilder().Build();
+        IDeserializer deserializer = DeserializerLazy.Value;
         SourceRulesDocument? rules = deserializer.Deserialize<SourceRulesDocument>(yaml);
         if (rules == null || rules.SourceTiers.Count == 0)
         {

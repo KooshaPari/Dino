@@ -137,6 +137,10 @@ public sealed class GameClient : IDisposable
         SendRequestAsync<ScreenshotResult>("screenshot", path != null ? new { path } : null, ct);
 
     /// <inheritdoc />
+    public Task<LoadSceneResult> LoadSceneAsync(string scene, CancellationToken ct = default) =>
+        SendRequestAsync<LoadSceneResult>("loadScene", new { scene }, ct);
+
+    /// <inheritdoc />
     public Task<VerifyResult> VerifyModAsync(string packPath, CancellationToken ct = default) =>
         SendRequestAsync<VerifyResult>("verifyMod", new { packPath }, ct);
 

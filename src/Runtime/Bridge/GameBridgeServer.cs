@@ -239,6 +239,8 @@ namespace DINOForge.Runtime.Bridge
                     return HandleVerifyMod(parameters);
                 case "game.waitForWorld":
                     return HandleWaitForWorld(parameters);
+                case "game.loadScene":
+                    return HandleLoadScene(parameters);
                 default:
                     throw new InvalidOperationException($"Method not found: {method}");
             }
@@ -271,33 +273,59 @@ namespace DINOForge.Runtime.Bridge
                 LoadedPacks = new List<string>()
             };
 
-            // Entity count requires main thread access
-            if (_platform.IsWorldReady)
+            // Entity count + world name require main thread — use timeout to avoid deadlock.
+            // Both tasks are enqueued together so they can both be drained in consecutive frames.
+            WriteDebug("[GameBridgeServer] HandleStatus: enqueuing main-thread tasks");
+            try
+            {
+                System.Threading.Tasks.Task<int> entityTask = MainThreadDispatcher.RunOnMainThread(() =>
+                {
+                    World? world = World.DefaultGameObjectInjectionWorld;
+                    if (world == null || !world.IsCreated) return 0;
+                    // Avoid scanning all 45K+ entities — just get the count cheaply
+                    EntityQuery all = world.EntityManager.CreateEntityQuery(new EntityQueryDesc
+                    {
+                        Options = EntityQueryOptions.IncludePrefab | EntityQueryOptions.IncludeDisabled
+                    });
+                    int count = all.CalculateEntityCount();
+                    all.Dispose();
+                    return count;
+                });
+
+                System.Threading.Tasks.Task<string> nameTask = MainThreadDispatcher.RunOnMainThread(() =>
+                {
+                    World? world = World.DefaultGameObjectInjectionWorld;
+                    return world?.Name ?? "";
+                });
+
+                WriteDebug("[GameBridgeServer] HandleStatus: waiting for entity count (3s)");
+                bool entityDone = entityTask.Wait(3000);
+                WriteDebug($"[GameBridgeServer] HandleStatus: entityDone={entityDone}");
+                bool nameDone = nameTask.Wait(500);
+
+                status.EntityCount = entityDone ? entityTask.Result : -1;
+                status.WorldName = nameDone ? nameTask.Result : "";
+                WriteDebug($"[GameBridgeServer] HandleStatus: EntityCount={status.EntityCount} WorldName={status.WorldName}");
+            }
+            catch (Exception ex)
+            {
+                WriteDebug($"[GameBridgeServer] Error in HandleStatus: {ex.Message}");
+                status.EntityCount = -1;
+            }
+
+            // Populate loaded pack names from platform (background-thread safe)
+            if (_platform.IsInitialized)
             {
                 try
                 {
-                    int entityCount = MainThreadDispatcher.RunOnMainThread(() =>
+                    System.Collections.Generic.IReadOnlyList<string>? packs = _platform.GetLoadedPackIds();
+                    if (packs != null)
                     {
-                        World? world = World.DefaultGameObjectInjectionWorld;
-                        if (world == null || !world.IsCreated) return 0;
-                        NativeArray<Entity> entities = world.EntityManager.GetAllEntities(Allocator.Temp);
-                        int count = entities.Length;
-                        entities.Dispose();
-                        return count;
-                    }).Result;
-                    status.EntityCount = entityCount;
-
-                    string worldName = MainThreadDispatcher.RunOnMainThread(() =>
-                    {
-                        World? world = World.DefaultGameObjectInjectionWorld;
-                        return world?.Name ?? "";
-                    }).Result;
-                    status.WorldName = worldName;
+                        foreach (string id in packs)
+                            status.LoadedPacks.Add(id);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    WriteDebug($"[GameBridgeServer] Error reading entity count: {ex.Message}");
-                }
+                catch { }
             }
 
             return JToken.FromObject(status);
@@ -495,6 +523,27 @@ namespace DINOForge.Runtime.Bridge
             }).Result;
 
             return JToken.FromObject(snapshot);
+        }
+
+        private JToken HandleLoadScene(JObject? parameters)
+        {
+            string sceneName = parameters?.Value<string>("scene") ?? "Sandbox";
+            int buildIndex = parameters?.Value<int>("buildIndex") ?? -1;
+
+            bool dispatched = MainThreadDispatcher.RunOnMainThread(() =>
+            {
+                try
+                {
+                    if (buildIndex >= 0)
+                        UnityEngine.SceneManagement.SceneManager.LoadScene(buildIndex);
+                    else
+                        UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
+                    return true;
+                }
+                catch { return false; }
+            }).Result;
+
+            return JToken.FromObject(new { success = dispatched, scene = sceneName });
         }
 
         private JToken HandleScreenshot(JObject? parameters)

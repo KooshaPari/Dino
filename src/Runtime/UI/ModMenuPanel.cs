@@ -13,14 +13,14 @@ namespace DINOForge.Runtime.UI
     /// Exposes the same public API as <see cref="ModMenuOverlay"/> so ModPlatform
     /// does not need changes.
     /// </summary>
-    public class ModMenuPanel : MonoBehaviour
+    public class ModMenuPanel : MonoBehaviour, IModMenuHost
     {
         // ── Public API surface (mirrors ModMenuOverlay) ──────────────────────────
         /// <summary>Callback invoked when the user clicks Reload Packs.</summary>
-        public Action? OnReloadRequested;
+        public Action? OnReloadRequested { get; set; }
 
         /// <summary>Callback invoked when a pack is toggled (packId, isEnabled).</summary>
-        public Action<string, bool>? OnPackToggled;
+        public Action<string, bool>? OnPackToggled { get; set; }
 
         /// <summary>Whether this panel is currently visible.</summary>
         public bool IsVisible => _canvasGroup != null && _canvasGroup.alpha > 0.01f;
@@ -175,6 +175,13 @@ namespace DINOForge.Runtime.UI
                 _canvasGroup.interactable = false;
                 _canvasGroup.blocksRaycasts = false;
             }
+        }
+
+        /// <inheritdoc />
+        public void Toggle()
+        {
+            if (IsVisible) Hide();
+            else Show();
         }
 
         // ── MonoBehaviour ─────────────────────────────────────────────────────────

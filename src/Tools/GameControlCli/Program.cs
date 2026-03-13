@@ -30,6 +30,7 @@ public static class Program
             "screenshot" => await HandleScreenshotCommand(args.Skip(1).FirstOrDefault()),
             "catalog" => await HandleCatalogCommand(args.Skip(1).FirstOrDefault()),
             "entities" => await HandleEntitiesCommand(args.Skip(1).FirstOrDefault()),
+            "load-scene" => await HandleLoadSceneCommand(args.Skip(1).FirstOrDefault()),
             "--help" or "-h" => ShowHelpAndReturn(0),
             _ => ShowHelpAndReturn(1)
         };
@@ -47,6 +48,7 @@ public static class Program
         AnsiConsole.MarkupLine("  screenshot       - Capture in-game screenshot");
         AnsiConsole.MarkupLine("  catalog [cat]    - Dump game catalog (units/buildings/projectiles)");
         AnsiConsole.MarkupLine("  entities [comp]  - Query entities by component type");
+        AnsiConsole.MarkupLine("  load-scene [name]- Load a game scene by name (default: Sandbox)");
         AnsiConsole.MarkupLine("  --help, -h       - Show this help");
     }
 
@@ -223,6 +225,29 @@ public static class Program
 
             client.Disconnect();
             return 0;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleLoadSceneCommand(string? sceneName)
+    {
+        sceneName ??= "Sandbox";
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine($"[cyan]Loading scene:[/] {sceneName}");
+            var result = await client.LoadSceneAsync(sceneName);
+            if (result.Success)
+                AnsiConsole.MarkupLine($"[green]✓[/] Scene load dispatched: {result.Scene}");
+            else
+                AnsiConsole.MarkupLine($"[red]✗[/] Scene load failed");
+            client.Disconnect();
+            return result.Success ? 0 : 1;
         }
         catch (Exception ex)
         {

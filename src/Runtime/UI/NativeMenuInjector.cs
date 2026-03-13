@@ -45,7 +45,7 @@ namespace DINOForge.Runtime.UI
         private const float RescanInterval = 2f;
 
         private ManualLogSource? _log;
-        private ModMenuOverlay? _overlay;
+        private IModMenuHost? _menuHost;
 
         private Button? _injectedButton;
         private bool _injected;
@@ -65,9 +65,9 @@ namespace DINOForge.Runtime.UI
         /// Called by <see cref="RuntimeDriver"/> immediately after AddComponent.
         /// </summary>
         /// <param name="overlay">The persistent <see cref="ModMenuOverlay"/> instance.</param>
-        public void SetModMenuOverlay(ModMenuOverlay overlay)
+        public void SetModMenuHost(IModMenuHost menuHost)
         {
-            _overlay = overlay;
+            _menuHost = menuHost;
         }
 
         /// <summary>
@@ -453,7 +453,7 @@ namespace DINOForge.Runtime.UI
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - navigation.mode: {modsButton.navigation.mode}");
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - targetGraphic.raycastTarget: {modsButton.targetGraphic?.raycastTarget ?? false}");
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - sibling_index: {modsButton.transform.GetSiblingIndex()}");
-                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - overlay_ref: {(_overlay != null ? "READY" : "NULL")}");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - menu_host_ref: {(_menuHost != null ? "READY" : "NULL")}");
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 8 OK: All checks passed");
 
                 _injectedButton = modsButton;
@@ -480,15 +480,15 @@ namespace DINOForge.Runtime.UI
             {
                 LogInfo($"[NativeMenuInjector::{_sessionId}] ═══ MODS BUTTON CLICKED #{clickId} at {System.DateTime.UtcNow:HH:mm:ss.fff} UTC ═══");
 
-                if (_overlay == null)
+                if (_menuHost == null)
                 {
-                    LogWarning($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ⚠ overlay reference is NULL! Cannot toggle menu.");
+                    LogWarning($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ⚠ menu host reference is NULL! Cannot toggle menu.");
                     return;
                 }
 
-                LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId}   overlay.IsVisible BEFORE toggle: {_overlay.IsVisible}");
-                _overlay.Toggle();
-                LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId}   overlay.IsVisible AFTER toggle: {_overlay.IsVisible}");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId}   menuHost.IsVisible BEFORE toggle: {_menuHost.IsVisible}");
+                _menuHost.Toggle();
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId}   menuHost.IsVisible AFTER toggle: {_menuHost.IsVisible}");
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ✓ Mods menu TOGGLED successfully");
             }
             catch (Exception ex)
