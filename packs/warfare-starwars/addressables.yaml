@@ -1,0 +1,147 @@
+# Addressables Catalog - Star Wars Clone Wars Mod Pack
+# Generated during Phase 4: Building LOD Optimization
+
+version: 1.0
+catalog_type: buildings
+pack_id: warfare-starwars
+
+entries:
+  # Republic Buildings
+  - key: sw-clone-barracks
+    address: buildings/Clone_Barracks_Republic
+    path: prefabs/Clone_Barracks_Republic.prefab
+    type: building
+    faction: republic
+    lod_levels:
+      - level: 0
+        polycount: 45000
+      - level: 1
+        polycount: 36000
+      - level: 2
+        polycount: 22500
+
+  - key: sw-weapons-factory
+    address: buildings/Weapons_Factory_Republic
+    path: prefabs/Weapons_Factory_Republic.prefab
+    type: building
+    faction: republic
+    lod_levels:
+      - level: 0
+        polycount: 38000
+      - level: 1
+        polycount: 30400
+      - level: 2
+        polycount: 19000
+
+  - key: sw-vehicle-bay
+    address: buildings/Vehicle_Bay_Republic
+    path: prefabs/Vehicle_Bay_Republic.prefab
+    type: building
+    faction: republic
+    lod_levels:
+      - level: 0
+        polycount: 52000
+      - level: 1
+        polycount: 41600
+      - level: 2
+        polycount: 26000
+
+  - key: sw-guard-tower
+    address: buildings/Guard_Tower_Republic
+    path: prefabs/Guard_Tower_Republic.prefab
+    type: building
+    faction: republic
+    lod_levels:
+      - level: 0
+        polycount: 28000
+      - level: 1
+        polycount: 22400
+      - level: 2
+        polycount: 14000
+
+  - key: sw-shield-generator
+    address: buildings/Shield_Generator_Republic
+    path: prefabs/Shield_Generator_Republic.prefab
+    type: building
+    faction: republic
+    lod_levels:
+      - level: 0
+        polycount: 35000
+      - level: 1
+        polycount: 28000
+      - level: 2
+        polycount: 17500
+
+  # CIS Buildings
+  - key: sw-droid-factory
+    address: buildings/Droid_Factory_CIS
+    path: prefabs/Droid_Factory_CIS.prefab
+    type: building
+    faction: cis
+    lod_levels:
+      - level: 0
+        polycount: 42000
+      - level: 1
+        polycount: 33600
+      - level: 2
+        polycount: 21000
+
+  - key: sw-assembly-line
+    address: buildings/Assembly_Line_CIS
+    path: prefabs/Assembly_Line_CIS.prefab
+    type: building
+    faction: cis
+    lod_levels:
+      - level: 0
+        polycount: 36000
+      - level: 1
+        polycount: 28800
+      - level: 2
+        polycount: 18000
+
+  - key: sw-heavy-foundry
+    address: buildings/Heavy_Foundry_CIS
+    path: prefabs/Heavy_Foundry_CIS.prefab
+    type: building
+    faction: cis
+    lod_levels:
+      - level: 0
+        polycount: 48000
+      - level: 1
+        polycount: 38400
+      - level: 2
+        polycount: 24000
+
+  - key: sw-sentry-turret
+    address: buildings/Sentry_Turret_CIS
+    path: prefabs/Sentry_Turret_CIS.prefab
+    type: building
+    faction: cis
+    lod_levels:
+      - level: 0
+        polycount: 22000
+      - level: 1
+        polycount: 17600
+      - level: 2
+        polycount: 11000
+
+  - key: sw-ray-shield
+    address: buildings/Ray_Shield_CIS
+    path: prefabs/Ray_Shield_CIS.prefab
+    type: building
+    faction: cis
+    lod_levels:
+      - level: 0
+        polycount: 32000
+      - level: 1
+        polycount: 25600
+      - level: 2
+        polycount: 16000
+
+metadata:
+  generated_at: 2026-03-13T16:30:00Z
+  phase: v1_0_0_buildings
+  description: "Phase 4 building structures with 3 LOD levels (100%, 80%, 50% targets)"
+  total_buildings: 10
+  total_lod_variants: 30
+  strategy: conservative_silhouette

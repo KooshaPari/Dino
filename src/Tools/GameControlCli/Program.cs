@@ -479,6 +479,44 @@ public static class Program
         }
     }
 
+    private static async Task<int> HandleUiTreeCommand(string? selector)
+    {
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine($"[cyan]Capturing UI tree{(selector != null ? $" (selector: {selector})" : "")}...[/]");
+            UiTreeResult result = await client.GetUiTreeAsync(selector);
+            if (!result.Success)
+            {
+                AnsiConsole.MarkupLine($"[red]✗[/] {Markup.Escape(result.Message)}");
+                client.Disconnect();
+                return 1;
+            }
+            AnsiConsole.MarkupLine($"[green]✓[/] {result.NodeCount} nodes  ({result.GeneratedAtUtc})");
+            PrintUiNode(result.Root, 0);
+            client.Disconnect();
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {Markup.Escape(ex.Message)}");
+            return 1;
+        }
+    }
+
+    private static void PrintUiNode(UiNode node, int depth)
+    {
+        string indent = new string(' ', depth * 2);
+        string label = string.IsNullOrEmpty(node.Label) ? "" : $" \"{Markup.Escape(node.Label)}\"";
+        string interactable = node.Interactable ? " [green]interactive[/]" : "";
+        string active = node.Active ? "" : " [grey](inactive)[/]";
+        string role = Markup.Escape($"({node.Role})");
+        AnsiConsole.MarkupLine($"{indent}[yellow]{Markup.Escape(node.Name)}[/] [grey]{role}[/]{label}{interactable}{active}");
+        foreach (UiNode child in node.Children)
+            PrintUiNode(child, depth + 1);
+    }
+
     /// <summary>
     /// Full end-to-end demo:
     ///   1. Wait for game connection (main menu)

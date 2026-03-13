@@ -944,6 +944,9 @@ namespace DINOForge.Tools.PackCompiler
                 var importService = new AssetImportService();
                 int successCount = 0, failCount = 0;
 
+                var importedDir = Path.Combine(packPath, config.AssetSettings.ImportedPath);
+                Directory.CreateDirectory(importedDir);
+
                 foreach (var (phaseName, phase) in config.Phases)
                 {
                     AnsiConsole.MarkupLine($"\n[cyan]Phase:[/] {phaseName}");
@@ -961,8 +964,14 @@ namespace DINOForge.Tools.PackCompiler
                                 continue;
                             }
 
-                            _ = importService.ImportAsync(asset.Id, assetPath).GetAwaiter().GetResult();
-                            AnsiConsole.MarkupLine($"  [green]✓[/] {asset.Id}");
+                            var imported = importService.ImportAsync(asset.Id, assetPath).GetAwaiter().GetResult();
+
+                            // Save imported asset as JSON
+                            var outputPath = Path.Combine(importedDir, $"{asset.Id}.json");
+                            var json = System.Text.Json.JsonSerializer.Serialize(imported, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                            File.WriteAllText(outputPath, json);
+
+                            AnsiConsole.MarkupLine($"  [green]✓[/] {asset.Id} → {outputPath}");
                             successCount++;
                         }
                         catch (Exception ex)
@@ -1113,6 +1122,9 @@ namespace DINOForge.Tools.PackCompiler
                 var optimizationService = new AssetOptimizationService();
                 int successCount = 0, failCount = 0;
 
+                var optimizedDir = Path.Combine(packPath, config.AssetSettings.OptimizedPath);
+                Directory.CreateDirectory(optimizedDir);
+
                 foreach (var (phaseName, phase) in config.Phases)
                 {
                     AnsiConsole.MarkupLine($"[cyan]Phase:[/] {phaseName}");
@@ -1138,7 +1150,12 @@ namespace DINOForge.Tools.PackCompiler
                             var optimized = optimizationService.OptimizeAsync(imported, assetDef).GetAwaiter().GetResult();
                             sw.Stop();
 
-                            AnsiConsole.MarkupLine($"  [green]✓[/] {assetDef.Id}: LOD0={optimized.LOD0.TriangleCount}, LOD1={optimized.LOD1.TriangleCount}, LOD2={optimized.LOD2.TriangleCount} ({sw.ElapsedMilliseconds}ms)");
+                            // Save optimized LOD data
+                            var outputPath = Path.Combine(optimizedDir, $"{assetDef.Id}_optimized.json");
+                            var json = System.Text.Json.JsonSerializer.Serialize(optimized, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                            File.WriteAllText(outputPath, json);
+
+                            AnsiConsole.MarkupLine($"  [green]✓[/] {assetDef.Id}: LOD0={optimized.LOD0.TriangleCount}, LOD1={optimized.LOD1.TriangleCount}, LOD2={optimized.LOD2.TriangleCount} ({sw.ElapsedMilliseconds}ms) → {outputPath}");
                             successCount++;
                         }
                         catch (Exception ex)

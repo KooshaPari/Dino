@@ -238,6 +238,10 @@ namespace DINOForge.Runtime.Bridge
                     return HandleQueryUi(parameters);
                 case "clickUi":
                     return HandleClickUi(parameters);
+                case "waitForUi":
+                    return HandleWaitForUi(parameters);
+                case "expectUi":
+                    return HandleExpectUi(parameters);
                 case "getStat":
                     return HandleGetStat(parameters);
                 case "applyOverride":
@@ -508,6 +512,68 @@ namespace DINOForge.Runtime.Bridge
                     Success = false,
                     Selector = selector,
                     Message = "Timed out while clicking UI."
+                });
+            }
+
+            return JToken.FromObject(result.Result);
+        }
+
+        private JToken HandleWaitForUi(JObject? parameters)
+        {
+            string selector = parameters?.Value<string>("selector") ?? string.Empty;
+            string? state = parameters?.Value<string>("state");
+            int timeoutMs = parameters?.Value<int?>("timeoutMs") ?? 5000;
+            DateTime deadline = DateTime.UtcNow.AddMilliseconds(Math.Max(1, timeoutMs));
+            UiWaitResult? lastResult = null;
+
+            while (DateTime.UtcNow <= deadline)
+            {
+                var evalTask = MainThreadDispatcher.RunOnMainThread(() => UiSelectorEngine.EvaluateState(selector, state));
+                bool completed = evalTask.Wait(5000);
+                if (!completed)
+                {
+                    return JToken.FromObject(new UiWaitResult
+                    {
+                        Ready = false,
+                        Selector = selector,
+                        State = string.IsNullOrWhiteSpace(state) ? "visible" : state,
+                        Message = "Timed out while evaluating UI state on the main thread."
+                    });
+                }
+
+                lastResult = evalTask.Result;
+                if (lastResult.Ready)
+                {
+                    return JToken.FromObject(lastResult);
+                }
+
+                Thread.Sleep(100);
+            }
+
+            return JToken.FromObject(lastResult ?? new UiWaitResult
+            {
+                Ready = false,
+                Selector = selector,
+                State = string.IsNullOrWhiteSpace(state) ? "visible" : state,
+                Message = $"Timed out waiting for selector '{selector}'."
+            });
+        }
+
+        private JToken HandleExpectUi(JObject? parameters)
+        {
+            string selector = parameters?.Value<string>("selector") ?? string.Empty;
+            string condition = parameters?.Value<string>("condition") ?? "visible";
+
+            var result = MainThreadDispatcher.RunOnMainThread(() => UiSelectorEngine.Expect(selector, condition));
+            bool completed = result.Wait(5000);
+            if (!completed)
+            {
+                return JToken.FromObject(new UiExpectationResult
+                {
+                    Success = false,
+                    Selector = selector,
+                    Condition = condition,
+                    Message = "Timed out while evaluating UI expectation."
                 });
             }
 

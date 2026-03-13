@@ -29,6 +29,7 @@
   production:
     cis_b1_battle_droid: 6
     cis_b1_squad: 3
+  visual_asset: sw-droid-factory
 
 - id: cis_assembly_line
   display_name: Advanced Assembly Line
@@ -45,6 +46,7 @@
   production:
     cis_b2_super_battle_droid: 2
     cis_bx_commando_droid: 1
+  visual_asset: sw-assembly-line
 
 - id: cis_heavy_foundry
   display_name: Heavy Foundry
@@ -61,6 +63,7 @@
   production:
     cis_aat_crew: 1
     cis_droideka: 1
+  visual_asset: sw-heavy-foundry
 
 - id: cis_sentry_turret
   display_name: Sentry Turret
@@ -75,6 +78,7 @@
     gold: 5
     population: 0
   production: {}
+  visual_asset: sw-sentry-turret
 
 - id: cis_ray_shield
   display_name: Ray Shield Generator
@@ -89,6 +93,7 @@
     gold: 40
     population: 0
   production: {}
+  visual_asset: sw-ray-shield
 
 - id: cis_mining_facility
   display_name: Mining Facility

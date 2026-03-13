@@ -217,6 +217,12 @@ public sealed class GameClient : IDisposable
         SendRequestAsync<UiWaitResult>("waitForUi", new { selector, state, timeoutMs }, ct);
 
     /// <summary>
+    /// Asserts a condition against the first node matching the given selector.
+    /// </summary>
+    public Task<UiExpectationResult> ExpectUiAsync(string selector, string condition, CancellationToken ct = default) =>
+        SendRequestAsync<UiExpectationResult>("expectUi", new { selector, condition }, ct);
+
+    /// <summary>
     /// Sends a JSON-RPC request and returns the deserialized result.
     /// Handles serialization, pipe I/O, error checking, timeout, and retries.
     /// </summary>

@@ -29,6 +29,7 @@
   production:
     rep_clone_militia: 2
     rep_clone_trooper: 1
+  visual_asset: sw-clone-barracks
 
 - id: rep_weapons_factory
   display_name: Weapons Factory
@@ -45,6 +46,7 @@
   production:
     rep_clone_heavy: 1
     rep_arc_trooper: 1
+  visual_asset: sw-weapons-factory
 
 - id: rep_vehicle_bay
   display_name: Vehicle Bay
@@ -61,6 +63,7 @@
   production:
     rep_atte_crew: 1
     rep_barc_speeder: 1
+  visual_asset: sw-vehicle-bay
 
 - id: rep_guard_tower
   display_name: Guard Tower
@@ -75,6 +78,7 @@
     gold: 10
     population: 0
   production: {}
+  visual_asset: sw-guard-tower
 
 - id: rep_shield_generator
   display_name: Shield Generator
@@ -89,6 +93,7 @@
     gold: 60
     population: 0
   production: {}
+  visual_asset: sw-shield-generator
 
 - id: rep_supply_station
   display_name: Supply Station

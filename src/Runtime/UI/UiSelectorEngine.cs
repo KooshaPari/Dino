@@ -102,6 +102,123 @@ namespace DINOForge.Runtime.UI
             };
         }
 
+        public static UiWaitResult EvaluateState(string selector, string? state)
+        {
+            string normalizedState = string.IsNullOrWhiteSpace(state) ? "visible" : state.Trim().ToLowerInvariant();
+            List<UiMatch> matches = FindMatches(selector);
+            UiNode? matchedNode = matches.Count > 0 ? matches[0].Node : null;
+
+            bool ready = normalizedState switch
+            {
+                "visible" => matchedNode != null && matchedNode.Visible,
+                "hidden" => matchedNode == null || !matchedNode.Visible,
+                "interactable" => matchedNode != null && matchedNode.Visible && matchedNode.Interactable,
+                _ => false
+            };
+
+            string message = normalizedState switch
+            {
+                "visible" => ready
+                    ? $"Selector '{selector}' is visible."
+                    : $"Selector '{selector}' is not visible yet.",
+                "hidden" => ready
+                    ? $"Selector '{selector}' is hidden."
+                    : $"Selector '{selector}' is still visible.",
+                "interactable" => ready
+                    ? $"Selector '{selector}' is interactable."
+                    : $"Selector '{selector}' is not interactable yet.",
+                _ => $"Unknown UI wait state '{normalizedState}'."
+            };
+
+            return new UiWaitResult
+            {
+                Ready = ready,
+                Selector = selector,
+                State = normalizedState,
+                Message = message,
+                MatchCount = matches.Count,
+                MatchedNode = matchedNode
+            };
+        }
+
+        public static UiExpectationResult Expect(string selector, string condition)
+        {
+            string normalizedCondition = string.IsNullOrWhiteSpace(condition)
+                ? "visible"
+                : condition.Trim();
+
+            List<UiMatch> matches = FindMatches(selector);
+            UiNode? matchedNode = matches.Count > 0 ? matches[0].Node : null;
+
+            if (matchedNode == null)
+            {
+                return new UiExpectationResult
+                {
+                    Success = false,
+                    Selector = selector,
+                    Condition = normalizedCondition,
+                    MatchCount = 0,
+                    Message = $"No UI nodes matched selector '{selector}'."
+                };
+            }
+
+            bool success;
+            string message;
+
+            if (normalizedCondition.Equals("visible", StringComparison.OrdinalIgnoreCase))
+            {
+                success = matchedNode.Visible;
+                message = success
+                    ? $"Selector '{selector}' is visible."
+                    : $"Expected selector '{selector}' to be visible.";
+            }
+            else if (normalizedCondition.Equals("hidden", StringComparison.OrdinalIgnoreCase))
+            {
+                success = !matchedNode.Visible;
+                message = success
+                    ? $"Selector '{selector}' is hidden."
+                    : $"Expected selector '{selector}' to be hidden.";
+            }
+            else if (normalizedCondition.Equals("interactable", StringComparison.OrdinalIgnoreCase))
+            {
+                success = matchedNode.Visible && matchedNode.Interactable;
+                message = success
+                    ? $"Selector '{selector}' is interactable."
+                    : $"Expected selector '{selector}' to be interactable.";
+            }
+            else if (normalizedCondition.StartsWith("text=", StringComparison.OrdinalIgnoreCase))
+            {
+                string expectedText = normalizedCondition.Substring("text=".Length);
+                success = ContainsIgnoreCase(matchedNode.Label, expectedText);
+                message = success
+                    ? $"Selector '{selector}' contains text '{expectedText}'."
+                    : $"Expected selector '{selector}' to contain text '{expectedText}'.";
+            }
+            else if (normalizedCondition.StartsWith("name=", StringComparison.OrdinalIgnoreCase))
+            {
+                string expectedName = normalizedCondition.Substring("name=".Length);
+                success = EqualsIgnoreCase(matchedNode.Name, expectedName);
+                message = success
+                    ? $"Selector '{selector}' has name '{expectedName}'."
+                    : $"Expected selector '{selector}' to have name '{expectedName}'.";
+            }
+            else
+            {
+                success = false;
+                message = $"Unknown UI expectation condition '{normalizedCondition}'.";
+            }
+
+            return new UiExpectationResult
+            {
+                Success = success,
+                Selector = selector,
+                Condition = normalizedCondition,
+                Message = message,
+                MatchCount = matches.Count,
+                MatchedNode = matchedNode
+            };
+        }
+
         private static List<UiMatch> FindMatches(string selector)
         {
             List<SelectorClause> clauses = Parse(selector);

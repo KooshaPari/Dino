@@ -78,5 +78,10 @@ namespace DINOForge.Bridge.Protocol
         /// <param name="state">Target state: visible, hidden, or interactable.</param>
         /// <param name="timeoutMs">Timeout in milliseconds.</param>
         UiWaitResult WaitForUi(string selector, string? state, int? timeoutMs);
+
+        /// <summary>Assert a condition against the first node matching the given selector.</summary>
+        /// <param name="selector">Selector such as "role=button&&text=Mods".</param>
+        /// <param name="condition">Condition such as visible, hidden, interactable, or text=Mods.</param>
+        UiExpectationResult ExpectUi(string selector, string condition);
     }
 }
