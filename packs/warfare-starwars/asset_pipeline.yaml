@@ -121,6 +121,29 @@ phases:
           priority: critical
           note: "FIXES MAPPING BUG: Currently maps to V-19 Torrent (aircraft). Replace with proper AT-TE."
 
+      - id: aat_walker
+        file: raw/sw_aat_walker_lego_sketchfab_001/model.glb
+        type: vehicle
+        faction: cis
+        polycount_target: 1346
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: cis
+        addressable_key: sw-aat-walker
+        output_prefab: prefabs/AAT_Walker_CIS.prefab
+        update_definition:
+          enabled: true
+          file: units/cis_units.yaml
+          id: aat
+          field: visual_asset
+        metadata:
+          sketchfab_id: 0122d0c9554646a1bce5d60041c418b7
+          priority: critical
+          note: "CIS vehicle, armored assault tank. Using Lego variant for consistent art style."
+
   v0_8_0_elite:
     description: "Elite units (1 valid model: arc_trooper, 36% coverage)"
     models:
