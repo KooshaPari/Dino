@@ -267,6 +267,54 @@ namespace DINOForge.Runtime
         }
 
         /// <summary>
+        /// Rebuilds VanillaCatalog against the live ECS world (must have >1000 entities)
+        /// and re-triggers stat modifier application. Called once the game scene is loaded.
+        /// </summary>
+        public void RebuildCatalogAndApplyStats(Unity.Entities.World world)
+        {
+            try
+            {
+                _vanillaCatalog!.Build(world.EntityManager);
+                _log.LogInfo($"[ModPlatform] VanillaCatalog rebuilt: " +
+                    $"{_vanillaCatalog.Units.Count} units, " +
+                    $"{_vanillaCatalog.Buildings.Count} buildings, " +
+                    $"{_vanillaCatalog.Projectiles.Count} projectiles.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[ModPlatform] VanillaCatalog rebuild failed: {ex.Message}");
+                return;
+            }
+
+            // Re-enqueue all stat overrides now that the catalog is populated
+            if (_registryManager != null && _contentLoader != null)
+            {
+                try
+                {
+                    int unitOverrides = OverrideApplicator.ApplyUnitOverrides(_registryManager, msg => _log.LogInfo(msg));
+                    _log.LogInfo($"[ModPlatform] Re-enqueued {unitOverrides} unit stat override(s) after scene load.");
+                }
+                catch (Exception ex)
+                {
+                    _log.LogWarning($"[ModPlatform] Unit stat override re-apply failed: {ex.Message}");
+                }
+
+                try
+                {
+                    if (_contentLoader.LoadedOverrides.Count > 0)
+                    {
+                        int yamlOverrides = OverrideApplicator.ApplyStatOverrides(_contentLoader.LoadedOverrides, msg => _log.LogInfo(msg));
+                        _log.LogInfo($"[ModPlatform] Re-enqueued {yamlOverrides} YAML stat override(s) after scene load.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _log.LogWarning($"[ModPlatform] YAML stat override re-apply failed: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
         /// Loads all content packs from the configured packs directory.
         /// After loading, updates the UI overlay and enqueues stat modifications.
         /// </summary>

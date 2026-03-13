@@ -112,6 +112,10 @@ namespace DINOForge.Tools.Installer
             if (Directory.Exists(legacyPacksDir))
             {
                 warnings.Add($"Legacy packs directory present: {legacyPacksDir}");
+                if (!Directory.Exists(GetPacksDirectory(gamePath)))
+                {
+                    issues.Add("Only the legacy packs directory is present. Packs should be under BepInEx/dinoforge_packs.");
+                }
             }
 
             if (legacyArtifacts.Count > 0)
@@ -177,6 +181,25 @@ namespace DINOForge.Tools.Installer
             }
 
             return removedCount;
+        }
+
+        /// <summary>
+        /// Migrates packs from the legacy root-level directory into the canonical BepInEx packs directory.
+        /// </summary>
+        public static bool MigrateLegacyPacks(string gamePath, Action<string>? log = null)
+        {
+            string legacyPacksDir = GetLegacyPacksDirectory(gamePath);
+            if (!Directory.Exists(legacyPacksDir))
+            {
+                return false;
+            }
+
+            string packsDir = GetPacksDirectory(gamePath);
+            Directory.CreateDirectory(packsDir);
+            CopyDirectoryContents(legacyPacksDir, packsDir);
+            Directory.Delete(legacyPacksDir, recursive: true);
+            log?.Invoke($"Migrated legacy packs directory to: {packsDir}");
+            return true;
         }
 
         /// <summary>
@@ -320,6 +343,28 @@ namespace DINOForge.Tools.Installer
             using SHA256 sha256 = SHA256.Create();
             byte[] hash = sha256.ComputeHash(stream);
             return Convert.ToHexString(hash);
+        }
+
+        private static void CopyDirectoryContents(string sourceDir, string destinationDir)
+        {
+            foreach (string directory in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
+            {
+                string relativeDir = Path.GetRelativePath(sourceDir, directory);
+                Directory.CreateDirectory(Path.Combine(destinationDir, relativeDir));
+            }
+
+            foreach (string filePath in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
+            {
+                string relativePath = Path.GetRelativePath(sourceDir, filePath);
+                string destinationPath = Path.Combine(destinationDir, relativePath);
+                string? destinationParent = Path.GetDirectoryName(destinationPath);
+                if (!string.IsNullOrEmpty(destinationParent))
+                {
+                    Directory.CreateDirectory(destinationParent);
+                }
+
+                File.Copy(filePath, destinationPath, overwrite: true);
+            }
         }
     }
 

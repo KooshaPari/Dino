@@ -167,7 +167,7 @@ public sealed class InstallerService
         string gamePath = options.GamePath;
         string bepInExDir = Path.Combine(gamePath, "BepInEx");
         string pluginsDir = Path.Combine(bepInExDir, "plugins");
-        string packsDir = Path.Combine(gamePath, "dinoforge_packs");
+        string packsDir = InstallLifecycle.GetPacksDirectory(gamePath);
 
         // Step 1 — Ensure BepInEx is present
         if (!Directory.Exists(bepInExDir) || !File.Exists(Path.Combine(gamePath, "winhttp.dll")))
@@ -178,6 +178,17 @@ public sealed class InstallerService
         else
         {
             log.Report("BepInEx already installed — skipping download.");
+        }
+
+        int removedLegacy = InstallLifecycle.CleanupLegacyArtifacts(gamePath, log.Report);
+        if (removedLegacy > 0)
+        {
+            log.Report($"Cleaned {removedLegacy} legacy DINOForge artifact(s).");
+        }
+
+        if (InstallLifecycle.MigrateLegacyPacks(gamePath, log.Report))
+        {
+            log.Report("Migrated packs from legacy root-level directory.");
         }
 
         // Step 2 — Ensure plugins directory exists
@@ -200,6 +211,16 @@ public sealed class InstallerService
         catch (Exception ex)
         {
             log.Report($"  Warning: could not write version file: {ex.Message}");
+        }
+
+        try
+        {
+            string manifestPath = InstallLifecycle.WriteManifest(gamePath, installerVersion);
+            log.Report($"Wrote install manifest: {manifestPath}");
+        }
+        catch (Exception ex)
+        {
+            log.Report($"  Warning: could not write install manifest: {ex.Message}");
         }
 
         // Step 4 — Example packs
@@ -355,18 +376,40 @@ public sealed class InstallerService
     {
         bool success = true;
         string gamePath = options.GamePath;
-        string pluginsDir = Path.Combine(gamePath, "BepInEx", "plugins");
 
         log.Report("Starting DINOForge uninstall...");
 
-        // Remove runtime DLLs
-        success &= TryDeleteFile(Path.Combine(pluginsDir, "DINOForge.Runtime.dll"), log);
-        success &= TryDeleteFile(Path.Combine(pluginsDir, "DINOForge.SDK.dll"), log);
-        success &= TryDeleteFile(Path.Combine(pluginsDir, "dinoforge_version.txt"), log);
+        try
+        {
+            int removedManaged = InstallLifecycle.RemoveManagedFiles(gamePath, log.Report);
+            log.Report($"Removed {removedManaged} managed DINOForge install artifact(s).");
+        }
+        catch (Exception ex)
+        {
+            success = false;
+            log.Report($"  ERROR removing managed DINOForge files: {ex.Message}");
+        }
+
+        try
+        {
+            int removedLegacy = InstallLifecycle.CleanupLegacyArtifacts(gamePath, log.Report);
+            if (removedLegacy > 0)
+            {
+                log.Report($"Removed {removedLegacy} legacy DINOForge artifact(s).");
+            }
+        }
+        catch (Exception ex)
+        {
+            success = false;
+            log.Report($"  ERROR removing legacy DINOForge files: {ex.Message}");
+        }
 
         // Remove packs directory
         if (options.RemovePacks)
-            success &= TryDeleteDirectory(Path.Combine(gamePath, "dinoforge_packs"), log);
+        {
+            success &= TryDeleteDirectory(InstallLifecycle.GetPacksDirectory(gamePath), log);
+            success &= TryDeleteDirectory(InstallLifecycle.GetLegacyPacksDirectory(gamePath), log);
+        }
 
         // Remove dumps directory
         if (options.RemoveDumps)

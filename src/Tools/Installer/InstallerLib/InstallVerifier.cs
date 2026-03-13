@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace DINOForge.Tools.Installer
 {
@@ -18,25 +19,51 @@ namespace DINOForge.Tools.Installer
         public static InstallStatus Verify(string gamePath)
         {
             List<string> issues = new List<string>();
+            List<string> warnings = new List<string>();
 
             if (string.IsNullOrWhiteSpace(gamePath))
             {
                 issues.Add("Game path is null or empty.");
-                return new InstallStatus(false, false, false, false, issues);
+                return new InstallStatus(false, false, false, false, false, false, issues, warnings);
             }
 
             if (!Directory.Exists(gamePath))
             {
                 issues.Add($"Game directory does not exist: {gamePath}");
-                return new InstallStatus(false, false, false, false, issues);
+                return new InstallStatus(false, false, false, false, false, false, issues, warnings);
             }
 
             bool gameExists = VerifyGameFiles(gamePath, issues);
             bool bepInExInstalled = VerifyBepInEx(gamePath, issues);
             bool runtimeInstalled = VerifyRuntime(gamePath, issues);
             bool packsReady = VerifyPacksDirectory(gamePath, issues);
+            InstallInspection inspection = InstallLifecycle.Inspect(gamePath);
 
-            return new InstallStatus(gameExists, bepInExInstalled, runtimeInstalled, packsReady, issues);
+            foreach (string issue in inspection.Issues)
+            {
+                if (!issues.Contains(issue, StringComparer.OrdinalIgnoreCase))
+                {
+                    issues.Add(issue);
+                }
+            }
+
+            foreach (string warning in inspection.Warnings)
+            {
+                if (!warnings.Contains(warning, StringComparer.OrdinalIgnoreCase))
+                {
+                    warnings.Add(warning);
+                }
+            }
+
+            return new InstallStatus(
+                gameExists,
+                bepInExInstalled,
+                runtimeInstalled,
+                packsReady,
+                inspection.ManifestPresent,
+                inspection.LegacyArtifacts.Count > 0,
+                issues,
+                warnings);
         }
 
         /// <summary>
@@ -129,10 +156,10 @@ namespace DINOForge.Tools.Installer
         /// </summary>
         public static bool VerifyPacksDirectory(string gamePath, List<string> issues)
         {
-            string packsDir = Path.Combine(gamePath, "packs");
+            string packsDir = InstallLifecycle.GetPacksDirectory(gamePath);
             if (!Directory.Exists(packsDir))
             {
-                issues.Add("DINOForge: packs/ directory not found.");
+                issues.Add("DINOForge: BepInEx/dinoforge_packs directory not found.");
                 return false;
             }
 
@@ -166,9 +193,24 @@ namespace DINOForge.Tools.Installer
         public bool PacksReady { get; }
 
         /// <summary>
+        /// Whether an installer manifest is present.
+        /// </summary>
+        public bool ManifestPresent { get; }
+
+        /// <summary>
+        /// Whether deprecated legacy artifacts were detected.
+        /// </summary>
+        public bool HasLegacyArtifacts { get; }
+
+        /// <summary>
         /// List of issues found during verification.
         /// </summary>
         public IReadOnlyList<string> Issues { get; }
+
+        /// <summary>
+        /// List of warnings found during verification.
+        /// </summary>
+        public IReadOnlyList<string> Warnings { get; }
 
         /// <summary>
         /// True when all components are properly installed.
@@ -180,13 +222,19 @@ namespace DINOForge.Tools.Installer
             bool bepInExInstalled,
             bool runtimeInstalled,
             bool packsReady,
-            IReadOnlyList<string> issues)
+            bool manifestPresent,
+            bool hasLegacyArtifacts,
+            IReadOnlyList<string> issues,
+            IReadOnlyList<string> warnings)
         {
             GameExists = gameExists;
             BepInExInstalled = bepInExInstalled;
             RuntimeInstalled = runtimeInstalled;
             PacksReady = packsReady;
+            ManifestPresent = manifestPresent;
+            HasLegacyArtifacts = hasLegacyArtifacts;
             Issues = issues;
+            Warnings = warnings;
         }
     }
 }

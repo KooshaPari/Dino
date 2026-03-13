@@ -171,6 +171,13 @@ DINOForge/
 
 Visit [kooshapari.github.io/Dino](https://kooshapari.github.io/Dino) for full documentation.
 
+## Project Policies
+
+- [SECURITY.md](SECURITY.md) describes private vulnerability reporting, supported versions, and response timelines.
+- [SUPPORT.md](SUPPORT.md) describes support channels, self-service checks, and issue routing.
+- [FUZZING.md](FUZZING.md) documents the current randomized testing posture and remaining fuzzing gaps.
+- [CONTRIBUTING.md](CONTRIBUTING.md) defines contributor workflow, testing expectations, and release hygiene.
+
 ## Development Methodology
 
 - **SDD** (Spec-Driven Development) — specifications drive the pipeline

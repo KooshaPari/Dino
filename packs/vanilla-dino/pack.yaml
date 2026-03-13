@@ -1,0 +1,47 @@
+pack:
+  id: vanilla-dino
+  display_name: "Vanilla DINO"
+  version: "1.0.0"
+  description: "Canonical reference pack containing all 100+ vanilla DINO units, 6 factions, buildings, weapons, and doctrines. Use this as the base for all mod unit/faction mappings."
+  authors:
+    - "DINOForge Team"
+  wiki_reference: "https://dino.fandom.com/wiki/Units"
+
+dependencies: []
+
+content:
+  units:
+    - units/lords-troops-units.yaml
+    - units/rebels-units.yaml
+    - units/royal-army-units.yaml
+    - units/sarranga-units.yaml
+    - units/undead-units.yaml
+    - units/bugs-units.yaml
+
+  factions:
+    - factions/lords-troops.yaml
+    - factions/rebels.yaml
+    - factions/royal-army.yaml
+    - factions/sarranga.yaml
+    - factions/undead.yaml
+    - factions/bugs.yaml
+
+  buildings:
+    - buildings/lords-troops-buildings.yaml
+    - buildings/rebels-buildings.yaml
+    - buildings/royal-army-buildings.yaml
+    - buildings/sarranga-buildings.yaml
+    - buildings/undead-buildings.yaml
+    - buildings/bugs-buildings.yaml
+
+  weapons:
+    - weapons/vanilla-weapons.yaml
+
+  doctrines:
+    - doctrines/vanilla-doctrines.yaml
+
+load_order: 10  # Load before all mods
+exportable: true
+metadata:
+  canonical: true
+  mods_extend_this: true

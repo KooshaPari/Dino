@@ -53,6 +53,7 @@ namespace DINOForge.Runtime
                 var bepinexVersion = typeof(BaseUnityPlugin).Assembly.GetName().Version?.ToString() ?? "unknown";
                 Log.LogInfo($"DINOForge v{PluginInfo.VERSION} | BepInEx {bepinexVersion} | Unity {Application.unityVersion}");
                 Log.LogInfo($"Platform: {Application.platform}");
+                LogInstallDiagnostics();
             }
             catch (Exception ex)
             {
@@ -114,6 +115,45 @@ namespace DINOForge.Runtime
             catch { }
         }
 
+        private static void LogInstallDiagnostics()
+        {
+            string loadedAssemblyPath = typeof(Plugin).Assembly.Location;
+            string primaryRuntimePath = Path.Combine(Paths.PluginPath, "DINOForge.Runtime.dll");
+            string legacyRuntimePath = Path.Combine(Paths.BepInExRootPath, "ecs_plugins", "DINOForge.Runtime.dll");
+            string backupRuntimePath = Path.Combine(Paths.PluginPath, "DINOForge.Runtime.dll.bak");
+
+            Log.LogInfo($"[Plugin] Loaded runtime assembly from: {loadedAssemblyPath}");
+            WriteDebug($"[Plugin] Loaded runtime assembly from: {loadedAssemblyPath}");
+
+            if (File.Exists(legacyRuntimePath))
+            {
+                string message = $"[Plugin] Legacy runtime copy detected at deprecated path: {legacyRuntimePath}";
+                Log.LogWarning(message);
+                WriteDebug(message);
+            }
+
+            if (File.Exists(primaryRuntimePath) && File.Exists(legacyRuntimePath))
+            {
+                string message = $"[Plugin] Duplicate runtime assemblies detected. Primary='{primaryRuntimePath}', Legacy='{legacyRuntimePath}'";
+                Log.LogWarning(message);
+                WriteDebug(message);
+            }
+
+            if (File.Exists(backupRuntimePath))
+            {
+                string message = $"[Plugin] Stale runtime backup file detected: {backupRuntimePath}";
+                Log.LogWarning(message);
+                WriteDebug(message);
+            }
+
+            if (!string.Equals(loadedAssemblyPath, primaryRuntimePath, StringComparison.OrdinalIgnoreCase))
+            {
+                string message = $"[Plugin] Runtime loaded from non-canonical location. Expected '{primaryRuntimePath}', actual '{loadedAssemblyPath}'";
+                Log.LogWarning(message);
+                WriteDebug(message);
+            }
+        }
+
         private void OnDestroy()
         {
             // The BepInEx-managed object is being destroyed (expected in DINO).
@@ -165,6 +205,7 @@ namespace DINOForge.Runtime
 
         private bool _worldFound;
         private bool _initialized;
+        private bool _catalogRebuilt;
         private float _worldPollTimer;
 
         /// <summary>Polling interval in seconds for ECS world detection.</summary>
@@ -464,6 +505,27 @@ namespace DINOForge.Runtime
                     WireUguiToModPlatform();
                 }
                 // If not yet ready, keep waiting (OnInitFailed callback handles failure)
+            }
+
+            // ── Deferred VanillaCatalog rebuild once the game scene is loaded ────
+            // The world exists at startup with only 24 entities (loading screen).
+            // We wait until entities > 1000 (full scene loaded ~45K entities) to rebuild.
+            if (_worldFound && !_catalogRebuilt)
+            {
+                try
+                {
+                    World? w = World.DefaultGameObjectInjectionWorld;
+                    if (w != null && w.IsCreated)
+                    {
+                        int entityCount = w.EntityManager.UniversalQuery.CalculateEntityCount();
+                        if (entityCount > 1000)
+                        {
+                            _catalogRebuilt = true;
+                            _modPlatform?.RebuildCatalogAndApplyStats(w);
+                        }
+                    }
+                }
+                catch { }
             }
 
             // ── ECS world poll ───────────────────────────────────────────────────

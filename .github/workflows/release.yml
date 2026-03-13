@@ -5,15 +5,16 @@ on:
     tags:
       - 'v*.*.*'
 
-permissions:
-  contents: write
-  attestations: write
-  id-token: write
+permissions: {}
 
 jobs:
   build-and-release:
     name: Build & Release
     runs-on: windows-latest
+    permissions:
+      contents: write
+      attestations: write
+      id-token: write
 
     steps:
       - name: Checkout

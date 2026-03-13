@@ -252,8 +252,11 @@ namespace DINOForge.Runtime.Bridge
             ComponentMapping? mapping = ComponentMap.Find(mod.SdkPath);
             if (mapping == null)
             {
-                WriteDebug($"No ComponentMapping found for SDK path: {mod.SdkPath}");
-                return false;
+                // Silently skip unmapped paths — retrying will never help, so return true
+                // to prevent infinite retry spam for stats like "unit.stats.damage" that
+                // have no direct writable ECS field (damage is baked into projectile blobs).
+                WriteDebug($"No ComponentMapping for '{mod.SdkPath}' — skipping (not retryable)");
+                return true;
             }
 
             Type? componentType = mapping.ResolvedType;
@@ -272,6 +275,9 @@ namespace DINOForge.Runtime.Bridge
             }
 
             // Optionally add a filter component
+            // DINO stores ALL live gameplay entities (units, buildings) as ECS Prefab entities.
+            // Standard EntityQueryDesc excludes Prefab-tagged entities by default.
+            // We must opt-in to include them or every query returns 0.
             EntityQueryDesc queryDesc;
             if (mod.FilterComponentType != null)
             {
@@ -284,14 +290,16 @@ namespace DINOForge.Runtime.Bridge
 
                 queryDesc = new EntityQueryDesc
                 {
-                    All = new[] { ct.Value, filterCt.Value }
+                    All = new[] { ct.Value, filterCt.Value },
+                    Options = EntityQueryOptions.IncludePrefab
                 };
             }
             else
             {
                 queryDesc = new EntityQueryDesc
                 {
-                    All = new[] { ct.Value }
+                    All = new[] { ct.Value },
+                    Options = EntityQueryOptions.IncludePrefab
                 };
             }
 
@@ -300,7 +308,9 @@ namespace DINOForge.Runtime.Bridge
 
             if (entities.Length == 0)
             {
-                WriteDebug($"No entities matched for {mapping.EcsComponentType}");
+                // Log total entity count to diagnose whether scene is loaded
+                int totalEntities = EntityManager.UniversalQuery.CalculateEntityCount();
+                WriteDebug($"No entities matched for {mapping.EcsComponentType} (total entities in world: {totalEntities}, ct={ct.Value})");
                 entities.Dispose();
                 query.Dispose();
                 return false;

@@ -14,7 +14,7 @@ namespace DINOForge.Tools.PackCompiler.Services
     /// Service for importing 3D models (GLB/FBX/OBJ) using AssimpNet.
     /// Parses geometry, materials, and skeleton data into ImportedAsset format.
     /// </summary>
-    public class AssetImportService
+    public partial class AssetImportService
     {
         private readonly AssimpContext _assimpContext = new();
 
