@@ -197,6 +197,8 @@
     <Compile Remove="UI\ModMenuOverlayProxy.cs" />
     <Compile Remove="Bridge\FactionSystem.cs" />
     <Compile Remove="Bridge\WaveInjector.cs" />
+    <!-- Exclude Aviation namespace - incomplete implementation, uses undefined AerialUnitComponent -->
+    <Compile Remove="Aviation\**" />
   </ItemGroup>
 
   <!--
