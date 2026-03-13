@@ -10,6 +10,8 @@ namespace DINOForge.Tools.PackCompiler.Models
     /// </summary>
     public class AssetPipelineConfig
     {
+        public AssetPipelineConfig() { }
+
         public required string Version { get; init; }
         public required string PackId { get; init; }
         public required string TargetUnityVersion { get; init; }
