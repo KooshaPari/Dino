@@ -33,12 +33,16 @@ content:
     - buildings/sarranga-buildings.yaml
     - buildings/undead-buildings.yaml
     - buildings/bugs-buildings.yaml
+    - buildings/economy-buildings.yaml
 
   weapons:
     - weapons/vanilla-weapons.yaml
 
   doctrines:
     - doctrines/vanilla-doctrines.yaml
+
+  technologies:
+    - technologies/vanilla-technologies.yaml
 
 load_order: 10  # Load before all mods
 exportable: true
