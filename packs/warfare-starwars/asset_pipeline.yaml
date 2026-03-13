@@ -170,8 +170,167 @@ phases:
           priority: high
           note: "Elite clone armor, shows unit progression"
 
+  v0_8_1_infantry:
+    description: "Clone infantry variants (6 specialist units, 45% coverage)"
+    models:
+      - id: rep_clone_sharpshooter
+        file: raw/rep_clone_sharpshooter_sketchfab_001/model.glb
+        type: infantry_ranged
+        faction: republic
+        polycount_target: 13500
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: republic
+        addressable_key: sw-clone-sharpshooter
+        output_prefab: prefabs/Clone_Sharpshooter_Republic.prefab
+        update_definition:
+          enabled: true
+          file: units/republic_units.yaml
+          id: clone_sharpshooter
+          field: visual_asset
+        metadata:
+          sketchfab_id: a7fd12dc578d4c729e3930b79666c4ea
+          artist: imveryokay
+          source_url: "https://sketchfab.com/3d-models/clone-trooper-low-poly-a7fd12dc578d4c729e3930b79666c4ea"
+          license: CC-BY
+          priority: high
+          note: "Clone infantry ranged specialist"
+
+      - id: rep_clone_heavy
+        file: raw/rep_clone_heavy_sketchfab_001/model.glb
+        type: infantry_heavy
+        faction: republic
+        polycount_target: 9000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: republic
+        addressable_key: sw-clone-heavy
+        output_prefab: prefabs/Clone_Heavy_Republic.prefab
+        update_definition:
+          enabled: true
+          file: units/republic_units.yaml
+          id: clone_heavy_trooper
+          field: visual_asset
+        metadata:
+          sketchfab_id: f92a5b62741f4f8abe3537353eb36b18
+          artist: alanh1213
+          source_url: "https://sketchfab.com/3d-models/ps1-low-poly-clone-trooper-f92a5b62741f4f8abe3537353eb36b18"
+          license: CC-BY
+          priority: high
+          note: "Clone infantry heavy anti-armor specialist"
+
+      - id: rep_clone_medic
+        file: raw/rep_clone_medic_sketchfab_001/model.glb
+        type: infantry_support
+        faction: republic
+        polycount_target: 20000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: republic
+        addressable_key: sw-clone-medic
+        output_prefab: prefabs/Clone_Medic_Republic.prefab
+        update_definition:
+          enabled: true
+          file: units/republic_units.yaml
+          id: clone_medic
+          field: visual_asset
+        metadata:
+          sketchfab_id: e7f2a1fbfdcd41f59ba03fe48ae39004
+          artist: Marr Velz
+          source_url: "https://sketchfab.com/3d-models/clone-trooper-kix-phase2-e7f2a1fbfdcd41f59ba03fe48ae39004"
+          license: CC-BY
+          priority: high
+          note: "Clone infantry support/medical specialist"
+
+      - id: rep_arf_trooper
+        file: raw/rep_arf_trooper_sketchfab_001/model.glb
+        type: infantry_scout
+        faction: republic
+        polycount_target: 17500
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: republic
+        addressable_key: sw-arf-trooper
+        output_prefab: prefabs/ARF_Trooper_Republic.prefab
+        update_definition:
+          enabled: true
+          file: units/republic_units.yaml
+          id: arf_trooper
+          field: visual_asset
+        metadata:
+          sketchfab_id: 631b759ce00a4496a1960ae0ff49cde0
+          artist: thomas_125
+          source_url: "https://sketchfab.com/3d-models/clone-scout-trooper-631b759ce00a4496a1960ae0ff49cde0"
+          license: CC-BY
+          priority: high
+          note: "Advanced Recon Force scout specialist"
+
+      - id: rep_clone_militia
+        file: raw/rep_clone_militia_sketchfab_001/model.glb
+        type: infantry_basic
+        faction: republic
+        polycount_target: 12000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: republic
+        addressable_key: sw-clone-militia
+        output_prefab: prefabs/Clone_Militia_Republic.prefab
+        update_definition:
+          enabled: true
+          file: units/republic_units.yaml
+          id: clone_militia
+          field: visual_asset
+        metadata:
+          sketchfab_id: dcc28349c49b40c8be0fd1618fc65e00
+          artist: Just Ryk
+          source_url: "https://sketchfab.com/3d-models/clone-cadet-var-dcc28349c49b40c8be0fd1618fc65e00"
+          license: CC-BY
+          priority: high
+          note: "Clone cadet/militia tier-1 basic unit"
+
+      - id: rep_clone_engineer
+        file: raw/rep_clone_engineer_sketchfab_001/model.glb
+        type: infantry_tech
+        faction: republic
+        polycount_target: 22500
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 60, 30]
+          screen_sizes: [100, 50, 20]
+        material: republic
+        addressable_key: sw-clone-engineer
+        output_prefab: prefabs/Clone_Engineer_Republic.prefab
+        update_definition:
+          enabled: true
+          file: units/republic_units.yaml
+          id: clone_engineer
+          field: visual_asset
+        metadata:
+          sketchfab_id: 1fd3c5dfd9864394b1cbaf780e1779bd
+          artist: Outworld Studios
+          source_url: "https://sketchfab.com/3d-models/star-wars-phase-2-clone-trooper-1fd3c5dfd9864394b1cbaf780e1779bd"
+          license: CC-BY
+          priority: high
+          note: "Clone infantry technician/engineer specialist"
+
   v0_9_0_future:
-    description: "Remaining 19 building models (planned, not yet sourced)"
+    description: "Remaining 13 building models (planned, not yet sourced)"
     models: []
 
 build:
