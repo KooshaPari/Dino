@@ -63,6 +63,8 @@ packs/**/assets/source/opengameart/sci-fi-soldier/
 docs/.vitepress/cache/
 
 # Asset downloads and cache
+# Note: Downloaded model.glb files in packs/*/assets/raw/*/model.glb ARE committed for asset pipeline
+# Build-generated assets in other locations are not tracked
 *.glb
 *.gltf
 *.blend
@@ -70,6 +72,7 @@ docs/.vitepress/cache/
 *.obj
 *.usdz
 packs/*/assets/raw/**/source_download.*
+!packs/*/assets/raw/*/model.glb
 .cache/
 .cache/sketchfab/
 .fixtures/
