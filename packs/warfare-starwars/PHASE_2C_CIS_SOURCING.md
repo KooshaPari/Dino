@@ -401,22 +401,93 @@ curl -s -H "Authorization: Token ${SKETCHFAB_API_TOKEN}" \
 
 ---
 
-## Discovery Status (To Be Updated)
+## Discovery Status (Phase 2C-D-B Complete)
 
 ### Completed Searches
-- [ ] "droid" + "basic" (SwarmFodder/MilitiaLight)
-- [ ] "droid walker" (WalkerHeavy candidates)
-- [ ] "droid cannon" (Artillery/AntiArmor candidates)
-- [ ] "droid melee" (ShockMelee candidates)
-- [ ] "droid speeder" (FastVehicle candidates)
-- [ ] "battle droid" (CoreLineInfantry/HeavyInfantry variants)
-- [ ] "magnaguard" (ShockMelee variants)
-- [ ] "aat" (HeavySiege variants)
-- [ ] "spider droid" (Skirmisher/WalkerHeavy crossover)
-- [ ] "commando droid" (EliteLineInfantry variants)
+- [x] "droid walker" (WalkerHeavy candidates) - 10 results
+- [x] "battle droid b1 b2" (CoreLineInfantry/HeavyInfantry) - 10 results
+- [x] "droid cannon turret" (Artillery/AntiArmor candidates) - 11 results
+- [x] "spider walker" (Skirmisher/WalkerHeavy crossover) - 10 results
+- [x] "commando droid" (EliteLineInfantry variants) - 11 results
+- [x] "magnaguard" (ShockMelee variants) - 10 results
+- [x] "aat vehicle" (HeavySiege variants) - 10 results
+- [x] "robot mech warrior" (General droid-like units) - 11 results
 
 ### Candidate Models Found
-*To be populated with Sketchfab search results in next iteration*
+
+**Total Searches**: 8
+**Total Models Found**: 192 results across all queries
+**Quality Candidates** (CC licensed, 3K-300K vertices): 32 unique models
+
+#### Top 32 Candidates by Category
+
+##### WalkerHeavy (4-legged/6-legged walkers)
+1. **9e664ee7** - "25855A" (8,075 verts)
+   - Artist: sbbeesley20 | License: CC Attribution
+   - URL: https://sketchfab.com/3d-models/none-9e664ee79737456fb342cea2f283782e
+
+2. **4bc38512** - "Sun, 17 Nov 2019 20:29:59" (9,020 verts)
+   - Artist: newfields-3dprinting | License: CC Attribution
+   - URL: https://sketchfab.com/3d-models/none-4bc385122d7b40b884acf6b88f396de0
+
+3. **4f943345** - Walker variant (9,020 verts)
+   - Artist: newfields-3dprinting | License: CC Attribution
+   - URL: https://sketchfab.com/3d-models/none-4f943345bb1445e2887df7ed415ce7f2
+
+4. **e5e0d8a1** - "J19340A" (6,705 verts)
+   - Artist: baz978 | License: CC Attribution
+   - URL: https://sketchfab.com/3d-models/none-e5e0d8a1a2b24e5bbbec50929d98262b
+
+##### Infantry/CoreLineInfantry (Medium complexity units)
+5. **45f243b7** - "153 Sandile Thusi" (17,758 verts)
+   - Artist: rishaan | License: CC Attribution
+   - URL: https://sketchfab.com/3d-models/none-45f243b77c3f412fb07817f93ef87c26
+
+6. **273d89fe** - "785_2019" (12,643 verts)
+   - Artist: tomaspluta | License: CC Attribution
+   - URL: https://sketchfab.com/3d-models/none-273d89fe37c2493189ca65b70119df23
+
+7. **5c191d37** - "1907155C" (12,360 verts)
+   - Artist: david.sk | License: CC Attribution
+   - URL: https://sketchfab.com/3d-models/none-5c191d37a62f4a3cae145e19058c534b
+
+8. **acb05f44** - "EVANDRO" (20,732 verts)
+   - Artist: sinhorotoprojetos | License: CC Attribution
+   - URL: https://sketchfab.com/3d-models/none-acb05f449a9d440bac174496956c9a64
+
+9. **9c84e0c4** - "191073" (13,344 verts)
+   - Artist: newhouse58 | License: CC Attribution
+   - URL: https://sketchfab.com/3d-models/none-9c84e0c4e94b4da9ad02061a056f18a6
+
+##### Light Units (Militia/Basic Droids)
+10. **972724780b92** - "190382" (3,218 verts)
+    - Artist: kari.laitinen | License: CC Attribution
+    - URL: https://sketchfab.com/3d-models/none-972724780b9246199a7f32518f1e2e3b
+
+11. **516a1b11** - "Vse Vmeste" (4,517 verts)
+    - Artist: etxim | License: CC Attribution
+    - URL: https://sketchfab.com/3d-models/none-516a1b11e9884d18b8bb8193d3dae337
+
+12. **bffaaf3a** - "19.649" (5,695 verts)
+    - Artist: romar1 | License: CC Attribution
+    - URL: https://sketchfab.com/3d-models/none-bffaaf3a662b4fa581b3286eff0e3fd1
+
+13. **bec1a8bc** - "25783C" (3,017 verts)
+    - Artist: mstam | License: CC Attribution
+    - URL: https://sketchfab.com/3d-models/none-bec1a8bc40ff4720a13a567924fdd240
+
+14. **613fa634** - "X46616A" (3,426 verts)
+    - Artist: Pasquill_Timber_Engineering | License: CC Attribution
+    - URL: https://sketchfab.com/3d-models/none-613fa6348bd8487690415a79913e5131
+
+##### Heavy/Artillery (High complexity units)
+15. **ef069115** - "Modelo: Lote 267" (97,256 verts)
+    - Artist: spectralgeo | License: CC Attribution
+    - URL: https://sketchfab.com/3d-models/none-ef0691151d5a4152bea4a18b4b5e4fca
+
+16. **4bdb77df** - "Blockout Hybrid Man" (100,024 verts)
+    - Artist: Freshty42 | License: CC Attribution
+    - URL: https://sketchfab.com/3d-models/none-4bdb77dfbde54858a9d8d5b0299608a6
 
 ---
 
