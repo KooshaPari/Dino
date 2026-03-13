@@ -33,7 +33,7 @@ jobs:
           CI: 'true'
 
       - name: Build
-        run: dotnet build src/DINOForge.CI.sln --no-restore --configuration Release
+        run: dotnet build src/DINOForge.CI.sln --no-restore --configuration Release /p:BuildInParallel=false
 
       - name: Test with coverage
         run: |
@@ -72,9 +72,9 @@ jobs:
         if: always()
         with:
           files: '**/coverage/*.xml'
+          flags: ci
           fail_ci_if_error: false
-          # Configure CODECOV_TOKEN secret in repository settings for authenticated uploads
-          # This enables better coverage tracking and historical comparisons
+          verbose: true
 
       - name: Publish test report
         uses: dorny/test-reporter@d61b558e8df85cb60d09ca3e5b09653b4477cea7 # v1

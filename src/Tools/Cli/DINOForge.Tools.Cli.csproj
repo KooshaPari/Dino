@@ -5,6 +5,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <BuildInParallel>false</BuildInParallel>
+    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
     <RootNamespace>DINOForge.Tools.Cli</RootNamespace>
     <AssemblyName>DINOForge.Tools.Cli</AssemblyName>
     <Description>DINOForge CLI - command-line interface for the DINO mod platform</Description>
@@ -13,10 +15,21 @@
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.*" />
     <PackageReference Include="Spectre.Console" Version="0.*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.*" />
+
+    <!-- Sketchfab API integration -->
+    <PackageReference Include="SketchFabApi.Net" Version="1.0.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Bridge\Client\DINOForge.Bridge.Client.csproj" />
+    <ProjectReference Include="..\..\Bridge\Protocol\DINOForge.Bridge.Protocol.csproj" />
     <ProjectReference Include="..\..\SDK\DINOForge.SDK.csproj" />
   </ItemGroup>
 

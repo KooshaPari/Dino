@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "mermaid": "^11.12.3",
+    "playwright": "^1.58.2",
     "vitepress-plugin-mermaid": "^2.0.17"
   },
   "overrides": {

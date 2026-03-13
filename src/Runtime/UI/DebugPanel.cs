@@ -71,6 +71,12 @@ namespace DINOForge.Runtime.UI
         public void SetModPlatform(ModPlatform? modPlatform)
         {
             _modPlatform = modPlatform;
+            Debug.Log($"[DebugPanel] SetModPlatform called: {(modPlatform != null ? "set to ModPlatform instance" : "set to NULL")}");
+            // Refresh immediately so changes appear if the panel is already visible
+            if (IsVisible)
+            {
+                RefreshContent();
+            }
         }
 
         /// <summary>Shows the panel with a slide-in animation.</summary>
@@ -84,6 +90,7 @@ namespace DINOForge.Runtime.UI
             }
             // Immediately refresh content so panel displays on first open
             RefreshContent();
+            Debug.Log($"[DebugPanel] Show() called. ModPlatform={(_modPlatform != null ? "set" : "NULL")}. Content refreshed.");
         }
 
         /// <summary>Hides the panel with a fade animation.</summary>

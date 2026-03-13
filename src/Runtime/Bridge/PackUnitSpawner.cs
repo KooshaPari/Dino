@@ -165,7 +165,7 @@ namespace DINOForge.Runtime.Bridge
                     {
                         if (EntityManager.HasComponent<Translation>(spawned))
                         {
-                            EntityManager.SetComponentData(spawned, new Translation { Value = new float3(request.X, 0f, request.Z) });
+                            EntityManager.SetComponentData(spawned, new Translation { Value = new float3(request.X, request.Y, request.Z) });
                         }
                     }
                     catch (Exception ex)
@@ -195,7 +195,10 @@ namespace DINOForge.Runtime.Bridge
                     // (StatModifierSystem will handle applying these based on unit class matching)
 
                     _spawnedCount++;
-                    WriteDebug($"Spawned unit {request.UnitDefinitionId} at ({request.X}, {request.Z})");
+                    WriteDebug($"Spawned unit {request.UnitDefinitionId} at ({request.X}, {request.Y}, {request.Z})");
+
+                    // Apply aerial/anti-air components based on behavior_tags
+                    DINOForge.Runtime.Aviation.AerialUnitMapper.ApplyAerialComponents(EntityManager, spawned, unitDef);
 
                     entities.Dispose();
                 }
@@ -216,12 +219,12 @@ namespace DINOForge.Runtime.Bridge
         /// <param name="unitDefinitionId">Pack unit definition ID.</param>
         /// <param name="x">World X coordinate.</param>
         /// <param name="z">World Z coordinate.</param>
-        public static void RequestSpawnStatic(string unitDefinitionId, float x, float z, bool isEnemy = false)
+        public static void RequestSpawnStatic(string unitDefinitionId, float x, float z, bool isEnemy = false, float y = 0f)
         {
             if (string.IsNullOrWhiteSpace(unitDefinitionId))
                 return;
 
-            var request = new UnitSpawnRequest(unitDefinitionId, x, z, isEnemy);
+            var request = new UnitSpawnRequest(unitDefinitionId, x, z, isEnemy, y);
             lock (_spawnQueue)
             {
                 _spawnQueue.Enqueue(request);

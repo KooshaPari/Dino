@@ -15,6 +15,7 @@ ADRs document significant architectural decisions made during DINOForge developm
 | [ADR-007](./ADR-007-observability-first.md) | Observability First | Accepted |
 | [ADR-008](./ADR-008-wrap-dont-handroll.md) | Wrap, Don't Handroll | Accepted |
 | [ADR-009](./ADR-009-runtime-orchestration.md) | Runtime Orchestration via ModPlatform | Accepted |
+| [ADR-010](./ADR-010-asset-intake-pipeline.md) | Deterministic Star-Wars Asset Intake Pipeline | Proposed |
 
 ## Format
 

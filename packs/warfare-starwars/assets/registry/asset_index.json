@@ -1,0 +1,260 @@
+{
+  "$schema": "asset_index.schema.json",
+  "registry_version": "0.1.0",
+  "registry_format": "DINOForge Asset Registry",
+  "last_updated": "2026-03-12T12:30:00Z",
+  "pack_id": "warfare-starwars",
+  "pack_version": "0.1.0",
+  "description": "Central registry of all discovered and ingested assets for the Star Wars Clone Wars mod pack",
+  "metadata": {
+    "total_assets": 10,
+    "discovery_round": "Clone Wars Asset Sourcing - Round 1",
+    "discovery_date": "2026-03-12",
+    "by_status": {
+      "discovered": 10,
+      "metadata_fetched": 0,
+      "downloaded": 0,
+      "normalized": 0,
+      "validated": 0,
+      "ready_for_prototype": 0,
+      "rejected_technical": 0
+    },
+    "by_ip_status": {
+      "generic_safe": 0,
+      "fan_star_wars_private_only": 10,
+      "official_game_mod_tool_reference_only": 0,
+      "unknown_provenance": 0,
+      "high_risk_do_not_ship": 0
+    },
+    "by_priority": {
+      "critical": 3,
+      "high": 3,
+      "medium": 3,
+      "low": 1
+    },
+    "by_category": {
+      "unit_model": 5,
+      "vehicle_model": 3,
+      "building_model": 1,
+      "environment_terrain": 1,
+      "weapon_model": 0,
+      "projectile_model": 0,
+      "vfx_asset": 0,
+      "sfx_asset": 0,
+      "ui_element": 0,
+      "rig": 0,
+      "animation": 0,
+      "other": 0
+    },
+    "by_faction": {
+      "republic": 4,
+      "cis": 5,
+      "neutral": 1
+    }
+  },
+  "assets": [
+    {
+      "asset_id": "sw_clone_trooper_sketchfab_001",
+      "manifest_path": "raw/sw_clone_trooper_sketchfab_001/asset_manifest.json",
+      "category": "unit_model",
+      "faction": "republic",
+      "priority": "high",
+      "canonical_name": "Clone Trooper Model",
+      "source_platform": "sketchfab",
+      "technical_status": "discovered",
+      "ip_status": "fan_star_wars_private_only",
+      "provenance_confidence": 0.85,
+      "registered_at": "2026-03-11T20:15:00Z",
+      "last_checked": "2026-03-12T12:30:00Z"
+    },
+    {
+      "asset_id": "sw_stormtrooper_sketchfab_001",
+      "manifest_path": "raw/sw_stormtrooper_sketchfab_001/asset_manifest.json",
+      "category": "unit_model",
+      "faction": "cis",
+      "priority": "high",
+      "canonical_name": "Stormtrooper Model",
+      "source_platform": "sketchfab",
+      "technical_status": "manifest_created",
+      "ip_status": "fan_star_wars_private_only",
+      "provenance_confidence": 0.85,
+      "registered_at": "2026-03-11T20:15:00Z",
+      "last_checked": "2026-03-12T12:30:00Z"
+    },
+    {
+      "asset_id": "sw_vader_hero_sketchfab_001",
+      "manifest_path": "raw/sw_vader_hero_sketchfab_001/asset_manifest.json",
+      "category": "unit_model",
+      "faction": "cis",
+      "priority": "medium",
+      "canonical_name": "Vader Hero Model",
+      "source_platform": "sketchfab",
+      "technical_status": "discovered",
+      "ip_status": "fan_star_wars_private_only",
+      "provenance_confidence": 0.85,
+      "registered_at": "2026-03-11T20:15:00Z",
+      "last_checked": "2026-03-12T12:30:00Z"
+    },
+    {
+      "asset_id": "sw_b1_droid_sketchfab_001",
+      "manifest_path": "raw/sw_b1_droid_sketchfab_001/asset_manifest.json",
+      "category": "unit_model",
+      "faction": "cis",
+      "priority": "critical",
+      "canonical_name": "B1 Battle Droid",
+      "source_platform": "sketchfab",
+      "technical_status": "discovered",
+      "ip_status": "fan_star_wars_private_only",
+      "provenance_confidence": 0.88,
+      "registered_at": "2026-03-12T12:30:00Z",
+      "last_checked": "2026-03-12T12:30:00Z"
+    },
+    {
+      "asset_id": "sw_general_grievous_sketchfab_001",
+      "manifest_path": "raw/sw_general_grievous_sketchfab_001/asset_manifest.json",
+      "category": "unit_model",
+      "faction": "cis",
+      "priority": "critical",
+      "canonical_name": "General Grievous Hero",
+      "source_platform": "sketchfab",
+      "technical_status": "discovered",
+      "ip_status": "fan_star_wars_private_only",
+      "provenance_confidence": 0.85,
+      "registered_at": "2026-03-12T12:30:00Z",
+      "last_checked": "2026-03-12T12:30:00Z"
+    },
+    {
+      "asset_id": "sw_geonosis_env_sketchfab_001",
+      "manifest_path": "raw/sw_geonosis_env_sketchfab_001/asset_manifest.json",
+      "category": "environment_terrain",
+      "faction": "neutral",
+      "priority": "critical",
+      "canonical_name": "Geonosis Desert Environment",
+      "source_platform": "sketchfab",
+      "technical_status": "discovered",
+      "ip_status": "fan_star_wars_private_only",
+      "provenance_confidence": 0.82,
+      "registered_at": "2026-03-12T12:30:00Z",
+      "last_checked": "2026-03-12T12:30:00Z"
+    },
+    {
+      "asset_id": "sw_aat_walker_sketchfab_001",
+      "manifest_path": "raw/sw_aat_walker_sketchfab_001/asset_manifest.json",
+      "category": "vehicle_model",
+      "faction": "cis",
+      "priority": "high",
+      "canonical_name": "AAT Walker Vehicle",
+      "source_platform": "sketchfab",
+      "technical_status": "discovered",
+      "ip_status": "fan_star_wars_private_only",
+      "provenance_confidence": 0.86,
+      "registered_at": "2026-03-12T12:30:00Z",
+      "last_checked": "2026-03-12T12:30:00Z"
+    },
+    {
+      "asset_id": "sw_at_te_sketchfab_001",
+      "manifest_path": "raw/sw_at_te_sketchfab_001/asset_manifest.json",
+      "category": "vehicle_model",
+      "faction": "republic",
+      "priority": "high",
+      "canonical_name": "AT-TE Walker Vehicle",
+      "source_platform": "sketchfab",
+      "technical_status": "discovered",
+      "ip_status": "fan_star_wars_private_only",
+      "provenance_confidence": 0.86,
+      "registered_at": "2026-03-12T12:30:00Z",
+      "last_checked": "2026-03-12T12:30:00Z"
+    },
+    {
+      "asset_id": "sw_jedi_temple_sketchfab_001",
+      "manifest_path": "raw/sw_jedi_temple_sketchfab_001/asset_manifest.json",
+      "category": "building_model",
+      "faction": "republic",
+      "priority": "high",
+      "canonical_name": "Jedi Temple Building",
+      "source_platform": "sketchfab",
+      "technical_status": "discovered",
+      "ip_status": "fan_star_wars_private_only",
+      "provenance_confidence": 0.83,
+      "registered_at": "2026-03-12T12:30:00Z",
+      "last_checked": "2026-03-12T12:30:00Z"
+    },
+    {
+      "asset_id": "sw_b2_super_droid_sketchfab_001",
+      "manifest_path": "raw/sw_b2_super_droid_sketchfab_001/asset_manifest.json",
+      "category": "unit_model",
+      "faction": "cis",
+      "priority": "medium",
+      "canonical_name": "B2 Super Battle Droid",
+      "source_platform": "sketchfab",
+      "technical_status": "discovered",
+      "ip_status": "fan_star_wars_private_only",
+      "provenance_confidence": 0.85,
+      "registered_at": "2026-03-12T12:30:00Z",
+      "last_checked": "2026-03-12T12:30:00Z"
+    },
+    {
+      "asset_id": "sw_droideka_sketchfab_001",
+      "manifest_path": "raw/sw_droideka_sketchfab_001/asset_manifest.json",
+      "category": "unit_model",
+      "faction": "cis",
+      "priority": "medium",
+      "canonical_name": "Droideka",
+      "source_platform": "sketchfab",
+      "technical_status": "discovered",
+      "ip_status": "fan_star_wars_private_only",
+      "provenance_confidence": 0.84,
+      "registered_at": "2026-03-12T12:30:00Z",
+      "last_checked": "2026-03-12T12:30:00Z"
+    },
+    {
+      "asset_id": "sw_naboo_starfighter_sketchfab_001",
+      "manifest_path": "raw/sw_naboo_starfighter_sketchfab_001/asset_manifest.json",
+      "category": "vehicle_model",
+      "faction": "republic",
+      "priority": "medium",
+      "canonical_name": "Naboo Starfighter",
+      "source_platform": "sketchfab",
+      "technical_status": "discovered",
+      "ip_status": "fan_star_wars_private_only",
+      "provenance_confidence": 0.82,
+      "registered_at": "2026-03-12T12:30:00Z",
+      "last_checked": "2026-03-12T12:30:00Z"
+    }
+  ],
+  "exclusions": [],
+  "discovery_summary": {
+    "total_discovered": 10,
+    "sources": [
+      "Sketchfab API integration with CC-BY and CC0 license filters"
+    ],
+    "search_queries": [
+      "clone trooper",
+      "B1 battle droid",
+      "geonosis",
+      "general grievous",
+      "AAT walker",
+      "AT-TE",
+      "droideka",
+      "naboo starfighter"
+    ],
+    "polycount_targets": {
+      "unit_models": "< 10k triangles (optimal < 5k)",
+      "vehicles": "< 15k triangles",
+      "buildings": "< 20k triangles",
+      "environments": "< 30k triangles"
+    },
+    "license_requirements": "CC-BY-4.0 or CC0 preferred, all non-exclusive fan content marked for private development"
+  },
+  "notes": [
+    "Round 1 discovery complete: 10 assets covering CRITICAL, HIGH, and MEDIUM priorities",
+    "All assets currently marked as 'fan_star_wars_private_only' due to Star Wars IP restrictions.",
+    "These assets are suitable for internal development, prototyping, and design validation only.",
+    "For public releases, replace with generic sci-fi models or obtain explicit licensing from Lucasfilm/Disney.",
+    "All assets have CC-BY-4.0 licenses from Sketchfab creators - attribution required per license terms.",
+    "Priority breakdown: 3 CRITICAL, 3 HIGH, 3 MEDIUM, 1 existing (Stormtrooper has manifest_created status)",
+    "Asset manifests include download instructions, polycount estimates, and usage notes.",
+    "See intake_rules.yaml and risk_rules.yaml in the policies/ directory for assessment frameworks.",
+    "Next steps: Download assets, compute SHA256 hashes, run validation, begin normalization pipeline."
+  ]
+}

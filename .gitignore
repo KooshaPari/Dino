@@ -20,6 +20,7 @@ Thumbs.db
 
 # Secrets
 .env
+.env.local
 .env.*
 credentials.json
 *.key
@@ -60,3 +61,16 @@ local-packages/
 packs/**/assets/source/**/*.zip
 packs/**/assets/source/opengameart/sci-fi-soldier/
 docs/.vitepress/cache/
+
+# Asset downloads and cache
+*.glb
+*.gltf
+*.blend
+*.fbx
+*.obj
+*.usdz
+packs/*/assets/raw/**/source_download.*
+.cache/
+.cache/sketchfab/
+.fixtures/
+.env.local

@@ -5,18 +5,19 @@
     <AssemblyName>DINOForge.Runtime</AssemblyName>
     <RootNamespace>DINOForge.Runtime</RootNamespace>
     <Description>DINOForge runtime plugin - BepInEx bootstrap, ECS introspection, entity dumper</Description>
+    <BuildInParallel>false</BuildInParallel>
 
     <!-- Detect if the DINO game is installed by checking for UnityEngine.dll -->
     <GameInstalled Condition="Exists('$(ManagedDir)\UnityEngine.dll')">true</GameInstalled>
     <GameInstalled Condition="!Exists('$(ManagedDir)\UnityEngine.dll')">false</GameInstalled>
-
+    <DeployToGame Condition="'$(DeployToGame)' == ''">false</DeployToGame>
     <!-- Copy SDK and its dependencies alongside Runtime DLL for deployment (game install only) -->
-    <CopyLocalLockFileAssemblies Condition="'$(GameInstalled)' == 'true'">true</CopyLocalLockFileAssemblies>
+    <CopyLocalLockFileAssemblies Condition="'$(GameInstalled)' == 'true' and '$(DeployToGame)' == 'true'">true</CopyLocalLockFileAssemblies>
 
     <!-- Deploy built DLL to BepInEx plugins when game is installed; else default bin/ -->
-    <OutputPath Condition="'$(GameInstalled)' == 'true'">$(BepInExDir)\plugins</OutputPath>
-    <AppendTargetFrameworkToOutputPath Condition="'$(GameInstalled)' == 'true'">false</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdentifierToOutputPath Condition="'$(GameInstalled)' == 'true'">false</AppendRuntimeIdentifierToOutputPath>
+    <OutputPath Condition="'$(GameInstalled)' == 'true' and '$(DeployToGame)' == 'true'">$(BepInExDir)\plugins</OutputPath>
+    <AppendTargetFrameworkToOutputPath Condition="'$(GameInstalled)' == 'true' and '$(DeployToGame)' == 'true'">false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath Condition="'$(GameInstalled)' == 'true' and '$(DeployToGame)' == 'true'">false</AppendRuntimeIdentifierToOutputPath>
 
     <!-- Suppress version conflict warning for System.IO.Compression — game provides 4.2.0.0 at runtime, netstandard2.0 ref resolves to 4.1.3.0, both are compatible -->
     <MSBuildWarningsAsMessages>MSB3277</MSBuildWarningsAsMessages>
@@ -36,13 +37,6 @@
     <Compile Remove="UI\NativeMenuInjector.cs" />
     <Compile Remove="UI\NativeUiHelper.cs" />
     <Compile Remove="UI\UiBuilder.cs" />
-  </ItemGroup>
-
-  <!-- SDK reference for HotReload bridge and content loading -->
-  <ItemGroup>
-    <ProjectReference Include="..\SDK\DINOForge.SDK.csproj">
-      <Private>true</Private>
-    </ProjectReference>
   </ItemGroup>
 
   <!-- BepInEx core - only when game is installed -->
@@ -138,6 +132,10 @@
       <HintPath>$(ManagedDir)\UnityEngine.ScreenCaptureModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>$(ManagedDir)\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
 
     <!-- Game DLLs -->
     <Reference Include="DNO.Main">
@@ -203,12 +201,33 @@
     <Compile Remove="UI\ModMenuOverlayProxy.cs" />
     <Compile Remove="Bridge\FactionSystem.cs" />
     <Compile Remove="Bridge\WaveInjector.cs" />
+    <Compile Remove="Bridge\VFXPoolManager.cs" />
+    <Compile Remove="Bridge\LODManager.cs" />
+    <!-- Exclude Aviation namespace - incomplete implementation, uses undefined AerialUnitComponent -->
+    <Compile Remove="Aviation\**" />
   </ItemGroup>
 
-  <!-- SDK project reference - provides pack loading, registries, schemas -->
-  <ItemGroup>
-    <ProjectReference Include="..\SDK\DINOForge.SDK.csproj" />
-    <ProjectReference Include="..\Bridge\Protocol\DINOForge.Bridge.Protocol.csproj" />
+  <!--
+    Solution builds currently hit an opaque nested-MSBuild failure while resolving
+    Runtime's project references. Use direct assembly references in that path and
+    keep project references for standalone Runtime builds.
+  -->
+  <ItemGroup Condition="'$(SolutionPath)' != ''">
+    <Reference Include="DINOForge.SDK">
+      <HintPath>..\SDK\bin\$(Configuration)\netstandard2.0\DINOForge.SDK.dll</HintPath>
+    </Reference>
+    <Reference Include="DINOForge.Bridge.Protocol">
+      <HintPath>..\Bridge\Protocol\bin\$(Configuration)\netstandard2.0\DINOForge.Bridge.Protocol.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(SolutionPath)' == ''">
+    <ProjectReference Include="..\SDK\DINOForge.SDK.csproj"
+                      SetTargetFramework="TargetFramework=netstandard2.0"
+                      SkipGetTargetFrameworkProperties="true" />
+    <ProjectReference Include="..\Bridge\Protocol\DINOForge.Bridge.Protocol.csproj"
+                      SetTargetFramework="TargetFramework=netstandard2.0"
+                      SkipGetTargetFrameworkProperties="true" />
   </ItemGroup>
 
   <!--
@@ -217,7 +236,7 @@
     If no Kenney assets have been downloaded (src/Runtime/UI/Assets/kenney/ contains only
     .gitkeep files) the target copies nothing and the plugin falls back to flat colours.
   -->
-  <Target Name="DeployUiAssets" AfterTargets="Build" Condition="'$(GameInstalled)' == 'true'">
+  <Target Name="DeployUiAssets" AfterTargets="Build" Condition="'$(GameInstalled)' == 'true' and '$(DeployToGame)' == 'true'">
     <ItemGroup>
       <KenneyAssetFiles Include="$(MSBuildThisFileDirectory)UI\Assets\kenney\**\*"
                         Exclude="$(MSBuildThisFileDirectory)UI\Assets\kenney\**\.gitkeep" />
@@ -237,7 +256,7 @@
   </Target>
 
   <!-- Deploy packs from repo to game directory -->
-  <Target Name="DeployPacks" AfterTargets="Build" Condition="Exists('$(BepInExDir)')">
+  <Target Name="DeployPacks" AfterTargets="Build" Condition="'$(DeployToGame)' == 'true' and Exists('$(BepInExDir)')">
     <ItemGroup>
       <PackFiles Include="$(MSBuildThisFileDirectory)..\..\packs\**\*" />
     </ItemGroup>

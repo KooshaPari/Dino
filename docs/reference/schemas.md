@@ -20,6 +20,7 @@ DINOForge uses JSON Schema and YAML Schema definitions to validate all pack cont
 | Scenario | `scenario.schema.json` | Scenario scripting, conditions, victory/loss |
 | Economy Profile | `economy-profile.schema.json` | Resource rates, trade, economy balance |
 | Universe Bible | `universe-bible.json` | Total conversion lore, naming, style guides |
+| Asset Manifest | `asset-manifest.schema.json` | Intake manifest with technical and IP provenance states |
 
 ## Pack Manifest
 

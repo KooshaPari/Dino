@@ -57,6 +57,7 @@ export default withMermaid(
           text: 'Guide',
           items: [
             { text: 'Creating Packs', link: '/guide/creating-packs' },
+            { text: 'Asset Intake (Pre-Impl)', link: '/asset-intake/assetctl-prd' },
           ],
         },
         {
@@ -72,6 +73,9 @@ export default withMermaid(
           items: [
             { text: 'Schema Reference', link: '/reference/schemas' },
             { text: 'CLI Reference', link: '/reference/cli' },
+            { text: 'Asset Intake Spec', link: '/reference/asset-intake/blender-normalization-worker' },
+            { text: 'Unity Import Contract', link: '/reference/asset-intake/unity-import-contract' },
+            { text: 'Faction Taxonomy', link: '/reference/asset-intake/faction-taxonomy' },
           ],
         },
         {

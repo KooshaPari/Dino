@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using BepInEx.Logging;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,6 +39,7 @@ namespace DINOForge.Runtime.UI
         private int _selectedPackIndex = -1;
         private string _statusMessage = "";
         private int _errorCount;
+        private ManualLogSource? _log;
 
         // ── Animation ────────────────────────────────────────────────────────────
         private CanvasGroup? _canvasGroup;
@@ -59,11 +61,23 @@ namespace DINOForge.Runtime.UI
         // ── Bootstrap ────────────────────────────────────────────────────────────
 
         /// <summary>
+        /// Initializes the logger. Must be called before Build().
+        /// </summary>
+        /// <param name="log">BepInEx logger for diagnostics.</param>
+        public void Initialize(ManualLogSource log)
+        {
+            _log = log;
+            _log?.LogInfo("[ModMenuPanel] Initialized with logger.");
+        }
+
+        /// <summary>
         /// Builds the full UGUI hierarchy. Call from DFCanvas.Start() on the main thread.
         /// </summary>
         /// <param name="canvasRoot">Root canvas transform to attach to.</param>
         public void Build(Transform canvasRoot)
         {
+            _log?.LogInfo("[ModMenuPanel.Build] Starting UGUI hierarchy construction...");
+
             // Root panel — centered
             GameObject rootGo = UiBuilder.MakePanel(canvasRoot, "ModMenuPanel",
                 UiBuilder.BgDeep, new Vector2(PanelWidth, PanelHeight));
@@ -82,6 +96,8 @@ namespace DINOForge.Runtime.UI
             BuildHeader(rootGo.transform);
             BuildBody(rootGo.transform);
             BuildFooter(rootGo.transform);
+
+            _log?.LogInfo($"[ModMenuPanel.Build] UGUI hierarchy complete. _listContent={(_listContent != null ? _listContent.name : "NULL")}");
         }
 
         // ── Public API ────────────────────────────────────────────────────────────
@@ -89,11 +105,42 @@ namespace DINOForge.Runtime.UI
         /// <summary>Replaces the pack list and refreshes the UI.</summary>
         public void SetPacks(IEnumerable<PackDisplayInfo> packs)
         {
+            int beforeCount = _packs.Count;
             _packs.Clear();
             _packs.AddRange(packs);
             _selectedPackIndex = _packs.Count > 0 ? 0 : -1;
+
+            _log?.LogInfo($"");
+            _log?.LogInfo($"╔════════════════════════════════════════════════════════════════════════════════════╗");
+            _log?.LogInfo($"║ [ModMenuPanel.SetPacks] ENTRY                                                       ║");
+            _log?.LogInfo($"╚════════════════════════════════════════════════════════════════════════════════════╝");
+            _log?.LogInfo($"  Before: {beforeCount} packs, After: {_packs.Count} packs");
+            _log?.LogInfo($"  _listContent: {(_listContent != null ? $"READY (name={_listContent.name}, active={_listContent.gameObject.activeSelf})" : "NULL")}");
+            _log?.LogInfo($"  _selectedPackIndex: {_selectedPackIndex}");
+
+            if (_packs.Count > 0)
+            {
+                _log?.LogInfo($"  Pack list:");
+                foreach (var p in _packs)
+                {
+                    _log?.LogInfo($"    • {p.Name} (ID: {p.Id}, enabled: {p.IsEnabled})");
+                }
+            }
+
+            // Safety check: if _listContent is null, it means Build() hasn't been called yet
+            // or failed. This can happen if SetPacks is called before the UI hierarchy is complete.
+            if (_listContent == null)
+            {
+                _log?.LogWarning("[ModMenuPanel.SetPacks] _listContent is NULL! UI hierarchy not initialized. " +
+                    "Packs will queue and render when UI is ready. Check DFCanvas.Start() completion.");
+            }
+
+            _log?.LogInfo($"[ModMenuPanel.SetPacks] Calling RebuildPackList()...");
             RebuildPackList();
+            _log?.LogInfo($"[ModMenuPanel.SetPacks] RebuildPackList() complete. Calling RefreshDetail()...");
             RefreshDetail();
+            _log?.LogInfo($"[ModMenuPanel.SetPacks] RefreshDetail() complete. EXIT.");
+            _log?.LogInfo($"");
         }
 
         /// <summary>Updates the header status text.</summary>
@@ -233,12 +280,15 @@ namespace DINOForge.Runtime.UI
 
         private void BuildListPane(Transform parent)
         {
+            _log?.LogInfo("[ModMenuPanel.BuildListPane] Starting pack list pane construction...");
+
             GameObject pane = new GameObject("ListPane", typeof(RectTransform));
             pane.transform.SetParent(parent, false);
 
             LayoutElement paneLe = pane.AddComponent<LayoutElement>();
             paneLe.preferredWidth = ListWidth;
             paneLe.minWidth = ListWidth;
+            paneLe.flexibleHeight = 1f;  // CRITICAL: Allow ListPane to expand to fill parent height!
 
             // List header
             GameObject listHeader = UiBuilder.MakePanel(pane.transform, "ListHeader",
@@ -256,9 +306,20 @@ namespace DINOForge.Runtime.UI
             lhTitleLe.flexibleWidth = 1f;
 
             // Scroll view for pack items
+            _log?.LogInfo("[ModMenuPanel.BuildListPane] Creating scroll view...");
             (ScrollRect scrollRect, RectTransform content) = UiBuilder.MakeScrollView(
                 pane.transform, "PackListScroll",
                 new Vector2(ListWidth, 0f));
+
+            // Validate the result
+            if (content == null || scrollRect == null)
+            {
+                _log?.LogError("[ModMenuPanel.BuildListPane] CRITICAL: MakeScrollView failed! " +
+                    $"scrollRect={scrollRect != null}, content={content != null}. " +
+                    "Pack list will not render. Check UiBuilder.MakeScrollView for exceptions.");
+                _listContent = null;
+                return;
+            }
 
             RectTransform scrollRt = scrollRect.GetComponent<RectTransform>();
             scrollRt.anchorMin = Vector2.zero;
@@ -268,6 +329,26 @@ namespace DINOForge.Runtime.UI
             scrollRt.sizeDelta = Vector2.zero;
 
             _listContent = content;
+            _log?.LogInfo($"[ModMenuPanel.BuildListPane] Scroll view initialized successfully.");
+            _log?.LogInfo($"  scrollRt.rect.size={scrollRt.rect.size} (viewport visible area)");
+            _log?.LogInfo($"  scrollRt.sizeDelta={scrollRt.sizeDelta}, anchorMin={scrollRt.anchorMin}, anchorMax={scrollRt.anchorMax}");
+            _log?.LogInfo($"  content.name={content.name}");
+            _log?.LogInfo($"  content.active={content.gameObject.activeSelf}");
+            _log?.LogInfo($"  content.anchorMin={content.anchorMin}, anchorMax={content.anchorMax}");
+            _log?.LogInfo($"  content.sizeDelta={content.sizeDelta}");
+            _log?.LogInfo($"  content.anchoredPosition={content.anchoredPosition}");
+            _log?.LogInfo($"  ScrollRect component on: {scrollRect.name}");
+            _log?.LogInfo($"  ScrollRect.content set to: {scrollRect.content?.name ?? "NULL"}");
+            _log?.LogInfo($"  ScrollRect.vertical={scrollRect.vertical}");
+            _log?.LogInfo($"  ScrollRect.enabled={scrollRect.enabled}");
+            Image viewportImage = scrollRect.GetComponent<Image>();
+            _log?.LogInfo($"  Viewport Image: exists={viewportImage != null}, raycastTarget={viewportImage?.raycastTarget}");
+
+            // Verify components on content
+            ContentSizeFitter csf = content.GetComponent<ContentSizeFitter>();
+            VerticalLayoutGroup vlg = content.GetComponent<VerticalLayoutGroup>();
+            _log?.LogInfo($"  content has ContentSizeFitter: {csf != null} (verticalFit={csf?.verticalFit})");
+            _log?.LogInfo($"  content has VerticalLayoutGroup: {vlg != null} (childForceExpandHeight={vlg?.childForceExpandHeight}, spacing={vlg?.spacing})");
         }
 
         private void BuildDetailPane(Transform parent)
@@ -398,7 +479,16 @@ namespace DINOForge.Runtime.UI
 
         private void RebuildPackList()
         {
-            if (_listContent == null) return;
+            if (_listContent == null)
+            {
+                _log?.LogWarning("[ModMenuPanel.RebuildPackList] _listContent is NULL — UI not initialized yet. " +
+                    "Pack list will render once Build() completes. Ensure DFCanvas.Start() runs before SetPacks() is called.");
+                return;
+            }
+
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] START: _packs.Count={_packs.Count}, _listContent={_listContent.name}, active={_listContent.gameObject.activeSelf}");
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] _listContent RectTransform: position={_listContent.anchoredPosition}, sizeDelta={_listContent.sizeDelta}");
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] Clearing {_listContent.childCount} existing items");
 
             // Destroy existing items
             for (int i = _listContent.childCount - 1; i >= 0; i--)
@@ -406,15 +496,64 @@ namespace DINOForge.Runtime.UI
                 Destroy(_listContent.GetChild(i).gameObject);
             }
 
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] After clear: childCount={_listContent.childCount}. Now rendering {_packs.Count} pack(s)...");
+
             for (int i = 0; i < _packs.Count; i++)
             {
+                _log?.LogInfo($"[ModMenuPanel.RebuildPackList] Creating item {i}: '{_packs[i].Name}' (ID: {_packs[i].Id})");
                 BuildPackListItem(_packs[i], i);
             }
+
+            // CRITICAL FIX: Manually set content height since ContentSizeFitter is not calculating correctly
+            // Calculate: padding.top + (itemCount * itemHeight) + (itemCount-1 * spacing) + padding.bottom
+            float padding_top = 4f, padding_bottom = 4f, spacing = 2f, itemHeight = 40f;
+            float calculatedHeight = padding_top + (_packs.Count * itemHeight) + (Mathf.Max(0, _packs.Count - 1) * spacing) + padding_bottom;
+            _listContent.sizeDelta = new Vector2(_listContent.sizeDelta.x, calculatedHeight);
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] MANUAL FIX APPLIED: Set content height to {calculatedHeight} (was {_listContent.sizeDelta.y})");
+
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] COMPLETE: childCount={_listContent.childCount}. Listing items:");
+            for (int i = 0; i < _listContent.childCount; i++)
+            {
+                Transform child = _listContent.GetChild(i);
+                RectTransform childRt = child.GetComponent<RectTransform>();
+                _log?.LogInfo($"  Item {i}: name={child.name}, active={child.gameObject.activeSelf}, sizeDelta={childRt.sizeDelta}, childCount={child.childCount}");
+            }
+
+            // CRITICAL: Log content size AFTER all items are created and VerticalLayoutGroup has calculated
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] FINAL CONTENT SIZE: sizeDelta={_listContent.sizeDelta}, rect.height={_listContent.rect.height}");
+            ContentSizeFitter csf = _listContent.GetComponent<ContentSizeFitter>();
+            VerticalLayoutGroup vlg = _listContent.GetComponent<VerticalLayoutGroup>();
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] ContentSizeFitter: {(csf != null ? $"enabled={csf.enabled}, verticalFit={csf.verticalFit}" : "NULL")}");
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] VerticalLayoutGroup: {(vlg != null ? $"enabled={vlg.enabled}, spacing={vlg.spacing}, padding={vlg.padding}, preferredHeight={vlg.preferredHeight}" : "NULL")}");
+
+            // Calculate expected height manually
+            float expectedHeight = 0f;
+            if (vlg != null)
+            {
+                expectedHeight = vlg.padding.top + vlg.padding.bottom;
+                for (int i = 0; i < _listContent.childCount; i++)
+                {
+                    Transform child = _listContent.GetChild(i);
+                    LayoutElement childLe = child.GetComponent<LayoutElement>();
+                    if (childLe != null && childLe.preferredHeight > 0)
+                    {
+                        expectedHeight += childLe.preferredHeight;
+                        if (i > 0) expectedHeight += vlg.spacing;
+                    }
+                }
+            }
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] MANUAL CALCULATION: expected total height={expectedHeight} (padding.top={vlg?.padding.top}, padding.bottom={vlg?.padding.bottom}, spacing={vlg?.spacing}, items={_listContent.childCount})");
         }
 
         private void BuildPackListItem(PackDisplayInfo pack, int index)
         {
-            if (_listContent == null) return;
+            if (_listContent == null)
+            {
+                _log?.LogWarning($"[ModMenuPanel.BuildPackListItem] _listContent is NULL for pack '{pack.Id}' — item {index} skipped.");
+                return;
+            }
+
+            _log?.LogInfo($"[ModMenuPanel.BuildPackListItem] Starting item {index}: '{pack.Name}' (enabled={pack.IsEnabled}, selected={index == _selectedPackIndex})");
 
             bool isSelected = index == _selectedPackIndex;
             bool hasErrors = pack.Errors.Count > 0;
@@ -425,10 +564,14 @@ namespace DINOForge.Runtime.UI
             Color alpha = pack.IsEnabled ? Color.white : new Color(1f, 1f, 1f, 0.6f);
 
             GameObject card = UiBuilder.MakePanel(_listContent, $"PackItem_{pack.Id}", bgColor, new Vector2(0f, ItemHeight));
+            RectTransform cardRt = card.GetComponent<RectTransform>();
+            _log?.LogInfo($"[ModMenuPanel.BuildPackListItem] Item {index} card created: sizeDelta={cardRt.sizeDelta}, active={card.activeSelf}");
+
             LayoutElement cardLe = card.AddComponent<LayoutElement>();
             cardLe.minHeight = ItemHeight;
             cardLe.preferredHeight = ItemHeight;
             cardLe.flexibleWidth = 1f;
+            _log?.LogInfo($"[ModMenuPanel.BuildPackListItem] Item {index} LayoutElement set: minHeight={cardLe.minHeight}, preferredHeight={cardLe.preferredHeight}");
 
             // Amber left-border strip for enabled packs
             if (pack.IsEnabled)
@@ -455,6 +598,9 @@ namespace DINOForge.Runtime.UI
             Color nameColor = pack.IsEnabled ? UiBuilder.TextPrimary : UiBuilder.TextSecondary;
             Text nameText = UiBuilder.MakeText(card.transform, "PackName", pack.Name, 13,
                 nameColor, bold: isSelected);
+            RectTransform nameTextRt = nameText.GetComponent<RectTransform>();
+            _log?.LogInfo($"[ModMenuPanel.BuildPackListItem] Item {index} nameText created: text='{pack.Name}', fontSize={nameText.fontSize}, color={nameColor}, sizeDelta={nameTextRt.sizeDelta}, font={nameText.font?.name}");
+
             if (!pack.IsEnabled)
             {
                 nameText.color = new Color(nameColor.r, nameColor.g, nameColor.b, 0.6f);
@@ -462,6 +608,7 @@ namespace DINOForge.Runtime.UI
             LayoutElement nameLe = nameText.gameObject.AddComponent<LayoutElement>();
             nameLe.minWidth = 100f;
             nameLe.flexibleWidth = 1f;
+            _log?.LogInfo($"[ModMenuPanel.BuildPackListItem] Item {index} nameText LayoutElement: minWidth={nameLe.minWidth}, flexibleWidth={nameLe.flexibleWidth}");
 
             // Error / Conflict badge
             if (hasErrors)

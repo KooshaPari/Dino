@@ -197,6 +197,81 @@ public async Task RegisterUnitAsync(string unitId, UnitConfig config)
 }
 ```
 
+## Conventional Commits and SemVer
+
+DINOForge uses Conventional Commits for release intent and Semantic Versioning for public releases.
+
+### Commit format
+
+Use:
+
+```text
+type(scope): summary
+```
+
+Accepted top-level types are:
+
+- `feat`
+- `fix`
+- `docs`
+- `test`
+- `perf`
+- `refactor`
+- `chore`
+- `ci`
+- `build`
+- `style`
+- `revert`
+
+### Version bump policy
+
+While DINOForge is still in `0.x`, use the stricter KooshaPari rule set:
+
+- `fix` / `perf` / `revert` normally map to a patch release
+- `feat` maps to a minor release
+- Breaking public contract changes still require an explicit changelog callout and should bump the minor version while the project remains in `0.x`
+- After `1.0.0`, breaking public contract changes must bump the major version
+
+Pre-release identifiers should use one of:
+
+- `alpha.N`
+- `beta.N`
+- `rc.N`
+
+## Keep a Changelog Rules
+
+`CHANGELOG.md` is not optional release decoration. It is part of the release contract.
+
+Required rules:
+
+- keep `## [Unreleased]` at the top
+- add all non-doc, non-meta changes to `CHANGELOG.md`
+- use standard Keep a Changelog headings:
+  - `Added`
+  - `Changed`
+  - `Deprecated`
+  - `Removed`
+  - `Fixed`
+  - `Security`
+- move `Unreleased` entries into a dated version section before tagging
+- keep `VERSION` synchronized with the latest released changelog section
+
+## Release Governance
+
+Before cutting a release:
+
+1. finalize `CHANGELOG.md`
+2. ensure `VERSION` matches the release target
+3. verify CI, formatting, and coverage are green
+4. verify release artifacts and checksums
+5. tag using `vX.Y.Z` or `vX.Y.Z-rc.N`
+
+The canonical release playbook is in [RELEASING.md](./RELEASING.md).
+
+## Shared KooshaPari Semantics
+
+This repo follows the shared KooshaPari semantics for release signals, coverage, ownership, and governance docs. The shared contract and Dino-specific exceptions are documented in [docs/reference/kooshapari-project-semantics.md](./docs/reference/kooshapari-project-semantics.md).
+
 ## Creating a Content Pack
 
 Packs are the primary way to extend DINOForge. They use declarative YAML manifests.

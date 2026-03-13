@@ -298,6 +298,19 @@ namespace DINOForge.Runtime
                 _log.LogWarning($"[RuntimeDriver] NativeMenuInjector setup failed: {ex.Message}");
             }
 
+            // ── Step 3b: Add UiEventInterceptor for comprehensive UI event logging ──
+            // This component logs ALL button clicks and pointer events to diagnose UI issues.
+            try
+            {
+                UiEventInterceptor interceptor = gameObject.AddComponent<UiEventInterceptor>();
+                interceptor.SetLogger(_log);
+                _log.LogInfo("[RuntimeDriver] Added UiEventInterceptor — logging all button clicks for diagnostics.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[RuntimeDriver] UiEventInterceptor setup failed: {ex.Message}");
+            }
+
             // ── Step 4: Log key handler registration ────────────────────────────────
             _log.LogInfo($"[RuntimeDriver] F9/F10 key handlers registered on {gameObject.name}.");
             _log.LogInfo("[RuntimeDriver] Waiting for ECS World (Update polling)...");
@@ -391,6 +404,13 @@ namespace DINOForge.Runtime
                 if (_nativeMenuInjector != null)
                 {
                     _nativeMenuInjector.SetModMenuOverlay(proxy);
+                }
+
+                // Wire UGUI DebugPanel to ModPlatform so it displays platform status
+                if (_dfCanvas.DebugPanel != null && _modPlatform != null)
+                {
+                    _dfCanvas.DebugPanel.SetModPlatform(_modPlatform);
+                    _log.LogInfo("[RuntimeDriver] UGUI DebugPanel wired to ModPlatform.");
                 }
 
                 _modMenuOverlay   = proxy;

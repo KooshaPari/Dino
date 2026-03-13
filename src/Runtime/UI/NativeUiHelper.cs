@@ -46,6 +46,12 @@ namespace DINOForge.Runtime.UI
             GameObject clone = UnityEngine.Object.Instantiate(source.gameObject, source.transform.parent);
             clone.name = "DINOForge_ModsButton";
             Button cloneBtn = clone.GetComponent<Button>();
+
+            // Reset navigation to prevent inherited EventSystem conflicts from original button's menu layout
+            Navigation nav = cloneBtn.navigation;
+            nav.mode = Navigation.Mode.Automatic;
+            cloneBtn.navigation = nav;
+
             SetButtonText(cloneBtn, newText);
             return cloneBtn;
         }
