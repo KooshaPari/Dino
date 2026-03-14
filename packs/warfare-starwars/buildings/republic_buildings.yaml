@@ -14,6 +14,7 @@
     population: 0
   production: {}
 
+  visual_asset: sw-command-center
 - id: rep_clone_facility
   display_name: Clone Training Facility
   description: Clone trooper deployment center producing militia and standard clone troopers.
@@ -111,6 +112,7 @@
     food: 5
     iron: 2
 
+  visual_asset: sw-supply-station
 - id: rep_tibanna_refinery
   display_name: Tibanna Gas Refinery
   description: Processes tibanna gas for blaster ammunition and trade.
@@ -126,6 +128,7 @@
   production:
     gold: 4
 
+  visual_asset: sw-tibanna-refinery
 - id: rep_research_lab
   display_name: Research Laboratory
   description: Republic R&D facility unlocking advanced clone and vehicle upgrades.
@@ -140,6 +143,7 @@
     population: 0
   production: {}
 
+  visual_asset: sw-research-lab
 - id: rep_blast_wall
   display_name: Blast Wall
   description: Reinforced durasteel wall segment for perimeter defense.
@@ -154,6 +158,7 @@
     population: 0
   production: {}
 
+  visual_asset: sw-blast-wall
 - id: rep_skyshield_generator
   display_name: Skyshield Generator
   description: Orbital shield platform providing air defense against starfighters and aerial bombardment.
@@ -171,3 +176,5 @@
   anti_air:
     range: 40.0
     damage_bonus: 1.4
+
+  visual_asset: sw-skyshield-generator

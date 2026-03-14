@@ -191,7 +191,7 @@ namespace DINOForge.Tests
             startIdx.Should().BeGreaterThan(-1, $"Building {buildingId} should be in asset pipeline");
 
             var endIdx = yaml.IndexOf("\n      - id: ", startIdx + 1);
-            if (endIdx == -1) endIdx = yaml.IndexOf("\n  v0_9_0_future:", startIdx);
+            if (endIdx == -1) endIdx = yaml.IndexOf("\n  v1_1_0_buildings_expansion:", startIdx);
             if (endIdx == -1) endIdx = yaml.Length;
 
             var section = yaml.Substring(startIdx, endIdx - startIdx);
@@ -272,7 +272,7 @@ namespace DINOForge.Tests
         {
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
             var section = yaml.Substring(yaml.IndexOf("v1_0_0_buildings:"),
-                yaml.IndexOf("v0_9_0_future:") - yaml.IndexOf("v1_0_0_buildings:"));
+                yaml.IndexOf("v1_1_0_buildings_expansion:") - yaml.IndexOf("v1_0_0_buildings:"));
 
             var count = section.Split(new[] { "- id: " }, StringSplitOptions.None).Length - 1;
             count.Should().Be(10, "Phase 4 should configure exactly 10 buildings");
@@ -283,7 +283,7 @@ namespace DINOForge.Tests
         {
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
             var section = yaml.Substring(yaml.IndexOf("v1_0_0_buildings:"),
-                yaml.IndexOf("v0_9_0_future:") - yaml.IndexOf("v1_0_0_buildings:"));
+                yaml.IndexOf("v1_1_0_buildings_expansion:") - yaml.IndexOf("v1_0_0_buildings:"));
 
             var republicCount = section.Split(new[] { "faction: republic" }, StringSplitOptions.None).Length - 1;
             republicCount.Should().Be(5, "Phase 4 should configure 5 Republic buildings");
@@ -294,7 +294,7 @@ namespace DINOForge.Tests
         {
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
             var section = yaml.Substring(yaml.IndexOf("v1_0_0_buildings:"),
-                yaml.IndexOf("v0_9_0_future:") - yaml.IndexOf("v1_0_0_buildings:"));
+                yaml.IndexOf("v1_1_0_buildings_expansion:") - yaml.IndexOf("v1_0_0_buildings:"));
 
             var cisCount = section.Split(new[] { "faction: cis" }, StringSplitOptions.None).Length - 1;
             cisCount.Should().Be(5, "Phase 4 should configure 5 CIS buildings");
@@ -367,7 +367,7 @@ namespace DINOForge.Tests
         {
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
             var section = yaml.Substring(yaml.IndexOf("v1_0_0_buildings:"),
-                yaml.IndexOf("v0_9_0_future:") - yaml.IndexOf("v1_0_0_buildings:"));
+                yaml.IndexOf("v1_1_0_buildings_expansion:") - yaml.IndexOf("v1_0_0_buildings:"));
 
             // All buildings should have screen_sizes: [200, 100, 50]
             var screenSizeLines = section.Split('\n')

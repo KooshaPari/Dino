@@ -785,8 +785,288 @@ phases:
           priority: high
           note: "Ray Shield - droid-operated shield projector blocking incoming fire"
 
+  v1_1_0_buildings_expansion:
+    description: "Phase 5: Remaining 12 buildings (6 Republic + 6 CIS) completing 100% building coverage"
+    models:
+
+      - id: rep_command_center
+        file: raw/rep_command_center_sketchfab_001/model.glb
+        type: building
+        faction: republic
+        building_type: command
+        polycount_target: 55000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: republic
+        addressable_key: sw-command-center
+        output_prefab: prefabs/Command_Center_Republic.prefab
+        update_definition:
+          enabled: true
+          file: buildings/republic_buildings.yaml
+          id: rep_command_center
+          field: visual_asset
+        metadata:
+          priority: medium
+          note: "Republic Command Center - central HQ coordinating all forces"
+
+      - id: rep_supply_station
+        file: raw/rep_supply_station_sketchfab_001/model.glb
+        type: building
+        faction: republic
+        building_type: economy
+        polycount_target: 30000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: republic
+        addressable_key: sw-supply-station
+        output_prefab: prefabs/Supply_Station_Republic.prefab
+        update_definition:
+          enabled: true
+          file: buildings/republic_buildings.yaml
+          id: rep_supply_station
+          field: visual_asset
+        metadata:
+          priority: medium
+          note: "Republic Supply Station - logistics hub providing resource income"
+
+      - id: rep_tibanna_refinery
+        file: raw/rep_tibanna_refinery_sketchfab_001/model.glb
+        type: building
+        faction: republic
+        building_type: economy
+        polycount_target: 40000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: republic
+        addressable_key: sw-tibanna-refinery
+        output_prefab: prefabs/Tibanna_Refinery_Republic.prefab
+        update_definition:
+          enabled: true
+          file: buildings/republic_buildings.yaml
+          id: rep_tibanna_refinery
+          field: visual_asset
+        metadata:
+          priority: medium
+          note: "Tibanna Gas Refinery - processes gas for blaster ammo and trade"
+
+      - id: rep_research_lab
+        file: raw/rep_research_lab_sketchfab_001/model.glb
+        type: building
+        faction: republic
+        building_type: research
+        polycount_target: 42000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: republic
+        addressable_key: sw-research-lab
+        output_prefab: prefabs/Research_Lab_Republic.prefab
+        update_definition:
+          enabled: true
+          file: buildings/republic_buildings.yaml
+          id: rep_research_lab
+          field: visual_asset
+        metadata:
+          priority: medium
+          note: "Research Laboratory - R&D facility for clone and vehicle upgrades"
+
+      - id: rep_blast_wall
+        file: raw/rep_blast_wall_sketchfab_001/model.glb
+        type: building
+        faction: republic
+        building_type: defense
+        polycount_target: 18000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: republic
+        addressable_key: sw-blast-wall
+        output_prefab: prefabs/Blast_Wall_Republic.prefab
+        update_definition:
+          enabled: true
+          file: buildings/republic_buildings.yaml
+          id: rep_blast_wall
+          field: visual_asset
+        metadata:
+          priority: low
+          note: "Blast Wall - reinforced durasteel perimeter wall segment"
+
+      - id: rep_skyshield_generator
+        file: raw/rep_skyshield_generator_sketchfab_001/model.glb
+        type: building
+        faction: republic
+        building_type: defense
+        polycount_target: 35000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: republic
+        addressable_key: sw-skyshield-generator
+        output_prefab: prefabs/Skyshield_Generator_Republic.prefab
+        update_definition:
+          enabled: true
+          file: buildings/republic_buildings.yaml
+          id: rep_skyshield_generator
+          field: visual_asset
+        metadata:
+          priority: medium
+          note: "Skyshield Generator - orbital air defense against starfighters"
+
+      - id: cis_tactical_center
+        file: raw/cis_tactical_center_sketchfab_001/model.glb
+        type: building
+        faction: cis
+        building_type: command
+        polycount_target: 55000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: cis
+        addressable_key: sw-tactical-center
+        output_prefab: prefabs/Tactical_Center_CIS.prefab
+        update_definition:
+          enabled: true
+          file: buildings/cis_buildings.yaml
+          id: cis_tactical_center
+          field: visual_asset
+        metadata:
+          priority: medium
+          note: "CIS Tactical Center - droid army command and battle management hub"
+
+      - id: cis_mining_facility
+        file: raw/cis_mining_facility_sketchfab_001/model.glb
+        type: building
+        faction: cis
+        building_type: economy
+        polycount_target: 40000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: cis
+        addressable_key: sw-mining-facility
+        output_prefab: prefabs/Mining_Facility_CIS.prefab
+        update_definition:
+          enabled: true
+          file: buildings/cis_buildings.yaml
+          id: cis_mining_facility
+          field: visual_asset
+        metadata:
+          priority: medium
+          note: "CIS Mining Facility - automated ore extraction for droid production"
+
+      - id: cis_processing_plant
+        file: raw/cis_processing_plant_sketchfab_001/model.glb
+        type: building
+        faction: cis
+        building_type: economy
+        polycount_target: 38000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: cis
+        addressable_key: sw-processing-plant
+        output_prefab: prefabs/Processing_Plant_CIS.prefab
+        update_definition:
+          enabled: true
+          file: buildings/cis_buildings.yaml
+          id: cis_processing_plant
+          field: visual_asset
+        metadata:
+          priority: medium
+          note: "CIS Processing Plant - refines raw materials into droid components"
+
+      - id: cis_tech_union_lab
+        file: raw/cis_tech_union_lab_sketchfab_001/model.glb
+        type: building
+        faction: cis
+        building_type: research
+        polycount_target: 45000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: cis
+        addressable_key: sw-tech-union-lab
+        output_prefab: prefabs/Tech_Union_Lab_CIS.prefab
+        update_definition:
+          enabled: true
+          file: buildings/cis_buildings.yaml
+          id: cis_tech_union_lab
+          field: visual_asset
+        metadata:
+          priority: medium
+          note: "Techno Union Lab - R&D facility for advanced droid and weapon upgrades"
+
+      - id: cis_durasteel_barrier
+        file: raw/cis_durasteel_barrier_sketchfab_001/model.glb
+        type: building
+        faction: cis
+        building_type: defense
+        polycount_target: 18000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: cis
+        addressable_key: sw-durasteel-barrier
+        output_prefab: prefabs/Durasteel_Barrier_CIS.prefab
+        update_definition:
+          enabled: true
+          file: buildings/cis_buildings.yaml
+          id: cis_durasteel_barrier
+          field: visual_asset
+        metadata:
+          priority: low
+          note: "Durasteel Barrier - CIS perimeter wall with integrated sensor arrays"
+
+      - id: cis_vulture_nest
+        file: raw/cis_vulture_nest_sketchfab_001/model.glb
+        type: building
+        faction: cis
+        building_type: defense
+        polycount_target: 32000
+        scale: 1.0
+        lod:
+          enabled: true
+          levels: [100, 80, 50]
+          screen_sizes: [200, 100, 50]
+        material: cis
+        addressable_key: sw-vulture-nest
+        output_prefab: prefabs/Vulture_Nest_CIS.prefab
+        update_definition:
+          enabled: true
+          file: buildings/cis_buildings.yaml
+          id: cis_vulture_nest
+          field: visual_asset
+        metadata:
+          priority: medium
+          note: "Vulture Nest - launch pad and hangar for Vulture Droid starfighters"
+
   v0_9_0_future:
-    description: "Phase 5+: Future expansion buildings (planned)"
+    description: "Phase 6+: Reserved for future expansion"
     models: []
 
 build:
