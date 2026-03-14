@@ -252,7 +252,7 @@ namespace DINOForge.Tests
 
         // ── Raw Assets Inventory ─────────────────────────────────────────────
 
-        [Fact]
+        [Fact(Skip = "Raw GLB files are sourcing placeholders; not committed to repo. Run locally after model download.")]
         public void Phase3A_RawAssets_Sizes_Reasonable()
         {
             var expectedUnits = new[]

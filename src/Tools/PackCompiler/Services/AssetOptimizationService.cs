@@ -27,48 +27,48 @@ namespace DINOForge.Tools.PackCompiler.Services
                 var stopwatch = Stopwatch.StartNew();
 
                 try
-            {
-                // Validate input
-                var validationResult = _validationService.ValidateImportedAsset(asset, definition);
-                if (!validationResult.IsValid)
                 {
-                    throw new InvalidOperationException(
-                        $"Asset validation failed:\n{string.Join("\n", validationResult.Errors)}"
-                    );
-                }
-
-                var lodLevels = definition.LOD.Levels;
-                if (lodLevels == null || lodLevels.Count < 3)
-                {
-                    throw new ArgumentException("LOD levels must specify at least 3 levels (100, 60, 30)");
-                }
-
-                // Generate actual LOD variants using greedy decimation
-                var lod1 = SimplifyMesh(asset.Mesh, lodLevels[1] / 100f);
-                var lod2 = SimplifyMesh(asset.Mesh, lodLevels[2] / 100f);
-
-                stopwatch.Stop();
-
-                var optimized = new OptimizedAsset
-                {
-                    AssetId = asset.AssetId,
-                    LOD0 = asset.Mesh,
-                    LOD1 = lod1,
-                    LOD2 = lod2,
-                    Materials = asset.Materials,
-                    Skeleton = asset.Skeleton,
-                    Metadata = new OptimizationMetadata
+                    // Validate input
+                    var validationResult = _validationService.ValidateImportedAsset(asset, definition);
+                    if (!validationResult.IsValid)
                     {
-                        OriginalPolyCount = asset.Mesh.TriangleCount,
-                        LOD0PolyCount = asset.Mesh.TriangleCount,
-                        LOD1PolyCount = lod1.TriangleCount,
-                        LOD2PolyCount = lod2.TriangleCount,
-                        OptimizationMethod = "Greedy Decimation",
-                        OptimizationTimeSeconds = stopwatch.Elapsed.TotalSeconds,
-                        Notes = validationResult.Warnings
-                    },
-                    ScreenSizes = GenerateScreenSizes(definition)
-                };
+                        throw new InvalidOperationException(
+                            $"Asset validation failed:\n{string.Join("\n", validationResult.Errors)}"
+                        );
+                    }
+
+                    var lodLevels = definition.LOD.Levels;
+                    if (lodLevels == null || lodLevels.Count < 3)
+                    {
+                        throw new ArgumentException("LOD levels must specify at least 3 levels (100, 60, 30)");
+                    }
+
+                    // Generate actual LOD variants using greedy decimation
+                    var lod1 = SimplifyMesh(asset.Mesh, lodLevels[1] / 100f);
+                    var lod2 = SimplifyMesh(asset.Mesh, lodLevels[2] / 100f);
+
+                    stopwatch.Stop();
+
+                    var optimized = new OptimizedAsset
+                    {
+                        AssetId = asset.AssetId,
+                        LOD0 = asset.Mesh,
+                        LOD1 = lod1,
+                        LOD2 = lod2,
+                        Materials = asset.Materials,
+                        Skeleton = asset.Skeleton,
+                        Metadata = new OptimizationMetadata
+                        {
+                            OriginalPolyCount = asset.Mesh.TriangleCount,
+                            LOD0PolyCount = asset.Mesh.TriangleCount,
+                            LOD1PolyCount = lod1.TriangleCount,
+                            LOD2PolyCount = lod2.TriangleCount,
+                            OptimizationMethod = "Greedy Decimation",
+                            OptimizationTimeSeconds = stopwatch.Elapsed.TotalSeconds,
+                            Notes = validationResult.Warnings
+                        },
+                        ScreenSizes = GenerateScreenSizes(definition)
+                    };
 
                     return optimized;
                 }
