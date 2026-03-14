@@ -28,7 +28,7 @@
       iron: 8
       gold: 3
       population: 1
-  visual_asset: sw-cis-b1-battle-droid
+  visual_asset: sw-b1-battle-droid
 
 # 2. Line Infantry - B1 Squad
 - id: cis_b1_squad
@@ -86,7 +86,7 @@
       iron: 30
       gold: 15
       population: 1
-  visual_asset: sw-cis-b2-super-battle-droid
+  visual_asset: sw-b2-super-droid
 
 # 4. Ranged Infantry - Sniper Droid
 - id: cis_sniper_droid
@@ -144,7 +144,7 @@
       iron: 20
       gold: 8
       population: 1
-  visual_asset: sw-cis-stap-pilot
+  visual_asset: sw-stap-speeder
 
 # 6. Siege - AAT Crew
 - id: cis_aat_crew
@@ -173,7 +173,7 @@
       iron: 70
       gold: 35
       population: 3
-  visual_asset: sw-cis-aat-crew
+  visual_asset: sw-aat-walker
 
 # 7. Support - Medical Droid
 - id: cis_medical_droid
@@ -231,7 +231,7 @@
       iron: 8
       gold: 5
       population: 1
-  visual_asset: sw-cis-probe-droid
+  visual_asset: sw-probe-droid
 
 # 9. Elite - BX Commando Droid
 - id: cis_bx_commando_droid
@@ -260,7 +260,7 @@
       iron: 35
       gold: 25
       population: 1
-  visual_asset: sw-cis-bx-commando-droid
+  visual_asset: sw-bx-commando-droid
 
 # 10. Hero - General Grievous
 - id: cis_general_grievous
@@ -289,7 +289,7 @@
       iron: 50
       gold: 120
       population: 3
-  visual_asset: sw-cis-general-grievous
+  visual_asset: sw-general-grievous
 
 # 11. Wall Defender - Droideka
 - id: cis_droideka
@@ -318,7 +318,7 @@
       iron: 45
       gold: 30
       population: 2
-  visual_asset: sw-cis-droideka
+  visual_asset: sw-droideka
 
 # 12. Skirmisher - DSD1 Dwarf Spider Droid
 - id: cis_dwarf_spider_droid
@@ -347,7 +347,7 @@
       iron: 40
       gold: 20
       population: 2
-  visual_asset: sw-cis-dwarf-spider-droid
+  visual_asset: sw-dwarf-spider-droid
 
 # 13. Special - MagnaGuard
 - id: cis_magnaguard
