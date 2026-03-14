@@ -32,7 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Tests
 
 - All integration tests passing; BridgeRoundTripTests added for bridge smoke testing
-
 ## [0.8.0] - 2026-03-13
 
 ### Added
