@@ -229,47 +229,63 @@ namespace DINOForge.Runtime.Bridge
 
         // ──────────────────────────────────────────────
         //  Resource Component Mappings
+        //
+        //  NOTE: These primary mappings are used by ResourceReader's fallback chain.
+        //  If the exact type name or field does not exist in the running game version,
+        //  ResourceReader automatically tries alternatives — see ResourceReader.cs.
+        //  To identify the correct names for a given game build, check:
+        //    BepInEx/dinoforge_debug.log   (logs "Available fields:" on every miss)
+        //  All resource entity queries MUST use EntityQueryOptions.IncludePrefab —
+        //  DINO marks all live entities (including resource singletons) as ECS Prefabs.
         // ──────────────────────────────────────────────
 
-        /// <summary>Current food stockpile. Field: value (int).</summary>
+        /// <summary>Current food stockpile. Field: value (int). NOTE: type name unverified — see ResourceReader fallback chain.</summary>
         public static readonly ComponentMapping ResourceFood =
             new ComponentMapping("Components.RawComponents.CurrentFood", "resource.current.food",
-                "Current food resource amount (singleton)", "value");
+                "Current food resource amount (singleton, prefab entity). " +
+                "ResourceReader will fall back to alternative type names if this does not resolve.", "value");
 
-        /// <summary>Current iron stockpile. Field: value (int).</summary>
+        /// <summary>Current iron stockpile. Field: value (int). NOTE: type name unverified — see ResourceReader fallback chain.</summary>
         public static readonly ComponentMapping ResourceIron =
             new ComponentMapping("Components.RawComponents.CurrentIron", "resource.current.iron",
-                "Current iron resource amount (singleton)", "value");
+                "Current iron resource amount (singleton, prefab entity). " +
+                "ResourceReader will fall back to alternative type names if this does not resolve.", "value");
 
-        /// <summary>Current stone stockpile. Field: value (int).</summary>
+        /// <summary>Current stone stockpile. Field: value (int). NOTE: type name unverified — see ResourceReader fallback chain.</summary>
         public static readonly ComponentMapping ResourceStone =
             new ComponentMapping("Components.RawComponents.CurrentStone", "resource.current.stone",
-                "Current stone resource amount (singleton)", "value");
+                "Current stone resource amount (singleton, prefab entity). " +
+                "ResourceReader will fall back to alternative type names if this does not resolve.", "value");
 
-        /// <summary>Current wood stockpile. Field: value (int).</summary>
+        /// <summary>Current wood stockpile. Field: value (int). NOTE: type name unverified — see ResourceReader fallback chain.</summary>
         public static readonly ComponentMapping ResourceWood =
             new ComponentMapping("Components.RawComponents.CurrentWood", "resource.current.wood",
-                "Current wood resource amount (singleton)", "value");
+                "Current wood resource amount (singleton, prefab entity). " +
+                "ResourceReader will fall back to alternative type names if this does not resolve.", "value");
 
-        /// <summary>Current money (gold) stockpile. Field: value (int).</summary>
+        /// <summary>Current money (gold) stockpile. Field: value (int). NOTE: type name unverified — see ResourceReader fallback chain.</summary>
         public static readonly ComponentMapping ResourceMoney =
             new ComponentMapping("Components.RawComponents.CurrentMoney", "resource.current.money",
-                "Current money/gold resource amount (singleton)", "value");
+                "Current money/gold resource amount (singleton, prefab entity). " +
+                "ResourceReader will fall back to alternative type names if this does not resolve.", "value");
 
-        /// <summary>Current souls stockpile. Field: value (int).</summary>
+        /// <summary>Current souls stockpile. Field: value (int). NOTE: type name unverified — see ResourceReader fallback chain.</summary>
         public static readonly ComponentMapping ResourceSouls =
             new ComponentMapping("Components.RawComponents.CurrentSouls", "resource.current.souls",
-                "Current soul crystal resource amount (singleton)", "value");
+                "Current soul crystal resource amount (singleton, prefab entity). " +
+                "ResourceReader will fall back to alternative type names if this does not resolve.", "value");
 
-        /// <summary>Current bones stockpile. Field: valueContainer.value (nested CurrentResources).</summary>
+        /// <summary>Current bones stockpile. Field: valueContainer.value (nested CurrentResources). NOTE: type name unverified — see ResourceReader fallback chain.</summary>
         public static readonly ComponentMapping ResourceBones =
             new ComponentMapping("Components.RawComponents.CurrentBones", "resource.current.bones",
-                "Current bones resource amount (singleton)", "valueContainer.value");
+                "Current bones resource amount (singleton, prefab entity). " +
+                "ResourceReader will fall back to flat 'value' and alternative type names if nested path fails.", "valueContainer.value");
 
-        /// <summary>Current spirit stockpile. Field: valueContainer.value (nested CurrentResources).</summary>
+        /// <summary>Current spirit stockpile. Field: valueContainer.value (nested CurrentResources). NOTE: type name unverified — see ResourceReader fallback chain.</summary>
         public static readonly ComponentMapping ResourceSpirit =
             new ComponentMapping("Components.RawComponents.CurrentSpirit", "resource.current.spirit",
-                "Current spirit resource amount (singleton)", "valueContainer.value");
+                "Current spirit resource amount (singleton, prefab entity). " +
+                "ResourceReader will fall back to flat 'value' and alternative type names if nested path fails.", "valueContainer.value");
 
         /// <summary>Food production source.</summary>
         public static readonly ComponentMapping ResourceFoodSource =

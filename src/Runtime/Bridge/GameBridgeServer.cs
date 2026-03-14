@@ -454,9 +454,10 @@ namespace DINOForge.Runtime.Bridge
 
             var result = MainThreadDispatcher.RunOnMainThread(() => UiTreeSnapshotBuilder.Capture(selector));
             bool completed = result.Wait(5000);
+            UiTreeResult treeResult;
             if (!completed)
             {
-                return JToken.FromObject(new UiTreeResult
+                treeResult = new UiTreeResult
                 {
                     Success = false,
                     Message = "Timed out while capturing UI tree.",
@@ -476,10 +477,15 @@ namespace DINOForge.Runtime.Bridge
                         Interactable = false,
                         RaycastTarget = false
                     }
-                });
+                };
+            }
+            else
+            {
+                treeResult = result.Result;
             }
 
-            return JToken.FromObject(result.Result);
+            UiActionTrace.Record("tree", selector ?? "", treeResult);
+            return JToken.FromObject(treeResult);
         }
 
         private JToken HandleQueryUi(JObject? parameters)
@@ -487,17 +493,23 @@ namespace DINOForge.Runtime.Bridge
             string selector = parameters?.Value<string>("selector") ?? string.Empty;
             var result = MainThreadDispatcher.RunOnMainThread(() => UiSelectorEngine.Query(selector));
             bool completed = result.Wait(5000);
+            UiActionResult queryResult;
             if (!completed)
             {
-                return JToken.FromObject(new UiActionResult
+                queryResult = new UiActionResult
                 {
                     Success = false,
                     Selector = selector,
                     Message = "Timed out while querying UI."
-                });
+                };
+            }
+            else
+            {
+                queryResult = result.Result;
             }
 
-            return JToken.FromObject(result.Result);
+            UiActionTrace.Record("query", selector, queryResult, queryResult.MatchedNode);
+            return JToken.FromObject(queryResult);
         }
 
         private JToken HandleClickUi(JObject? parameters)
@@ -505,17 +517,23 @@ namespace DINOForge.Runtime.Bridge
             string selector = parameters?.Value<string>("selector") ?? string.Empty;
             var result = MainThreadDispatcher.RunOnMainThread(() => UiSelectorEngine.Click(selector));
             bool completed = result.Wait(5000);
+            UiActionResult clickResult;
             if (!completed)
             {
-                return JToken.FromObject(new UiActionResult
+                clickResult = new UiActionResult
                 {
                     Success = false,
                     Selector = selector,
                     Message = "Timed out while clicking UI."
-                });
+                };
+            }
+            else
+            {
+                clickResult = result.Result;
             }
 
-            return JToken.FromObject(result.Result);
+            UiActionTrace.Record("click", selector, clickResult, clickResult.MatchedNode);
+            return JToken.FromObject(clickResult);
         }
 
         private JToken HandleWaitForUi(JObject? parameters)
@@ -532,31 +550,36 @@ namespace DINOForge.Runtime.Bridge
                 bool completed = evalTask.Wait(5000);
                 if (!completed)
                 {
-                    return JToken.FromObject(new UiWaitResult
+                    var timeoutResult = new UiWaitResult
                     {
                         Ready = false,
                         Selector = selector,
                         State = string.IsNullOrWhiteSpace(state) ? "visible" : state,
                         Message = "Timed out while evaluating UI state on the main thread."
-                    });
+                    };
+                    UiActionTrace.Record("wait", selector, timeoutResult, timeoutResult.MatchedNode);
+                    return JToken.FromObject(timeoutResult);
                 }
 
                 lastResult = evalTask.Result;
                 if (lastResult.Ready)
                 {
+                    UiActionTrace.Record("wait", selector, lastResult, lastResult.MatchedNode);
                     return JToken.FromObject(lastResult);
                 }
 
                 Thread.Sleep(100);
             }
 
-            return JToken.FromObject(lastResult ?? new UiWaitResult
+            var finalResult = lastResult ?? new UiWaitResult
             {
                 Ready = false,
                 Selector = selector,
                 State = string.IsNullOrWhiteSpace(state) ? "visible" : state,
                 Message = $"Timed out waiting for selector '{selector}'."
-            });
+            };
+            UiActionTrace.Record("wait", selector, finalResult, finalResult.MatchedNode);
+            return JToken.FromObject(finalResult);
         }
 
         private JToken HandleExpectUi(JObject? parameters)
@@ -566,18 +589,24 @@ namespace DINOForge.Runtime.Bridge
 
             var result = MainThreadDispatcher.RunOnMainThread(() => UiSelectorEngine.Expect(selector, condition));
             bool completed = result.Wait(5000);
+            UiExpectationResult expectResult;
             if (!completed)
             {
-                return JToken.FromObject(new UiExpectationResult
+                expectResult = new UiExpectationResult
                 {
                     Success = false,
                     Selector = selector,
                     Condition = condition,
                     Message = "Timed out while evaluating UI expectation."
-                });
+                };
+            }
+            else
+            {
+                expectResult = result.Result;
             }
 
-            return JToken.FromObject(result.Result);
+            UiActionTrace.Record("expect", selector, expectResult, expectResult.MatchedNode);
+            return JToken.FromObject(expectResult);
         }
 
         private JToken HandleGetStat(JObject? parameters)
@@ -699,13 +728,21 @@ namespace DINOForge.Runtime.Bridge
 
         private JToken HandleGetResources()
         {
-            ResourceSnapshot snapshot = MainThreadDispatcher.RunOnMainThread(() =>
+            // Use an explicit timeout (consistent with HandleStatus) to avoid blocking
+            // the bridge thread indefinitely if the main thread is busy.
+            System.Threading.Tasks.Task<ResourceSnapshot> task = MainThreadDispatcher.RunOnMainThread(() =>
             {
                 World? world = World.DefaultGameObjectInjectionWorld;
                 if (world == null || !world.IsCreated)
                     return new ResourceSnapshot();
                 return ResourceReader.ReadResources(world.EntityManager);
-            }).Result;
+            });
+
+            bool completed = task.Wait(5000);
+            ResourceSnapshot snapshot = completed ? task.Result : new ResourceSnapshot();
+
+            if (!completed)
+                WriteDebug("[GameBridgeServer] HandleGetResources timed out waiting for main thread");
 
             return JToken.FromObject(snapshot);
         }
@@ -1416,7 +1453,7 @@ namespace DINOForge.Runtime.Bridge
                         if (btn == null) continue;
                         if (!btn.gameObject.activeInHierarchy) continue;
                         string name = btn.name;
-                        var txt   = btn.GetComponentInChildren<UnityEngine.UI.Text>();
+                        var txt = btn.GetComponentInChildren<UnityEngine.UI.Text>();
                         var tmptxt = btn.GetComponentInChildren<TMPro.TMP_Text>();
                         string label = (txt?.text ?? tmptxt?.text ?? "").Trim();
                         summary.Append($"[{name}:'{label}'] ");
@@ -1583,7 +1620,8 @@ namespace DINOForge.Runtime.Bridge
                         }
                     }
 
-                    return new {
+                    return new
+                    {
                         saveManagerType = saveManagerType?.FullName ?? "not found",
                         persistentDataPath = persistPath,
                         saveDir = saveDir,
@@ -1594,7 +1632,8 @@ namespace DINOForge.Runtime.Bridge
                 }
                 catch (Exception ex)
                 {
-                    return new {
+                    return new
+                    {
                         saveManagerType = "error",
                         persistentDataPath = "",
                         saveDir = "",
