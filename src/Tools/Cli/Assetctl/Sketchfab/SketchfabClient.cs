@@ -129,8 +129,8 @@ public sealed class SketchfabClient : IDisposable
             $"sort_by=-{filters.SortBy}"
         };
 
-        if (!string.IsNullOrWhiteSpace(filters.License))
-            queryParams.Add($"license={Uri.EscapeDataString(filters.License)}");
+        // NOTE: License filtering is done client-side because the Sketchfab API's license
+        // filter has limited options. We get all results and filter locally.
 
         if (filters.MaxPolyCount.HasValue)
             queryParams.Add($"face_count={filters.MaxPolyCount}");
@@ -730,9 +730,9 @@ public sealed class SketchfabModelInfo
     [JsonPropertyName("creator")]
     public SketchfabCreator? Creator { get; set; }
 
-    /// <summary>License type (cc-by-4.0, cc0, etc.)</summary>
+    /// <summary>License information from search result.</summary>
     [JsonPropertyName("license")]
-    public string? License { get; set; }
+    public SketchfabLicense? License { get; set; }
 
     /// <summary>Polygon/vertex count</summary>
     [JsonPropertyName("vertexCount")]

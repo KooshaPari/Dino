@@ -226,7 +226,9 @@ namespace DINOForge.Tests
             var loader = new ContentLoader(registries);
 
             loader.LoadPack(PackRoot);
-            loader.LastLoadErrorCount.Should().Be(0, "warfare-starwars pack should load without errors");
+            loader.LastLoadErrorCount.Should().Be(0,
+                "warfare-starwars pack should load without errors. Errors: {0}",
+                string.Join("; ", loader.LastLoadErrors));
 
             // Verify key units are registered
             registries.Units.Contains("rep_clone_trooper").Should().BeTrue(

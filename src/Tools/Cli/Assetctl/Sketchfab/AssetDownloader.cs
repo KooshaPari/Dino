@@ -111,7 +111,7 @@ public sealed class AssetDownloader
         foreach (var model in results)
         {
             // Validate license is in allowed list
-            if (!ValidateLicense(model.License))
+            if (!ValidateLicense(model.License?.Label))
             {
                 continue; // Skip non-allowed licenses
             }
@@ -244,7 +244,7 @@ public sealed class AssetDownloader
                     break;
                 }
 
-                if (!ValidateLicense(model.License))
+                if (!ValidateLicense(model.License?.Label))
                 {
                     continue;
                 }
@@ -254,6 +254,9 @@ public sealed class AssetDownloader
                 {
                     continue;
                 }
+                
+                // Accept models with null polycount (API doesn't always provide this)
+                if (criteria.MaxPolyCount.HasValue && polyCount.HasValue && polyCount > criteria.MaxPolyCount)
 
                 if (criteria.MaxDaysOld.HasValue && model.PublishedAt.HasValue)
                 {
@@ -747,7 +750,7 @@ public sealed class AssetDownloader
                     ProfileUrl = model.Creator.ProfileUrl
                 }
                 : null,
-            License = model.License,
+            License = model.License?.Label,
             PolyCount = model.FaceCount ?? model.VertexCount,
             PublishedAt = model.PublishedAt,
             ModelUrl = model.ModelUrl,
@@ -765,7 +768,7 @@ public sealed class AssetDownloader
         int maxPolyCount)
     {
         // License match score
-        var licenseScore = GetLicenseScore(model.License);
+        var licenseScore = GetLicenseScore(model.License?.Label);
 
         // Polygon count fit score
         var polyScore = 0.5; // Default if no polycount info

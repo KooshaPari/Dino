@@ -30,14 +30,31 @@ services.AddLogging(builder =>
     builder.SetMinimumLevel(Enum.Parse<LogLevel>(logLevel));
 });
 
-// Register HTTP client factory for Sketchfab with timeout configuration
-services.AddHttpClient<SketchfabClient>()
-    .ConfigureHttpClient((sp, client) =>
+// Load .env file for local development
+LoadEnvFile();
+
+// Get Sketchfab configuration
+var sketchfabConfig = configuration.GetSection("Sketchfab").Get<SketchfabConfiguration>() ?? new SketchfabConfiguration();
+var sketchfabToken = Environment.GetEnvironmentVariable("SKETCHFAB_API_TOKEN");
+
+// Register Sketchfab client directly
+if (!string.IsNullOrWhiteSpace(sketchfabToken))
+{
+    services.AddSingleton<SketchfabClient>(sp =>
     {
-        var sketchfabConfig = configuration.GetSection("Sketchfab").Get<SketchfabConfiguration>() ?? new SketchfabConfiguration();
-        client.Timeout = TimeSpan.FromSeconds(sketchfabConfig.HttpTimeoutSeconds);
-        client.DefaultRequestHeaders.Add("User-Agent", "DINOForge-AssetCLI/1.0");
+        var options = new SketchfabClientOptions
+        {
+            HttpTimeoutSeconds = sketchfabConfig.HttpTimeoutSeconds,
+            MaxRetries = 3,
+            ApiBaseUrl = sketchfabConfig.ApiBaseUrl
+        };
+        return new SketchfabClient(sketchfabToken, options);
     });
+}
+else
+{
+    services.AddSingleton<SketchfabClient>(_ => throw new InvalidOperationException("SKETCHFAB_API_TOKEN not configured"));
+}
 
 // Register Sketchfab adapter (ISketchfabAdapter -> SketchfabAdapter)
 services.AddScoped<ISketchfabAdapter, SketchfabAdapter>();
@@ -53,7 +70,6 @@ logger.LogInformation("DINOForge CLI initialized with dependency injection");
 logger.LogInformation("Registered services: SketchfabClient, ISketchfabAdapter, AssetDownloader");
 
 // Validate Sketchfab API token at startup
-var sketchfabToken = Environment.GetEnvironmentVariable("SKETCHFAB_API_TOKEN");
 if (string.IsNullOrWhiteSpace(sketchfabToken))
 {
     // Warning only - allow CLI to run but error if Sketchfab commands are invoked
@@ -83,3 +99,25 @@ rootCommand.Add(AssetctlCommand.Create(serviceProvider));
 
 ParseResult parseResult = rootCommand.Parse(args);
 return await parseResult.InvokeAsync();
+
+static void LoadEnvFile()
+{
+    var basePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? ".";
+    var envFile = Path.Combine(basePath, ".env");
+    if (!File.Exists(envFile))
+    {
+        envFile = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+        if (!File.Exists(envFile)) return;
+    }
+    foreach (var line in File.ReadAllLines(envFile))
+    {
+        var trimmed = line.Trim();
+        if (string.IsNullOrEmpty(trimmed) || trimmed.StartsWith('#')) continue;
+        var idx = trimmed.IndexOf('=');
+        if (idx <= 0) continue;
+        var key = trimmed[..idx].Trim();
+        var value = trimmed[(idx + 1)..].Trim();
+        if (Environment.GetEnvironmentVariable(key) == null)
+            Environment.SetEnvironmentVariable(key, value);
+    }
+}
