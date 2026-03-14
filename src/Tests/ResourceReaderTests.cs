@@ -52,10 +52,10 @@ namespace DINOForge.Tests
         {
             ResourceSnapshot snap = new ResourceSnapshot
             {
-                Food  = 100,
-                Wood  = 200,
+                Food = 100,
+                Wood = 200,
                 Stone = 300,
-                Iron  = 400,
+                Iron = 400,
                 Money = 500,
                 Souls = 600,
                 Bones = 700,
@@ -78,8 +78,14 @@ namespace DINOForge.Tests
             // All resource values must be >= 0 (negative resources are a bug indicator)
             ResourceSnapshot snap = new ResourceSnapshot
             {
-                Food = 0, Wood = 0, Stone = 0, Iron = 0,
-                Money = 0, Souls = 0, Bones = 0, Spirit = 0
+                Food = 0,
+                Wood = 0,
+                Stone = 0,
+                Iron = 0,
+                Money = 0,
+                Souls = 0,
+                Bones = 0,
+                Spirit = 0
             };
 
             snap.Food.Should().BeGreaterThanOrEqualTo(0);
@@ -205,14 +211,14 @@ namespace DINOForge.Tests
         // loaded; here we just validate that the metadata is structurally correct.
 
         [Theory]
-        [InlineData("resource.current.food",   "Components.RawComponents.CurrentFood",  "value")]
-        [InlineData("resource.current.wood",   "Components.RawComponents.CurrentWood",  "value")]
-        [InlineData("resource.current.stone",  "Components.RawComponents.CurrentStone", "value")]
-        [InlineData("resource.current.iron",   "Components.RawComponents.CurrentIron",  "value")]
-        [InlineData("resource.current.money",  "Components.RawComponents.CurrentMoney", "value")]
-        [InlineData("resource.current.souls",  "Components.RawComponents.CurrentSouls", "value")]
-        [InlineData("resource.current.bones",  "Components.RawComponents.CurrentBones", "valueContainer.value")]
-        [InlineData("resource.current.spirit", "Components.RawComponents.CurrentSpirit","valueContainer.value")]
+        [InlineData("resource.current.food", "Components.RawComponents.CurrentFood", "value")]
+        [InlineData("resource.current.wood", "Components.RawComponents.CurrentWood", "value")]
+        [InlineData("resource.current.stone", "Components.RawComponents.CurrentStone", "value")]
+        [InlineData("resource.current.iron", "Components.RawComponents.CurrentIron", "value")]
+        [InlineData("resource.current.money", "Components.RawComponents.CurrentMoney", "value")]
+        [InlineData("resource.current.souls", "Components.RawComponents.CurrentSouls", "value")]
+        [InlineData("resource.current.bones", "Components.RawComponents.CurrentBones", "valueContainer.value")]
+        [InlineData("resource.current.spirit", "Components.RawComponents.CurrentSpirit", "valueContainer.value")]
         public void ComponentMap_ResourceMapping_HasCorrectMetadata(
             string sdkPath, string expectedEcsType, string expectedField)
         {
@@ -287,7 +293,7 @@ namespace DINOForge.Tests
             // Bones and Spirit may use a nested struct (valueContainer.value).
             // The fallback chain must include this path before flat alternatives.
             string nestedPath = "valueContainer.value";
-            string flatPath   = "value";
+            string flatPath = "value";
 
             // Both paths must be walkable via the field-traversal logic
             NestedResourceStub nestedStub = new NestedResourceStub
