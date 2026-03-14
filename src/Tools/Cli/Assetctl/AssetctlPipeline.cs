@@ -1184,6 +1184,8 @@ internal sealed class AssetctlPipeline
         // Check common Blender install paths
         string[] candidates = new[]
         {
+            @"C:\Program Files\Blender Foundation\Blender 4.5\blender.exe",
+            @"C:\Program Files\Blender Foundation\Blender 4.2\blender.exe",
             @"C:\Program Files\Blender Foundation\Blender 4.1\blender.exe",
             @"C:\Program Files\Blender Foundation\Blender 4.0\blender.exe",
             @"C:\Program Files\Blender Foundation\Blender 3.6\blender.exe",
