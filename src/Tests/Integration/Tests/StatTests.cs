@@ -64,7 +64,9 @@ public class StatTests
         // Read the new value
         StatResult after = await _fixture.Client.GetStatAsync("unit.stats.hp");
 
-        // The value should have changed (approximately doubled)
-        after.Value.Should().BeApproximately(before.Value * 2.0f, before.Value * 0.1f);
+        // The value should have changed (approximately doubled).
+        // Use at least 1.0f precision to avoid ArgumentOutOfRangeException when before.Value is 0.
+        float precision = Math.Max(before.Value * 0.1f, 1.0f);
+        after.Value.Should().BeApproximately(before.Value * 2.0f, precision);
     }
 }
