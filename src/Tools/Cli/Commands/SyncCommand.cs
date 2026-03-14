@@ -125,7 +125,7 @@ internal static class SyncCommand
         else
         {
             AnsiConsole.MarkupLine($"[green]Synced {changes} pack(s).[/]");
-            
+
             // Trigger reload in game if running
             await TriggerInGameReloadAsync();
         }
@@ -177,10 +177,10 @@ internal static class SyncCommand
         {
             using var client = new GameClient();
             await client.ConnectAsync();
-            
+
             AnsiConsole.MarkupLine("[cyan]Triggering in-game pack reload...[/]");
             var result = await client.ReloadPacksAsync();
-            
+
             if (result.Success)
             {
                 AnsiConsole.MarkupLine($"[green]Reloaded {result.LoadedPacks.Count} pack(s).[/]");
