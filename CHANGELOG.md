@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Archived 6 inactive placeholder packs to `packs/_archived/` (economy-balanced, example-balance, scenario-tutorial, warfare-airforce, warfare-guerrilla, warfare-modern)
 - Synced all `packages.lock.json` files across projects
+- Added `stats` load sections to `packs/warfare-aerial/pack.yaml` and `packs/warfare-starwars/pack.yaml`
 
 - `AssetSwapRequest.VanillaMapping` — optional field passed from `UnitDefinition.VanillaMapping` so `AssetSwapSystem` can narrow entity targeting to the correct ECS archetype during live RenderMesh swap
 - `AssetSwapSystem` improvements — expanded entity query and swap logic using `VanillaMapping` for precision targeting
