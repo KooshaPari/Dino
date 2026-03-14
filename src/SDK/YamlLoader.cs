@@ -18,12 +18,10 @@ namespace DINOForge.SDK
         {
             _deserializer = new DeserializerBuilder()
                 .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                .IgnoreUnmatchedProperties()
                 .Build();
 
             _serializer = new SerializerBuilder()
                 .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                .IgnoreUnmatchedProperties()
                 .Build();
         }
 

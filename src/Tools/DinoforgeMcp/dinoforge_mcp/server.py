@@ -215,10 +215,7 @@ def get_client() -> DINOForgeClient:
 # ============== FastMCP 3.0 Server ==============
 
 # Create server with FastMCP 3.0 features
-mcp = FastMCP(
-    "DINOForge",
-    dependencies=["fastmcp>=3.0.0"],
-)
+mcp = FastMCP("DINOForge")
 
 # ============== TOOLS ==============
 
