@@ -77,3 +77,9 @@ packs/*/assets/raw/**/source_download.*
 .cache/sketchfab/
 .fixtures/
 .env.local
+
+# Pipeline/debug artifacts
+import_output.log
+phase3a_runner.csx
+tmp_*.png
+.factory/
