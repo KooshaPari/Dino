@@ -83,9 +83,10 @@ namespace DINOForge.Runtime.UI
         public void Show()
         {
             _targetVisible = true;
+            _animT = 1f; // Start animation at end so AnimatePanel() doesn't flicker
             if (_canvasGroup != null)
             {
-                _canvasGroup.alpha = 1f; // Immediate show
+                _canvasGroup.alpha = 1f;
                 _canvasGroup.interactable = true;
                 _canvasGroup.blocksRaycasts = true;
             }

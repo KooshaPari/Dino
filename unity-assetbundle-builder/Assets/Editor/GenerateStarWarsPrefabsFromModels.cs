@@ -107,11 +107,10 @@ public static class GenerateStarWarsPrefabsFromModels
                     if (mi != null) mi.assetBundleName = def.Key;
                 }
 
-                // Skip prefab if already exists
+                // Delete existing prefab to force regeneration (clears stale primitives)
                 if (AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath) != null)
                 {
-                    Debug.Log($"  [skip] {def.Key}");
-                    continue;
+                    AssetDatabase.DeleteAsset(prefabPath);
                 }
 
                 // Try loading real mesh from Assets/Models/
