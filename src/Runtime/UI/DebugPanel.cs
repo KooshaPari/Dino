@@ -85,6 +85,7 @@ namespace DINOForge.Runtime.UI
             _targetVisible = true;
             if (_canvasGroup != null)
             {
+                _canvasGroup.alpha = 1f; // Immediate show
                 _canvasGroup.interactable = true;
                 _canvasGroup.blocksRaycasts = true;
             }
