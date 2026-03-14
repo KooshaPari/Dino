@@ -145,6 +145,118 @@ namespace DINOForge.Runtime.Bridge
             // The system will check for pending modifications even after initial apply
         }
 
+        /// <summary>
+        /// Applies a single stat modification immediately using the provided <see cref="EntityManager"/>.
+        /// Unlike <see cref="Enqueue"/>, this bypasses the frame-delay queue and applies the change
+        /// synchronously. Must be called from the Unity main thread (e.g. via MainThreadDispatcher).
+        /// Targets all matching entities regardless of the Prefab tag so that both blueprint prefabs
+        /// and live spawned entities are updated in one pass.
+        /// </summary>
+        /// <param name="em">The EntityManager for the active world.</param>
+        /// <param name="modification">The stat modification to apply.</param>
+        /// <returns>Number of entities that were modified, or -1 if the mapping was not found.</returns>
+        public static int ApplyImmediate(EntityManager em, StatModification modification)
+        {
+            if (modification == null) throw new ArgumentNullException(nameof(modification));
+
+            ComponentMapping? mapping = ComponentMap.Find(modification.SdkPath);
+            if (mapping == null)
+            {
+                WriteDebug($"[ApplyImmediate] No ComponentMapping for '{modification.SdkPath}'");
+                return -1;
+            }
+
+            Type? componentType = mapping.ResolvedType;
+            if (componentType == null)
+            {
+                WriteDebug($"[ApplyImmediate] Cannot resolve ECS type: {mapping.EcsComponentType}");
+                return 0;
+            }
+
+            ComponentType? ct = Bridge.EntityQueries.ResolveComponentType(mapping.EcsComponentType);
+            if (ct == null)
+            {
+                WriteDebug($"[ApplyImmediate] Cannot create ComponentType for: {mapping.EcsComponentType}");
+                return 0;
+            }
+
+            // Query both live (non-prefab) and prefab entities so that the modification is
+            // visible immediately when read back via getStat (which queries without IncludePrefab).
+            EntityQueryDesc queryDesc = new EntityQueryDesc
+            {
+                All = new[] { ct.Value },
+                Options = EntityQueryOptions.IncludePrefab | EntityQueryOptions.IncludeDisabled
+            };
+
+            EntityQuery query = em.CreateEntityQuery(queryDesc);
+            NativeArray<Entity> entities = query.ToEntityArray(Allocator.Temp);
+
+            MethodInfo? getMethod = typeof(EntityManager).GetMethod("GetComponentData", new[] { typeof(Entity) });
+            MethodInfo? setMethod = typeof(EntityManager).GetMethod("SetComponentData");
+
+            int modifiedCount = 0;
+            if (getMethod != null && setMethod != null)
+            {
+                MethodInfo genericGet = getMethod.MakeGenericMethod(componentType);
+                MethodInfo genericSet = setMethod.MakeGenericMethod(componentType);
+
+                string? targetField = mapping.TargetFieldName;
+                FieldInfo? field = targetField != null
+                    ? componentType.GetField(targetField,
+                        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    : FindFirstNumericField(componentType);
+
+                if (field == null)
+                {
+                    WriteDebug($"[ApplyImmediate] No target field on {componentType.FullName}");
+                    entities.Dispose();
+                    query.Dispose();
+                    return 0;
+                }
+
+                for (int i = 0; i < entities.Length; i++)
+                {
+                    try
+                    {
+                        object? data = genericGet.Invoke(em, new object[] { entities[i] });
+                        if (data == null) continue;
+
+                        bool modified = false;
+                        if (field.FieldType == typeof(float))
+                        {
+                            float current = (float)field.GetValue(data);
+                            float newValue = ApplyMode(current, modification.Value, modification.Mode);
+                            field.SetValue(data, newValue);
+                            modified = true;
+                        }
+                        else if (field.FieldType == typeof(int))
+                        {
+                            int current = (int)field.GetValue(data);
+                            int newValue = (int)ApplyMode(current, modification.Value, modification.Mode);
+                            field.SetValue(data, newValue);
+                            modified = true;
+                        }
+
+                        if (modified)
+                        {
+                            genericSet.Invoke(em, new object[] { entities[i], data });
+                            modifiedCount++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteDebug($"[ApplyImmediate] Failed entity {entities[i].Index}: {ex.Message}");
+                    }
+                }
+            }
+
+            WriteDebug($"[ApplyImmediate] Modified {modifiedCount}/{entities.Length} entities for {modification.SdkPath}");
+
+            entities.Dispose();
+            query.Dispose();
+            return modifiedCount;
+        }
+
         protected override void OnCreate()
         {
             base.OnCreate();

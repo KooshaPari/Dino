@@ -626,14 +626,30 @@ namespace DINOForge.Runtime.Bridge
             }
 
             StatModification mod = new StatModification(sdkPath, value, mode, filter);
-            StatModifierSystem.Enqueue(mod);
 
-            OverrideResult result = new OverrideResult
+            // Apply immediately on the main thread so callers see the change reflected at once.
+            // Also enqueue so the StatModifierSystem re-applies it after scene reloads.
+            OverrideResult result = MainThreadDispatcher.RunOnMainThread(() =>
             {
-                Success = true,
-                SdkPath = sdkPath,
-                Message = $"Enqueued {modeStr} override for {sdkPath} = {value}"
-            };
+                World? world = World.DefaultGameObjectInjectionWorld;
+                int modified = 0;
+                if (world != null && world.IsCreated)
+                {
+                    modified = StatModifierSystem.ApplyImmediate(world.EntityManager, mod);
+                }
+
+                // Always enqueue for persistence across reloads (runs after MinFrameDelay guard).
+                StatModifierSystem.Enqueue(mod);
+
+                return new OverrideResult
+                {
+                    Success = modified >= 0, // -1 means unknown sdkPath, 0+ means applied
+                    SdkPath = sdkPath,
+                    Message = modified > 0
+                        ? $"Applied {modeStr} override for {sdkPath} = {value} to {modified} entities"
+                        : $"Enqueued {modeStr} override for {sdkPath} = {value} (no live entities yet)"
+                };
+            }).Result;
 
             return JToken.FromObject(result);
         }
