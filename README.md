@@ -12,10 +12,26 @@ DINOForge is a mod operating system, not a single mod. It provides the framework
 - **Pack System** — YAML-first declarative content packs with dependency resolution, conflict detection, and schema validation
 - **Typed Registries** — Units, buildings, factions, weapons, projectiles, doctrines, skills, waves, squads with layered override priority
 - **ECS Bridge** — Maps mod content to DINO's actual Unity ECS components at runtime (30+ component mappings)
-- **Asset Pipeline** — AssetsTools.NET integration for reading/writing Unity asset bundles and Addressables catalogs
+- **Asset Pipeline** — Full import → validate → optimize → LOD → prefab → Addressables pipeline; 38 catalog entries with 3-level LOD (100%/60%/30%)
 - **Warfare Domain** — Faction archetypes (Order, Industrial Swarm, Asymmetric), doctrines, unit role validation, wave composition, balance calculation
+- **Star Wars Clone Wars Pack** — 28 units (Republic + CIS) and 10 buildings with visual assets, prefabs, and Addressables entries
 - **Dev Tooling** — PackCompiler CLI, DumpTools, in-game debug overlay, entity dumper
 - **Schema Validation** — 10 JSON schemas catch errors before runtime
+
+## Milestone Status
+
+| Milestone | Description | Status |
+|-----------|-------------|--------|
+| M0 | Reverse-Engineering Harness (entity dumps, 45K entities) | Done |
+| M1 | Runtime Scaffold (BepInEx plugin, ECS systems) | Done |
+| M2 | Generic Mod SDK (registries, schemas, ContentLoader) | Done |
+| M3 | Dev Tooling (PackCompiler, DumpTools, DebugOverlay) | Done |
+| M4 | Warfare Domain (archetypes, doctrines, roles, waves, balance) | Done |
+| M5 | Example Packs (warfare-starwars 28u/10b, warfare-guerrilla, warfare-modern) | In Progress — substantially complete |
+| Docs | VitePress site (kooshapari.github.io/Dino) | In Progress |
+| CI/QA | GitHub Actions, templates, contributing guides | In Progress |
+
+**Current test count: 879 passing**
 
 ## Quick Start
 
