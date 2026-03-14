@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-03-14
+
+### Added
+
+- **Unity AssetBundles** — 75 colored primitive placeholder bundles (StandaloneWindows64) for all 50 warfare-starwars visual_asset keys; Republic units are white+blue, CIS units are grey, special units (Jedi Knight, General Grievous) have distinct colors
+- **unity-assetbundle-builder project** — headless Unity 2021.3.45f1 editor project with `BuildAll.Run` for reproducible bundle generation; keys match YAML `visual_asset` fields exactly so `ContentLoader.RegisterAssetSwaps()` auto-wires them on `LoadPack()`
+- **Phase 7 AssetBundle coverage** — all 14 `Phase7VisualAssetIntegrationTests` pass; 941 total unit tests, 0 failing
+
 ## [0.9.0] - 2026-03-13
 
 ### Added
