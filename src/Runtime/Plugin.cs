@@ -417,7 +417,7 @@ namespace DINOForge.Runtime
                     _nativeMenuInjector.SetModMenuHost(overlay);
                 }
 
-                _modMenuHost   = overlay;
+                _modMenuHost = overlay;
                 _modSettingsHost = settingsPanel;
 
                 _log.LogInfo("[RuntimeDriver] IMGUI fallback — Added ModMenuOverlay + ModSettingsPanel.");
@@ -527,8 +527,8 @@ namespace DINOForge.Runtime
             {
                 if (_dfCanvas.IsReady)
                 {
-                    _uguiReady    = true;
-                    _uguiChecked  = true;
+                    _uguiReady = true;
+                    _uguiChecked = true;
                     _log.LogInfo("[RuntimeDriver] DFCanvas confirmed ready — UGUI active.");
                     WireUguiToModPlatform();
                 }

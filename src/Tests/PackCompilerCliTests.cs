@@ -21,7 +21,6 @@ namespace DINOForge.Tests
     {
         private readonly string _tempRoot;
         private readonly PackLoader _loader;
-        private readonly IDeserializer _yamlDeserializer;
 
         public PackCompilerCliTests()
         {
@@ -29,10 +28,6 @@ namespace DINOForge.Tests
             Directory.CreateDirectory(_tempRoot);
 
             _loader = new PackLoader();
-            _yamlDeserializer = new DeserializerBuilder()
-                .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                .IgnoreUnmatchedProperties()
-                .Build();
         }
 
         public void Dispose()
@@ -324,7 +319,7 @@ asset_replacements:
 
             // Act
             string yaml = File.ReadAllText(manifestPath);
-            var manifest = _yamlDeserializer.Deserialize<TotalConversionManifest>(yaml);
+            var manifest = YamlLoader.Deserializer.Deserialize<TotalConversionManifest>(yaml);
             var result = TotalConversionValidator.Validate(manifest!);
 
             // Assert
@@ -359,7 +354,7 @@ asset_replacements:
 
             // Act
             string yaml = File.ReadAllText(manifestPath);
-            var manifest = _yamlDeserializer.Deserialize<TotalConversionManifest>(yaml);
+            var manifest = YamlLoader.Deserializer.Deserialize<TotalConversionManifest>(yaml);
             var result = TotalConversionValidator.Validate(manifest!);
 
             // Assert - worktree SDK allows empty replaces_vanilla
@@ -393,7 +388,7 @@ asset_replacements:
 
             // Act
             string yaml = File.ReadAllText(manifestPath);
-            var manifest = _yamlDeserializer.Deserialize<TotalConversionManifest>(yaml);
+            var manifest = YamlLoader.Deserializer.Deserialize<TotalConversionManifest>(yaml);
             var result = TotalConversionValidator.Validate(manifest!);
 
             // Assert - worktree SDK allows factions without replaces field
@@ -429,7 +424,7 @@ asset_replacements:
 
             // Act
             string yaml = File.ReadAllText(manifestPath);
-            var manifest = _yamlDeserializer.Deserialize<TotalConversionManifest>(yaml);
+            var manifest = YamlLoader.Deserializer.Deserialize<TotalConversionManifest>(yaml);
             var result = TotalConversionValidator.Validate(manifest!);
 
             // Assert
@@ -464,7 +459,7 @@ asset_replacements:
 
             // Act
             string yaml = File.ReadAllText(manifestPath);
-            var manifest = _yamlDeserializer.Deserialize<TotalConversionManifest>(yaml);
+            var manifest = YamlLoader.Deserializer.Deserialize<TotalConversionManifest>(yaml);
             var result = TotalConversionValidator.Validate(manifest!);
 
             // Assert
@@ -499,7 +494,7 @@ asset_replacements:
 
             // Act
             string yaml = File.ReadAllText(manifestPath);
-            var manifest = _yamlDeserializer.Deserialize<TotalConversionManifest>(yaml);
+            var manifest = YamlLoader.Deserializer.Deserialize<TotalConversionManifest>(yaml);
             var result = TotalConversionValidator.Validate(manifest!);
 
             // Assert
@@ -815,7 +810,7 @@ asset_replacements:
 
             // Act
             string yaml = File.ReadAllText(manifestPath);
-            var manifest = _yamlDeserializer.Deserialize<TotalConversionManifest>(yaml);
+            var manifest = YamlLoader.Deserializer.Deserialize<TotalConversionManifest>(yaml);
             var result = TotalConversionValidator.Validate(manifest!);
 
             // Assert

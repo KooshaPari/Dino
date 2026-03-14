@@ -29,10 +29,7 @@ namespace DINOForge.Tests
         private static readonly string PackRoot = Path.Combine(RepoRoot, "packs/warfare-starwars");
         private static readonly string AddressablesPath = Path.Combine(PackRoot, "addressables.yaml");
 
-        private readonly IDeserializer _deserializer = new DeserializerBuilder()
-            .WithNamingConvention(UnderscoredNamingConvention.Instance)
-            .IgnoreUnmatchedProperties()
-            .Build();
+        // Uses YamlLoader.Deserializer for centralized YAML parsing
 
         // ── Helpers ────────────────────────────────────────────────────────────
 
@@ -56,13 +53,13 @@ namespace DINOForge.Tests
         private List<UnitDefinition> LoadUnits(string yamlPath)
         {
             string content = File.ReadAllText(yamlPath);
-            return _deserializer.Deserialize<List<UnitDefinition>>(content) ?? new List<UnitDefinition>();
+            return YamlLoader.Deserializer.Deserialize<List<UnitDefinition>>(content) ?? new List<UnitDefinition>();
         }
 
         private List<BuildingDefinition> LoadBuildings(string yamlPath)
         {
             string content = File.ReadAllText(yamlPath);
-            return _deserializer.Deserialize<List<BuildingDefinition>>(content) ?? new List<BuildingDefinition>();
+            return YamlLoader.Deserializer.Deserialize<List<BuildingDefinition>>(content) ?? new List<BuildingDefinition>();
         }
 
         // ── Catalog presence ────────────────────────────────────────────────────

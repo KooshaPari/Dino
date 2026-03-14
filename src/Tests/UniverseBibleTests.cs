@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DINOForge.SDK;
 using DINOForge.SDK.Universe;
 using FluentAssertions;
 using Xunit;
@@ -16,10 +17,7 @@ namespace DINOForge.Tests
     /// </summary>
     public class UniverseBibleTests
     {
-        private static readonly IDeserializer Deserializer = new DeserializerBuilder()
-            .WithNamingConvention(UnderscoredNamingConvention.Instance)
-            .IgnoreUnmatchedProperties()
-            .Build();
+        // YamlLoader provides centralized YAML deserialization
 
         // ──────────────────────── CrosswalkDictionary ────────────────────────
 

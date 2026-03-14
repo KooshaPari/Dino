@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DINOForge.SDK;
 using DINOForge.SDK.Models;
 using FluentAssertions;
 using Xunit;
@@ -10,16 +11,11 @@ namespace DINOForge.Tests
     public class ModelSerializationTests
     {
         private readonly ISerializer _serializer;
-        private readonly IDeserializer _deserializer;
 
         public ModelSerializationTests()
         {
             _serializer = new SerializerBuilder()
                 .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                .Build();
-            _deserializer = new DeserializerBuilder()
-                .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                .IgnoreUnmatchedProperties()
                 .Build();
         }
 
@@ -54,7 +50,7 @@ namespace DINOForge.Tests
             };
 
             string yaml = _serializer.Serialize(original);
-            UnitDefinition deserialized = _deserializer.Deserialize<UnitDefinition>(yaml);
+            UnitDefinition deserialized = YamlLoader.Deserializer.Deserialize<UnitDefinition>(yaml);
 
             deserialized.Id.Should().Be(original.Id);
             deserialized.DisplayName.Should().Be(original.DisplayName);
@@ -82,7 +78,7 @@ namespace DINOForge.Tests
             };
 
             string yaml = _serializer.Serialize(original);
-            UnitDefinition deserialized = _deserializer.Deserialize<UnitDefinition>(yaml);
+            UnitDefinition deserialized = YamlLoader.Deserializer.Deserialize<UnitDefinition>(yaml);
 
             deserialized.Id.Should().Be("minimal-unit");
             deserialized.DisplayName.Should().Be("Minimal");
@@ -126,7 +122,7 @@ namespace DINOForge.Tests
             };
 
             string yaml = _serializer.Serialize(original);
-            FactionDefinition deserialized = _deserializer.Deserialize<FactionDefinition>(yaml);
+            FactionDefinition deserialized = YamlLoader.Deserializer.Deserialize<FactionDefinition>(yaml);
 
             deserialized.Faction.Id.Should().Be("republic");
             deserialized.Faction.Theme.Should().Be("starwars");
@@ -153,7 +149,7 @@ namespace DINOForge.Tests
             };
 
             string yaml = _serializer.Serialize(original);
-            WeaponDefinition deserialized = _deserializer.Deserialize<WeaponDefinition>(yaml);
+            WeaponDefinition deserialized = YamlLoader.Deserializer.Deserialize<WeaponDefinition>(yaml);
 
             deserialized.Id.Should().Be("dc-15a");
             deserialized.WeaponClass.Should().Be("rifle");
@@ -176,7 +172,7 @@ namespace DINOForge.Tests
             };
 
             string yaml = _serializer.Serialize(original);
-            ProjectileDefinition deserialized = _deserializer.Deserialize<ProjectileDefinition>(yaml);
+            ProjectileDefinition deserialized = YamlLoader.Deserializer.Deserialize<ProjectileDefinition>(yaml);
 
             deserialized.Id.Should().Be("blaster-bolt");
             deserialized.Speed.Should().Be(50f);
@@ -201,7 +197,7 @@ namespace DINOForge.Tests
             };
 
             string yaml = _serializer.Serialize(original);
-            DoctrineDefinition deserialized = _deserializer.Deserialize<DoctrineDefinition>(yaml);
+            DoctrineDefinition deserialized = YamlLoader.Deserializer.Deserialize<DoctrineDefinition>(yaml);
 
             deserialized.Id.Should().Be("blitzkrieg");
             deserialized.FactionArchetype.Should().Be("order");
@@ -224,7 +220,7 @@ namespace DINOForge.Tests
             };
 
             string yaml = _serializer.Serialize(original);
-            BuildingDefinition deserialized = _deserializer.Deserialize<BuildingDefinition>(yaml);
+            BuildingDefinition deserialized = YamlLoader.Deserializer.Deserialize<BuildingDefinition>(yaml);
 
             deserialized.Id.Should().Be("barracks");
             deserialized.Health.Should().Be(500);
@@ -254,7 +250,7 @@ namespace DINOForge.Tests
             };
 
             string yaml = _serializer.Serialize(original);
-            SkillDefinition deserialized = _deserializer.Deserialize<SkillDefinition>(yaml);
+            SkillDefinition deserialized = YamlLoader.Deserializer.Deserialize<SkillDefinition>(yaml);
 
             deserialized.Id.Should().Be("heal");
             deserialized.SkillClass.Should().Be("heal");
@@ -287,7 +283,7 @@ namespace DINOForge.Tests
             };
 
             string yaml = _serializer.Serialize(original);
-            WaveDefinition deserialized = _deserializer.Deserialize<WaveDefinition>(yaml);
+            WaveDefinition deserialized = YamlLoader.Deserializer.Deserialize<WaveDefinition>(yaml);
 
             deserialized.Id.Should().Be("wave-5");
             deserialized.WaveNumber.Should().Be(5);
@@ -319,7 +315,7 @@ namespace DINOForge.Tests
             };
 
             string yaml = _serializer.Serialize(original);
-            SquadDefinition deserialized = _deserializer.Deserialize<SquadDefinition>(yaml);
+            SquadDefinition deserialized = YamlLoader.Deserializer.Deserialize<SquadDefinition>(yaml);
 
             deserialized.Id.Should().Be("archer-squad");
             deserialized.UnitId.Should().Be("archer");
