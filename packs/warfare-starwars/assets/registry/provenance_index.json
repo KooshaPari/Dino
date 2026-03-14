@@ -2,7 +2,7 @@
   "$schema": "provenance_index.schema.json",
   "registry_version": "0.1.0",
   "registry_format": "DINOForge Provenance Index",
-  "last_updated": "2026-03-11T20:15:00Z",
+  "last_updated": "2026-03-13T15:20:00Z",
   "pack_id": "warfare-starwars",
   "description": "Detailed provenance tracking and intellectual property assessment records for all assets",
   "provenance_records": [

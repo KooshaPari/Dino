@@ -151,7 +151,7 @@ namespace DINOForge.Tests
                 Directory.CreateDirectory(Path.Combine(tempDir, "BepInEx", "core"));
                 Directory.CreateDirectory(Path.Combine(tempDir, "BepInEx", "plugins"));
                 File.WriteAllText(Path.Combine(tempDir, "BepInEx", "plugins", "DINOForge.Runtime.dll"), "");
-                Directory.CreateDirectory(Path.Combine(tempDir, "packs"));
+                Directory.CreateDirectory(Path.Combine(tempDir, "BepInEx", "dinoforge_packs"));
 
                 InstallStatus status = InstallVerifier.Verify(tempDir);
 
@@ -176,7 +176,7 @@ namespace DINOForge.Tests
             try
             {
                 File.WriteAllText(Path.Combine(tempDir, "Diplomacy is Not an Option.exe"), "");
-                Directory.CreateDirectory(Path.Combine(tempDir, "packs"));
+                Directory.CreateDirectory(Path.Combine(tempDir, "BepInEx", "dinoforge_packs"));
 
                 InstallStatus status = InstallVerifier.Verify(tempDir);
 

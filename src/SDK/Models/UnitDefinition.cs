@@ -64,6 +64,13 @@ namespace DINOForge.SDK.Models
         [YamlMember(Alias = "behavior_tags")]
         public List<string> BehaviorTags { get; set; } = new List<string>();
 
+        /// <summary>
+        /// Addressables key for the unit's 3D visual asset (LOD0 prefab).
+        /// Set by the asset pipeline; resolved at runtime via the pack's addressables.yaml catalog.
+        /// </summary>
+        [YamlMember(Alias = "visual_asset")]
+        public string? VisualAsset { get; set; }
+
         /// <summary>Optional visual overrides (icon, portrait, model, VFX).</summary>
         [YamlMember(Alias = "visuals")]
         public UnitVisuals? Visuals { get; set; }

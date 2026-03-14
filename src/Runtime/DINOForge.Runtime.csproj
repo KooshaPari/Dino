@@ -23,6 +23,12 @@
     <MSBuildWarningsAsMessages>MSB3277</MSBuildWarningsAsMessages>
   </PropertyGroup>
 
+  <!-- Exclude WIP UI files that reference types not yet implemented -->
+  <ItemGroup>
+    <!-- ContextualModMenuHost depends on NativeMainMenuModMenu, which is not yet implemented -->
+    <Compile Remove="UI\ContextualModMenuHost.cs" />
+  </ItemGroup>
+
   <!-- Exclude UGUI-dependent UI files when the game is not installed (no UnityEngine.UIModule.dll) -->
   <ItemGroup Condition="'$(GameInstalled)' != 'true'">
     <Compile Remove="UI\DebugPanel.cs" />
@@ -36,6 +42,8 @@
     <Compile Remove="UI\ModSettingsPanel.cs" />
     <Compile Remove="UI\NativeMenuInjector.cs" />
     <Compile Remove="UI\NativeUiHelper.cs" />
+    <Compile Remove="UI\UiSelectorEngine.cs" />
+    <Compile Remove="UI\UiTreeSnapshotBuilder.cs" />
     <Compile Remove="UI\UiBuilder.cs" />
   </ItemGroup>
 
@@ -110,6 +118,10 @@
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(ManagedDir)\Unity.TextMeshPro.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
@@ -190,6 +202,8 @@
     <Compile Remove="UI\ModSettingsPanel.cs" />
     <Compile Remove="UI\NativeMenuInjector.cs" />
     <Compile Remove="UI\NativeUiHelper.cs" />
+    <Compile Remove="UI\UiSelectorEngine.cs" />
+    <Compile Remove="UI\UiTreeSnapshotBuilder.cs" />
     <Compile Remove="UI\DinoForgeStyle.cs" />
     <Compile Remove="UI\HudIndicator.cs" />
     <Compile Remove="UI\HudStrip.cs" />

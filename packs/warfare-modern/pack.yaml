@@ -1,5 +1,5 @@
 # Modern Warfare Pack
-# West vs Classic Enemy - modern military themed total conversion
+# Western Coalition vs Eastern Bloc - Cold War and modern era themed content pack
 
 id: warfare-modern
 name: Modern Warfare
@@ -7,21 +7,24 @@ version: 0.1.0
 framework_version: ">=0.1.0"
 author: DINOForge
 description: |
-  A total conversion replacing DINO's fantasy armies with contemporary military forces. Deploy modern infantry, vehicles, and artillery in asymmetric warfare between NATO-inspired Western Alliance and a technologically-advanced adversary.
+  A modern warfare content pack transporting DINO into a contemporary military setting. Command the NATO-aligned Western Coalition against the Soviet-style Eastern Bloc forces in proxy conflicts and regional wars.
 
   Factions included:
-  - Western Alliance: disciplined combined-arms force with strong research and defensive infrastructure
-  - Classic Enemy: adaptive force employing human-wave tactics and scorched-earth doctrine
+  - Western Coalition: NATO-style professional military with advanced equipment, specialized units, air superiority, precision strikes
+  - Eastern Bloc: Soviet/Cold War-style conscript army with mass production, heavy armor, rocket artillery, resilience
 
   Content features:
-  - 26 unique units: riflemen, squads, special forces, gunners, mortars, scouts, APCs, armor, drone operators
-  - 21 buildings: barracks, armories, artillery depots, watchtowers, bunkers, command posts, supply depots, refineries, labs, walls
-  - 6 doctrines: combined arms, blitzkrieg, fortified defense, human wave, scorched earth, guerrilla defense
-  - 1 weapon set: modern firearms and munitions
-  - Strategic wave templates for campaign play
+  - 12 units per side: riflemen, squad leaders, snipers, engineers, medics, anti-tank, helicopter crews, tank crews, special forces, forward observers, combat controllers, rangers
+  - 16 buildings: command posts, barracks, vehicle depots, airfields, field hospitals, supply depots, radar stations, fortified bunkers
+  - 4 doctrines: shock and awe (Western offensive), iron curtain (Eastern defensive), guerrilla support (irregular), combined arms (mixed)
+  - 1 weapon set: assault rifles, sniper rifles, RPGs, artillery shells, missiles, grenades
+  - Modern warfare wave templates for escalating conflicts
 
-  Gameplay shifts from medieval pacing to tactical modern warfare with emphasis on combined-arms coordination and technological advantage.
-type: total_conversion
+  Visual assets: placeholder - community contributions welcome. Modern military vehicles, infantry, structures, and effects.
+
+  Experience the tension between high-tech Western precision and Soviet mass production doctrine.
+
+type: content
 
 depends_on: []
 conflicts_with: []

@@ -22,6 +22,7 @@ internal static class AssetctlCommand
     public static Command Create(IServiceProvider serviceProvider)
     {
         Command command = new("assetctl", "Agent-friendly asset intake pipeline commands.");
+        // DIAGNOSTIC: Isolating which command causes hang
         command.Add(CreateSearchCommand());
         command.Add(CreateIntakeCommand());
         command.Add(CreateNormalizeCommand());

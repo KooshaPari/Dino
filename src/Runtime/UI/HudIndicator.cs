@@ -27,7 +27,7 @@ namespace DINOForge.Runtime.UI
 
         // ── State ──────────────────────────────────────────────────────────────────
 
-        private ModMenuOverlay? _modMenu;
+        private IModMenuHost? _modMenu;
         private int _packCount;
         private int _errorCount;
         private float _lastActivityTime;
@@ -42,7 +42,7 @@ namespace DINOForge.Runtime.UI
         /// Sets the mod menu overlay reference so clicking the HUD strip can open it.
         /// </summary>
         /// <param name="menu">The overlay to open/close on click.</param>
-        public void SetModMenu(ModMenuOverlay? menu)
+        public void SetModMenu(IModMenuHost? menu)
         {
             _modMenu = menu;
         }

@@ -13,7 +13,7 @@ namespace DINOForge.Runtime.UI
     /// Auto-discovers ConfigEntry instances from loaded BepInEx plugins and renders
     /// appropriate controls based on value type (bool toggle, int slider, string field, enum dropdown).
     /// </summary>
-    public class ModSettingsPanel : MonoBehaviour
+    public class ModSettingsPanel : MonoBehaviour, IModSettingsHost
     {
         private bool _visible;
         private Rect _windowRect = new Rect(540, 20, 450, 550);
@@ -37,6 +37,15 @@ namespace DINOForge.Runtime.UI
         /// </summary>
         /// <param name="visible">Whether to show the panel.</param>
         public void SetVisible(bool visible) => _visible = visible;
+
+        /// <inheritdoc />
+        public void Show() => _visible = true;
+
+        /// <inheritdoc />
+        public void Hide() => _visible = false;
+
+        /// <inheritdoc />
+        public void Toggle() => _visible = !_visible;
 
         /// <summary>
         /// Discovers and caches config entries from all loaded BepInEx plugins.

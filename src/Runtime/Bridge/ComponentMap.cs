@@ -261,15 +261,15 @@ namespace DINOForge.Runtime.Bridge
             new ComponentMapping("Components.RawComponents.CurrentSouls", "resource.current.souls",
                 "Current soul crystal resource amount (singleton)", "value");
 
-        /// <summary>Current bones stockpile. Field: value (int).</summary>
+        /// <summary>Current bones stockpile. Field: valueContainer.value (nested CurrentResources).</summary>
         public static readonly ComponentMapping ResourceBones =
             new ComponentMapping("Components.RawComponents.CurrentBones", "resource.current.bones",
-                "Current bones resource amount (singleton)", "value");
+                "Current bones resource amount (singleton)", "valueContainer.value");
 
-        /// <summary>Current spirit stockpile. Field: value (int).</summary>
+        /// <summary>Current spirit stockpile. Field: valueContainer.value (nested CurrentResources).</summary>
         public static readonly ComponentMapping ResourceSpirit =
             new ComponentMapping("Components.RawComponents.CurrentSpirit", "resource.current.spirit",
-                "Current spirit resource amount (singleton)", "value");
+                "Current spirit resource amount (singleton)", "valueContainer.value");
 
         /// <summary>Food production source.</summary>
         public static readonly ComponentMapping ResourceFoodSource =

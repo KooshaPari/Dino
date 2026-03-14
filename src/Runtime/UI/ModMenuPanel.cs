@@ -13,17 +13,20 @@ namespace DINOForge.Runtime.UI
     /// Exposes the same public API as <see cref="ModMenuOverlay"/> so ModPlatform
     /// does not need changes.
     /// </summary>
-    public class ModMenuPanel : MonoBehaviour
+    public class ModMenuPanel : MonoBehaviour, IModMenuHost
     {
         // ── Public API surface (mirrors ModMenuOverlay) ──────────────────────────
         /// <summary>Callback invoked when the user clicks Reload Packs.</summary>
-        public Action? OnReloadRequested;
+        public Action? OnReloadRequested { get; set; }
 
         /// <summary>Callback invoked when a pack is toggled (packId, isEnabled).</summary>
-        public Action<string, bool>? OnPackToggled;
+        public Action<string, bool>? OnPackToggled { get; set; }
 
-        /// <summary>Whether this panel is currently visible.</summary>
-        public bool IsVisible => _canvasGroup != null && _canvasGroup.alpha > 0.01f;
+        /// <summary>Whether this panel is currently visible or transitioning visible.</summary>
+        public bool IsVisible => _targetVisible;
+
+        /// <summary>The currently selected pack index in the current presenter list, or -1 if none.</summary>
+        public int SelectedPackIndex => _presenter.SelectedIndex;
 
         // ── Panel layout constants ────────────────────────────────────────────────
         private const float PanelWidth = 680f;
@@ -35,10 +38,7 @@ namespace DINOForge.Runtime.UI
         private const float AnimDuration = 0.15f;
 
         // ── State ────────────────────────────────────────────────────────────────
-        private readonly List<PackDisplayInfo> _packs = new List<PackDisplayInfo>();
-        private int _selectedPackIndex = -1;
-        private string _statusMessage = "";
-        private int _errorCount;
+        private readonly ModMenuPresenter _presenter = new ModMenuPresenter();
         private ManualLogSource? _log;
 
         // ── Animation ────────────────────────────────────────────────────────────
@@ -105,23 +105,21 @@ namespace DINOForge.Runtime.UI
         /// <summary>Replaces the pack list and refreshes the UI.</summary>
         public void SetPacks(IEnumerable<PackDisplayInfo> packs)
         {
-            int beforeCount = _packs.Count;
-            _packs.Clear();
-            _packs.AddRange(packs);
-            _selectedPackIndex = _packs.Count > 0 ? 0 : -1;
+            int beforeCount = _presenter.Packs.Count;
+            _presenter.SetPacks(packs);
 
             _log?.LogInfo($"");
             _log?.LogInfo($"╔════════════════════════════════════════════════════════════════════════════════════╗");
             _log?.LogInfo($"║ [ModMenuPanel.SetPacks] ENTRY                                                       ║");
             _log?.LogInfo($"╚════════════════════════════════════════════════════════════════════════════════════╝");
-            _log?.LogInfo($"  Before: {beforeCount} packs, After: {_packs.Count} packs");
+            _log?.LogInfo($"  Before: {beforeCount} packs, After: {_presenter.Packs.Count} packs");
             _log?.LogInfo($"  _listContent: {(_listContent != null ? $"READY (name={_listContent.name}, active={_listContent.gameObject.activeSelf})" : "NULL")}");
-            _log?.LogInfo($"  _selectedPackIndex: {_selectedPackIndex}");
+            _log?.LogInfo($"  SelectedIndex: {_presenter.SelectedIndex}");
 
-            if (_packs.Count > 0)
+            if (_presenter.Packs.Count > 0)
             {
                 _log?.LogInfo($"  Pack list:");
-                foreach (var p in _packs)
+                foreach (PackDisplayInfo p in _presenter.Packs)
                 {
                     _log?.LogInfo($"    • {p.Name} (ID: {p.Id}, enabled: {p.IsEnabled})");
                 }
@@ -146,12 +144,11 @@ namespace DINOForge.Runtime.UI
         /// <summary>Updates the header status text.</summary>
         public void SetStatus(string message, int errorCount = 0)
         {
-            _statusMessage = message;
-            _errorCount = errorCount;
+            _presenter.SetStatus(message, errorCount);
             if (_headerStatusText != null)
             {
                 _headerStatusText.text = BuildStatusLine();
-                _headerStatusText.color = errorCount > 0 ? UiBuilder.Error : UiBuilder.TextSecondary;
+                _headerStatusText.color = _presenter.ErrorCount > 0 ? UiBuilder.Error : UiBuilder.TextSecondary;
             }
         }
 
@@ -177,6 +174,13 @@ namespace DINOForge.Runtime.UI
             }
         }
 
+        /// <inheritdoc />
+        public void Toggle()
+        {
+            if (IsVisible) Hide();
+            else Show();
+        }
+
         // ── MonoBehaviour ─────────────────────────────────────────────────────────
 
         private void Update()
@@ -191,7 +195,7 @@ namespace DINOForge.Runtime.UI
             if (_canvasGroup == null || _panelRt == null) return;
 
             float target = _targetVisible ? 1f : 0f;
-            _animT = Mathf.MoveTowards(_animT, target, Time.deltaTime / AnimDuration);
+            _animT = Mathf.MoveTowards(_animT, target, Time.unscaledDeltaTime / AnimDuration);
 
             _canvasGroup.alpha = _animT;
 
@@ -486,28 +490,31 @@ namespace DINOForge.Runtime.UI
                 return;
             }
 
-            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] START: _packs.Count={_packs.Count}, _listContent={_listContent.name}, active={_listContent.gameObject.activeSelf}");
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] START: presenter.Packs.Count={_presenter.Packs.Count}, _listContent={_listContent.name}, active={_listContent.gameObject.activeSelf}");
             _log?.LogInfo($"[ModMenuPanel.RebuildPackList] _listContent RectTransform: position={_listContent.anchoredPosition}, sizeDelta={_listContent.sizeDelta}");
             _log?.LogInfo($"[ModMenuPanel.RebuildPackList] Clearing {_listContent.childCount} existing items");
 
-            // Destroy existing items
+            // Remove existing items immediately from the layout tree to avoid
+            // same-frame duplicate entries when SetPacks triggers rapid rebuilds.
             for (int i = _listContent.childCount - 1; i >= 0; i--)
             {
-                Destroy(_listContent.GetChild(i).gameObject);
+                Transform child = _listContent.GetChild(i);
+                child.SetParent(null, false);
+                Destroy(child.gameObject);
             }
 
-            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] After clear: childCount={_listContent.childCount}. Now rendering {_packs.Count} pack(s)...");
+            _log?.LogInfo($"[ModMenuPanel.RebuildPackList] After clear: childCount={_listContent.childCount}. Now rendering {_presenter.Packs.Count} pack(s)...");
 
-            for (int i = 0; i < _packs.Count; i++)
+            for (int i = 0; i < _presenter.Packs.Count; i++)
             {
-                _log?.LogInfo($"[ModMenuPanel.RebuildPackList] Creating item {i}: '{_packs[i].Name}' (ID: {_packs[i].Id})");
-                BuildPackListItem(_packs[i], i);
+                _log?.LogInfo($"[ModMenuPanel.RebuildPackList] Creating item {i}: '{_presenter.Packs[i].Name}' (ID: {_presenter.Packs[i].Id})");
+                BuildPackListItem(_presenter.Packs[i], i);
             }
 
             // CRITICAL FIX: Manually set content height since ContentSizeFitter is not calculating correctly
             // Calculate: padding.top + (itemCount * itemHeight) + (itemCount-1 * spacing) + padding.bottom
             float padding_top = 4f, padding_bottom = 4f, spacing = 2f, itemHeight = 40f;
-            float calculatedHeight = padding_top + (_packs.Count * itemHeight) + (Mathf.Max(0, _packs.Count - 1) * spacing) + padding_bottom;
+            float calculatedHeight = padding_top + (_presenter.Packs.Count * itemHeight) + (Mathf.Max(0, _presenter.Packs.Count - 1) * spacing) + padding_bottom;
             _listContent.sizeDelta = new Vector2(_listContent.sizeDelta.x, calculatedHeight);
             _log?.LogInfo($"[ModMenuPanel.RebuildPackList] MANUAL FIX APPLIED: Set content height to {calculatedHeight} (was {_listContent.sizeDelta.y})");
 
@@ -553,9 +560,9 @@ namespace DINOForge.Runtime.UI
                 return;
             }
 
-            _log?.LogInfo($"[ModMenuPanel.BuildPackListItem] Starting item {index}: '{pack.Name}' (enabled={pack.IsEnabled}, selected={index == _selectedPackIndex})");
+            _log?.LogInfo($"[ModMenuPanel.BuildPackListItem] Starting item {index}: '{pack.Name}' (enabled={pack.IsEnabled}, selected={index == _presenter.SelectedIndex})");
 
-            bool isSelected = index == _selectedPackIndex;
+            bool isSelected = index == _presenter.SelectedIndex;
             bool hasErrors = pack.Errors.Count > 0;
             bool hasConflicts = pack.Conflicts.Count > 0;
 
@@ -659,14 +666,15 @@ namespace DINOForge.Runtime.UI
 
         private void SelectPack(int index)
         {
-            _selectedPackIndex = index;
+            _presenter.SelectIndex(index);
             RebuildPackList();
             RefreshDetail();
         }
 
         private void RefreshDetail()
         {
-            if (_selectedPackIndex < 0 || _selectedPackIndex >= _packs.Count)
+            PackDisplayInfo? selected = _presenter.SelectedPack;
+            if (selected == null)
             {
                 if (_detailName != null) _detailName.text = "Select a pack";
                 if (_detailMeta != null) _detailMeta.text = "";
@@ -677,7 +685,7 @@ namespace DINOForge.Runtime.UI
                 return;
             }
 
-            PackDisplayInfo p = _packs[_selectedPackIndex];
+            PackDisplayInfo p = selected;
 
             if (_detailName != null) _detailName.text = p.Name;
             if (_detailMeta != null) _detailMeta.text = $"by {p.Author}  ·  {p.Type}  ·  v{p.Version}";
@@ -734,12 +742,9 @@ namespace DINOForge.Runtime.UI
 
         private void OnToggleSelected()
         {
-            if (_selectedPackIndex < 0 || _selectedPackIndex >= _packs.Count) return;
+            if (!_presenter.TryToggleEnabled(_presenter.SelectedIndex, out PackDisplayInfo updated)) return;
 
-            PackDisplayInfo p = _packs[_selectedPackIndex];
-            PackDisplayInfo updated = p.WithEnabled(!p.IsEnabled);
-            _packs[_selectedPackIndex] = updated;
-            OnPackToggled?.Invoke(p.Id, updated.IsEnabled);
+            OnPackToggled?.Invoke(updated.Id, updated.IsEnabled);
             RebuildPackList();
             RefreshDetail();
         }
@@ -748,8 +753,8 @@ namespace DINOForge.Runtime.UI
 
         private string BuildStatusLine()
         {
-            string errPart = _errorCount > 0 ? $"  {_errorCount} errors" : "  0 errors";
-            return $"{_packs.Count} packs{errPart}  {_statusMessage}";
+            string errPart = _presenter.ErrorCount > 0 ? $"  {_presenter.ErrorCount} errors" : "  0 errors";
+            return $"{_presenter.Packs.Count} packs{errPart}  {_presenter.StatusMessage}";
         }
     }
 }

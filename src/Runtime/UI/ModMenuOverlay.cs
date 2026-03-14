@@ -11,73 +11,78 @@ namespace DINOForge.Runtime.UI
     /// Shows loaded packs, enable/disable toggles, search, status badges, and a reload button.
     /// Hosts an inline Settings button that delegates to <see cref="ModSettingsPanel"/>.
     /// </summary>
-    public class ModMenuOverlay : MonoBehaviour
+    public class ModMenuOverlay : MonoBehaviour, IModMenuHost
     {
         private bool _visible;
         private Rect _windowRect = new Rect(20, 20, 560, 640);
         private Vector2 _packListScroll;
         private Vector2 _detailsScroll;
-        private int _selectedPackIndex = -1;
-        private string _statusMessage = "";
-        private int _errorCount;
         private string _searchText = "";
-        private ModSettingsPanel? _settingsPanel;
-
-        private readonly List<PackDisplayInfo> _packs = new List<PackDisplayInfo>();
+        private IModSettingsHost? _settingsPanel;
+        private readonly ModMenuPresenter _presenter = new ModMenuPresenter();
         private readonly List<int> _filteredIndices = new List<int>();
 
         /// <summary>Callback invoked when the user clicks the Reload Packs button.</summary>
-        public Action? OnReloadRequested;
+        public Action? OnReloadRequested { get; set; }
 
         /// <summary>Callback invoked when a pack is toggled enabled/disabled (packId, isEnabled).</summary>
-        public Action<string, bool>? OnPackToggled;
+        public Action<string, bool>? OnPackToggled { get; set; }
 
         /// <summary>Whether the overlay is currently visible.</summary>
         public bool IsVisible => _visible;
 
-        /// <summary>The currently selected pack index (into the full _packs list), or -1 if none.</summary>
-        public int SelectedPackIndex => _selectedPackIndex;
+        /// <summary>The currently selected pack index in the current presenter list, or -1 if none.</summary>
+        public int SelectedPackIndex => _presenter.SelectedIndex;
 
         // ── Public API ─────────────────────────────────────────────────────────────
 
         /// <summary>
         /// Updates the list of packs displayed in the overlay.
-        /// Virtual so subclasses (e.g. ModMenuOverlayProxy) can forward to UGUI panels.
+        /// Virtual so adapters can forward to other menu host implementations.
         /// </summary>
         /// <param name="packs">Pack display info objects to show.</param>
         public virtual void SetPacks(IEnumerable<PackDisplayInfo> packs)
         {
-            _packs.Clear();
-            _packs.AddRange(packs);
-            _selectedPackIndex = _packs.Count > 0 ? 0 : -1;
+            _presenter.SetPacks(packs);
             RebuildFilter();
         }
 
         /// <summary>
         /// Updates the status bar message.
-        /// Virtual so subclasses (e.g. ModMenuOverlayProxy) can forward to UGUI panels.
+        /// Virtual so adapters can forward to other menu host implementations.
         /// </summary>
         /// <param name="message">Status text to display.</param>
         /// <param name="errorCount">Number of errors to show in the status bar.</param>
         public virtual void SetStatus(string message, int errorCount = 0)
         {
-            _statusMessage = message;
-            _errorCount = errorCount;
+            _presenter.SetStatus(message, errorCount);
         }
 
         /// <summary>
         /// Toggles the overlay visibility.
         /// </summary>
-        public void Toggle()
+        public virtual void Toggle()
         {
             _visible = !_visible;
+        }
+
+        /// <inheritdoc />
+        public virtual void Show()
+        {
+            _visible = true;
+        }
+
+        /// <inheritdoc />
+        public virtual void Hide()
+        {
+            _visible = false;
         }
 
         /// <summary>
         /// Wires the settings panel reference so the Settings button inside this overlay can show/hide it.
         /// </summary>
         /// <param name="panel">The settings panel instance.</param>
-        public void SetSettingsPanel(ModSettingsPanel? panel)
+        public void SetSettingsPanel(IModSettingsHost? panel)
         {
             _settingsPanel = panel;
         }
@@ -107,8 +112,8 @@ namespace DINOForge.Runtime.UI
 
         private string BuildWindowTitle()
         {
-            string base_ = $"DINOForge v{PluginInfo.VERSION}  —  Mod Manager  [{_packs.Count} packs]";
-            return _errorCount > 0 ? $"{base_}  ⚠ {_errorCount} errors" : base_;
+            string base_ = $"DINOForge v{PluginInfo.VERSION}  —  Mod Manager  [{_presenter.Packs.Count} packs]";
+            return _presenter.ErrorCount > 0 ? $"{base_}  ⚠ {_presenter.ErrorCount} errors" : base_;
         }
 
         private void DrawWindow(int windowId)
@@ -129,9 +134,10 @@ namespace DINOForge.Runtime.UI
             GUILayout.BeginHorizontal();
             DrawPackList();
 
-            if (_selectedPackIndex >= 0 && _selectedPackIndex < _packs.Count)
+            PackDisplayInfo? selected = _presenter.SelectedPack;
+            if (selected != null)
             {
-                DrawPackDetails(_packs[_selectedPackIndex]);
+                DrawPackDetails(selected);
             }
             else
             {
@@ -157,13 +163,13 @@ namespace DINOForge.Runtime.UI
             GUILayout.BeginHorizontal(DinoForgeStyle.BoxStyle);
 
             // Pack / error summary
-            GUILayout.Label($"Packs: {_packs.Count}", DinoForgeStyle.SectionLabelStyle, GUILayout.Width(90));
+            GUILayout.Label($"Packs: {_presenter.Packs.Count}", DinoForgeStyle.SectionLabelStyle, GUILayout.Width(90));
 
             GUILayout.Space(6);
 
-            if (_errorCount > 0)
+            if (_presenter.ErrorCount > 0)
             {
-                DinoForgeStyle.StatusBadge($"ERR {_errorCount}", DinoForgeStyle.Error, 60f);
+                DinoForgeStyle.StatusBadge($"ERR {_presenter.ErrorCount}", DinoForgeStyle.Error, 60f);
             }
             else
             {
@@ -172,9 +178,9 @@ namespace DINOForge.Runtime.UI
 
             GUILayout.FlexibleSpace();
 
-            if (!string.IsNullOrEmpty(_statusMessage))
+            if (!string.IsNullOrEmpty(_presenter.StatusMessage))
             {
-                GUILayout.Label(_statusMessage, DinoForgeStyle.BodyLabelStyle);
+                GUILayout.Label(_presenter.StatusMessage, DinoForgeStyle.BodyLabelStyle);
                 GUILayout.Space(8);
             }
 
@@ -183,7 +189,7 @@ namespace DINOForge.Runtime.UI
             string settingsLabel = settingsActive ? "▼ Settings" : "▶ Settings";
             if (GUILayout.Button(settingsLabel, DinoForgeStyle.ButtonStyle, GUILayout.Width(90), GUILayout.Height(22)))
             {
-                _settingsPanel?.SetVisible(!settingsActive);
+                _settingsPanel?.Toggle();
             }
 
             GUILayout.EndHorizontal();
@@ -221,8 +227,8 @@ namespace DINOForge.Runtime.UI
 
             foreach (int realIndex in _filteredIndices)
             {
-                PackDisplayInfo pack = _packs[realIndex];
-                bool isSelected = realIndex == _selectedPackIndex;
+                PackDisplayInfo pack = _presenter.Packs[realIndex];
+                bool isSelected = realIndex == _presenter.SelectedIndex;
 
                 if (isSelected)
                 {
@@ -237,8 +243,10 @@ namespace DINOForge.Runtime.UI
                 bool newEnabled = GUILayout.Toggle(pack.IsEnabled, "", GUILayout.Width(18));
                 if (newEnabled != pack.IsEnabled)
                 {
-                    _packs[realIndex] = pack.WithEnabled(newEnabled);
-                    OnPackToggled?.Invoke(pack.Id, newEnabled);
+                    if (_presenter.TryToggleEnabled(realIndex, out PackDisplayInfo updated))
+                    {
+                        OnPackToggled?.Invoke(updated.Id, updated.IsEnabled);
+                    }
                     RebuildFilter();
                 }
 
@@ -246,7 +254,7 @@ namespace DINOForge.Runtime.UI
                 GUIStyle nameStyle = isSelected ? DinoForgeStyle.PackNameSelectedStyle : DinoForgeStyle.PackNameStyle;
                 if (GUILayout.Button(pack.Name, nameStyle, GUILayout.ExpandWidth(true)))
                 {
-                    _selectedPackIndex = realIndex;
+                    _presenter.SelectIndex(realIndex);
                 }
 
                 // Status badge
@@ -371,16 +379,16 @@ namespace DINOForge.Runtime.UI
         private void RebuildFilter()
         {
             _filteredIndices.Clear();
-            for (int i = 0; i < _packs.Count; i++)
+            for (int i = 0; i < _presenter.Packs.Count; i++)
             {
-                if (PackMatchesSearch(_packs[i]))
+                if (PackMatchesSearch(_presenter.Packs[i]))
                     _filteredIndices.Add(i);
             }
 
             // If the selected pack is no longer in the filtered list, reset selection
-            if (_selectedPackIndex >= 0 && !_filteredIndices.Contains(_selectedPackIndex))
+            if (_presenter.SelectedIndex >= 0 && !_filteredIndices.Contains(_presenter.SelectedIndex))
             {
-                _selectedPackIndex = _filteredIndices.Count > 0 ? _filteredIndices[0] : -1;
+                _presenter.SelectIndex(_filteredIndices.Count > 0 ? _filteredIndices[0] : -1);
             }
         }
 

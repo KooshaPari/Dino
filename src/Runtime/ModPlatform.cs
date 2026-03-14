@@ -38,8 +38,8 @@ namespace DINOForge.Runtime
         private VanillaCatalog? _vanillaCatalog;
 
         // UI
-        private ModMenuOverlay? _modMenuOverlay;
-        private ModSettingsPanel? _modSettingsPanel;
+        private IModMenuHost? _modMenuHost;
+        private IModSettingsHost? _modSettingsHost;
 
         // Hot reload
         private PackFileWatcher? _packFileWatcher;
@@ -70,6 +70,9 @@ namespace DINOForge.Runtime
 
         /// <summary>Whether the ECS world is ready and systems are registered.</summary>
         public bool IsWorldReady => _worldReady;
+
+        /// <summary>Returns the IDs of all currently loaded packs (thread-safe read).</summary>
+        public IReadOnlyList<string>? GetLoadedPackIds() => _lastLoadResult?.LoadedPacks;
 
         /// <summary>
         /// Initializes the mod platform with all subsystems.
@@ -267,6 +270,54 @@ namespace DINOForge.Runtime
         }
 
         /// <summary>
+        /// Rebuilds VanillaCatalog against the live ECS world (must have >1000 entities)
+        /// and re-triggers stat modifier application. Called once the game scene is loaded.
+        /// </summary>
+        public void RebuildCatalogAndApplyStats(Unity.Entities.World world)
+        {
+            try
+            {
+                _vanillaCatalog!.Build(world.EntityManager);
+                _log.LogInfo($"[ModPlatform] VanillaCatalog rebuilt: " +
+                    $"{_vanillaCatalog.Units.Count} units, " +
+                    $"{_vanillaCatalog.Buildings.Count} buildings, " +
+                    $"{_vanillaCatalog.Projectiles.Count} projectiles.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[ModPlatform] VanillaCatalog rebuild failed: {ex.Message}");
+                return;
+            }
+
+            // Re-enqueue all stat overrides now that the catalog is populated
+            if (_registryManager != null && _contentLoader != null)
+            {
+                try
+                {
+                    int unitOverrides = OverrideApplicator.ApplyUnitOverrides(_registryManager, msg => _log.LogInfo(msg));
+                    _log.LogInfo($"[ModPlatform] Re-enqueued {unitOverrides} unit stat override(s) after scene load.");
+                }
+                catch (Exception ex)
+                {
+                    _log.LogWarning($"[ModPlatform] Unit stat override re-apply failed: {ex.Message}");
+                }
+
+                try
+                {
+                    if (_contentLoader.LoadedOverrides.Count > 0)
+                    {
+                        int yamlOverrides = OverrideApplicator.ApplyStatOverrides(_contentLoader.LoadedOverrides, msg => _log.LogInfo(msg));
+                        _log.LogInfo($"[ModPlatform] Re-enqueued {yamlOverrides} YAML stat override(s) after scene load.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _log.LogWarning($"[ModPlatform] YAML stat override re-apply failed: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
         /// Loads all content packs from the configured packs directory.
         /// After loading, updates the UI overlay and enqueues stat modifications.
         /// </summary>
@@ -322,6 +373,18 @@ namespace DINOForge.Runtime
             catch (Exception ex)
             {
                 _log.LogError($"[ModPlatform] Failed to initialize PackUnitSpawner: {ex.Message}");
+            }
+
+            // Initialize AerialSpawnSystem so it can sweep baked building entities for
+            // defense_tags: [AntiAir] and attach AntiAirComponent on its startup pass.
+            try
+            {
+                DINOForge.Runtime.Aviation.AerialSpawnSystem.Initialize(_registryManager);
+                _log.LogInfo("[ModPlatform] AerialSpawnSystem initialized with building registry.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] Failed to initialize AerialSpawnSystem: {ex.Message}");
             }
 
             // Apply stat overrides from loaded units
@@ -445,11 +508,11 @@ namespace DINOForge.Runtime
         }
 
         /// <summary>
-        /// Updates the ModMenuOverlay with current pack information and status.
+        /// Updates the active mod-menu host with current pack information and status.
         /// </summary>
         private void UpdateUI(ContentLoadResult result)
         {
-            if (_modMenuOverlay == null || _registryManager == null) return;
+            if (_modMenuHost == null || _registryManager == null) return;
 
             try
             {
@@ -500,13 +563,13 @@ namespace DINOForge.Runtime
                     }
                 }
 
-                _modMenuOverlay.SetPacks(packInfos);
+                _modMenuHost.SetPacks(packInfos);
 
                 // Set status message
                 string statusMsg = result.IsSuccess
                     ? $"All {result.LoadedPacks.Count} pack(s) loaded OK"
                     : $"{result.LoadedPacks.Count} loaded, {result.Errors.Count} error(s)";
-                _modMenuOverlay.SetStatus(statusMsg, result.Errors.Count);
+                _modMenuHost.SetStatus(statusMsg, result.Errors.Count);
             }
             catch (Exception ex)
             {
@@ -517,18 +580,18 @@ namespace DINOForge.Runtime
         /// <summary>
         /// Sets the UI overlay references. Called by Plugin after adding components to the GameObject.
         /// </summary>
-        /// <param name="menuOverlay">The mod menu overlay MonoBehaviour.</param>
-        /// <param name="settingsPanel">The mod settings panel MonoBehaviour.</param>
-        public void SetUI(ModMenuOverlay menuOverlay, ModSettingsPanel settingsPanel)
+        /// <param name="menuHost">The active mod menu host.</param>
+        /// <param name="settingsHost">The active mod settings host.</param>
+        public void SetUI(IModMenuHost menuHost, IModSettingsHost settingsHost)
         {
-            _modMenuOverlay = menuOverlay;
-            _modSettingsPanel = settingsPanel;
+            _modMenuHost = menuHost;
+            _modSettingsHost = settingsHost;
 
             // Wire reload button to hot reload
-            if (_modMenuOverlay != null)
+            if (_modMenuHost != null)
             {
-                _modMenuOverlay.OnReloadRequested = OnReloadRequested;
-                _modMenuOverlay.OnPackToggled = OnPackToggled;
+                _modMenuHost.OnReloadRequested = OnReloadRequested;
+                _modMenuHost.OnPackToggled = OnPackToggled;
             }
         }
 
@@ -556,7 +619,7 @@ namespace DINOForge.Runtime
             catch (Exception ex)
             {
                 _log.LogError($"[ModPlatform] Reload failed: {ex.Message}");
-                _modMenuOverlay?.SetStatus($"Reload failed: {ex.Message}", 1);
+                _modMenuHost?.SetStatus($"Reload failed: {ex.Message}", 1);
             }
         }
 

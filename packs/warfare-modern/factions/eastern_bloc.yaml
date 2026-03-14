@@ -1,0 +1,54 @@
+# Eastern Bloc Faction - Mass Production Doctrine Archetype
+# Soviet-style conscript army with heavy armor and artillery
+
+faction:
+  id: eastern-bloc
+  display_name: Eastern Bloc
+  description: A Soviet-style military force emphasizing mass production, heavy armor, and artillery saturation. Conscript-based army with resilience, numbers, and powerful armored vehicles.
+  theme: modern
+  archetype: mass_production
+  doctrine: iron_curtain
+
+economy:
+  gather_bonus: 0.95
+  upkeep_modifier: 0.75
+  research_speed: 0.95
+  build_speed: 1.35
+
+army:
+  morale_style: resilient
+  unit_cap_modifier: 1.5
+  elite_cost_modifier: 1.2
+  spawn_rate_modifier: 1.4
+
+roster:
+  cheap_infantry: eb_conscript
+  line_infantry: eb_assault_trooper
+  elite_infantry: eb_spetsnaz
+  anti_armor: eb_rpg_operator
+  support_weapon: eb_rocket_operator
+  recon: eb_recon_scout
+  light_vehicle: eb_naval_infantry
+  heavy_vehicle: eb_tank_operator
+  artillery: eb_rocket_operator
+  hero_commander: eb_recon_scout
+  spike_unit: eb_spetsnaz
+
+buildings:
+  barracks: eb_command_bunker
+  workshop: eb_armor_yard
+  artillery_foundry: eb_airbase
+  tower_mg: eb_early_warning_radar
+  heavy_defense: eb_concrete_fortification
+  command_center: eb_command_center
+  economy_primary: eb_logistics_hub
+  economy_secondary: eb_medical_station
+  research_facility: eb_research_complex
+  wall_segment: eb_concrete_barrier
+
+visuals:
+  primary_color: "#DC143C"
+  accent_color: "#FFD700"
+
+audio:
+  weapon_pack: modern_weapons

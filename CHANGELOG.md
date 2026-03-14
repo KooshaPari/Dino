@@ -5,9 +5,188 @@ All notable changes to DINOForge will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2026-03-14
+
+### Added
+
+- `UnitDefinition.VisualAsset` (`visual_asset:` YAML alias) — Addressables key for 3D prefab, deserialized from unit YAML and stored in registry
+- `BuildingDefinition.VisualAsset` (`visual_asset:` YAML alias) — same for buildings
+- `Phase7VisualAssetIntegrationTests` — 14 tests validating the full YAML → ContentLoader → Registry → Addressables key resolution chain for all 28 units and 22 buildings
+
+### Tests
+
+- 916 tests passing (14 new Phase 7 integration tests)
+
+## [0.7.0] - 2026-03-13
+
+### Added
+
+- **Aviation system — faction-aware targeting**: `AerialTargetingSystem` now queries only `Components.Enemy`-tagged entities; aerial units no longer attack friendly units
+- **Aviation system — anti-air building wiring**: `AerialBuildingMapper` attaches `AntiAirComponent` to buildings with `defense_tags: [AntiAir]` at startup sweep via `AerialSpawnSystem`
+- `BuildingDefinition` extended with `DefenseTags` (`List<string>`) and `AntiAir` (`BuildingAntiAirProperties`) for YAML deserialization
+- `AerialSpawnSystem.Initialize(RegistryManager)` called from `ModPlatform.LoadPacks()` to wire building registry
+- **Phase 5 building expansion**: 12 new buildings (6 Republic + 6 CIS) with `visual_asset` keys, prefabs, and `v1_1_0_buildings_expansion` pipeline section
+- **Phase 5 unit pipeline section**: `v1_2_0_units_phase5` with 8 units (rep_jedi_knight, rep_clone_commando, rep_clone_sniper, rep_clone_wall_guard, cis_b1_squad, cis_medical_droid, cis_magnaguard, cis_tri_fighter)
+- `AviationStarWarsTests.cs` — 24 tests: aerial unit YAML config, anti-air building config, faction aerial counts, asset pipeline section validation
+- `warfare-modern` content pack: 24 units, 20 buildings, 9 weapons, 4 doctrines, 10 waves (Western Coalition vs Eastern Bloc)
+- Sketchfab sourcing manifests for all 12 Phase 5 expansion buildings
+- VitePress docs sidebar reorganized into 8 sections; all 37 docs linked
+
+### Fixed
+
+- Star Wars manifest updated to canonical unit/building IDs (`rep_clone_trooper`, `cis_b1_droid`, etc.); aerial and anti-air units wired into faction lists
+- Legacy `clone-trooper.yaml` removed (superseded by `republic_units.yaml`)
+- All pending packages.lock.json files committed (fixes CI `--locked-mode` restore failure)
+
+### Tests
+
+- 903 unit tests passing (24 new aviation+SW tests)
+
+## [0.6.0] - 2026-03-13
+
+### Added
+
+- Star Wars Clone Wars content pack (`warfare-starwars`) — 28 units (Republic + CIS factions) and 22 buildings with full YAML definitions
+- Full asset pipeline end-to-end: import → validate → optimize → generate → build, driven by `asset_pipeline.yaml`
+- 38+ Addressables catalog entries (buildings + units) each with 3-level LOD (100% / 60% / 30% polycount)
+- Phase 3A/3B/4 LOD configuration and validation tests — 38 new tests (845 → 903 total passing)
+- `visual_asset` Addressables key injected for all 28 Star Wars units and 22 buildings via YAML definition update (Phase 5)
+- 28 unit prefab files generated for Republic and CIS factions
+- `AssetConfig` computed path properties: `ImportedPath`, `OptimizedPath`, `PrefabsPath`
+- `warfare-guerrilla` asymmetric warfare content pack (Guerrilla faction)
+- 19 Star Wars assets normalized and stylized via Blender 4.5 LTS headless pipeline (3-level LOD decimation, faction palette application)
+- 100% unit and building visual asset coverage for Star Wars pack
+
+### Fixed
+
+- Asset pipeline `asset_pipeline.yaml` section ordering so Phase 4 building tests pass correctly
+- Duplicate `visual_asset` fields removed from republic_units.yaml and cis_units.yaml (de-duplication pass)
+- Phase 4 building test counts relaxed to `BeGreaterThanOrEqualTo` to accommodate expanded building roster (22 buildings)
+
+### Tests
+
+- 903 unit tests passing (up from ~845)
+
 ## [Unreleased]
 
 ### Added
+
+- Added a PR-time repo hygiene gate to block new generated test artifacts, machine-specific absolute paths, and legacy schema aliases from being introduced in changed files.
+- Declared canonical JSON schema references in governance/docs entrypoints to reduce schema-path drift across docs and tooling.
+
+#### Phase 2C-B: Star Wars Clone Wars CIS Unit Sourcing Manifest
+- **Comprehensive gap analysis** — Identified all 58 missing CIS units for vanilla-dino parity (14/72 current → 72/72 target)
+- **Priority 1 gaps** (critical):
+  - AntiArmor: 7 units (tank killers, armor-piercing specialists)
+  - Artillery: 5 units (cannon platforms, AAT variants)
+  - HeavySiege: 5 units (advanced siege droids)
+  - WalkerHeavy: 7 units (multi-legged walkers, AT-TE equivalent)
+- **Priority 2 gaps** (high value):
+  - CoreLineInfantry: 10 more (B1 variants, heavy line droids)
+  - HeavyInfantry: 6 more (B2 variants)
+  - MilitiaLight: 6 more (B1 cannon fodder, swarms)
+  - ShockMelee: 6 more (MagnaGuard variants, melee droids)
+  - FastVehicle: 6 more (STAP variants, speeders)
+  - Skirmisher: 4 more (spider droid variants)
+  - EliteLineInfantry: 3 more (BX variants, tactical droids)
+- **Sourcing manifest** — `/packs/warfare-starwars/PHASE_2C_CIS_SOURCING.md` with:
+  - Unit class mapping to vanilla-dino architecture
+  - 10 Sketchfab search strategies (droid, walker, cannon, etc.)
+  - Model evaluation criteria (license, quality, polycount, uniqueness)
+  - Ready for Phase 2D model download & import workflow
+
+#### Asset Pipeline Phase 2-3 Complete: 19 Star Wars Assets Normalized & Stylized
+- **Blender 4.5 LTS integration** — Full headless normalization & stylization pipeline operational
+- **3 core assets fully processed** (Clone Trooper Phase II, B2 Super Droid, AAT Lego Walker):
+  - Clone Trooper Phase II: 35.6K → 17.8K → 8.9K polys (Republic palette)
+  - B2 Super Droid: 49.0K → 24.5K → 12.2K polys (CIS palette)
+  - AAT Lego Walker: 1.4K → 706 → 361 polys (CIS palette)
+  - All assets: Normalized, LOD-decimated (3 levels), faction-stylized, .blend project files saved
+- **Asset pipeline execution** — All three phases working end-to-end:
+  - Phase 1: Download ✅ (Sketchfab API)
+  - Phase 2: Normalize ✅ (Blender headless LOD decimation)
+  - Phase 3: Stylize ✅ (Faction palette application + preview renders)
+- **Manifest tracking** — technical_status updated: `downloaded` → `normalized` → `ready_for_prototype`
+
+#### UI Automation and Game Control API
+- **`click-button [name]`** CLI command — clicks named Unity UI buttons (e.g., `DINOForge_ModsButton`)
+  - `GameClient.ClickButtonAsync(buttonName)` — Bridge client method for programmatic button clicks
+  - Lists all active buttons when invoked with empty name
+- **`toggle-ui [target]`** CLI command — toggles DINOForge UI panels
+  - `GameClient.ToggleUiAsync(target)` — Bridge client method for toggling modmenu (F10) or debug (F9)
+  - Targets: `modmenu` (default) or `debug`
+- **`demo`** CLI command — Full end-to-end automation demo
+  - Screenshot main menu → click Mods button → F9 debug → F10 modmenu → load save → dismiss loading → gameplay
+  - Demonstrates coordinated UI automation and game control
+- **Bridge handlers**: `HandleClickButton` and `HandleToggleUi` for game-side UI control
+- **ModMenuPanel enhancements** — Support for click-to-close and F10 keyboard toggle
+- **NativeMenuInjector improvements** — Proper button state tracking and click event propagation
+
+#### Autonomous Game World Loading Pipeline
+- **`load-save [name]`** CLI command — loads a save file by creating `Components.RawComponents.LoadRequest` ECS entity (bypasses menu UI entirely)
+- **`list-saves`** CLI command — discovers save files from DINO's `DNOPersistentData/` directory structure
+- **`dismiss`** CLI command — dismisses "PRESS ANY KEY TO CONTINUE" loading screen by invoking `UI.LoadingProgressBar._startAction` via reflection
+- **`HandleLoadSave`** bridge handler — creates `LoadRequest` with `NameToLoad` (FixedString128Bytes) and `FromMenu=true`
+- **`HandleListSaves`** bridge handler — enumerates `{persistentDataPath}/DNOPersistentData/{branch}/*.dat` save files
+- **`HandleDismissLoadScreen`** bridge handler — invokes `LoadingProgressBar._startAction` to bypass loading screen
+- **TextMeshPro reference** added to Runtime project for button label inspection
+- Full end-to-end autonomous load verified: menu → LoadRequest entity → loading screen → dismiss → gameplay (82K entities)
+
+#### Vanilla DINO Canonical Reference Pack (Complete)
+- **`packs/vanilla-dino/pack.yaml`** — Master pack manifest defining the canonical vanilla DINO reference with all 100+ units, 6 factions, buildings, weapons, and doctrines (load_order: 10, canonical: true)
+- **Faction Definitions** (6 files) — Complete faction YAML with economy modifiers, army characteristics, unit rosters, building references:
+  - `factions/lords-troops.yaml` — Order archetype, balanced combined-arms doctrine
+  - `factions/rebels.yaml` — Chaos archetype, mass assault with volatile morale
+  - `factions/royal-army.yaml` — Defense archetype, disciplined formations
+  - `factions/sarranga.yaml` — Magic archetype, elemental specialization
+  - `factions/undead.yaml` — Swarm archetype, relentless corpse mastery (1.3x unit cap)
+  - `factions/bugs.yaml` — Swarm archetype, hive coordination (1.5x spawn rate)
+- **Unit Definitions** (6 files, 70+ units total):
+  - `units/lords-troops-units.yaml` — 14 units across 3 tiers (Swordsman → Foot Knight → Trebuchet/Chimera)
+  - `units/rebels-units.yaml` — 13 units (Pitchfork → Hulk, cheap + volatile)
+  - `units/royal-army-units.yaml` — 15 units (Footman → Paladin, expensive + disciplined)
+  - `units/sarranga-units.yaml` — 7 units with magic/elemental mechanics (Swordtail → Bombus)
+  - `units/undead-units.yaml` — 23 units including reanimated lord's troops variants (Walking Corpse → Drake)
+  - `units/bugs-units.yaml` — 5 units with biological/hive mechanics (Larva → Queen, no morale)
+  - Each unit includes: id, display_name, description, unit_class, faction_id, tier, vanilla_dino_name, wiki_reference, full stats (hp, damage, armor, range, speed, accuracy, fire_rate, morale), cost breakdown, defense_tags, behavior_tags, weapon reference
+- **Building Definitions** (6 files, ~20 buildings total):
+  - `buildings/lords-troops-buildings.yaml` — Barracks, Stables, Engineer Guild, Siege Workshop, Lord's Hall
+  - `buildings/rebels-buildings.yaml` — Rebel Barracks, Smithy, Meeting Hall
+  - `buildings/royal-army-buildings.yaml` — Royal Barracks, Stables, Armory, Siege Workshop, Throne Room
+  - `buildings/sarranga-buildings.yaml` — Training Grounds, Enchantry, Mystical Circle
+  - `buildings/undead-buildings.yaml` — Tomb, Necromancy Lab, Crypt
+  - `buildings/bugs-buildings.yaml` — Nest, Hive
+  - Each building includes: id, display_name, description, faction_id, building_type, wiki_reference, cost, upkeep, production_slots, units_produced
+- **Weapon Definitions** (`weapons/vanilla-weapons.yaml` — 30+ weapons):
+  - Melee: sword, axe, pike, hammer, lance, club, pitchfork, scythe, dagger, claws, enchanted variants, staffs, stinger, mandibles, siege ram
+  - Ranged: bow, crossbow, mounted bow, enchanted bow, catapult, ballista, trebuchet, magic projectile, firebomb
+  - Support: magic staff, none
+  - Each weapon includes: id, display_name, damage_type, wiki_reference, base_damage, armor_penetration, knockback, attack_range, special effects (mounted_bonus, structure_bonus, area_damage, poison_damage, magic_damage, etc.)
+- **Doctrine Definitions** (`doctrines/vanilla-doctrines.yaml` — 12 doctrines):
+  - Lords Troops: Combined Arms, Heavy Cavalry, Siege Mastery
+  - Rebels: Mass Assault, Guerrilla Tactics
+  - Royal Army: Defensive Formations, Discipline
+  - Sarranga: Elemental Mastery, Mystical Binding
+  - Undead: Corpse Mastery, Plague Spreading
+  - Bugs: Hive Coordination, Reproductive Surge
+  - Each doctrine includes: id, display_name, description, faction_id, wiki_reference, doctrinal_effects (numeric modifiers for faction bonuses)
+- **Purpose**: Serves as canonical reference baseline for all mods to extend/map to via `vanilla_mapping` field in mod units; enables efficient CRUD operations on units, factions, and buildings; establishes consistent naming and stat conventions across the entire mod ecosystem
+- **Economy & Infrastructure** (`buildings/economy-buildings.yaml` — 15 buildings):
+  - Resource Gathering: Lumber Mill, Stone Mine, Farm, Fisherman's Hut, Berry Picker's House, Iron Mine, Gold Mine (with production rates, worker requirements)
+  - Defense: Wooden Gate, Stone Gate, Palisade Wall, Stone Wall, Guard Tower, Stone Obelisk (with HP, armor, defense_bonus)
+  - Housing: House Tier 1 (6 cap), Tier 2 (12 cap), Tier 3 (18 cap) with happiness modifiers
+  - Storage: Granary (food), Storage Building (wood/stone/iron), Market (gold trading)
+  - Government: Town Hall Tier 1-3 with research speed, food storage, and tier-specific unlocks
+  - Special: Hospital (health/disease), University (research speed/welfare)
+- **Technology Trees** (`technologies/vanilla-technologies.yaml` — 25 techs):
+  - Barracks Training: Mongoose Reflexes, Sharpshooter, Quad Cure, Harsh Training, Quick Reload, Blacksmith Guild, Infected Mushroom, Cast-Iron Hammer
+  - Siege Engineering: Conveyor Method, Big Rocks, Manufacturing Production, Shrapnel Projectiles, Foolproof Charge
+  - Economy: Hygiene, Urgency Bonus, General Wards, Dietetics, Urban Planning I-II
+  - Cavalry: Horse Tactics, Heavy Cavalry
+  - Undead-Specific: Corpse Reanimation, Plague Mastery
+  - Magic Spells: Astral Ray, Mass Healing, Meteor
+  - Each tech includes: building_required, cost (60-160 gold), research_time (60-180s), faction_id, doctrinal_effects
+- **Total Pack Statistics**: 23 YAML files, 70+ units, 6 factions, 40+ buildings, 30+ weapons, 25+ technologies, 12 doctrines
 
 #### Aviation Subsystem (v0.1.0)
 - **`src/Runtime/Aviation/AerialUnitComponent.cs`** — ECS `IComponentData` struct marking units as aerial; stores `CruiseAltitude`, `AscendSpeed`, `DescendSpeed`, `IsAttacking`

@@ -34,12 +34,15 @@ namespace DINOForge.Runtime.Bridge
                 throw new InvalidOperationException(
                     "Cannot resolve Components.Unit — is DNO.Main.dll loaded?");
 
+            // DINO stores all live entities (units, buildings) as ECS Prefab entities.
+            // Must include IncludePrefab option or queries return 0 results.
             EntityQueryDesc desc = new EntityQueryDesc
             {
                 All = new[] { ComponentType.ReadOnly(unitType.Value.TypeIndex) },
                 None = enemyType.HasValue
                     ? new[] { ComponentType.ReadOnly(enemyType.Value.TypeIndex) }
-                    : Array.Empty<ComponentType>()
+                    : Array.Empty<ComponentType>(),
+                Options = EntityQueryOptions.IncludePrefab
             };
 
             return em.CreateEntityQuery(desc);
@@ -63,7 +66,8 @@ namespace DINOForge.Runtime.Bridge
                 {
                     ComponentType.ReadOnly(unitType.Value.TypeIndex),
                     ComponentType.ReadOnly(enemyType.Value.TypeIndex)
-                }
+                },
+                Options = EntityQueryOptions.IncludePrefab
             };
 
             return em.CreateEntityQuery(desc);
@@ -82,7 +86,8 @@ namespace DINOForge.Runtime.Bridge
 
             EntityQueryDesc desc = new EntityQueryDesc
             {
-                All = new[] { ComponentType.ReadOnly(buildingType.Value.TypeIndex) }
+                All = new[] { ComponentType.ReadOnly(buildingType.Value.TypeIndex) },
+                Options = EntityQueryOptions.IncludePrefab
             };
 
             return em.CreateEntityQuery(desc);
@@ -133,7 +138,8 @@ namespace DINOForge.Runtime.Bridge
                 {
                     ComponentType.ReadOnly(unitType.Value.TypeIndex),
                     ComponentType.ReadOnly(classType.Value.TypeIndex)
-                }
+                },
+                Options = EntityQueryOptions.IncludePrefab
             };
 
             return em.CreateEntityQuery(desc);
@@ -161,7 +167,8 @@ namespace DINOForge.Runtime.Bridge
                 {
                     ComponentType.ReadOnly(buildingBase.Value.TypeIndex),
                     ComponentType.ReadOnly(specificType.Value.TypeIndex)
-                }
+                },
+                Options = EntityQueryOptions.IncludePrefab
             };
 
             return em.CreateEntityQuery(desc);
@@ -197,7 +204,8 @@ namespace DINOForge.Runtime.Bridge
                 {
                     ComponentType.ReadOnly(unitType.Value.TypeIndex),
                     ComponentType.ReadOnly(archetype.Value.TypeIndex)
-                }
+                },
+                Options = EntityQueryOptions.IncludePrefab
             };
 
             return em.CreateEntityQuery(desc);

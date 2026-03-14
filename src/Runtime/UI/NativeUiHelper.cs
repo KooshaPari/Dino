@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace DINOForge.Runtime.UI
@@ -47,6 +48,13 @@ namespace DINOForge.Runtime.UI
             clone.name = "DINOForge_ModsButton";
             Button cloneBtn = clone.GetComponent<Button>();
 
+            // Drop any persistent/runtime callbacks inherited from the source button.
+            cloneBtn.onClick = new Button.ButtonClickedEvent();
+
+            // Remove any cloned game-specific scripts and event triggers that can still
+            // invoke the original Settings/Options behavior on click/submit.
+            StripNonUiBehaviours(clone);
+
             // Reset navigation to prevent inherited EventSystem conflicts from original button's menu layout
             Navigation nav = cloneBtn.navigation;
             nav.mode = Navigation.Mode.Automatic;
@@ -54,6 +62,44 @@ namespace DINOForge.Runtime.UI
 
             SetButtonText(cloneBtn, newText);
             return cloneBtn;
+        }
+
+        internal static void SanitizeUiClone(GameObject root)
+        {
+            StripNonUiBehaviours(root);
+        }
+
+        private static void StripNonUiBehaviours(GameObject root)
+        {
+            MonoBehaviour[] behaviours = root.GetComponentsInChildren<MonoBehaviour>(includeInactive: true);
+            foreach (MonoBehaviour behaviour in behaviours)
+            {
+                if (behaviour == null) continue;
+
+                if (behaviour is Button
+                    || behaviour is Graphic
+                    || behaviour is LayoutElement
+                    || behaviour is LayoutGroup
+                    || behaviour is ContentSizeFitter)
+                {
+                    continue;
+                }
+
+                if (behaviour is EventTrigger trigger)
+                {
+                    trigger.triggers?.Clear();
+                    UnityEngine.Object.Destroy(trigger);
+                    continue;
+                }
+
+                string? ns = behaviour.GetType().Namespace;
+                if (ns != null && ns.StartsWith("UnityEngine", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                UnityEngine.Object.Destroy(behaviour);
+            }
         }
 
         /// <summary>

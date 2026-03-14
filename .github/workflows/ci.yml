@@ -6,15 +6,16 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
-  checks: write
-  pull-requests: write
+permissions: {}
 
 jobs:
   build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
 
     steps:
       - name: Checkout
@@ -28,7 +29,7 @@ jobs:
           cache-dependency-path: '**/packages.lock.json'
 
       - name: Restore dependencies
-        run: dotnet restore src/DINOForge.CI.sln --locked-mode
+        run: dotnet restore src/DINOForge.CI.sln
         env:
           CI: 'true'
 

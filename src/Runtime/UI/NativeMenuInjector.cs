@@ -43,13 +43,15 @@ namespace DINOForge.Runtime.UI
 
         /// <summary>Interval in seconds between injection re-scan attempts.</summary>
         private const float RescanInterval = 2f;
+        private const float ClickDebounceSeconds = 0.2f;
 
         private ManualLogSource? _log;
-        private ModMenuOverlay? _overlay;
+        private IModMenuHost? _menuHost;
 
         private Button? _injectedButton;
         private bool _injected;
         private float _rescanTimer;
+        private float _lastClickTimeUnscaled = -10f;
 
         // ===== DIAGNOSTIC FIELDS =====
         private readonly string _sessionId = System.Guid.NewGuid().ToString().Substring(0, 8);
@@ -65,9 +67,9 @@ namespace DINOForge.Runtime.UI
         /// Called by <see cref="RuntimeDriver"/> immediately after AddComponent.
         /// </summary>
         /// <param name="overlay">The persistent <see cref="ModMenuOverlay"/> instance.</param>
-        public void SetModMenuOverlay(ModMenuOverlay overlay)
+        public void SetModMenuHost(IModMenuHost menuHost)
         {
-            _overlay = overlay;
+            _menuHost = menuHost;
         }
 
         /// <summary>
@@ -266,11 +268,13 @@ namespace DINOForge.Runtime.UI
                 {
                     for (int i = 0; i < parent.childCount; i++)
                     {
-                        if (parent.GetChild(i).name == "DINOForge_ModsButton")
+                        if (parent.GetChild(i).name.StartsWith("DINOForge_ModsButton", StringComparison.OrdinalIgnoreCase))
                         {
                             Button existing = parent.GetChild(i).GetComponent<Button>();
                             if (existing != null)
                             {
+                                SyncButtonVisualStyle(existing, settingsButton, attemptId);
+                                RewireModsButtonClick(existing, attemptId);
                                 _injectedButton = existing;
                                 _injected = true;
                                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId} ✓ Mods button already present in parent; SKIPPING re-inject, using existing.");
@@ -290,6 +294,7 @@ namespace DINOForge.Runtime.UI
                 }
 
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 1 OK: Clone successful: '{modsButton.name}'");
+                SyncButtonVisualStyle(modsButton, settingsButton, attemptId);
 
                 // Position adjacent to Settings button
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 2: Positioning Mods button after Settings button...");
@@ -397,8 +402,7 @@ namespace DINOForge.Runtime.UI
 
                 // STEP 6: Wire onClick
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 6: Wiring onClick listener...");
-                modsButton.onClick.RemoveAllListeners();
-                modsButton.onClick.AddListener(OnModsButtonClicked);
+                RewireModsButtonClick(modsButton, attemptId);
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 6 OK: onClick listener attached");
 
                 // STEP 7: Fix EventSystem navigation conflict
@@ -411,24 +415,18 @@ namespace DINOForge.Runtime.UI
                     {
                         LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.2] EventSystem found, getting current selection...");
                         GameObject? currentSelected = es.currentSelectedGameObject;
-                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.3] BEFORE: current selection = {currentSelected?.name ?? "NULL"}");
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.3] Current selection = {currentSelected?.name ?? "NULL"}");
 
-                        // Strategy 1: Explicitly set the Mods button as the selected object
-                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.4] Calling SetSelectedGameObject({modsButton.gameObject.name})...");
-                        es.SetSelectedGameObject(modsButton.gameObject);
-                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.5] SetSelectedGameObject completed");
-                        GameObject? afterSelect = es.currentSelectedGameObject;
-                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.6] AFTER SetSelectedGameObject: selection = {afterSelect?.name ?? "NULL"}");
+                        // Do not force-select the injected button. Taking focus here can couple it
+                        // into native submit/navigation flows and trigger non-DINO handlers.
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.4] Leaving EventSystem selection unchanged for native-menu safety.");
 
-                        // Strategy 2: Isolate the Mods button from navigation graph to prevent
-                        // Options button from "stealing" focus back
                         LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.7] Setting navigation mode to None...");
                         Navigation modsNav = modsButton.navigation;
                         modsNav.mode = Navigation.Mode.None;
                         modsButton.navigation = modsNav;
                         LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.8] Mods button navigation mode: {modsNav.mode} (ISOLATED)");
 
-                        // Log navigation mode for both buttons for debugging
                         Navigation settingsNav = settingsButton.navigation;
                         LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.9] Settings button navigation mode: {settingsNav.mode}");
                     }
@@ -453,7 +451,7 @@ namespace DINOForge.Runtime.UI
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - navigation.mode: {modsButton.navigation.mode}");
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - targetGraphic.raycastTarget: {modsButton.targetGraphic?.raycastTarget ?? false}");
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - sibling_index: {modsButton.transform.GetSiblingIndex()}");
-                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - overlay_ref: {(_overlay != null ? "READY" : "NULL")}");
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     - menu_host_ref: {(_menuHost != null ? "READY" : "NULL")}");
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}   STEP 8 OK: All checks passed");
 
                 _injectedButton = modsButton;
@@ -480,21 +478,88 @@ namespace DINOForge.Runtime.UI
             {
                 LogInfo($"[NativeMenuInjector::{_sessionId}] ═══ MODS BUTTON CLICKED #{clickId} at {System.DateTime.UtcNow:HH:mm:ss.fff} UTC ═══");
 
-                if (_overlay == null)
+                if (_menuHost == null)
                 {
-                    LogWarning($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ⚠ overlay reference is NULL! Cannot toggle menu.");
+                    LogWarning($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ⚠ menu host reference is NULL! Cannot toggle menu.");
                     return;
                 }
 
-                LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId}   overlay.IsVisible BEFORE toggle: {_overlay.IsVisible}");
-                _overlay.Toggle();
-                LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId}   overlay.IsVisible AFTER toggle: {_overlay.IsVisible}");
+                float now = Time.unscaledTime;
+                if (now - _lastClickTimeUnscaled < ClickDebounceSeconds)
+                {
+                    LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ignored by debounce window ({ClickDebounceSeconds:0.00}s).");
+                    return;
+                }
+                _lastClickTimeUnscaled = now;
+
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId}   menuHost.IsVisible BEFORE toggle: {_menuHost.IsVisible}");
+                _menuHost.Toggle();
+                LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId}   menuHost.IsVisible AFTER toggle: {_menuHost.IsVisible}");
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ✓ Mods menu TOGGLED successfully");
             }
             catch (Exception ex)
             {
                 LogWarning($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ⚠ OnModsButtonClicked exception: {ex.Message}\n{ex.StackTrace}");
             }
+        }
+
+        /// <summary>
+        /// Replaces all click handlers on a Mods button with only the DINOForge toggle.
+        /// This avoids inherited persistent callbacks from cloned Settings/Options buttons.
+        /// </summary>
+        private void RewireModsButtonClick(Button modsButton, long attemptId)
+        {
+            modsButton.onClick = new Button.ButtonClickedEvent();
+            modsButton.onClick.AddListener(OnModsButtonClicked);
+            LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     Click handler replaced with DINOForge toggle only");
+        }
+
+        /// <summary>
+        /// Mirrors source button selectable and label style onto the injected Mods button.
+        /// Keeps hover/pressed visuals aligned with the native menu skin.
+        /// </summary>
+        private void SyncButtonVisualStyle(Button target, Button source, long attemptId)
+        {
+            target.transition = source.transition;
+            target.colors = source.colors;
+            target.spriteState = source.spriteState;
+            target.animationTriggers = source.animationTriggers;
+
+            if (source.targetGraphic != null)
+            {
+                string path = GetRelativePath(source.targetGraphic.transform, source.transform);
+                Transform? matching = string.IsNullOrEmpty(path) ? target.transform : target.transform.Find(path);
+                target.targetGraphic = matching?.GetComponent(source.targetGraphic.GetType()) as Graphic;
+            }
+
+            Text? sourceText = source.GetComponentInChildren<Text>(includeInactive: true);
+            Text? targetText = target.GetComponentInChildren<Text>(includeInactive: true);
+            if (sourceText != null && targetText != null)
+            {
+                targetText.font = sourceText.font;
+                targetText.fontStyle = sourceText.fontStyle;
+                targetText.fontSize = sourceText.fontSize;
+                targetText.color = sourceText.color;
+                targetText.alignment = sourceText.alignment;
+                targetText.material = sourceText.material;
+            }
+
+            LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     Synced native button visual style");
+        }
+
+        private static string GetRelativePath(Transform node, Transform root)
+        {
+            if (node == root) return string.Empty;
+
+            System.Collections.Generic.Stack<string> parts = new System.Collections.Generic.Stack<string>();
+            Transform? current = node;
+            while (current != null && current != root)
+            {
+                parts.Push(current.name);
+                current = current.parent;
+            }
+
+            return string.Join("/", parts.ToArray());
         }
 
         // ------------------------------------------------------------------ //

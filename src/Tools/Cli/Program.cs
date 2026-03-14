@@ -69,6 +69,7 @@ else
 RootCommand rootCommand = new("DINOForge CLI - command-line interface for the DINO mod platform");
 
 rootCommand.Add(StatusCommand.Create());
+rootCommand.Add(InstallCommand.Create());
 rootCommand.Add(QueryCommand.Create());
 rootCommand.Add(DumpCommand.Create());
 rootCommand.Add(OverrideCommand.Create());

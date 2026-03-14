@@ -1,5 +1,5 @@
 # Guerrilla Warfare Pack
-# Asymmetric archetype showcase - strong individuals, expensive, ambush tactics
+# Asymmetric insurgency faction with light infantry, ambush tactics, and unconventional warfare
 
 id: warfare-guerrilla
 name: Guerrilla Warfare
@@ -7,20 +7,23 @@ version: 0.1.0
 framework_version: ">=0.1.0"
 author: DINOForge
 description: |
-  An asymmetric warfare showcase featuring a fierce guerrilla force with strong individual warriors, ambush tactics, and resource efficiency. A single faction plays with lower unit caps but higher per-unit lethality.
+  An asymmetric warfare content pack introducing guerrilla_forces, a light, mobile insurgency faction built on speed, ambush, and attrition rather than heavy armor and firepower.
 
-  Faction included:
-  - Guerrilla Warband: fanatical asymmetric archetype with experienced fighters, ambush doctrine, and unconventional economy (gather bonus +10%, higher upkeep costs)
+  Factions included:
+  - Guerrilla Forces: unconventional fighters using terrain, camouflage, and mobility to wear down conventional forces
 
   Content features:
-  - 13 units: partisans, fighters, veteran fighters, brutes, sappers, trackers, horseback raiders, snare layers, and warchief commander
-  - 10 buildings: war lodges, forges, sapper camps, lookout posts, spike pits, chieftain halls, hunting grounds, herb gardens, elders circles, palisades
-  - 3 doctrines: ambush warfare, blood rage, forest stalker
-  - Specialized gear and weapons favoring melee and unconventional tactics
-  - Wave templates emphasizing hit-and-run assaults
+  - 14 units: light militia, snipers, saboteurs, medics, scouts, rocket fighters, heavy gunners, commanders, propaganda officers, tunnel fighters, mountain fighters, urban insurgents, and informants
+  - 8 buildings: hidden camps, arms caches, medical posts, observation posts, tunnel entrances, propaganda centers, supply depots, fortified positions
+  - 3 doctrines: shadow_war (stealth/ambush), peoples_war (attrition/morale), mountain_fortress (terrain defense)
+  - 2 wave templates: insurgency_raid (small, fast, opportunistic), guerrilla_campaign (escalating pressure)
+  - 6 improvised and guerrilla-style weapons: explosives, rifles, sniper rifles, RPGs, blades, jamming equipment
 
-  Ideal for learning asymmetric balance design and testing unconventional faction archetypes.
-type: total_conversion
+  Gameplay style: Asymmetric asymmetric warfare - cheap units, low health, high speed, hit-and-run tactics. Exploit terrain and numbers over raw firepower.
+
+  Experience unconventional warfare in a campaign of resistance and insurgency.
+
+type: content
 
 depends_on: []
 conflicts_with: []

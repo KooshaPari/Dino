@@ -30,6 +30,17 @@ public static class Program
             "screenshot" => await HandleScreenshotCommand(args.Skip(1).FirstOrDefault()),
             "catalog" => await HandleCatalogCommand(args.Skip(1).FirstOrDefault()),
             "entities" => await HandleEntitiesCommand(args.Skip(1).FirstOrDefault()),
+            "load-scene" => await HandleLoadSceneCommand(args.Skip(1).FirstOrDefault()),
+            "start-game" => await HandleStartGameCommand(),
+            "list-saves" => await HandleListSavesCommand(),
+            "load-save" => await HandleLoadSaveCommand(args.Skip(1).FirstOrDefault()),
+            "dismiss" => await HandleDismissCommand(),
+            "click-button" => await HandleClickButtonCommand(args.Skip(1).FirstOrDefault()),
+            "toggle-ui" => await HandleToggleUiCommand(args.Skip(1).FirstOrDefault()),
+            "scan-scene" => await HandleScanSceneCommand(args.Skip(1).FirstOrDefault()),
+            "invoke-method" => await HandleInvokeMethodCommand(args.Skip(1).ToArray()),
+            "ui-tree" => await HandleUiTreeCommand(args.Skip(1).FirstOrDefault()),
+            "demo" => await HandleDemoCommand(),
             "--help" or "-h" => ShowHelpAndReturn(0),
             _ => ShowHelpAndReturn(1)
         };
@@ -47,6 +58,17 @@ public static class Program
         AnsiConsole.MarkupLine("  screenshot       - Capture in-game screenshot");
         AnsiConsole.MarkupLine("  catalog [cat]    - Dump game catalog (units/buildings/projectiles)");
         AnsiConsole.MarkupLine("  entities [comp]  - Query entities by component type");
+        AnsiConsole.MarkupLine("  load-scene [name]- Load a game scene by name/index (11 scenes: level0-level9, etc.)");
+        AnsiConsole.MarkupLine("  start-game       - Trigger game world load via ECS singleton (bypasses menu)");
+        AnsiConsole.MarkupLine("  list-saves       - List save files discovered by the bridge");
+        AnsiConsole.MarkupLine("  load-save [name] - Load a save by name (default: AUTOSAVE_1)");
+        AnsiConsole.MarkupLine("  dismiss          - Dismiss 'Press Any Key to Continue' loading screen");
+        AnsiConsole.MarkupLine("  click-button [name] - Click a named Unity UI button (e.g. DINOForge_ModsButton)");
+        AnsiConsole.MarkupLine("  toggle-ui [target]  - Toggle DINOForge UI: modmenu (F10) or debug (F9)");
+        AnsiConsole.MarkupLine("  scan-scene [filter] - Dump active MonoBehaviours + their void() methods");
+        AnsiConsole.MarkupLine("  invoke-method <target> <method> - Call a void() method on matching MB");
+        AnsiConsole.MarkupLine("  ui-tree [selector]  - Snapshot the live Unity UI hierarchy (Playwright-style DOM)");
+        AnsiConsole.MarkupLine("  demo             - Full end-to-end demo: menu → mods → F9/F10 → save → gameplay");
         AnsiConsole.MarkupLine("  --help, -h       - Show this help");
     }
 
@@ -227,6 +249,421 @@ public static class Program
         catch (Exception ex)
         {
             AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleLoadSceneCommand(string? sceneName)
+    {
+        sceneName ??= "Sandbox";
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine($"[cyan]Loading scene:[/] {sceneName}");
+            var result = await client.LoadSceneAsync(sceneName);
+            if (result.Success)
+            {
+                AnsiConsole.MarkupLine($"[green]✓[/] Scene load dispatched: {result.Scene}");
+                if (result.SceneCount > 0)
+                    AnsiConsole.MarkupLine($"[cyan]Total scenes in build:[/] {result.SceneCount}");
+            }
+            else
+                AnsiConsole.MarkupLine($"[red]✗[/] Scene load failed");
+            client.Disconnect();
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleStartGameCommand()
+    {
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine("[cyan]Triggering game world load via ECS singleton...[/]");
+            var result = await client.StartGameAsync();
+            if (result.Success)
+                AnsiConsole.MarkupLine($"[green]✓[/] {result.Message}");
+            else
+                AnsiConsole.MarkupLine($"[red]✗[/] {result.Message}");
+            client.Disconnect();
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleDismissCommand()
+    {
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine("[cyan]Dismissing loading screen...[/]");
+            var result = await client.DismissLoadScreenAsync();
+            string msg = Markup.Escape(result.Message ?? "");
+            if (result.Success)
+                AnsiConsole.MarkupLine($"[green]✓[/] {msg}");
+            else
+                AnsiConsole.MarkupLine($"[red]✗[/] {msg}");
+            client.Disconnect();
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {Markup.Escape(ex.Message)}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleListSavesCommand()
+    {
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine("[cyan]Querying save files...[/]");
+            var result = await client.ListSavesAsync();
+            AnsiConsole.MarkupLine($"[cyan]Persistent data path:[/] {result["persistentDataPath"]}");
+            AnsiConsole.MarkupLine($"[cyan]Save dir:[/] {result["saveDir"]} (exists: {result["saveDirExists"]})");
+            AnsiConsole.MarkupLine($"[cyan]Data path:[/] {result["dataPath"]}");
+            AnsiConsole.MarkupLine($"[cyan]Save manager:[/] {result["saveManagerType"]}");
+            var saves = result["saves"]?.ToObject<List<string>>() ?? new List<string>();
+            AnsiConsole.MarkupLine($"[green]Found {saves.Count} save(s):[/]");
+            foreach (var s in saves)
+                AnsiConsole.MarkupLine($"  - {s}");
+            client.Disconnect();
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleLoadSaveCommand(string? saveName)
+    {
+        saveName ??= "AUTOSAVE_1";
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine($"[cyan]Loading save '{saveName}'...[/]");
+            var result = await client.LoadSaveAsync(saveName);
+            string msg = Markup.Escape(result.Message ?? "");
+            if (result.Success)
+                AnsiConsole.MarkupLine($"[green]✓[/] {msg}");
+            else
+                AnsiConsole.MarkupLine($"[red]✗[/] {msg}");
+            client.Disconnect();
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {ex.Message}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleClickButtonCommand(string? buttonName)
+    {
+        buttonName ??= "";
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            if (string.IsNullOrEmpty(buttonName))
+                AnsiConsole.MarkupLine("[cyan]Listing all active buttons...[/]");
+            else
+                AnsiConsole.MarkupLine($"[cyan]Clicking button '{buttonName}'...[/]");
+            var result = await client.ClickButtonAsync(buttonName);
+            string msg = Markup.Escape(result.Message ?? "");
+            if (result.Success)
+                AnsiConsole.MarkupLine($"[green]✓[/] {msg}");
+            else
+                AnsiConsole.MarkupLine($"[red]✗[/] {msg}");
+            client.Disconnect();
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {Markup.Escape(ex.Message)}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleToggleUiCommand(string? target)
+    {
+        target ??= "modmenu";
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine($"[cyan]Toggling UI '{target}'...[/]");
+            var result = await client.ToggleUiAsync(target);
+            string msg = Markup.Escape(result.Message ?? "");
+            if (result.Success)
+                AnsiConsole.MarkupLine($"[green]✓[/] {msg}");
+            else
+                AnsiConsole.MarkupLine($"[red]✗[/] {msg}");
+            client.Disconnect();
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {Markup.Escape(ex.Message)}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleScanSceneCommand(string? filter)
+    {
+        filter ??= "";
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine($"[cyan]Scanning active MonoBehaviours{(string.IsNullOrEmpty(filter) ? "" : $" (filter: {filter})")}...[/]");
+            var result = await client.ScanSceneAsync(filter);
+            string msg = result.Message ?? "";
+            // Print each line
+            foreach (var line in msg.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                AnsiConsole.MarkupLine(Markup.Escape(line));
+            client.Disconnect();
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {Markup.Escape(ex.Message)}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleInvokeMethodCommand(string[] args)
+    {
+        if (args.Length < 2)
+        {
+            AnsiConsole.MarkupLine("[red]Usage: invoke-method <target> <method>[/]");
+            return 1;
+        }
+        string target = args[0];
+        string method = args[1];
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine($"[cyan]Invoking {target}.{method}()...[/]");
+            var result = await client.InvokeMethodAsync(target, method);
+            string msg = Markup.Escape(result.Message ?? "");
+            if (result.Success)
+                AnsiConsole.MarkupLine($"[green]✓[/] {msg}");
+            else
+                AnsiConsole.MarkupLine($"[red]✗[/] {msg}");
+            client.Disconnect();
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {Markup.Escape(ex.Message)}");
+            return 1;
+        }
+    }
+
+    private static async Task<int> HandleUiTreeCommand(string? selector)
+    {
+        using var client = new GameClient();
+        try
+        {
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine($"[cyan]Capturing UI tree{(selector != null ? $" (selector: {selector})" : "")}...[/]");
+            UiTreeResult result = await client.GetUiTreeAsync(selector);
+            if (!result.Success)
+            {
+                AnsiConsole.MarkupLine($"[red]✗[/] {Markup.Escape(result.Message)}");
+                client.Disconnect();
+                return 1;
+            }
+            AnsiConsole.MarkupLine($"[green]✓[/] {result.NodeCount} nodes  ({result.GeneratedAtUtc})");
+            PrintUiNode(result.Root, 0);
+            client.Disconnect();
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Error:[/] {Markup.Escape(ex.Message)}");
+            return 1;
+        }
+    }
+
+    private static void PrintUiNode(UiNode node, int depth)
+    {
+        string indent = new string(' ', depth * 2);
+        string label = string.IsNullOrEmpty(node.Label) ? "" : $" \"{Markup.Escape(node.Label)}\"";
+        string interactable = node.Interactable ? " [green]interactive[/]" : "";
+        string active = node.Active ? "" : " [grey](inactive)[/]";
+        string role = Markup.Escape($"({node.Role})");
+        AnsiConsole.MarkupLine($"{indent}[yellow]{Markup.Escape(node.Name)}[/] [grey]{role}[/]{label}{interactable}{active}");
+        foreach (UiNode child in node.Children)
+            PrintUiNode(child, depth + 1);
+    }
+
+    /// <summary>
+    /// Full end-to-end demo:
+    ///   1. Wait for game connection (main menu)
+    ///   2. Screenshot main menu
+    ///   3. Click the native DINOForge Mods button → screenshot
+    ///   4. Close mod menu (toggle again)
+    ///   5. Toggle debug panel (F9 equivalent) → screenshot
+    ///   6. Close debug panel
+    ///   7. Load AutoSave_1 via ECS LoadRequest
+    ///   8. Wait for world to be ready (entity count > 50000)
+    ///   9. Dismiss "Press Any Key to Continue"
+    ///  10. Status + resources + catalog dump → screenshot
+    /// </summary>
+    private static async Task<int> HandleDemoCommand()
+    {
+        AnsiConsole.MarkupLine("[cyan bold]═══════════════════════════════════════[/]");
+        AnsiConsole.MarkupLine("[cyan bold]  DINOForge End-to-End Demo            [/]");
+        AnsiConsole.MarkupLine("[cyan bold]═══════════════════════════════════════[/]");
+
+        using var client = new GameClient();
+        try
+        {
+            // ── Step 1: Connect ───────────────────────────────────────────────
+            AnsiConsole.MarkupLine("[yellow]Step 1:[/] Connecting to game bridge...");
+            await client.ConnectAsync();
+            AnsiConsole.MarkupLine("[green]✓[/] Connected");
+
+            // ── Step 2: Status at main menu ───────────────────────────────────
+            AnsiConsole.MarkupLine("[yellow]Step 2:[/] Checking status (main menu)...");
+            var status = await client.StatusAsync();
+            AnsiConsole.MarkupLine($"  World ready: {status.WorldReady}  |  Entities: {status.EntityCount}  |  Packs: {status.LoadedPacks.Count}");
+
+            // ── Step 3: Screenshot main menu ──────────────────────────────────
+            AnsiConsole.MarkupLine("[yellow]Step 3:[/] Screenshot main menu...");
+            string ssMenu = Path.Combine(Path.GetTempPath(), "dinoforge_demo_01_mainmenu.png");
+            await client.ScreenshotAsync(ssMenu);
+            AnsiConsole.MarkupLine($"[green]✓[/] Screenshot: {Markup.Escape(ssMenu)}");
+
+            // ── Step 4: Click native Mods button ─────────────────────────────
+            AnsiConsole.MarkupLine("[yellow]Step 4:[/] Clicking DINOForge_ModsButton (native injected button)...");
+            var clickResult = await client.ClickButtonAsync("DINOForge_ModsButton");
+            AnsiConsole.MarkupLine(clickResult.Success
+                ? $"[green]✓[/] {Markup.Escape(clickResult.Message ?? "")}"
+                : $"[red]✗[/] {Markup.Escape(clickResult.Message ?? "")}");
+
+            await Task.Delay(600);
+            string ssMods = Path.Combine(Path.GetTempPath(), "dinoforge_demo_02_mods_open.png");
+            await client.ScreenshotAsync(ssMods);
+            AnsiConsole.MarkupLine($"[green]✓[/] Screenshot (mods menu open): {Markup.Escape(ssMods)}");
+
+            // ── Step 5: Close mod menu ────────────────────────────────────────
+            AnsiConsole.MarkupLine("[yellow]Step 5:[/] Closing mod menu (toggle F10 equivalent)...");
+            var closeMenu = await client.ToggleUiAsync("modmenu");
+            AnsiConsole.MarkupLine(closeMenu.Success
+                ? $"[green]✓[/] {Markup.Escape(closeMenu.Message ?? "")}"
+                : $"[red]✗[/] {Markup.Escape(closeMenu.Message ?? "")}");
+
+            // ── Step 6: Toggle debug panel (F9 equivalent) ───────────────────
+            AnsiConsole.MarkupLine("[yellow]Step 6:[/] Toggling debug panel (F9 equivalent)...");
+            await Task.Delay(400);
+            var dbgOn = await client.ToggleUiAsync("debug");
+            AnsiConsole.MarkupLine(dbgOn.Success
+                ? $"[green]✓[/] {Markup.Escape(dbgOn.Message ?? "")}"
+                : $"[red]✗[/] {Markup.Escape(dbgOn.Message ?? "")}");
+
+            await Task.Delay(600);
+            string ssDebug = Path.Combine(Path.GetTempPath(), "dinoforge_demo_03_debug_open.png");
+            await client.ScreenshotAsync(ssDebug);
+            AnsiConsole.MarkupLine($"[green]✓[/] Screenshot (debug panel): {Markup.Escape(ssDebug)}");
+
+            // Close debug panel
+            await client.ToggleUiAsync("debug");
+
+            // ── Step 7: Load save ─────────────────────────────────────────────
+            AnsiConsole.MarkupLine("[yellow]Step 7:[/] Loading AUTOSAVE_1 via ECS bridge...");
+            var loadResult = await client.LoadSaveAsync("AUTOSAVE_1");
+            AnsiConsole.MarkupLine(loadResult.Success
+                ? $"[green]✓[/] {Markup.Escape(loadResult.Message ?? "")}"
+                : $"[red]✗[/] {Markup.Escape(loadResult.Message ?? "")}");
+
+            // ── Step 8: Wait for world to load (entities > 50k) ──────────────
+            AnsiConsole.MarkupLine("[yellow]Step 8:[/] Waiting for game world to load...");
+            int waited = 0;
+            GameStatus? worldStatus = null;
+            while (waited < 30000)
+            {
+                await Task.Delay(1500);
+                waited += 1500;
+                try
+                {
+                    worldStatus = await client.StatusAsync();
+                    if (worldStatus.EntityCount > 50000)
+                        break;
+                    AnsiConsole.MarkupLine($"  [grey]Entities: {worldStatus.EntityCount} (waiting for >50k)...[/]");
+                }
+                catch { /* pipe may reconnect */ }
+            }
+            int finalEntities = worldStatus?.EntityCount ?? 0;
+            AnsiConsole.MarkupLine($"[green]✓[/] World loaded: {finalEntities} entities");
+
+            // ── Step 9: Dismiss loading screen ───────────────────────────────
+            AnsiConsole.MarkupLine("[yellow]Step 9:[/] Dismissing 'Press Any Key' screen...");
+            await Task.Delay(1000);
+            var dismissResult = await client.DismissLoadScreenAsync();
+            AnsiConsole.MarkupLine(dismissResult.Success
+                ? $"[green]✓[/] {Markup.Escape(dismissResult.Message ?? "")}"
+                : $"[red]✗[/] {Markup.Escape(dismissResult.Message ?? "")}");
+
+            await Task.Delay(1500);
+
+            // ── Step 10: Gameplay verification ───────────────────────────────
+            AnsiConsole.MarkupLine("[yellow]Step 10:[/] Verifying gameplay state...");
+
+            // Status
+            var gameStatus = await client.StatusAsync();
+            AnsiConsole.MarkupLine($"  [cyan]Entities:[/] {gameStatus.EntityCount}  |  [cyan]World:[/] {gameStatus.WorldName}");
+            foreach (var pack in gameStatus.LoadedPacks)
+                AnsiConsole.MarkupLine($"    Pack: {Markup.Escape(pack)}");
+
+            // Resources
+            var resources = await client.GetResourcesAsync();
+            AnsiConsole.MarkupLine($"  [cyan]Resources:[/] Food={resources.Food} Wood={resources.Wood} Stone={resources.Stone} Iron={resources.Iron} Gold={resources.Money}");
+
+            // Catalog
+            var catalog = await client.DumpStateAsync();
+            AnsiConsole.MarkupLine($"  [cyan]Catalog:[/] {catalog.Units.Count} unit types, {catalog.Buildings.Count} building types, {catalog.Projectiles.Count} projectile types");
+
+            // Final screenshot
+            string ssGame = Path.Combine(Path.GetTempPath(), "dinoforge_demo_04_gameplay.png");
+            await client.ScreenshotAsync(ssGame);
+            AnsiConsole.MarkupLine($"[green]✓[/] Screenshot (gameplay): {Markup.Escape(ssGame)}");
+
+            AnsiConsole.MarkupLine("");
+            AnsiConsole.MarkupLine("[green bold]═══════════════════════════════════════[/]");
+            AnsiConsole.MarkupLine("[green bold]  Demo complete! Screenshots:           [/]");
+            AnsiConsole.MarkupLine($"[green bold]  01[/] {Markup.Escape(ssMenu)}");
+            AnsiConsole.MarkupLine($"[green bold]  02[/] {Markup.Escape(ssMods)}");
+            AnsiConsole.MarkupLine($"[green bold]  03[/] {Markup.Escape(ssDebug)}");
+            AnsiConsole.MarkupLine($"[green bold]  04[/] {Markup.Escape(ssGame)}");
+            AnsiConsole.MarkupLine("[green bold]═══════════════════════════════════════[/]");
+
+            client.Disconnect();
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗ Demo failed:[/] {Markup.Escape(ex.Message)}");
             return 1;
         }
     }

@@ -20,14 +20,21 @@ factions:
     theme: star-wars-republic
     archetype: order
     units:
-      - clone-trooper
-      - arc-trooper
-      - at-te
-      - clone-gunship
+      - rep_clone_militia
+      - rep_clone_trooper
+      - rep_clone_heavy
+      - rep_arc_trooper
+      - rep_atte_crew
+      - rep_barc_speeder
+      - rep_v19_torrent
     buildings:
-      - republic-command-post
-      - republic-barracks
-      - republic-turret
+      - rep_command_center
+      - rep_clone_facility
+      - rep_weapons_factory
+      - rep_vehicle_bay
+      - rep_guard_tower
+      - rep_shield_generator
+      - rep_skyshield_generator
 
   - id: confederacy-of-independent-systems
     replaces: enemy_classic
@@ -35,14 +42,18 @@ factions:
     theme: star-wars-cis
     archetype: industrial_swarm
     units:
-      - b1-battle-droid
-      - b2-super-battle-droid
-      - droideka
-      - hailfire-droid
+      - cis_b1_droid
+      - cis_b2_droid
+      - cis_droideka
+      - cis_commando_droid
+      - cis_hailfire_droid
+      - cis_tri_fighter
     buildings:
-      - cis-factory
-      - cis-command-center
-      - droid-dispenser
+      - cis_droid_factory
+      - cis_command_hub
+      - cis_tactical_center
+      - cis_vulture_nest
+      - cis_shield_projector
 
   - id: separatist-extremists
     replaces: enemy_guerrilla
@@ -50,12 +61,10 @@ factions:
     theme: star-wars-cis-guerrilla
     archetype: asymmetric
     units:
-      - commando-droid
-      - magna-guard
-      - infiltration-unit
+      - cis_commando_droid
+      - cis_magnaguard
     buildings:
-      - hidden-base
-      - separatist-cache
+      - cis_droid_factory
 
 asset_replacements:
   textures:

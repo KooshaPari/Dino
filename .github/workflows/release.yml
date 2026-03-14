@@ -5,15 +5,16 @@ on:
     tags:
       - 'v*.*.*'
 
-permissions:
-  contents: write
-  attestations: write
-  id-token: write
+permissions: {}
 
 jobs:
   build-and-release:
     name: Build & Release
     runs-on: windows-latest
+    permissions:
+      contents: write
+      attestations: write
+      id-token: write
 
     steps:
       - name: Checkout
@@ -32,8 +33,10 @@ jobs:
       - name: Extract version from tag
         id: version
         shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          $tag = "${{ github.ref_name }}"
+          $tag = $env:RELEASE_TAG
           $version = $tag.TrimStart('v')
           $isPreRelease = $false
           if ($version -match '-(rc|beta|alpha)') {
@@ -79,33 +82,41 @@ jobs:
       # Get your API key from https://www.nuget.org/account/apikeys
       # ---------------------------------------------------------------
       - name: Pack SDK NuGet package
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.VERSION }}
         run: |
           dotnet pack src/SDK/DINOForge.SDK.csproj -c Release `
-            -p:PackageVersion=${{ steps.version.outputs.VERSION }} `
+            -p:PackageVersion=$env:PACKAGE_VERSION `
             --output staging/nuget/
         shell: pwsh
 
       - name: Pack Templates NuGet package
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.VERSION }}
         run: |
           dotnet pack src/Templates/DINOForge.Templates.csproj -c Release `
-            -p:PackageVersion=${{ steps.version.outputs.VERSION }} `
+            -p:PackageVersion=$env:PACKAGE_VERSION `
             --output staging/nuget/
         shell: pwsh
 
       - name: Publish to NuGet.org
         if: ${{ !steps.version.outputs.IS_PRERELEASE == 'true' }}
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           dotnet nuget push staging/nuget/*.nupkg `
-            --api-key ${{ secrets.NUGET_API_KEY }} `
+            --api-key $env:NUGET_API_KEY `
             --source https://api.nuget.org/v3/index.json `
             --skip-duplicate
         shell: pwsh
 
       - name: Publish pre-release to NuGet.org
         if: ${{ steps.version.outputs.IS_PRERELEASE == 'true' }}
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           dotnet nuget push staging/nuget/*.nupkg `
-            --api-key ${{ secrets.NUGET_API_KEY }} `
+            --api-key $env:NUGET_API_KEY `
             --source https://api.nuget.org/v3/index.json `
             --skip-duplicate
         shell: pwsh
@@ -127,8 +138,10 @@ jobs:
 
       - name: Copy installer to staging and generate checksum
         shell: pwsh
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.VERSION }}
         run: |
-          $version = "${{ steps.version.outputs.VERSION }}"
+          $version = $env:PACKAGE_VERSION
           $installerExe = "staging/installer/DINOForge.Installer.exe"
           $stagingExe = "staging/DINOForge-v$version-Installer.exe"
           $checksumFile = "staging/DINOForge-v$version-Installer.exe.sha256"
@@ -203,8 +216,10 @@ jobs:
       # ---------------------------------------------------------------
       - name: Assemble release staging directory
         shell: pwsh
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.VERSION }}
         run: |
-          $version = "${{ steps.version.outputs.VERSION }}"
+          $version = $env:PACKAGE_VERSION
 
           # Plugin directory is already populated - keep as-is
           Write-Host "Plugin staging contents:"
@@ -238,8 +253,10 @@ jobs:
       # ---------------------------------------------------------------
       - name: Create release ZIP
         shell: pwsh
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.VERSION }}
         run: |
-          $version = "${{ steps.version.outputs.VERSION }}"
+          $version = $env:PACKAGE_VERSION
           $zipName = "DINOForge-v$version-windows.zip"
 
           Compress-Archive -Path staging/* -DestinationPath $zipName -Force
@@ -255,8 +272,10 @@ jobs:
       # ---------------------------------------------------------------
       - name: Generate SHA256 checksums
         shell: pwsh
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.VERSION }}
         run: |
-          $version = "${{ steps.version.outputs.VERSION }}"
+          $version = $env:PACKAGE_VERSION
           $checksumFile = "staging/SHA256SUMS.txt"
           $checksumContent = @()
 
@@ -264,7 +283,7 @@ jobs:
           $artifacts = @(
             "staging/nuget/*.nupkg",
             "staging/DINOForge-v$version-Installer.exe",
-            "${{ env.ZIP_NAME }}"
+            $env:ZIP_NAME
           )
 
           foreach ($pattern in $artifacts) {
@@ -288,8 +307,10 @@ jobs:
       - name: Extract changelog section
         id: changelog
         shell: pwsh
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.VERSION }}
         run: |
-          $version = "${{ steps.version.outputs.VERSION }}"
+          $version = $env:PACKAGE_VERSION
           $changelogPath = "CHANGELOG.md"
           $body = ""
 

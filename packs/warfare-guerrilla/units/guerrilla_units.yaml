@@ -1,366 +1,408 @@
-# Guerrilla Units - Asymmetric Archetype
-# Higher stats, higher cost, smaller squads, strong individuals
+# Guerrilla Forces Units - Light, Fast, Cheap
+# Asymmetric insurgency: lower health/damage traded for speed and cost
 
-# 1. Militia - Partisan
-- id: guer_partisan
-  display_name: Partisan
-  description: Lightly armed villager taking up arms. Cheap by guerrilla standards but still a capable fighter.
+# 1. Militia - Guerrilla Militia Fighter
+- id: guerrilla_militia
+  display_name: Militia Fighter
+  description: "Lightly armed villager turned fighter. Cheap, expendable, ideologically driven. Effective in masses, weak individually."
   unit_class: MilitiaLight
-  faction_id: guerrilla
+  faction_id: guerrilla_forces
   tier: 1
-  weapon: sling
+  weapon: ak47
   vanilla_mapping: militia
   defense_tags: [Unarmored, Biological]
-  behavior_tags: [Kite]
+  behavior_tags: [Swarm, Evasive]
   stats:
-    hp: 100.0
-    damage: 10.0
-    armor: 2.0
-    range: 16.0
-    speed: 5.5
-    accuracy: 0.6
-    fire_rate: 2.0
-    morale: 80.0
+    hp: 25.0
+    damage: 7.0
+    armor: 0.0
+    range: 14.0
+    speed: 6.0
+    accuracy: 0.3
+    fire_rate: 2.5
+    morale: 250.0
     cost:
-      food: 40
-      wood: 10
+      food: 0
+      wood: 0
+      stone: 0
+      iron: 3
+      gold: 1
+      population: 1
+  visual_asset: guerrilla-militia-fighter
+
+# 2. Line Infantry - Guerrilla Fighter
+- id: guerrilla_fighter
+  display_name: Guerrilla Fighter
+  description: Experienced resistance fighter with basic training and improvised armor.
+  unit_class: CoreLineInfantry
+  faction_id: guerrilla_forces
+  tier: 1
+  weapon: ak47
+  vanilla_mapping: line_infantry
+  defense_tags: [Unarmored, Biological]
+  behavior_tags: [Swarm, HitAndRun]
+  stats:
+    hp: 35.0
+    damage: 8.0
+    armor: 1.0
+    range: 14.0
+    speed: 6.5
+    accuracy: 0.4
+    fire_rate: 3.0
+    morale: 260.0
+    cost:
+      food: 0
+      wood: 0
       stone: 0
       iron: 5
-      gold: 5
+      gold: 2
       population: 1
+  visual_asset: guerrilla-fighter
 
-# 2. Line Infantry - Fighter
-- id: guer_fighter
-  display_name: Fighter
-  description: Seasoned guerrilla warrior armed with spear and shield. Strong in close quarters.
-  unit_class: CoreLineInfantry
-  faction_id: guerrilla
-  tier: 1
-  weapon: spear
-  vanilla_mapping: line_infantry
+# 3. Heavy Infantry - Saboteur
+- id: saboteur
+  display_name: Saboteur
+  description: Specialist in demolitions and infiltration. Carries explosives and light armor. Higher cost but devastating against structures.
+  unit_class: HeavyInfantry
+  faction_id: guerrilla_forces
+  tier: 2
+  weapon: improvised_explosive
+  vanilla_mapping: heavy_infantry
   defense_tags: [InfantryArmor, Biological]
-  behavior_tags: [AdvanceFire, Charge]
+  behavior_tags: [Charge, AntiStructure]
   stats:
-    hp: 150.0
-    damage: 18.0
-    armor: 6.0
-    range: 2.5
-    speed: 5.0
-    accuracy: 0.8
-    fire_rate: 1.8
-    morale: 100.0
+    hp: 55.0
+    damage: 20.0
+    armor: 4.0
+    range: 12.0
+    speed: 4.5
+    accuracy: 0.5
+    fire_rate: 1.5
+    morale: 270.0
     cost:
-      food: 50
-      wood: 15
+      food: 0
+      wood: 0
       stone: 0
       iron: 15
-      gold: 10
+      gold: 8
       population: 1
+  visual_asset: guerrilla-saboteur
 
-# 3. Heavy Infantry - Brute
-- id: guer_brute
-  display_name: Brute
-  description: Massive warrior wielding a great axe, capable of smashing through armored targets.
-  unit_class: HeavyInfantry
-  faction_id: guerrilla
-  tier: 2
-  weapon: great_axe
-  vanilla_mapping: heavy_infantry
-  defense_tags: [HeavyArmor, Biological]
-  behavior_tags: [Charge, AntiArmor]
-  stats:
-    hp: 220.0
-    damage: 40.0
-    armor: 10.0
-    range: 2.0
-    speed: 3.5
-    accuracy: 0.75
-    fire_rate: 1.0
-    morale: 110.0
-    cost:
-      food: 70
-      wood: 10
-      stone: 0
-      iron: 30
-      gold: 25
-      population: 2
-
-# 4. Ranged Infantry - Hunter
-- id: guer_hunter
-  display_name: Hunter
-  description: Expert hunter turned warrior, deadly accurate with a longbow at extreme range.
+# 4. Ranged Infantry - Sniper
+- id: sniper
+  display_name: Sniper
+  description: "Marksman with scoped rifle. Deals high damage at extreme range. Fragile but deadly."
   unit_class: Skirmisher
-  faction_id: guerrilla
+  faction_id: guerrilla_forces
   tier: 2
-  weapon: longbow
+  weapon: sniper_rifle
   vanilla_mapping: ranged_infantry
   defense_tags: [Unarmored, Biological]
-  behavior_tags: [Kite, AdvanceFire]
+  behavior_tags: [Kite, Evasive]
   stats:
-    hp: 95.0
-    damage: 22.0
-    armor: 2.0
-    range: 30.0
-    speed: 5.5
-    accuracy: 0.85
-    fire_rate: 0.8
-    morale: 90.0
-    cost:
-      food: 45
-      wood: 20
-      stone: 0
-      iron: 10
-      gold: 15
-      population: 1
-
-# 5. Cavalry - Horseback Raider
-- id: guer_horseback_raider
-  display_name: Horseback Raider
-  description: Swift mounted raider striking from unexpected angles and retreating before retaliation.
-  unit_class: FastVehicle
-  faction_id: guerrilla
-  tier: 2
-  weapon: javelin
-  vanilla_mapping: cavalry
-  defense_tags: [InfantryArmor, Biological]
-  behavior_tags: [Charge, Kite]
-  stats:
-    hp: 200.0
+    hp: 20.0
     damage: 28.0
-    armor: 6.0
-    range: 18.0
-    speed: 10.0
-    accuracy: 0.6
-    fire_rate: 0.6
-    morale: 95.0
+    armor: 0.0
+    range: 38.0
+    speed: 5.5
+    accuracy: 0.8
+    fire_rate: 0.5
+    morale: 280.0
     cost:
-      food: 60
-      wood: 10
+      food: 0
+      wood: 0
+      stone: 0
+      iron: 12
+      gold: 7
+      population: 1
+  visual_asset: guerrilla-sniper
+
+# 5. Cavalry - Scout
+- id: scout
+  display_name: Scout
+  description: Fast reconnaissance specialist. Provides extended vision and harassment. Very fast, very fragile.
+  unit_class: FastVehicle
+  faction_id: guerrilla_forces
+  tier: 1
+  weapon: pistol
+  vanilla_mapping: cavalry
+  defense_tags: [Unarmored, Biological]
+  behavior_tags: [Charge, Kite, Evasive]
+  stats:
+    hp: 15.0
+    damage: 5.0
+    armor: 0.0
+    range: 12.0
+    speed: 10.0
+    accuracy: 0.35
+    fire_rate: 2.0
+    morale: 240.0
+    cost:
+      food: 0
+      wood: 0
+      stone: 0
+      iron: 4
+      gold: 2
+      population: 1
+  visual_asset: guerrilla-scout
+
+# 6. Siege - RPG Fighter
+- id: rpg_fighter
+  display_name: RPG Fighter
+  description: Anti-armor specialist with rocket launcher. Deals heavy explosive damage but slow reload.
+  unit_class: MainBattleVehicle
+  faction_id: guerrilla_forces
+  tier: 2
+  weapon: rpg
+  vanilla_mapping: siege
+  defense_tags: [InfantryArmor, Biological]
+  behavior_tags: [AntiArmor, AntiStructure, Charge]
+  stats:
+    hp: 60.0
+    damage: 45.0
+    armor: 3.0
+    range: 22.0
+    speed: 4.0
+    accuracy: 0.55
+    fire_rate: 0.4
+    morale: 265.0
+    cost:
+      food: 0
+      wood: 0
       stone: 0
       iron: 20
-      gold: 30
-      population: 2
+      gold: 12
+      population: 1
+  visual_asset: guerrilla-rpg-fighter
 
-# 6. Siege - Sapper
-- id: guer_sapper
-  display_name: Sapper
-  description: Demolitions expert hurling fire pots to destroy structures and break enemy formations.
-  unit_class: Artillery
-  faction_id: guerrilla
-  tier: 2
-  weapon: fire_pot
-  vanilla_mapping: siege
+# 7. Support - Medic
+- id: medic
+  display_name: Combat Medic
+  description: Medical specialist providing support and morale. Low offensive capability but essential for sustained operations.
+  unit_class: SupportEngineer
+  faction_id: guerrilla_forces
+  tier: 1
+  weapon: pistol
+  vanilla_mapping: support
   defense_tags: [Unarmored, Biological]
-  behavior_tags: [SiegePriority, AntiStructure]
+  behavior_tags: [HoldLine, Support]
   stats:
-    hp: 80.0
-    damage: 45.0
-    armor: 2.0
-    range: 15.0
-    speed: 4.5
-    accuracy: 0.55
-    fire_rate: 0.3
-    morale: 85.0
+    hp: 30.0
+    damage: 4.0
+    armor: 0.0
+    range: 12.0
+    speed: 5.5
+    accuracy: 0.25
+    fire_rate: 1.5
+    morale: 290.0
     cost:
-      food: 40
-      wood: 20
+      food: 0
+      wood: 0
+      stone: 0
+      iron: 6
+      gold: 4
+      population: 1
+  visual_asset: guerrilla-medic
+
+# 8. Scout - Informant
+- id: informant
+  display_name: Informant
+  description: Intelligence gatherer and spy. Moves quickly to gather information and disrupt enemy logistics.
+  unit_class: Recon
+  faction_id: guerrilla_forces
+  tier: 1
+  weapon: pistol
+  vanilla_mapping: scout
+  defense_tags: [Unarmored, Biological]
+  behavior_tags: [Kite, Evasive]
+  stats:
+    hp: 18.0
+    damage: 3.0
+    armor: 0.0
+    range: 10.0
+    speed: 9.0
+    accuracy: 0.3
+    fire_rate: 1.5
+    morale: 270.0
+    cost:
+      food: 0
+      wood: 0
+      stone: 0
+      iron: 3
+      gold: 2
+      population: 1
+  visual_asset: guerrilla-informant
+
+# 9. Elite - Bomb Maker
+- id: bomb_maker
+  display_name: Bomb Maker
+  description: Expert in explosives and traps. Creates improvised weapons for area denial and harassment.
+  unit_class: EliteLineInfantry
+  faction_id: guerrilla_forces
+  tier: 3
+  weapon: improvised_explosive
+  vanilla_mapping: elite
+  defense_tags: [InfantryArmor, Biological]
+  behavior_tags: [AntiStructure, Charge]
+  stats:
+    hp: 45.0
+    damage: 35.0
+    armor: 3.0
+    range: 14.0
+    speed: 5.0
+    accuracy: 0.6
+    fire_rate: 0.8
+    morale: 275.0
+    cost:
+      food: 0
+      wood: 0
+      stone: 0
+      iron: 18
+      gold: 12
+      population: 1
+  visual_asset: guerrilla-bomb-maker
+
+# 10. Hero - Guerrilla Commander
+- id: guerrilla_commander
+  display_name: Guerrilla Commander
+  description: Seasoned leader of the resistance. Inspires units and deals solid all-around damage. Symbol of the movement.
+  unit_class: HeroCommander
+  faction_id: guerrilla_forces
+  tier: 3
+  weapon: ak47
+  vanilla_mapping: hero
+  defense_tags: [InfantryArmor, Biological, Heroic]
+  behavior_tags: [Charge, MoralePressure, Leadership]
+  stats:
+    hp: 85.0
+    damage: 22.0
+    armor: 5.0
+    range: 16.0
+    speed: 6.0
+    accuracy: 0.7
+    fire_rate: 3.0
+    morale: 300.0
+    cost:
+      food: 0
+      wood: 0
       stone: 0
       iron: 25
       gold: 20
-      population: 1
-
-# 7. Support - Herbalist
-- id: guer_herbalist
-  display_name: Herbalist
-  description: Tribal healer using herbal remedies and poultices to restore wounded fighters to battle.
-  unit_class: SupportEngineer
-  faction_id: guerrilla
-  tier: 1
-  weapon: herb_poultice
-  vanilla_mapping: support
-  defense_tags: [Unarmored, Biological]
-  behavior_tags: [HoldLine]
-  stats:
-    hp: 90.0
-    damage: 2.0
-    armor: 1.0
-    range: 5.0
-    speed: 5.5
-    accuracy: 0.9
-    fire_rate: 0.5
-    morale: 100.0
-    cost:
-      food: 40
-      wood: 10
-      stone: 0
-      iron: 5
-      gold: 20
-      population: 1
-
-# 8. Scout - Tracker
-- id: guer_tracker
-  display_name: Tracker
-  description: Master woodsman and tracker with unmatched speed and awareness in any terrain.
-  unit_class: Recon
-  faction_id: guerrilla
-  tier: 1
-  weapon: hunting_bow
-  vanilla_mapping: scout
-  defense_tags: [Unarmored, Biological]
-  behavior_tags: [Kite]
-  stats:
-    hp: 80.0
-    damage: 15.0
-    armor: 1.0
-    range: 22.0
-    speed: 8.0
-    accuracy: 0.75
-    fire_rate: 1.5
-    morale: 85.0
-    cost:
-      food: 35
-      wood: 15
-      stone: 0
-      iron: 5
-      gold: 10
-      population: 1
-
-# 9. Elite - Veteran Fighter
-- id: guer_veteran_fighter
-  display_name: Veteran Fighter
-  description: Battle-hardened elite warrior with decades of combat experience and superior equipment.
-  unit_class: EliteLineInfantry
-  faction_id: guerrilla
-  tier: 3
-  weapon: war_axe
-  vanilla_mapping: elite
-  defense_tags: [HeavyArmor, Biological]
-  behavior_tags: [Charge, AdvanceFire]
-  stats:
-    hp: 250.0
-    damage: 25.0
-    armor: 12.0
-    range: 1.5
-    speed: 5.5
-    accuracy: 0.9
-    fire_rate: 1.5
-    morale: 130.0
-    cost:
-      food: 80
-      wood: 15
-      stone: 0
-      iron: 40
-      gold: 45
       population: 2
+  visual_asset: guerrilla-commander
 
-# 10. Hero - Warchief
-- id: guer_warchief
-  display_name: Warchief
-  description: Legendary guerrilla leader wielding the chieftain's blade. Inspires fanatical devotion and fights with unmatched ferocity.
-  unit_class: HeroCommander
-  faction_id: guerrilla
-  tier: 3
-  weapon: chieftain_blade
-  vanilla_mapping: hero
-  defense_tags: [HeavyArmor, Biological, Heroic]
-  behavior_tags: [Charge, MoralePressure]
-  stats:
-    hp: 350.0
-    damage: 45.0
-    armor: 15.0
-    range: 2.0
-    speed: 6.0
-    accuracy: 0.95
-    fire_rate: 2.0
-    morale: 180.0
-    cost:
-      food: 100
-      wood: 20
-      stone: 0
-      iron: 40
-      gold: 80
-      population: 3
-
-# 11. Wall Defender - Snare Layer
-- id: guer_snare_layer
-  display_name: Snare Layer
-  description: Trap specialist who sets deadly snares and spike traps to defend positions.
+# 11. Wall Defender - Tunnel Fighter
+- id: tunnel_fighter
+  display_name: Tunnel Fighter
+  description: Defender positioned in fortified tunnel networks. Strong defensive stance, prepared for static defense.
   unit_class: StaticMG
-  faction_id: guerrilla
-  tier: 2
-  weapon: trap_mechanism
+  faction_id: guerrilla_forces
+  tier: 3
+  weapon: ak47
   vanilla_mapping: wall_defender
-  defense_tags: [Fortified, Biological]
+  defense_tags: [InfantryArmor, Biological]
   behavior_tags: [HoldLine, AntiMass]
   stats:
-    hp: 110.0
-    damage: 50.0
-    armor: 5.0
-    range: 3.0
+    hp: 50.0
+    damage: 10.0
+    armor: 6.0
+    range: 16.0
     speed: 3.0
-    accuracy: 0.8
-    fire_rate: 0.2
-    morale: 100.0
+    accuracy: 0.65
+    fire_rate: 5.0
+    morale: 280.0
     cost:
-      food: 35
-      wood: 25
-      stone: 10
-      iron: 20
-      gold: 15
-      population: 1
-
-# 12. Skirmisher - Bowman
-- id: guer_bowman
-  display_name: Bowman
-  description: Skilled archer providing ranged harassment and kiting support from forested positions.
-  unit_class: Skirmisher
-  faction_id: guerrilla
-  tier: 1
-  weapon: hunting_bow
-  vanilla_mapping: skirmisher
-  defense_tags: [Unarmored, Biological]
-  behavior_tags: [Kite]
-  stats:
-    hp: 75.0
-    damage: 15.0
-    armor: 1.0
-    range: 22.0
-    speed: 6.0
-    accuracy: 0.75
-    fire_rate: 1.5
-    morale: 80.0
-    cost:
-      food: 30
-      wood: 15
+      food: 0
+      wood: 0
       stone: 0
-      iron: 5
+      iron: 14
+      gold: 8
+      population: 1
+  visual_asset: guerrilla-tunnel-fighter
+
+# 12. Skirmisher - Mountain Guerrilla
+- id: mountain_guerrilla
+  display_name: Mountain Guerrilla
+  description: Specialized in alpine and mountainous terrain. Excellent mobility in difficult terrain, moderate damage.
+  unit_class: StaticAT
+  faction_id: guerrilla_forces
+  tier: 2
+  weapon: sniper_rifle
+  vanilla_mapping: skirmisher
+  defense_tags: [InfantryArmor, Biological]
+  behavior_tags: [Kite, HitAndRun, Evasive]
+  stats:
+    hp: 40.0
+    damage: 18.0
+    armor: 2.0
+    range: 24.0
+    speed: 7.0
+    accuracy: 0.65
+    fire_rate: 0.8
+    morale: 270.0
+    cost:
+      food: 0
+      wood: 0
+      stone: 0
+      iron: 11
+      gold: 7
+      population: 1
+  visual_asset: guerrilla-mountain-fighter
+
+# 13. Special - Urban Insurgent
+- id: urban_insurgent
+  display_name: Urban Insurgent
+  description: Specialist in city combat and close-quarters fighting. Expert in guerrilla tactics within urban environments.
+  unit_class: ShieldedElite
+  faction_id: guerrilla_forces
+  tier: 3
+  weapon: machete
+  vanilla_mapping: special
+  defense_tags: [InfantryArmor, Biological]
+  behavior_tags: [Charge, HitAndRun]
+  stats:
+    hp: 65.0
+    damage: 24.0
+    armor: 4.0
+    range: 3.0
+    speed: 7.5
+    accuracy: 0.75
+    fire_rate: 2.5
+    morale: 285.0
+    cost:
+      food: 0
+      wood: 0
+      stone: 0
+      iron: 16
       gold: 10
       population: 1
+  visual_asset: guerrilla-urban-insurgent
 
-# 13. Special - Berserker
-- id: guer_berserker
-  display_name: Berserker
-  description: Frenzied warrior entering a battle rage, dual-wielding axes with devastating speed and power. Fragile but terrifying.
-  unit_class: ShockMelee
-  faction_id: guerrilla
-  tier: 3
-  weapon: berserker_dual_axes
-  vanilla_mapping: special
+# 14. Propaganda Officer
+- id: propaganda_officer
+  display_name: Propaganda Officer
+  description: Psychological warfare specialist. Boosts morale and spreads ideological resistance. Weak combatant but powerful force multiplier.
+  unit_class: Recon
+  faction_id: guerrilla_forces
+  tier: 2
+  weapon: radio_jammer
+  vanilla_mapping: scout
   defense_tags: [Unarmored, Biological]
-  behavior_tags: [Charge, MoralePressure]
+  behavior_tags: [Support, HoldLine]
   stats:
-    hp: 160.0
-    damage: 35.0
-    armor: 3.0
-    range: 1.5
-    speed: 7.0
-    accuracy: 0.8
-    fire_rate: 3.0
-    morale: 200.0
+    hp: 25.0
+    damage: 2.0
+    armor: 1.0
+    range: 20.0
+    speed: 5.0
+    accuracy: 0.2
+    fire_rate: 1.0
+    morale: 310.0
     cost:
-      food: 60
-      wood: 10
+      food: 0
+      wood: 0
       stone: 0
-      iron: 30
-      gold: 40
-      population: 2
+      iron: 8
+      gold: 6
+      population: 1
+  visual_asset: guerrilla-propaganda-officer

@@ -9,6 +9,7 @@ using DINOForge.SDK;
 using HarmonyLib;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace DINOForge.Runtime
 {
@@ -53,6 +54,7 @@ namespace DINOForge.Runtime
                 var bepinexVersion = typeof(BaseUnityPlugin).Assembly.GetName().Version?.ToString() ?? "unknown";
                 Log.LogInfo($"DINOForge v{PluginInfo.VERSION} | BepInEx {bepinexVersion} | Unity {Application.unityVersion}");
                 Log.LogInfo($"Platform: {Application.platform}");
+                LogInstallDiagnostics();
             }
             catch (Exception ex)
             {
@@ -114,6 +116,45 @@ namespace DINOForge.Runtime
             catch { }
         }
 
+        private static void LogInstallDiagnostics()
+        {
+            string loadedAssemblyPath = typeof(Plugin).Assembly.Location;
+            string primaryRuntimePath = Path.Combine(Paths.PluginPath, "DINOForge.Runtime.dll");
+            string legacyRuntimePath = Path.Combine(Paths.BepInExRootPath, "ecs_plugins", "DINOForge.Runtime.dll");
+            string backupRuntimePath = Path.Combine(Paths.PluginPath, "DINOForge.Runtime.dll.bak");
+
+            Log.LogInfo($"[Plugin] Loaded runtime assembly from: {loadedAssemblyPath}");
+            WriteDebug($"[Plugin] Loaded runtime assembly from: {loadedAssemblyPath}");
+
+            if (File.Exists(legacyRuntimePath))
+            {
+                string message = $"[Plugin] Legacy runtime copy detected at deprecated path: {legacyRuntimePath}";
+                Log.LogWarning(message);
+                WriteDebug(message);
+            }
+
+            if (File.Exists(primaryRuntimePath) && File.Exists(legacyRuntimePath))
+            {
+                string message = $"[Plugin] Duplicate runtime assemblies detected. Primary='{primaryRuntimePath}', Legacy='{legacyRuntimePath}'";
+                Log.LogWarning(message);
+                WriteDebug(message);
+            }
+
+            if (File.Exists(backupRuntimePath))
+            {
+                string message = $"[Plugin] Stale runtime backup file detected: {backupRuntimePath}";
+                Log.LogWarning(message);
+                WriteDebug(message);
+            }
+
+            if (!string.Equals(loadedAssemblyPath, primaryRuntimePath, StringComparison.OrdinalIgnoreCase))
+            {
+                string message = $"[Plugin] Runtime loaded from non-canonical location. Expected '{primaryRuntimePath}', actual '{loadedAssemblyPath}'";
+                Log.LogWarning(message);
+                WriteDebug(message);
+            }
+        }
+
         private void OnDestroy()
         {
             // The BepInEx-managed object is being destroyed (expected in DINO).
@@ -147,11 +188,11 @@ namespace DINOForge.Runtime
         // UGUI system (preferred). Null if UGUI setup failed.
         private DFCanvas? _dfCanvas;
 
-        // IMGUI overlay components.
-        // _modMenuOverlay is always set to the active menu (either UGUI proxy or IMGUI).
+        // Active UI hosts.
+        // _modMenuHost is always set to the active menu (UGUI when healthy, IMGUI fallback otherwise).
         // _debugOverlay is ALWAYS added (it owns the IMGUI F9 debug panel).
-        private ModMenuOverlay? _modMenuOverlay;
-        private ModSettingsPanel? _modSettingsPanel;
+        private IModMenuHost? _modMenuHost;
+        private IModSettingsHost? _modSettingsHost;
         private DebugOverlayBehaviour? _debugOverlay;
         private HudIndicator? _hudIndicator;
         private NativeMenuInjector? _nativeMenuInjector;
@@ -165,6 +206,7 @@ namespace DINOForge.Runtime
 
         private bool _worldFound;
         private bool _initialized;
+        private bool _catalogRebuilt;
         private float _worldPollTimer;
 
         /// <summary>Polling interval in seconds for ECS world detection.</summary>
@@ -181,6 +223,8 @@ namespace DINOForge.Runtime
             _dumpOnStartup = dumpOnStartup;
             _dumpOutputPath = dumpOutputPath;
             _initialized = true;
+
+            CleanupUiInterceptors();
 
             // Initialize Kenney CC0 UI asset loader.
             // Sprites are expected at BepInEx/plugins/dinoforge-ui-assets/ (deployed by MSBuild target).
@@ -298,22 +342,50 @@ namespace DINOForge.Runtime
                 _log.LogWarning($"[RuntimeDriver] NativeMenuInjector setup failed: {ex.Message}");
             }
 
-            // ── Step 3b: Add UiEventInterceptor for comprehensive UI event logging ──
-            // This component logs ALL button clicks and pointer events to diagnose UI issues.
-            try
-            {
-                UiEventInterceptor interceptor = gameObject.AddComponent<UiEventInterceptor>();
-                interceptor.SetLogger(_log);
-                _log.LogInfo("[RuntimeDriver] Added UiEventInterceptor — logging all button clicks for diagnostics.");
-            }
-            catch (Exception ex)
-            {
-                _log.LogWarning($"[RuntimeDriver] UiEventInterceptor setup failed: {ex.Message}");
-            }
+            // ── Step 3b: UiEventInterceptor intentionally disabled ──
+            // Interceptor diagnostics mutate button object names and can interfere with
+            // NativeMenuInjector idempotency and click routing in production runtime.
+            _log.LogInfo("[RuntimeDriver] UiEventInterceptor disabled for native menu stability.");
 
             // ── Step 4: Log key handler registration ────────────────────────────────
             _log.LogInfo($"[RuntimeDriver] F9/F10 key handlers registered on {gameObject.name}.");
             _log.LogInfo("[RuntimeDriver] Waiting for ECS World (Update polling)...");
+        }
+
+        private void CleanupUiInterceptors()
+        {
+            try
+            {
+                UiEventInterceptor[] interceptors = Resources.FindObjectsOfTypeAll<UiEventInterceptor>();
+                foreach (UiEventInterceptor interceptor in interceptors)
+                {
+                    if (interceptor == null) continue;
+                    _log.LogWarning($"[RuntimeDriver] Destroying stale UiEventInterceptor on '{interceptor.gameObject.name}'.");
+                    Destroy(interceptor);
+                }
+
+                Button[] buttons = Resources.FindObjectsOfTypeAll<Button>();
+                int renamedCount = 0;
+                foreach (Button button in buttons)
+                {
+                    if (button == null) continue;
+                    string currentName = button.gameObject.name;
+                    int suffixIndex = currentName.IndexOf("_intercepted", StringComparison.Ordinal);
+                    if (suffixIndex < 0) continue;
+
+                    button.gameObject.name = currentName.Substring(0, suffixIndex);
+                    renamedCount++;
+                }
+
+                if (interceptors.Length > 0 || renamedCount > 0)
+                {
+                    _log.LogInfo($"[RuntimeDriver] Removed {interceptors.Length} interceptor component(s) and restored {renamedCount} button name(s).");
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[RuntimeDriver] UiEventInterceptor cleanup failed: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -324,7 +396,7 @@ namespace DINOForge.Runtime
         private void ActivateImguiFallback()
         {
             // Guard: only activate once
-            if (_modMenuOverlay != null) return;
+            if (_modMenuHost != null) return;
 
             try
             {
@@ -339,14 +411,14 @@ namespace DINOForge.Runtime
                     _modPlatform.SetUI(overlay, settingsPanel);
                 }
 
-                // Wire ModMenuOverlay into NativeMenuInjector for the native Mods button
+                // Wire the active menu host into NativeMenuInjector for the native Mods button
                 if (_nativeMenuInjector != null)
                 {
-                    _nativeMenuInjector.SetModMenuOverlay(overlay);
+                    _nativeMenuInjector.SetModMenuHost(overlay);
                 }
 
-                _modMenuOverlay   = overlay;
-                _modSettingsPanel = settingsPanel;
+                _modMenuHost   = overlay;
+                _modSettingsHost = settingsPanel;
 
                 _log.LogInfo("[RuntimeDriver] IMGUI fallback — Added ModMenuOverlay + ModSettingsPanel.");
             }
@@ -358,11 +430,11 @@ namespace DINOForge.Runtime
             try
             {
                 _hudIndicator = gameObject.AddComponent<HudIndicator>();
-                _hudIndicator.SetModMenu(_modMenuOverlay);
+                _hudIndicator.SetModMenu(_modMenuHost);
 
-                if (_modMenuOverlay != null)
+                if (_modMenuHost != null)
                 {
-                    _modMenuOverlay.OnReloadRequested += () => _hudIndicator?.ShowToast("Packs reloaded");
+                    _modMenuHost.OnReloadRequested += () => _hudIndicator?.ShowToast("Packs reloaded");
                 }
 
                 _log.LogInfo("[RuntimeDriver] IMGUI fallback — Added HudIndicator.");
@@ -383,27 +455,24 @@ namespace DINOForge.Runtime
 
             try
             {
-                // ModMenuPanel exposes the same API as ModMenuOverlay.
-                // ModPlatform.SetUI still expects ModMenuOverlay + ModSettingsPanel.
-                // We use a thin proxy wrapper (ModMenuOverlayProxy) to bridge them.
-                ModMenuOverlayProxy proxy = gameObject.AddComponent<ModMenuOverlayProxy>();
-                proxy.enabled = false; // disable IMGUI Update/OnGUI — UGUI owns rendering
-
                 if (_dfCanvas.ModMenuPanel != null)
                 {
-                    proxy.SetTarget(_dfCanvas.ModMenuPanel);
                     _dfCanvas.ModMenuPanel.OnReloadRequested = () => _modPlatform?.LoadPacks();
                 }
 
-                ModSettingsPanel settingsPanel = gameObject.AddComponent<ModSettingsPanel>();
-                settingsPanel.enabled = false;
+                IModSettingsHost settingsHost = new NoOpSettingsHost();
 
-                _modPlatform.SetUI(proxy, settingsPanel);
+                if (_dfCanvas.ModMenuPanel == null)
+                {
+                    throw new InvalidOperationException("DFCanvas did not create ModMenuPanel.");
+                }
 
-                // Wire ModMenuOverlayProxy into NativeMenuInjector for the native Mods button
+                _modPlatform.SetUI(_dfCanvas.ModMenuPanel, settingsHost);
+
+                // Wire the active UGUI menu host into NativeMenuInjector for the native Mods button
                 if (_nativeMenuInjector != null)
                 {
-                    _nativeMenuInjector.SetModMenuOverlay(proxy);
+                    _nativeMenuInjector.SetModMenuHost(_dfCanvas.ModMenuPanel);
                 }
 
                 // Wire UGUI DebugPanel to ModPlatform so it displays platform status
@@ -413,10 +482,10 @@ namespace DINOForge.Runtime
                     _log.LogInfo("[RuntimeDriver] UGUI DebugPanel wired to ModPlatform.");
                 }
 
-                _modMenuOverlay   = proxy;
-                _modSettingsPanel = settingsPanel;
+                _modMenuHost = _dfCanvas.ModMenuPanel;
+                _modSettingsHost = settingsHost;
 
-                _log.LogInfo("[RuntimeDriver] UGUI wired to ModPlatform via ModMenuOverlayProxy.");
+                _log.LogInfo("[RuntimeDriver] UGUI wired to ModPlatform via IModMenuHost.");
             }
             catch (Exception ex)
             {
@@ -432,7 +501,7 @@ namespace DINOForge.Runtime
 
             // ── F9/F10 key handling — always runs regardless of UI layer ─────────
             // These handlers are intentionally on RuntimeDriver so they work even if
-            // DFCanvas or ModMenuOverlay fails to initialise.
+            // DFCanvas or the fallback menu host fails to initialise.
             if (Input.GetKeyDown(KeyCode.F9))
             {
                 // Prefer UGUI DebugPanel when available; fall back to IMGUI overlay
@@ -444,11 +513,11 @@ namespace DINOForge.Runtime
 
             if (Input.GetKeyDown(KeyCode.F10))
             {
-                // Prefer UGUI ModMenuPanel when available; fall back to IMGUI overlay
+                // Prefer the UGUI panel when available; fall back to the active menu host
                 if (_uguiReady && _dfCanvas != null)
                     _dfCanvas.ToggleModMenu();
                 else
-                    _modMenuOverlay?.Toggle();
+                    _modMenuHost?.Toggle();
             }
 
             // ── Check whether DFCanvas.Start() has run yet ───────────────────────
@@ -464,6 +533,27 @@ namespace DINOForge.Runtime
                     WireUguiToModPlatform();
                 }
                 // If not yet ready, keep waiting (OnInitFailed callback handles failure)
+            }
+
+            // ── Deferred VanillaCatalog rebuild once the game scene is loaded ────
+            // The world exists at startup with only 24 entities (loading screen).
+            // We wait until entities > 1000 (full scene loaded ~45K entities) to rebuild.
+            if (_worldFound && !_catalogRebuilt)
+            {
+                try
+                {
+                    World? w = World.DefaultGameObjectInjectionWorld;
+                    if (w != null && w.IsCreated)
+                    {
+                        int entityCount = w.EntityManager.UniversalQuery.CalculateEntityCount();
+                        if (entityCount > 1000)
+                        {
+                            _catalogRebuilt = true;
+                            _modPlatform?.RebuildCatalogAndApplyStats(w);
+                        }
+                    }
+                }
+                catch { }
             }
 
             // ── ECS world poll ───────────────────────────────────────────────────
@@ -550,9 +640,9 @@ namespace DINOForge.Runtime
                 // Discover settings for the settings panel
                 try
                 {
-                    if (_modSettingsPanel != null)
+                    if (_modSettingsHost is ModSettingsPanel settingsPanel)
                     {
-                        _modSettingsPanel.DiscoverSettings();
+                        settingsPanel.DiscoverSettings();
                         _log.LogInfo("[RuntimeDriver] Mod settings discovered.");
                     }
                 }

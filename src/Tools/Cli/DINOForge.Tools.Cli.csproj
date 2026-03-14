@@ -31,6 +31,7 @@
     <ProjectReference Include="..\..\Bridge\Client\DINOForge.Bridge.Client.csproj" />
     <ProjectReference Include="..\..\Bridge\Protocol\DINOForge.Bridge.Protocol.csproj" />
     <ProjectReference Include="..\..\SDK\DINOForge.SDK.csproj" />
+    <ProjectReference Include="..\Installer\InstallerLib\DINOForge.Tools.Installer.csproj" />
   </ItemGroup>
 
 </Project>

@@ -12,6 +12,8 @@ using DINOForge.SDK;
 using DINOForge.SDK.Assets;
 using DINOForge.SDK.Models;
 using DINOForge.SDK.Validation;
+using DINOForge.Tools.PackCompiler.Models;
+using DINOForge.Tools.PackCompiler.Services;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -85,6 +87,57 @@ namespace DINOForge.Tools.PackCompiler
             assetsCommand.Subcommands.Add(assetsInspectCommand);
             assetsCommand.Subcommands.Add(assetsValidateCommand);
 
+            // Asset pipeline commands (v0.7.0+)
+            var assetPipelineCommand = new Command("pipeline") { Description = "Manage asset import/optimization pipeline" };
+
+            var packPathArgAssets = new Argument<string>("pack-path") { Description = "Path to the pack directory with asset_pipeline.yaml" };
+
+            var assetImportCommand = new Command("import") { Description = "Import 3D models (GLB/FBX) from asset_pipeline.yaml" };
+            assetImportCommand.Arguments.Add(packPathArgAssets);
+            assetImportCommand.SetAction(parseResult =>
+            {
+                string packPath = parseResult.GetValue(packPathArgAssets)!;
+                AssetImport(packPath);
+            });
+
+            var assetValidateCommand2 = new Command("validate") { Description = "Validate imported assets against config" };
+            assetValidateCommand2.Arguments.Add(packPathArgAssets);
+            assetValidateCommand2.SetAction(parseResult =>
+            {
+                string packPath = parseResult.GetValue(packPathArgAssets)!;
+                AssetValidate(packPath);
+            });
+
+            var assetOptimizeCommand = new Command("optimize") { Description = "Generate LOD variants for assets" };
+            assetOptimizeCommand.Arguments.Add(packPathArgAssets);
+            assetOptimizeCommand.SetAction(parseResult =>
+            {
+                string packPath = parseResult.GetValue(packPathArgAssets)!;
+                AssetOptimize(packPath);
+            });
+
+            var assetGenerateCommand = new Command("generate") { Description = "Generate Unity prefabs from optimized assets" };
+            assetGenerateCommand.Arguments.Add(packPathArgAssets);
+            assetGenerateCommand.SetAction(parseResult =>
+            {
+                string packPath = parseResult.GetValue(packPathArgAssets)!;
+                AssetGenerate(packPath);
+            });
+
+            var assetBuildCommand = new Command("build") { Description = "Run full pipeline: import → validate → optimize → generate" };
+            assetBuildCommand.Arguments.Add(packPathArgAssets);
+            assetBuildCommand.SetAction(parseResult =>
+            {
+                string packPath = parseResult.GetValue(packPathArgAssets)!;
+                AssetBuild(packPath);
+            });
+
+            assetPipelineCommand.Subcommands.Add(assetImportCommand);
+            assetPipelineCommand.Subcommands.Add(assetValidateCommand2);
+            assetPipelineCommand.Subcommands.Add(assetOptimizeCommand);
+            assetPipelineCommand.Subcommands.Add(assetGenerateCommand);
+            assetPipelineCommand.Subcommands.Add(assetBuildCommand);
+
             // Thunderstore command
             var thunderstorePackDirArg = new Argument<string>("pack-path") { Description = "Path to the pack directory containing pack.yaml" };
             var authorOption = new Option<string?>("--author") { Description = "Thunderstore author name (default: KooshaPari)" };
@@ -150,9 +203,17 @@ namespace DINOForge.Tools.PackCompiler
             rootCommand.Subcommands.Add(validateTcCommand);
             rootCommand.Subcommands.Add(thunderstoreCommand);
             rootCommand.Subcommands.Add(assetsCommand);
+            rootCommand.Subcommands.Add(assetPipelineCommand);
             rootCommand.Subcommands.Add(packCommand);
 
+            Console.WriteLine("[DEBUG] About to call Parse...");
+            Console.Out.Flush();
+
             ParseResult parseResultObj = rootCommand.Parse(args);
+
+            Console.WriteLine("[DEBUG] Parse completed, about to invoke...");
+            Console.Out.Flush();
+
             return await parseResultObj.InvokeAsync();
         }
 
@@ -811,6 +872,472 @@ namespace DINOForge.Tools.PackCompiler
             using var proc = Process.Start(psi);
             proc?.WaitForExit();
             return proc?.ExitCode ?? 1;
+        }
+
+        // Asset Pipeline Commands (v0.7.0+)
+        private static void AssetImport(string packPath)
+        {
+            try
+            {
+                Console.WriteLine("[DEBUG] AssetImport starting...");
+                Console.Out.Flush();
+
+                AnsiConsole.MarkupLine("[bold blue]Asset Import Pipeline[/]");
+                AnsiConsole.MarkupLine($"Pack: {packPath}");
+                AnsiConsole.WriteLine();
+
+                string configPath = Path.Combine(packPath, "asset_pipeline.yaml");
+                Console.WriteLine($"[DEBUG] Config path: {configPath}");
+                Console.Out.Flush();
+
+                if (!File.Exists(configPath))
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] asset_pipeline.yaml not found");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                Console.WriteLine("[DEBUG] Creating DeserializerBuilder...");
+                Console.Out.Flush();
+
+                var deserializer = new DeserializerBuilder()
+                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                    .IgnoreUnmatchedProperties()
+                    .Build();
+
+                Console.WriteLine("[DEBUG] DeserializerBuilder created, reading YAML file...");
+                Console.Out.Flush();
+
+                var configYaml = File.ReadAllText(configPath);
+
+                Console.WriteLine("[DEBUG] YAML file read, deserializing...");
+                Console.Out.Flush();
+
+                // Deserialize with timeout
+                var deserializeTask = Task.Run(() =>
+                {
+                    return deserializer.Deserialize<AssetPipelineConfig>(configYaml);
+                });
+
+                Console.WriteLine("[DEBUG] Task.Run created, waiting for result...");
+                Console.Out.Flush();
+
+                if (!deserializeTask.Wait(TimeSpan.FromSeconds(10)))
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] YAML deserialization timeout");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                var config = deserializeTask.Result;
+
+                if (config == null)
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] Failed to parse asset_pipeline.yaml");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                AnsiConsole.MarkupLine($"[green]✓[/] Loaded config: Pack {config.PackId} v{config.Version}");
+                AnsiConsole.MarkupLine($"  Phases: {config.Phases.Count}");
+
+                var importService = new AssetImportService();
+                int successCount = 0, failCount = 0;
+
+                var importedDir = Path.Combine(packPath, config.AssetSettings.BasePath, "imported");
+                Directory.CreateDirectory(importedDir);
+
+                foreach (var (phaseName, phase) in config.Phases)
+                {
+                    AnsiConsole.MarkupLine($"\n[cyan]Phase:[/] {phaseName}");
+
+                    foreach (var asset in phase.Models)
+                    {
+                        var assetPath = Path.Combine(packPath, config.AssetSettings.BasePath, asset.File);
+
+                        try
+                        {
+                            if (!File.Exists(assetPath))
+                            {
+                                AnsiConsole.MarkupLine($"  [red]✗[/] {asset.Id}: File not found ({asset.File})");
+                                failCount++;
+                                continue;
+                            }
+
+                            var imported = importService.ImportAsync(asset.Id, assetPath).GetAwaiter().GetResult();
+
+                            // Save imported asset as JSON
+                            var outputPath = Path.Combine(importedDir, $"{asset.Id}.json");
+                            var json = System.Text.Json.JsonSerializer.Serialize(imported, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                            File.WriteAllText(outputPath, json);
+
+                            AnsiConsole.MarkupLine($"  [green]✓[/] {asset.Id} → {outputPath}");
+                            successCount++;
+                        }
+                        catch (Exception ex)
+                        {
+                            AnsiConsole.MarkupLine($"  [red]✗[/] {asset.Id}: {ex.Message}");
+                            failCount++;
+                        }
+                    }
+                }
+
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine($"[bold]Results:[/] {successCount} imported, {failCount} failed");
+
+                if (failCount > 0)
+                    Environment.Exit(1);
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[bold red]Error:[/] {ex.Message}");
+                Environment.Exit(1);
+            }
+        }
+
+        private static void AssetValidate(string packPath)
+        {
+            try
+            {
+                AnsiConsole.MarkupLine("[bold blue]Asset Validation[/]");
+                AnsiConsole.MarkupLine($"Pack: {packPath}");
+                AnsiConsole.WriteLine();
+
+                string configPath = Path.Combine(packPath, "asset_pipeline.yaml");
+                if (!File.Exists(configPath))
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] asset_pipeline.yaml not found");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                var deserializer = new DeserializerBuilder()
+                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                    .IgnoreUnmatchedProperties()
+                    .Build();
+
+                var configYaml = File.ReadAllText(configPath);
+
+                AnsiConsole.MarkupLine("[dim]Parsing configuration...[/]");
+                AssetPipelineConfig? config = null;
+                try
+                {
+                    config = deserializer.Deserialize<AssetPipelineConfig>(configYaml);
+                }
+                catch (Exception ex)
+                {
+                    AnsiConsole.MarkupLine($"[bold red]Error:[/] Failed to parse YAML: {ex.Message}");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                if (config == null)
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] Failed to parse asset_pipeline.yaml");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                var validationService = new AssetValidationService();
+                var configResult = validationService.ValidateConfiguration(config);
+
+                if (!configResult.IsValid)
+                {
+                    AnsiConsole.MarkupLine("[bold red]Configuration invalid:[/]");
+                    foreach (var error in configResult.Errors)
+                        AnsiConsole.MarkupLine($"  [red]✗[/] {error}");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                AnsiConsole.MarkupLine("[green]✓[/] Configuration valid");
+                AnsiConsole.WriteLine();
+
+                if (configResult.Warnings.Count > 0)
+                {
+                    AnsiConsole.MarkupLine("[yellow]Warnings:[/]");
+                    foreach (var warning in configResult.Warnings)
+                        AnsiConsole.MarkupLine($"  [yellow]⚠[/] {warning}");
+                }
+
+                AnsiConsole.MarkupLine($"\n[bold green]Validation passed![/]");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[bold red]Error:[/] {ex.Message}");
+                Environment.Exit(1);
+            }
+        }
+
+        private static void AssetOptimize(string packPath)
+        {
+            try
+            {
+                AnsiConsole.MarkupLine("[bold blue]Asset Optimization Pipeline (LOD Generation)[/]");
+                AnsiConsole.MarkupLine($"Pack: {packPath}");
+                AnsiConsole.WriteLine();
+
+                string configPath = Path.Combine(packPath, "asset_pipeline.yaml");
+                if (!File.Exists(configPath))
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] asset_pipeline.yaml not found");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                var deserializer = new DeserializerBuilder()
+                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                    .IgnoreUnmatchedProperties()
+                    .Build();
+
+                var configYaml = File.ReadAllText(configPath);
+
+                // Deserialize with timeout
+                var deserializeTask = Task.Run(() =>
+                {
+                    return deserializer.Deserialize<AssetPipelineConfig>(configYaml);
+                });
+
+                if (!deserializeTask.Wait(TimeSpan.FromSeconds(10)))
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] YAML deserialization timeout");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                var config = deserializeTask.Result;
+
+                if (config == null)
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] Failed to parse asset_pipeline.yaml");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                AnsiConsole.MarkupLine($"[green]✓[/] Loaded config: Pack {config.PackId} v{config.Version}");
+                AnsiConsole.MarkupLine($"  Phases: {config.Phases.Count}");
+                AnsiConsole.WriteLine();
+
+                var importService = new AssetImportService();
+                var optimizationService = new AssetOptimizationService();
+                int successCount = 0, failCount = 0;
+
+                var optimizedDir = Path.Combine(packPath, config.AssetSettings.OptimizedPath);
+                Directory.CreateDirectory(optimizedDir);
+
+                foreach (var (phaseName, phase) in config.Phases)
+                {
+                    AnsiConsole.MarkupLine($"[cyan]Phase:[/] {phaseName}");
+
+                    foreach (var assetDef in phase.Models)
+                    {
+                        var assetPath = Path.Combine(packPath, config.AssetSettings.BasePath, assetDef.File);
+
+                        try
+                        {
+                            if (!File.Exists(assetPath))
+                            {
+                                AnsiConsole.MarkupLine($"  [red]✗[/] {assetDef.Id}: File not found");
+                                failCount++;
+                                continue;
+                            }
+
+                            // Import asset
+                            var imported = importService.ImportAsync(assetDef.Id, assetPath).GetAwaiter().GetResult();
+
+                            // Optimize (generate LODs)
+                            var sw = Stopwatch.StartNew();
+                            var optimized = optimizationService.OptimizeAsync(imported, assetDef).GetAwaiter().GetResult();
+                            sw.Stop();
+
+                            // Save optimized LOD data
+                            var outputPath = Path.Combine(optimizedDir, $"{assetDef.Id}_optimized.json");
+                            var json = System.Text.Json.JsonSerializer.Serialize(optimized, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                            File.WriteAllText(outputPath, json);
+
+                            AnsiConsole.MarkupLine($"  [green]✓[/] {assetDef.Id}: LOD0={optimized.LOD0.TriangleCount}, LOD1={optimized.LOD1.TriangleCount}, LOD2={optimized.LOD2.TriangleCount} ({sw.ElapsedMilliseconds}ms) → {outputPath}");
+                            successCount++;
+                        }
+                        catch (Exception ex)
+                        {
+                            AnsiConsole.MarkupLine($"  [red]✗[/] {assetDef.Id}: {ex.Message}");
+                            failCount++;
+                        }
+                    }
+                }
+
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine($"[bold]Results:[/] {successCount} optimized, {failCount} failed");
+
+                if (failCount > 0)
+                    Environment.Exit(1);
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[bold red]Error:[/] {ex.Message}");
+                Environment.Exit(1);
+            }
+        }
+
+        private static void AssetGenerate(string packPath)
+        {
+            try
+            {
+                AnsiConsole.MarkupLine("[bold blue]Prefab Generation[/]");
+                AnsiConsole.MarkupLine($"Pack: {packPath}");
+                AnsiConsole.WriteLine();
+
+                string configPath = Path.Combine(packPath, "asset_pipeline.yaml");
+                if (!File.Exists(configPath))
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] asset_pipeline.yaml not found");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                var deserializer = new DeserializerBuilder()
+                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                    .IgnoreUnmatchedProperties()
+                    .Build();
+
+                var configYaml = File.ReadAllText(configPath);
+
+                // Deserialize with timeout
+                var deserializeTask = Task.Run(() =>
+                {
+                    return deserializer.Deserialize<AssetPipelineConfig>(configYaml);
+                });
+
+                if (!deserializeTask.Wait(TimeSpan.FromSeconds(10)))
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] YAML deserialization timeout");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                var config = deserializeTask.Result;
+
+                if (config == null)
+                {
+                    AnsiConsole.MarkupLine("[bold red]Error:[/] Failed to parse asset_pipeline.yaml");
+                    Environment.Exit(1);
+                    return;
+                }
+
+                AnsiConsole.MarkupLine($"[green]✓[/] Loaded config: Pack {config.PackId} v{config.Version}");
+                AnsiConsole.WriteLine();
+
+                var importService = new AssetImportService();
+                var optimizationService = new AssetOptimizationService();
+                var prefabService = new PrefabGenerationService();
+                var addressablesService = new AddressablesService();
+
+                string outputDir = Path.Combine(packPath, config.Build.OutputDirectory);
+                Directory.CreateDirectory(outputDir);
+
+                int successCount = 0, failCount = 0;
+                var allAssets = new List<(OptimizedAsset, AssetDefinition)>();
+
+                foreach (var (phaseName, phase) in config.Phases)
+                {
+                    AnsiConsole.MarkupLine($"[cyan]Phase:[/] {phaseName}");
+
+                    foreach (var assetDef in phase.Models)
+                    {
+                        var assetPath = Path.Combine(packPath, config.AssetSettings.BasePath, assetDef.File);
+
+                        try
+                        {
+                            if (!File.Exists(assetPath))
+                            {
+                                AnsiConsole.MarkupLine($"  [red]✗[/] {assetDef.Id}: File not found");
+                                failCount++;
+                                continue;
+                            }
+
+                            // Import and optimize
+                            var imported = importService.ImportAsync(assetDef.Id, assetPath).GetAwaiter().GetResult();
+                            var optimized = optimizationService.OptimizeAsync(imported, assetDef).GetAwaiter().GetResult();
+
+                            // Generate prefab
+                            string prefabPath = Path.Combine(outputDir, $"{assetDef.Id}.prefab");
+                            prefabService.GeneratePrefabAsync(optimized, assetDef, prefabPath).GetAwaiter().GetResult();
+
+                            allAssets.Add((optimized, assetDef));
+                            AnsiConsole.MarkupLine($"  [green]✓[/] {assetDef.Id}: prefab generated");
+                            successCount++;
+                        }
+                        catch (Exception ex)
+                        {
+                            AnsiConsole.MarkupLine($"  [red]✗[/] {assetDef.Id}: {ex.Message}");
+                            failCount++;
+                        }
+                    }
+                }
+
+                // Generate Addressables catalog
+                AnsiConsole.MarkupLine("\n[cyan]Generating Addressables catalog...[/]");
+                string catalogPath = Path.Combine(outputDir, "addressables_catalog.txt");
+                addressablesService.GenerateCatalogAsync(allAssets, catalogPath).GetAwaiter().GetResult();
+                AnsiConsole.MarkupLine($"[green]✓[/] Catalog: {catalogPath}");
+
+                // Generate asset groups
+                AnsiConsole.MarkupLine("[cyan]Generating asset groups...[/]");
+                foreach (var (optimized, assetDef) in allAssets)
+                {
+                    addressablesService.GenerateAssetGroupAsync(optimized, assetDef, outputDir).GetAwaiter().GetResult();
+                    AnsiConsole.MarkupLine($"[green]✓[/] {assetDef.Id}_group.yaml");
+                }
+
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine($"[bold]Results:[/] {successCount} prefabs generated, {failCount} failed");
+                AnsiConsole.MarkupLine($"[bold]Output:[/] {outputDir}");
+
+                if (failCount > 0)
+                    Environment.Exit(1);
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[bold red]Error:[/] {ex.Message}");
+                Environment.Exit(1);
+            }
+        }
+
+        private static void AssetBuild(string packPath)
+        {
+            try
+            {
+                var sw = Stopwatch.StartNew();
+
+                AnsiConsole.MarkupLine("[bold cyan]Asset Pipeline: Full Build[/]");
+                AnsiConsole.MarkupLine("v0.7.0 + v0.8.0: import → validate → optimize → generate");
+                AnsiConsole.WriteLine();
+
+                // Step 1: Import
+                AnsiConsole.MarkupLine("[cyan]Step 1: Import Assets[/]");
+                AssetImport(packPath);
+
+                // Step 2: Validate
+                AnsiConsole.MarkupLine("\n[cyan]Step 2: Validate Configuration[/]");
+                AssetValidate(packPath);
+
+                // Step 3: Optimize (LOD generation)
+                AnsiConsole.MarkupLine("\n[cyan]Step 3: Generate LOD Variants[/]");
+                AssetOptimize(packPath);
+
+                // Step 4: Generate (prefabs + addressables)
+                AnsiConsole.MarkupLine("\n[cyan]Step 4: Generate Prefabs & Addressables[/]");
+                AssetGenerate(packPath);
+
+                sw.Stop();
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine($"[bold green]Pipeline complete![/] ({sw.Elapsed.TotalSeconds:F1}s)");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[bold red]Build failed:[/] {ex.Message}");
+                Environment.Exit(1);
+            }
         }
     }
 }

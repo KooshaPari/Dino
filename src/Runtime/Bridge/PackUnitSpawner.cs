@@ -197,9 +197,6 @@ namespace DINOForge.Runtime.Bridge
                     _spawnedCount++;
                     WriteDebug($"Spawned unit {request.UnitDefinitionId} at ({request.X}, {request.Y}, {request.Z})");
 
-                    // Apply aerial/anti-air components based on behavior_tags
-                    DINOForge.Runtime.Aviation.AerialUnitMapper.ApplyAerialComponents(EntityManager, spawned, unitDef);
-
                     entities.Dispose();
                 }
                 catch (Exception ex)

@@ -14,6 +14,7 @@
     population: 0
   production: {}
 
+  visual_asset: sw-tactical-center
 - id: cis_droid_factory
   display_name: Droid Factory
   description: Automated assembly line mass-producing B1 battle droids at extreme rates.
@@ -29,6 +30,7 @@
   production:
     cis_b1_battle_droid: 6
     cis_b1_squad: 3
+  visual_asset: sw-droid-factory
 
 - id: cis_assembly_line
   display_name: Advanced Assembly Line
@@ -45,6 +47,7 @@
   production:
     cis_b2_super_battle_droid: 2
     cis_bx_commando_droid: 1
+  visual_asset: sw-assembly-line
 
 - id: cis_heavy_foundry
   display_name: Heavy Foundry
@@ -61,6 +64,7 @@
   production:
     cis_aat_crew: 1
     cis_droideka: 1
+  visual_asset: sw-heavy-foundry
 
 - id: cis_sentry_turret
   display_name: Sentry Turret
@@ -75,6 +79,7 @@
     gold: 5
     population: 0
   production: {}
+  visual_asset: sw-sentry-turret
 
 - id: cis_ray_shield
   display_name: Ray Shield Generator
@@ -89,6 +94,7 @@
     gold: 40
     population: 0
   production: {}
+  visual_asset: sw-ray-shield
 
 - id: cis_mining_facility
   display_name: Mining Facility
@@ -106,6 +112,7 @@
     iron: 4
     stone: 2
 
+  visual_asset: sw-mining-facility
 - id: cis_processing_plant
   display_name: Processing Plant
   description: Refinery converting raw materials into trade goods.
@@ -121,6 +128,7 @@
   production:
     gold: 3
 
+  visual_asset: sw-processing-plant
 - id: cis_tech_union_lab
   display_name: Techno Union Lab
   description: Techno Union research facility developing advanced droid designs.
@@ -135,6 +143,7 @@
     population: 0
   production: {}
 
+  visual_asset: sw-tech-union-lab
 - id: cis_durasteel_barrier
   display_name: Durasteel Barrier
   description: Prefabricated wall segment for rapid base fortification.
@@ -148,3 +157,24 @@
     gold: 0
     population: 0
   production: {}
+
+  visual_asset: sw-durasteel-barrier
+- id: cis_vulture_nest
+  display_name: Vulture Droid Nest
+  description: Automated droid starfighter launch platform providing air superiority through coordinated swarms.
+  building_type: defense
+  health: 900
+  cost:
+    food: 0
+    wood: 0
+    stone: 50
+    iron: 70
+    gold: 40
+    population: 0
+  production: {}
+  defense_tags: [AntiAir]
+  anti_air:
+    range: 38.0
+    damage_bonus: 1.5
+
+  visual_asset: sw-vulture-nest

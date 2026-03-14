@@ -1,0 +1,161 @@
+# Eastern Bloc Buildings
+
+- id: eb_command_center
+  display_name: Command Center
+  description: Central headquarters for Eastern Bloc operations commanding all forces in the region.
+  building_type: command
+  health: 2200
+  cost:
+    food: 0
+    wood: 80
+    stone: 140
+    iron: 120
+    gold: 70
+    population: 0
+  production: {}
+  visual_asset: mod-eb-command-center
+
+- id: eb_command_bunker
+  display_name: Command Bunker
+  description: Reinforced underground command bunker producing conscripts and assault troops.
+  building_type: barracks
+  health: 1300
+  cost:
+    food: 0
+    wood: 60
+    stone: 100
+    iron: 60
+    gold: 30
+    population: 0
+  production:
+    eb_conscript: 3
+    eb_assault_trooper: 1
+  visual_asset: mod-eb-command-bunker
+
+- id: eb_armor_yard
+  display_name: Armor Yard
+  description: Tank production and maintenance facility. Produces Soviet-style heavy tanks.
+  building_type: barracks
+  health: 1200
+  cost:
+    food: 0
+    wood: 50
+    stone: 80
+    iron: 120
+    gold: 50
+    population: 0
+  production:
+    eb_tank_operator: 1
+  visual_asset: mod-eb-armor-yard
+
+- id: eb_airbase
+  display_name: Airbase
+  description: Military airbase providing air operations coordination and support missions.
+  building_type: barracks
+  health: 1100
+  cost:
+    food: 0
+    wood: 50
+    stone: 70
+    iron: 100
+    gold: 45
+    population: 0
+  production: {}
+  visual_asset: mod-eb-airbase
+
+- id: eb_medical_station
+  display_name: Medical Station
+  description: Field medical facility maintaining troop health and combat readiness despite casualties.
+  building_type: barracks
+  health: 950
+  cost:
+    food: 0
+    wood: 55
+    stone: 60
+    iron: 35
+    gold: 30
+    population: 0
+  production:
+    eb_combat_medic: 1
+  visual_asset: mod-eb-medical-station
+
+- id: eb_logistics_hub
+  display_name: Logistics Hub
+  description: Central supply and logistics hub providing continuous resource production and distribution.
+  building_type: economy
+  health: 850
+  cost:
+    food: 0
+    wood: 50
+    stone: 40
+    iron: 30
+    gold: 18
+    population: 0
+  production:
+    food: 5
+    iron: 2
+  visual_asset: mod-eb-logistics-hub
+
+- id: eb_early_warning_radar
+  display_name: Early Warning Radar
+  description: Soviet radar station providing air defense and enemy detection capabilities.
+  building_type: defense
+  health: 800
+  cost:
+    food: 0
+    wood: 40
+    stone: 60
+    iron: 70
+    gold: 45
+    population: 0
+  production: {}
+  defense_tags: [AntiAir]
+  anti_air:
+    range: 42.0
+    damage_bonus: 1.25
+  visual_asset: mod-eb-early-warning-radar
+
+- id: eb_concrete_fortification
+  display_name: Concrete Fortification
+  description: Heavy concrete fortification structure for defensive perimeter and bunker construction.
+  building_type: defense
+  health: 1800
+  cost:
+    food: 0
+    wood: 15
+    stone: 90
+    iron: 60
+    gold: 25
+    population: 0
+  production: {}
+  visual_asset: mod-eb-concrete-fortification
+
+- id: eb_research_complex
+  display_name: Research Complex
+  description: Soviet research facility developing advanced military equipment and tactical innovations.
+  building_type: research
+  health: 950
+  cost:
+    food: 0
+    wood: 55
+    stone: 80
+    iron: 70
+    gold: 55
+    population: 0
+  production: {}
+  visual_asset: mod-eb-research-complex
+
+- id: eb_concrete_barrier
+  display_name: Concrete Barrier
+  description: Soviet-style concrete wall segment for rapid fortification and perimeter defense.
+  building_type: defense
+  health: 1500
+  cost:
+    food: 0
+    wood: 12
+    stone: 70
+    iron: 40
+    gold: 18
+    population: 0
+  production: {}
+  visual_asset: mod-eb-concrete-barrier

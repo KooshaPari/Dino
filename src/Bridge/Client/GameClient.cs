@@ -137,12 +137,90 @@ public sealed class GameClient : IDisposable
         SendRequestAsync<ScreenshotResult>("screenshot", path != null ? new { path } : null, ct);
 
     /// <inheritdoc />
+    public Task<LoadSceneResult> LoadSceneAsync(string scene, CancellationToken ct = default) =>
+        SendRequestAsync<LoadSceneResult>("loadScene", new { scene }, ct);
+
+    /// <inheritdoc />
+    public Task<StartGameResult> StartGameAsync(CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("startGame", null, ct);
+
+    /// <summary>Lists available save files discovered by the game bridge.</summary>
+    public Task<JObject> ListSavesAsync(CancellationToken ct = default) =>
+        SendRequestAsync<JObject>("listSaves", null, ct);
+
+    /// <summary>Dismisses the "Press Any Key to Continue" loading screen.</summary>
+    public Task<StartGameResult> DismissLoadScreenAsync(CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("dismissLoadScreen", null, ct);
+
+    /// <summary>Loads a save file by name (e.g. "AUTOSAVE_1" or "CONTINUE").</summary>
+    public Task<StartGameResult> LoadSaveAsync(string saveName = "AUTOSAVE_1", CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("loadSave", new { saveName }, ct);
+
+    /// <summary>
+    /// Clicks a named Unity UI button. Pass empty string to list all active buttons.
+    /// Use "DINOForge_ModsButton" to click the injected Mods button.
+    /// </summary>
+    public Task<StartGameResult> ClickButtonAsync(string buttonName, CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("clickButton", new { buttonName }, ct);
+
+    /// <summary>
+    /// Toggles a DINOForge UI panel. target="modmenu" (F10) or "debug" (F9).
+    /// </summary>
+    public Task<StartGameResult> ToggleUiAsync(string target = "modmenu", CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("toggleUi", new { target }, ct);
+
+    /// <summary>
+    /// Dumps active MonoBehaviours and their void() methods. filter narrows by type/GO name.
+    /// Uses the pressKey bridge endpoint (repurposed as scanScene).
+    /// </summary>
+    public Task<StartGameResult> ScanSceneAsync(string filter = "", CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("pressKey", new { filter }, ct);
+
+    /// <summary>
+    /// Invokes a void(0-param) method on any active MonoBehaviour matching target (type or GO name).
+    /// </summary>
+    public Task<StartGameResult> InvokeMethodAsync(string target, string method, CancellationToken ct = default) =>
+        SendRequestAsync<StartGameResult>("invokeMethod", new { target, method }, ct);
+
+    /// <inheritdoc />
     public Task<VerifyResult> VerifyModAsync(string packPath, CancellationToken ct = default) =>
         SendRequestAsync<VerifyResult>("verifyMod", new { packPath }, ct);
 
     /// <inheritdoc />
     public Task<ComponentMapResult> GetComponentMapAsync(string? sdkPath = null, CancellationToken ct = default) =>
         SendRequestAsync<ComponentMapResult>("getComponentMap", sdkPath != null ? new { sdkPath } : null, ct);
+
+    /// <summary>
+    /// Captures a live snapshot of the active Unity UI hierarchy.
+    /// </summary>
+    /// <param name="selector">Optional selector string for future filtering.</param>
+    /// <param name="ct">Cancellation token.</param>
+    public Task<UiTreeResult> GetUiTreeAsync(string? selector = null, CancellationToken ct = default) =>
+        SendRequestAsync<UiTreeResult>("getUiTree", selector != null ? new { selector } : null, ct);
+
+    /// <summary>
+    /// Queries the live Unity UI hierarchy using a simple selector grammar.
+    /// </summary>
+    public Task<UiActionResult> QueryUiAsync(string selector, CancellationToken ct = default) =>
+        SendRequestAsync<UiActionResult>("queryUi", new { selector }, ct);
+
+    /// <summary>
+    /// Clicks the first live Unity UI node matching the given selector.
+    /// </summary>
+    public Task<UiActionResult> ClickUiAsync(string selector, CancellationToken ct = default) =>
+        SendRequestAsync<UiActionResult>("clickUi", new { selector }, ct);
+
+    /// <summary>
+    /// Waits for a live Unity UI selector to reach the requested state.
+    /// </summary>
+    public Task<UiWaitResult> WaitForUiAsync(string selector, string? state = null, int? timeoutMs = null, CancellationToken ct = default) =>
+        SendRequestAsync<UiWaitResult>("waitForUi", new { selector, state, timeoutMs }, ct);
+
+    /// <summary>
+    /// Asserts a condition against the first node matching the given selector.
+    /// </summary>
+    public Task<UiExpectationResult> ExpectUiAsync(string selector, string condition, CancellationToken ct = default) =>
+        SendRequestAsync<UiExpectationResult>("expectUi", new { selector, condition }, ct);
 
     /// <summary>
     /// Sends a JSON-RPC request and returns the deserialized result.
