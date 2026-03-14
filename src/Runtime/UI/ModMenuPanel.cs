@@ -195,7 +195,7 @@ namespace DINOForge.Runtime.UI
             if (_canvasGroup == null || _panelRt == null) return;
 
             float target = _targetVisible ? 1f : 0f;
-            _animT = Mathf.MoveTowards(_animT, target, Time.deltaTime / AnimDuration);
+            _animT = Mathf.MoveTowards(_animT, target, Time.unscaledDeltaTime / AnimDuration);
 
             _canvasGroup.alpha = _animT;
 
@@ -494,10 +494,13 @@ namespace DINOForge.Runtime.UI
             _log?.LogInfo($"[ModMenuPanel.RebuildPackList] _listContent RectTransform: position={_listContent.anchoredPosition}, sizeDelta={_listContent.sizeDelta}");
             _log?.LogInfo($"[ModMenuPanel.RebuildPackList] Clearing {_listContent.childCount} existing items");
 
-            // Destroy existing items
+            // Remove existing items immediately from the layout tree to avoid
+            // same-frame duplicate entries when SetPacks triggers rapid rebuilds.
             for (int i = _listContent.childCount - 1; i >= 0; i--)
             {
-                Destroy(_listContent.GetChild(i).gameObject);
+                Transform child = _listContent.GetChild(i);
+                child.SetParent(null, false);
+                Destroy(child.gameObject);
             }
 
             _log?.LogInfo($"[ModMenuPanel.RebuildPackList] After clear: childCount={_listContent.childCount}. Now rendering {_presenter.Packs.Count} pack(s)...");

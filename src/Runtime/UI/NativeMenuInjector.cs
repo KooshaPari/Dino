@@ -43,6 +43,7 @@ namespace DINOForge.Runtime.UI
 
         /// <summary>Interval in seconds between injection re-scan attempts.</summary>
         private const float RescanInterval = 2f;
+        private const float ClickDebounceSeconds = 0.2f;
 
         private ManualLogSource? _log;
         private IModMenuHost? _menuHost;
@@ -50,6 +51,7 @@ namespace DINOForge.Runtime.UI
         private Button? _injectedButton;
         private bool _injected;
         private float _rescanTimer;
+        private float _lastClickTimeUnscaled = -10f;
 
         // ===== DIAGNOSTIC FIELDS =====
         private readonly string _sessionId = System.Guid.NewGuid().ToString().Substring(0, 8);
@@ -266,7 +268,7 @@ namespace DINOForge.Runtime.UI
                 {
                     for (int i = 0; i < parent.childCount; i++)
                     {
-                        if (parent.GetChild(i).name == "DINOForge_ModsButton")
+                        if (parent.GetChild(i).name.StartsWith("DINOForge_ModsButton", StringComparison.OrdinalIgnoreCase))
                         {
                             Button existing = parent.GetChild(i).GetComponent<Button>();
                             if (existing != null)
@@ -487,6 +489,14 @@ namespace DINOForge.Runtime.UI
                     LogWarning($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ⚠ menu host reference is NULL! Cannot toggle menu.");
                     return;
                 }
+
+                float now = Time.unscaledTime;
+                if (now - _lastClickTimeUnscaled < ClickDebounceSeconds)
+                {
+                    LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId} ignored by debounce window ({ClickDebounceSeconds:0.00}s).");
+                    return;
+                }
+                _lastClickTimeUnscaled = now;
 
                 LogInfo($"[NativeMenuInjector::{_sessionId}] Click#{clickId}   menuHost.IsVisible BEFORE toggle: {_menuHost.IsVisible}");
                 _menuHost.Toggle();

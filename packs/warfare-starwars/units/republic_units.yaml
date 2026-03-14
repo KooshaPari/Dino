@@ -28,6 +28,7 @@
       iron: 10
       gold: 8
       population: 1
+  visual_asset: sw-rep-clone-militia
 
 # 2. Line Infantry - Clone Trooper
 - id: rep_clone_trooper
@@ -56,6 +57,7 @@
       iron: 20
       gold: 12
       population: 1
+  visual_asset: sw-rep-clone-trooper
 
 # 3. Heavy Infantry - Clone Heavy
 - id: rep_clone_heavy
@@ -84,6 +86,7 @@
       iron: 35
       gold: 22
       population: 2
+  visual_asset: sw-rep-clone-heavy
 
 # 4. Ranged Infantry - Clone Sharpshooter
 - id: rep_clone_sharpshooter
@@ -112,6 +115,7 @@
       iron: 25
       gold: 18
       population: 1
+  visual_asset: sw-rep-clone-sharpshooter
 
 # 5. Cavalry - BARC Speeder
 - id: rep_barc_speeder
@@ -140,6 +144,7 @@
       iron: 50
       gold: 30
       population: 2
+  visual_asset: sw-rep-barc-speeder
 
 # 6. Siege - AT-TE Crew
 - id: rep_atte_crew
@@ -168,6 +173,7 @@
       iron: 100
       gold: 60
       population: 4
+  visual_asset: sw-rep-atte-crew
 
 # 7. Support - Clone Medic
 - id: rep_clone_medic
@@ -196,6 +202,7 @@
       iron: 15
       gold: 20
       population: 1
+  visual_asset: sw-rep-clone-medic
 
 # 8. Scout - ARF Trooper
 - id: rep_arf_trooper
@@ -224,6 +231,7 @@
       iron: 12
       gold: 10
       population: 1
+  visual_asset: sw-rep-arf-trooper
 
 # 9. Elite - ARC Trooper
 - id: rep_arc_trooper
@@ -252,6 +260,7 @@
       iron: 45
       gold: 45
       population: 2
+  visual_asset: sw-rep-arc-trooper
 
 # 10. Hero - Jedi Knight
 - id: rep_jedi_knight
@@ -280,6 +289,7 @@
       iron: 30
       gold: 100
       population: 3
+  visual_asset: sw-rep-jedi-knight
 
 # 11. Wall Defender - Clone Wall Guard
 - id: rep_clone_wall_guard
@@ -308,6 +318,7 @@
       iron: 30
       gold: 15
       population: 1
+  visual_asset: sw-rep-clone-wall-guard
 
 # 12. Skirmisher - Clone Sniper
 - id: rep_clone_sniper
@@ -336,6 +347,7 @@
       iron: 30
       gold: 35
       population: 1
+  visual_asset: sw-rep-clone-sniper
 
 # 13. Special - Clone Commando
 - id: rep_clone_commando
@@ -364,6 +376,7 @@
       iron: 60
       gold: 55
       population: 2
+  visual_asset: sw-rep-clone-commando
 
 # 14. Aerial Fighter - V-19 Torrent Starfighter
 - id: rep_v19_torrent
@@ -392,6 +405,7 @@
       iron: 40
       gold: 50
       population: 2
+  visual_asset: sw-rep-v19-torrent
   aerial:
     cruise_altitude: 20.0
     ascend_speed: 8.0

@@ -944,7 +944,7 @@ namespace DINOForge.Tools.PackCompiler
                 var importService = new AssetImportService();
                 int successCount = 0, failCount = 0;
 
-                var importedDir = Path.Combine(packPath, config.AssetSettings.ImportedPath);
+                var importedDir = Path.Combine(packPath, config.AssetSettings.BasePath, "imported");
                 Directory.CreateDirectory(importedDir);
 
                 foreach (var (phaseName, phase) in config.Phases)
