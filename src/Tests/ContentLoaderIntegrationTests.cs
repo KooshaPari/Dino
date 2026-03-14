@@ -47,7 +47,7 @@ namespace DINOForge.Tests
             result.IsSuccess.Should().BeTrue(
                 because: "the example-balance pack should load without errors. Errors: {0}",
                 string.Join("; ", result.Errors));
-            result.LoadedPacks.Should().Contain("example-balance-tweak");
+            result.LoadedPacks.Should().Contain("example-balance");
         }
 
         [Fact]
@@ -279,7 +279,7 @@ loads:
 
             ContentLoadResult result = _loader.LoadPack(examplePackDir);
 
-            result.LoadedPacks.Should().Contain("example-balance-tweak");
+            result.LoadedPacks.Should().Contain("example-balance");
             _loader.LoadedOverrides.Should().NotBeEmpty(
                 because: "the example-balance pack contains stats/melee-buff.yaml");
 

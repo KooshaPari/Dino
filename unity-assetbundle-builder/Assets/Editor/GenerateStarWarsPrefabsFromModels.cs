@@ -25,9 +25,9 @@ public static class GenerateStarWarsPrefabsFromModels
     {
         // ── Republic units ──────────────────────────────────────────────────────
         ("sw-rep-clone-trooper",   "Republic", RepublicWhite, RepublicBlue,  PrimitiveType.Capsule, "sw_clone_trooper_phase2"),
-        ("sw-rep-arc-trooper",     "Republic", RepublicBlue,  RepublicWhite, PrimitiveType.Capsule, "sw_arc_trooper"),
+        ("sw-rep-arc-trooper",     "Republic", RepublicBlue,  RepublicWhite, PrimitiveType.Capsule, "rep_arf_trooper"),
         ("sw-rep-clone-heavy",     "Republic", RepublicWhite, RepublicBlue,  PrimitiveType.Capsule, "rep_clone_heavy"),
-        ("sw-rep-clone-sniper",    "Republic", RepublicWhite, RepublicBlue,  PrimitiveType.Capsule, "rep_clone_sniper"),
+        ("sw-rep-clone-sniper",    "Republic", RepublicWhite, RepublicBlue,  PrimitiveType.Capsule, "rep_clone_sharpshooter"),
         ("sw-rep-clone-commander", "Republic", RepublicBlue,  RepublicWhite, PrimitiveType.Capsule, null),
         ("sw-rep-clone-pilot",     "Republic", RepublicWhite, RepublicBlue,  PrimitiveType.Capsule, null),
         ("sw-rep-clone-engineer",  "Republic", RepublicWhite, RepublicBlue,  PrimitiveType.Capsule, "rep_clone_engineer"),
@@ -53,7 +53,7 @@ public static class GenerateStarWarsPrefabsFromModels
         // ── CIS units ──────────────────────────────────────────────────────────
         ("sw-cis-b1-battle-droid", "CIS",      CisGrey,       CisDark,       PrimitiveType.Capsule, "cis_b1_battle_droid"),
         ("sw-cis-b2-super-droid",  "CIS",      CisDark,       CisGrey,       PrimitiveType.Capsule, "sw_b2_super_droid"),
-        ("sw-cis-droideka",        "CIS",      CisDark,       CisGrey,       PrimitiveType.Sphere,  "sw_droideka"),
+        ("sw-cis-droideka",        "CIS",      CisDark,       CisGrey,       PrimitiveType.Sphere,  "cis_droideka"),
         ("sw-cis-commando-droid",  "CIS",      CisGrey,       CisDark,       PrimitiveType.Capsule, "cis_bx_commando_droid"),
         ("sw-cis-magna-guard",     "CIS",      CisDark,       CisGrey,       PrimitiveType.Capsule, "cis_magnaguard"),
         ("sw-cis-grapple-droid",   "CIS",      CisGrey,       CisDark,       PrimitiveType.Capsule, null),

@@ -720,7 +720,7 @@ namespace DINOForge.Runtime
         {
             try
             {
-                string packsDir = _packsDirectory?.Value;
+                string? packsDir = _packsDirectory?.Value;
                 if (string.IsNullOrEmpty(packsDir)) return;
                 string filePath = Path.Combine(packsDir, DisabledPacksFile);
                 string json = JsonConvert.SerializeObject(_disabledPacks.ToList());
@@ -740,7 +740,7 @@ namespace DINOForge.Runtime
         {
             try
             {
-                string packsDir = _packsDirectory?.Value;
+                string? packsDir = _packsDirectory?.Value;
                 if (string.IsNullOrEmpty(packsDir)) return;
                 string filePath = Path.Combine(packsDir, DisabledPacksFile);
                 if (!File.Exists(filePath)) return;

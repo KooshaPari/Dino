@@ -205,7 +205,13 @@ namespace DINOForge.Runtime.UI
 
         private void RefreshContent()
         {
-            if (_contentRoot == null) return;
+            if (_contentRoot == null) 
+            {
+                Debug.LogWarning("[DebugPanel.RefreshContent] _contentRoot is NULL - cannot build content");
+                return;
+            }
+
+            Debug.Log($"[DebugPanel.RefreshContent] Building content. _modPlatform={(_modPlatform != null ? "SET" : "NULL")}, childCount before={_contentRoot.childCount}");
 
             // Destroy previous content
             for (int i = _contentRoot.childCount - 1; i >= 0; i--)

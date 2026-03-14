@@ -223,13 +223,13 @@ namespace DINOForge.Tools.PackCompiler.Services
         }
 
         private long _fileIdCounter = 100000;
-        
+
         private long GenerateFileID()
         {
             // Use deterministic IDs based on counter for reproducible builds
             return _fileIdCounter++;
         }
-        
+
         private string GenerateGUID() => Guid.NewGuid().ToString("N").Substring(0, 16);
         private string GenerateGUIDString() => Guid.NewGuid().ToString();
         private long GenerateMeshFileID(MeshData mesh) => mesh.VertexCount.GetHashCode();
