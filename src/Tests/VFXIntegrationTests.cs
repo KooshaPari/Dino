@@ -980,7 +980,7 @@ namespace DINOForge.Tests
                 ? "BlasterImpact_Rep"
                 : "BlasterImpact_CIS";
 
-            var instance = _poolManager.Get(prefabType);
+            var instance = _poolManager!.Get(prefabType);
 
             var color = evt.ProjectileFaction == Faction.Republic ? 0x4488FFu : 0xFF4400u;
 
@@ -995,7 +995,7 @@ namespace DINOForge.Tests
             };
         }
 
-        public SpawnedVFX GetLastSpawnedVFX() => _lastSpawnedVFX;
+        public SpawnedVFX GetLastSpawnedVFX() => _lastSpawnedVFX!;
     }
 
     /// <summary>
@@ -1023,7 +1023,7 @@ namespace DINOForge.Tests
                 : VFXEffectType.Explosion;
             var particleCount = evt.UnitFaction == Faction.Republic ? 80 : 150;
 
-            var instance = _poolManager.Get(prefabType);
+            var instance = _poolManager!.Get(prefabType);
 
             _lastSpawnedVFX = new SpawnedVFX
             {
@@ -1036,7 +1036,7 @@ namespace DINOForge.Tests
             };
         }
 
-        public SpawnedVFX GetLastSpawnedVFX() => _lastSpawnedVFX;
+        public SpawnedVFX GetLastSpawnedVFX() => _lastSpawnedVFX!;
     }
 
     /// <summary>
@@ -1055,7 +1055,7 @@ namespace DINOForge.Tests
         public void OnBuildingDestruction(BuildingDestructionEvent evt)
         {
             var prefabType = "GroundExplosion";
-            var instance = _poolManager.Get(prefabType);
+            var instance = _poolManager!.Get(prefabType);
 
             var scale = evt.BuildingSize switch
             {
@@ -1078,6 +1078,6 @@ namespace DINOForge.Tests
             };
         }
 
-        public SpawnedVFX GetLastSpawnedVFX() => _lastSpawnedVFX;
+        public SpawnedVFX GetLastSpawnedVFX() => _lastSpawnedVFX!;
     }
 }

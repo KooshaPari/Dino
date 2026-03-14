@@ -5,7 +5,25 @@ All notable changes to DINOForge will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.8.0] - 2026-03-13
+
+### Added
+
+- `warfare-airforce` content pack — 8 aerial units (4 Western Coalition + 4 Eastern Bloc: fighter jets, attack helicopters, strategic bombers, drones), 3 shared airbase buildings (airstrip, radar tower, AA battery), 8 weapons, 2 aerial doctrines, and 2 wave templates; depends on `warfare-modern`
+- Aviation content clarification: Star Wars aerial units (V-19 Torrent Starfighter, Tri-Fighter) confirmed embedded in `warfare-starwars` under `vanilla_mapping: aerial_fighter`; `warfare-airforce` provides the modern-era equivalent
+- Pack header comments added to `warfare-starwars/pack.yaml` documenting aerial unit locations
+- `BridgeRoundTripTests` — end-to-end bridge smoke test (499 lines, integration tests project)
+
+### Fixed
+
+- Bridge resource query returning 0 — corrected component path and entity filter
+- `VFXIntegrationTests` nullable reference warnings (CS8602/CS8603) — added `!` null-forgiving operators on `_poolManager` usages
+- CI: `ResourceReaderTests.cs` formatting standardised to pass pre-commit hooks
+- CI: CodeQL build now runs `restore` before build step; `gh-pages` deploy has `contents:write` permission
+
+### Tests
+
+- 916 unit tests passing
 
 ## [0.7.1] - 2026-03-14
 

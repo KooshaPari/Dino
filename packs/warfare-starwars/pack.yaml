@@ -1,5 +1,11 @@
 # Star Wars Warfare Pack
 # Republic vs CIS - Clone Wars themed total conversion
+#
+# AERIAL UNITS: This pack includes aerial units for both factions:
+#   Republic: rep_v19_torrent (V-19 Torrent Starfighter) — units/republic_units.yaml
+#   CIS:      cis_tri_fighter (Tri-Fighter)              — units/cis_units.yaml
+# Both use vanilla_mapping: aerial_fighter and unit_class: AirstrikeProxy.
+# Modern-era equivalent aerial units are in the warfare-airforce pack.
 
 id: warfare-starwars
 name: Star Wars - Clone Wars
