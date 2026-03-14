@@ -504,6 +504,7 @@ namespace DINOForge.Runtime
             // DFCanvas or the fallback menu host fails to initialise.
             if (Input.GetKeyDown(KeyCode.F9))
             {
+                _log.LogInfo("[RuntimeDriver] F9 pressed! _uguiReady=" + _uguiReady);
                 // Prefer UGUI DebugPanel when available; fall back to IMGUI overlay
                 if (_uguiReady && _dfCanvas != null)
                     _dfCanvas.ToggleDebug();
@@ -513,6 +514,7 @@ namespace DINOForge.Runtime
 
             if (Input.GetKeyDown(KeyCode.F10))
             {
+                _log.LogInfo("[RuntimeDriver] F10 pressed! _uguiReady=" + _uguiReady);
                 // Prefer the UGUI panel when available; fall back to the active menu host
                 if (_uguiReady && _dfCanvas != null)
                     _dfCanvas.ToggleModMenu();

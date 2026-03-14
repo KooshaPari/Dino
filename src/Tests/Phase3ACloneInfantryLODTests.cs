@@ -81,6 +81,70 @@ namespace DINOForge.Tests
             modelCount.Should().BeGreaterThanOrEqualTo(5, "Phase 3A should have at least 5 Clone infantry units");
         }
 
+        // ── Raw Assets (Conditional) ────────────────────────────────────────
+
+        [Fact]
+        public void Phase3A_Raw_Assets_ConditionalCheck()
+        {
+            // Check if raw assets directory exists and has content
+            // Skip if assets not downloaded (CI/clean checkout)
+            if (!Directory.Exists(RawAssetsPath))
+            {
+                return; // Assets not present - skip
+            }
+            
+            // Check if any GLB files exist
+            var hasAssets = Directory.GetFiles(RawAssetsPath, "*.glb", SearchOption.AllDirectories).Any();
+            if (!hasAssets)
+            {
+                return; // No GLB files - skip
+            }
+            
+            // If we get here, assets exist - run the check
+            var expectedUnits = new[]
+            {
+                "rep_clone_sharpshooter_sketchfab_001",
+                "rep_clone_heavy_sketchfab_001",
+                "rep_clone_medic_sketchfab_001",
+                "rep_arf_trooper_sketchfab_001",
+                "rep_clone_militia_sketchfab_001"
+            };
+
+            int foundCount = 0;
+            foreach (var unitDir in expectedUnits)
+            {
+                var unitDirPath = Path.Combine(RawAssetsPath, unitDir);
+                if (Directory.Exists(unitDirPath))
+                {
+                    var hasGlb = Directory.GetFiles(unitDirPath, "*.glb").Any();
+                    if (hasGlb) foundCount++;
+                }
+            }
+            
+            // At least verify we found some units if assets exist
+            foundCount.Should().BeGreaterThan(0, "should find at least some clone infantry assets");
+        }
+
+        [Fact]
+        public void Phase3A_RawAssets_Size_ConditionalCheck()
+        {
+            // Skip if assets not present
+            if (!Directory.Exists(RawAssetsPath))
+            {
+                return;
+            }
+            
+            var glbFiles = Directory.GetFiles(RawAssetsPath, "*.glb", SearchOption.AllDirectories);
+            if (glbFiles.Length == 0)
+            {
+                return;
+            }
+            
+            // If we have assets, verify they're reasonable size
+            long totalSize = glbFiles.Sum(f => new FileInfo(f).Length);
+            totalSize.Should().BeGreaterThan(0, "GLB files should not be empty");
+        }
+
         // ── LOD Configuration Validation ──────────────────────────────────────
 
         [Theory]

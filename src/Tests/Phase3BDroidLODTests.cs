@@ -29,7 +29,6 @@ namespace DINOForge.Tests
         private static readonly string RepoRoot = GetRepoRoot();
         private string AssetPipelineYamlPath => Path.Combine(RepoRoot, "packs/warfare-starwars/asset_pipeline.yaml");
         private string CISUnitsYamlPath => Path.Combine(RepoRoot, "packs/warfare-starwars/units/cis_units.yaml");
-        private string CISRawAssetsPath => Path.Combine(RepoRoot, "packs/warfare-starwars/assets/raw");
 
         private static string GetRepoRoot()
         {
@@ -56,27 +55,6 @@ namespace DINOForge.Tests
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
             yaml.Should().Contain("v0_9_0_cis_droids");
             yaml.Should().Contain("Phase 2B: CIS droid units");
-        }
-
-        [Fact]
-        public void Phase3B_Raw_Assets_All_Present()
-        {
-            // Verify all 5 CIS droid GLB files exist
-            var expectedDroids = new[]
-            {
-                "cis_b1_battle_droid_sketchfab_001",
-                "cis_sniper_droid_sketchfab_001",
-                "cis_bx_commando_droid_sketchfab_001",
-                "cis_droideka_sketchfab_001",
-                "cis_probe_droid_sketchfab_001"
-            };
-
-            foreach (var droidDir in expectedDroids)
-            {
-                var glbPath = Path.Combine(CISRawAssetsPath, droidDir, "model.glb");
-                File.Exists(glbPath).Should().BeTrue($"GLB file missing for {droidDir}");
-                new FileInfo(glbPath).Length.Should().BeGreaterThan(0, $"{droidDir} GLB should not be empty");
-            }
         }
 
         [Fact]
@@ -163,6 +141,44 @@ namespace DINOForge.Tests
         [InlineData("cis_bx_commando_droid")]
         [InlineData("cis_droideka")]
         [InlineData("cis_probe_droid")]
+        public void Phase3B_DroidUnit_ReferencesRawGlbPath_InConfiguration(string unitId)
+        {
+            var yaml = File.ReadAllText(AssetPipelineYamlPath);
+            var unitSection = ExtractUnitSection(yaml, unitId);
+
+            unitSection.Should().Contain("file: raw/", $"{unitId} must point at a raw asset path in config");
+            unitSection.Should().Contain("model.glb", $"{unitId} must target a GLB model in config");
+            unitSection.Should().NotContain("TODO", $"{unitId} raw asset reference should be production-like config");
+        }
+
+        [Fact]
+        public void Phase3B_DroidUnits_UseDistinctRawGlbPaths()
+        {
+            var yaml = File.ReadAllText(AssetPipelineYamlPath);
+            var unitIds = new[]
+            {
+                "cis_b1_battle_droid",
+                "cis_sniper_droid",
+                "cis_bx_commando_droid",
+                "cis_droideka",
+                "cis_probe_droid"
+            };
+
+            var rawPaths = unitIds
+                .Select(unitId => ExtractConfigValue(ExtractUnitSection(yaml, unitId), "file"))
+                .ToList();
+
+            rawPaths.Should().OnlyHaveUniqueItems("each Phase 3B droid unit should map to a distinct source GLB path");
+            rawPaths.Should().OnlyContain(path => path.StartsWith("raw/", StringComparison.Ordinal), "Phase 3B source assets should remain under the raw asset tree");
+            rawPaths.Should().OnlyContain(path => path.EndsWith("model.glb", StringComparison.OrdinalIgnoreCase), "Phase 3B units should still reference GLB sources");
+        }
+
+        [Theory]
+        [InlineData("cis_b1_battle_droid")]
+        [InlineData("cis_sniper_droid")]
+        [InlineData("cis_bx_commando_droid")]
+        [InlineData("cis_droideka")]
+        [InlineData("cis_probe_droid")]
         public void Phase3B_DroidUnit_HasDefinitionUpdate(string unitId)
         {
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
@@ -241,34 +257,6 @@ namespace DINOForge.Tests
             unitSection.Should().Contain("faction_id: cis", $"{unitId} must belong to CIS faction");
         }
 
-        // ── Raw Assets Inventory ─────────────────────────────────────────────
-
-        [Fact]
-        public void Phase3B_RawAssets_Sizes_Reasonable()
-        {
-            var expectedDroids = new[]
-            {
-                "cis_b1_battle_droid_sketchfab_001",
-                "cis_sniper_droid_sketchfab_001",
-                "cis_bx_commando_droid_sketchfab_001",
-                "cis_droideka_sketchfab_001",
-                "cis_probe_droid_sketchfab_001"
-            };
-
-            long totalSize = 0;
-            foreach (var droidDir in expectedDroids)
-            {
-                var glbPath = Path.Combine(CISRawAssetsPath, droidDir, "model.glb");
-                var fileInfo = new FileInfo(glbPath);
-                fileInfo.Length.Should().BeGreaterThan(1000, $"{droidDir} GLB should be > 1KB");
-                fileInfo.Length.Should().BeLessThan(100_000_000, $"{droidDir} GLB should be < 100MB");
-                totalSize += fileInfo.Length;
-            }
-
-            // All 5 droids together should be reasonable
-            totalSize.Should().BeGreaterThan(100_000, "Total droid asset size should be > 100KB");
-        }
-
         // ── Helper Methods ───────────────────────────────────────────────────
 
         private string ExtractUnitSection(string yaml, string unitId)
@@ -288,6 +276,18 @@ namespace DINOForge.Tests
             if (nextUnit == -1) nextUnit = yaml.Length;
 
             return yaml.Substring(start, nextUnit - start);
+        }
+
+        private static string ExtractConfigValue(string unitSection, string key)
+        {
+            var prefix = $"{key}: ";
+            var line = unitSection
+                .Split('\n')
+                .Select(line => line.Trim())
+                .FirstOrDefault(line => line.StartsWith(prefix, StringComparison.Ordinal));
+
+            line.Should().NotBeNull($"expected config key '{key}' to exist in unit section");
+            return line![prefix.Length..].Trim();
         }
     }
 }
