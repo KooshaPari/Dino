@@ -643,11 +643,21 @@ namespace DINOForge.Runtime
 
                 _modMenuHost.SetPacks(packInfos);
 
-                // Set status message
-                string statusMsg = result.IsSuccess
-                    ? $"All {result.LoadedPacks.Count} pack(s) loaded OK"
-                    : $"{result.LoadedPacks.Count} loaded, {result.Errors.Count} error(s)";
+                // Set status message — include first error detail so it's visible without logs.
+                string statusMsg;
+                if (result.IsSuccess)
+                {
+                    statusMsg = $"All {result.LoadedPacks.Count} pack(s) loaded OK";
+                }
+                else
+                {
+                    string detail = result.Errors.Count > 0 ? $": {result.Errors[0]}" : string.Empty;
+                    statusMsg = $"{result.LoadedPacks.Count} loaded, {result.Errors.Count} error(s){detail}";
+                }
                 _modMenuHost.SetStatus(statusMsg, result.Errors.Count);
+
+                // Sync HUD strip / IMGUI indicator pack count.
+                OnHudCountsChanged?.Invoke(result.LoadedPacks.Count, result.Errors.Count);
             }
             catch (Exception ex)
             {

@@ -437,6 +437,13 @@ namespace DINOForge.Runtime
                     _modMenuHost.OnReloadRequested += () => _hudIndicator?.ShowToast("Packs reloaded");
                 }
 
+                // Wire HudIndicator so IMGUI counter also receives pack counts on every load/reload.
+                if (_modPlatform != null)
+                {
+                    HudIndicator hud = _hudIndicator;
+                    _modPlatform.OnHudCountsChanged = (p, e) => hud.UpdateCounts(p, e);
+                }
+
                 _log.LogInfo("[RuntimeDriver] IMGUI fallback — Added HudIndicator.");
             }
             catch (Exception ex)
@@ -484,6 +491,13 @@ namespace DINOForge.Runtime
 
                 _modMenuHost = _dfCanvas.ModMenuPanel;
                 _modSettingsHost = settingsHost;
+
+                // Wire HudStrip so it receives pack counts on every load/reload.
+                if (_dfCanvas.HudStrip != null)
+                {
+                    UI.HudStrip hudStrip = _dfCanvas.HudStrip;
+                    _modPlatform.OnHudCountsChanged = (p, e) => hudStrip.SetStatus(p, e);
+                }
 
                 _log.LogInfo("[RuntimeDriver] UGUI wired to ModPlatform via IModMenuHost.");
             }

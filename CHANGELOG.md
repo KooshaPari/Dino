@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `AssetSwapRequest.VanillaMapping` — optional field passed from `UnitDefinition.VanillaMapping` so `AssetSwapSystem` can narrow entity targeting to the correct ECS archetype during live RenderMesh swap
 - `AssetSwapSystem` improvements — expanded entity query and swap logic using `VanillaMapping` for precision targeting
+- `ModPlatform` status message now surfaces first error detail for faster in-game debugging
+- `Plugin.cs` wires `HudIndicator` to receive pack counts on every load/reload via `OnHudCountsChanged`
 
 ## [0.10.0] - 2026-03-14
 
