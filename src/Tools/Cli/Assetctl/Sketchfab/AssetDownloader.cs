@@ -254,18 +254,18 @@ public sealed class AssetDownloader
                 {
                     continue;
                 }
-                
+
                 // Accept models with null polycount (API doesn't always provide this)
                 if (criteria.MaxPolyCount.HasValue && polyCount.HasValue && polyCount > criteria.MaxPolyCount)
 
-                if (criteria.MaxDaysOld.HasValue && model.PublishedAt.HasValue)
-                {
-                    var age = (DateTime.UtcNow - model.PublishedAt.Value).Days;
-                    if (age > criteria.MaxDaysOld.Value)
+                    if (criteria.MaxDaysOld.HasValue && model.PublishedAt.HasValue)
                     {
-                        continue;
+                        var age = (DateTime.UtcNow - model.PublishedAt.Value).Days;
+                        if (age > criteria.MaxDaysOld.Value)
+                        {
+                            continue;
+                        }
                     }
-                }
 
                 var candidate = ConvertToAssetCandidate(model);
                 candidate.ConfidenceScore = CalculateConfidenceScore(model, criteria, maxPolyCount);
