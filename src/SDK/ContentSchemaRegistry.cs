@@ -22,8 +22,10 @@ namespace DINOForge.SDK
                 { "faction_patches", "faction-patch" }
             };
 
+        /// <inheritdoc />
         public IReadOnlyCollection<string> ContentTypes => SchemaNames.Keys.ToList();
 
+        /// <inheritdoc />
         public bool TryResolveSchemaName(string contentType, out string schemaName)
         {
             if (SchemaNames.TryGetValue(contentType, out string? resolved))

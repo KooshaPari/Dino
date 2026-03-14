@@ -61,7 +61,6 @@ namespace DINOForge.SDK.Registry
         /// <inheritdoc />
         public void Override(string id, T entry, RegistrySource source, string sourcePackId, int loadOrder = 100)
         {
-            Console.WriteLine($"[Registry] Override: id={id} source={source} pack={sourcePackId}");
             Register(id, entry, source, sourcePackId, loadOrder);
         }
 

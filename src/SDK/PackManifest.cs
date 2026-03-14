@@ -5,11 +5,8 @@ namespace DINOForge.SDK
 {
     /// <summary>
     /// Strongly-typed representation of a DINOForge pack manifest (pack.yaml).
-    /// Corresponds to schemas/pack-manifest.schema.yaml.
-    /// </summary>
-    /// <summary>
-    /// Strongly-typed representation of a DINOForge pack manifest (pack.yaml).
     /// Contains metadata about a content pack, including dependencies and version constraints.
+    /// Corresponds to schemas/pack-manifest.schema.yaml.
     /// </summary>
     public class PackManifest
     {

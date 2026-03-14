@@ -140,7 +140,7 @@ namespace DINOForge.Tools.PackCompiler
 
             // Thunderstore command
             var thunderstorePackDirArg = new Argument<string>("pack-path") { Description = "Path to the pack directory containing pack.yaml" };
-            var authorOption = new Option<string?>("--author") { Description = "Thunderstore author name (default: KooshaPari)" };
+            var authorOption = new Option<string?>("--author") { Description = "Thunderstore author name (default: from DINOForge config or 'DINOForge')" };
             var thunderstoreOutputOption = new Option<string?>("--output", "-o") { Description = "Output directory (defaults to pack-path)" };
             var thunderstoreCommand = new Command("thunderstore") { Description = "Generate Thunderstore-compatible manifest.json from a DINOForge pack" };
             thunderstoreCommand.Arguments.Add(thunderstorePackDirArg);
@@ -149,7 +149,7 @@ namespace DINOForge.Tools.PackCompiler
             thunderstoreCommand.SetAction(parseResult =>
             {
                 string packPath = parseResult.GetValue(thunderstorePackDirArg)!;
-                string author = parseResult.GetValue(authorOption) ?? "KooshaPari";
+                string author = parseResult.GetValue(authorOption) ?? GetDefaultAuthor();
                 string? outputDir = parseResult.GetValue(thunderstoreOutputOption);
                 GenerateThunderstoreManifest(packPath, author, outputDir ?? "");
             });
@@ -391,7 +391,7 @@ namespace DINOForge.Tools.PackCompiler
                 CopyDirectory(packPath, finalOutputDir);
 
                 if (!jsonMode) AnsiConsole.MarkupLine("[yellow]Generating Thunderstore manifest...[/]");
-                GenerateThunderstoreManifest(packPath, "KooshaPari", finalOutputDir);
+                GenerateThunderstoreManifest(packPath, GetDefaultAuthor(), finalOutputDir);
 
                 // Compute output size
                 long outputSize = Directory.GetFiles(finalOutputDir, "*", SearchOption.AllDirectories)
@@ -460,7 +460,7 @@ namespace DINOForge.Tools.PackCompiler
                 {
                     name = tsName,
                     version_number = manifest.Version,
-                    website_url = "https://github.com/KooshaPari/Dino",
+                    website_url = GetDefaultWebsiteUrl(),
                     description = description,
                     dependencies = dependencies
                 };
@@ -1323,6 +1323,16 @@ namespace DINOForge.Tools.PackCompiler
                 AnsiConsole.MarkupLine($"[bold red]Build failed:[/] {ex.Message}");
                 Environment.Exit(1);
             }
+        }
+
+        private static string GetDefaultAuthor()
+        {
+            return Environment.GetEnvironmentVariable("DINOFORGE_AUTHOR") ?? "DINOForge";
+        }
+
+        private static string GetDefaultWebsiteUrl()
+        {
+            return Environment.GetEnvironmentVariable("DINOFORGE_WEBSITE_URL") ?? "https://github.com/DINOForge/DINOForge";
         }
     }
 }

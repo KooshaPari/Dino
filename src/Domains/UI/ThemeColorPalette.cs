@@ -4,11 +4,13 @@ using System.Linq;
 
 namespace DINOForge.Domains.UI
 {
+    // Alias to fix naming conflict
+    using ThemeColor = ThemeThemeColor;
     /// <summary>
     /// Represents a faction-specific color palette with WCAG AA compliance validation.
     /// Supports 12+ colors per faction (primary, secondary, accent, text, background, etc.)
     /// </summary>
-    public class ThemeColorPalette
+    public class ThemeThemeColorPalette
     {
         /// <summary>
         /// Unique identifier for this palette (e.g., "republic", "cis").
@@ -28,69 +30,69 @@ namespace DINOForge.Domains.UI
         /// <summary>
         /// Primary color (button backgrounds, key UI elements).
         /// </summary>
-        public Color? Primary { get; set; }
+        public ThemeColor? Primary { get; set; }
 
         /// <summary>
         /// Secondary color (accent borders, hover states).
         /// </summary>
-        public Color? Secondary { get; set; }
+        public ThemeColor? Secondary { get; set; }
 
         /// <summary>
         /// Accent color (highlights, special states).
         /// </summary>
-        public Color? Accent { get; set; }
+        public ThemeColor? Accent { get; set; }
 
         /// <summary>
         /// Text color (body text, labels).
         /// </summary>
-        public Color? Text { get; set; }
+        public ThemeColor? Text { get; set; }
 
         /// <summary>
         /// Background color (panels, windows).
         /// </summary>
-        public Color? Background { get; set; }
+        public ThemeColor? Background { get; set; }
 
         /// <summary>
         /// Success state color (green/positive).
         /// </summary>
-        public Color? Success { get; set; }
+        public ThemeColor? Success { get; set; }
 
         /// <summary>
         /// Warning state color (yellow/caution).
         /// </summary>
-        public Color? Warning { get; set; }
+        public ThemeColor? Warning { get; set; }
 
         /// <summary>
         /// Danger state color (red/critical).
         /// </summary>
-        public Color? Danger { get; set; }
+        public ThemeColor? Danger { get; set; }
 
         /// <summary>
         /// Hover/highlighted state color.
         /// </summary>
-        public Color? Hover { get; set; }
+        public ThemeColor? Hover { get; set; }
 
         /// <summary>
         /// Disabled/inactive state color.
         /// </summary>
-        public Color? Disabled { get; set; }
+        public ThemeColor? Disabled { get; set; }
 
         /// <summary>
         /// Neutral/muted state color.
         /// </summary>
-        public Color? Neutral { get; set; }
+        public ThemeColor? Neutral { get; set; }
 
         /// <summary>
         /// Button border color.
         /// </summary>
-        public Color? ButtonBorder { get; set; }
+        public ThemeColor? ButtonBorder { get; set; }
 
         /// <summary>
         /// Gets a color by type name.
         /// </summary>
-        /// <param name="colorType">Color type key (e.g., "primary", "secondary", "text").</param>
+        /// <param name="colorType">ThemeColor type key (e.g., "primary", "secondary", "text").</param>
         /// <returns>The requested color, or default if not found.</returns>
-        public Color? GetColor(string colorType)
+        public ThemeColor? GetThemeColor(string colorType)
         {
             return colorType.ToLowerInvariant() switch
             {
@@ -137,7 +139,7 @@ namespace DINOForge.Domains.UI
             return errors.AsReadOnly();
         }
 
-        private static void ValidateTextContrast(List<string> errors, Color text, Color background, string label)
+        private static void ValidateTextContrast(List<string> errors, ThemeColor text, ThemeColor background, string label)
         {
             double ratio = CalculateContrastRatio(text, background);
             if (ratio < 4.5)
@@ -152,7 +154,7 @@ namespace DINOForge.Domains.UI
         /// <param name="color1">First color.</param>
         /// <param name="color2">Second color.</param>
         /// <returns>Contrast ratio (1.0 = same, 21.0 = maximum).</returns>
-        public static double CalculateContrastRatio(Color color1, Color color2)
+        public static double CalculateContrastRatio(ThemeColor color1, ThemeColor color2)
         {
             double l1 = GetRelativeLuminance(color1);
             double l2 = GetRelativeLuminance(color2);
@@ -166,7 +168,7 @@ namespace DINOForge.Domains.UI
         /// <summary>
         /// Gets the relative luminance of a color (WCAG formula).
         /// </summary>
-        private static double GetRelativeLuminance(Color color)
+        private static double GetRelativeLuminance(ThemeColor color)
         {
             double r = Linearize(color.R / 255.0);
             double g = Linearize(color.G / 255.0);
@@ -182,9 +184,10 @@ namespace DINOForge.Domains.UI
     }
 
     /// <summary>
-    /// Simple RGB color representation.
+    /// Simple RGB color representation for themes.
+    /// Renamed to avoid conflict with UnityEngine.ThemeColor.
     /// </summary>
-    public class Color
+    public class ThemeThemeColor
     {
         public byte R { get; set; }
         public byte G { get; set; }
@@ -192,11 +195,11 @@ namespace DINOForge.Domains.UI
         public byte A { get; set; } = 255;
 
         /// <summary>
-        /// Parses a hex color string (e.g., "#1A3A6B") to Color.
+        /// Parses a hex color string (e.g., "#1A3A6B") to ThemeThemeColor.
         /// </summary>
         /// <param name="hex">Hex color string (#RRGGBB or #RRGGBBAA).</param>
-        /// <returns>Parsed Color.</returns>
-        public static Color FromHex(string hex)
+        /// <returns>Parsed ThemeThemeColor.</returns>
+        public static ThemeThemeColor FromHex(string hex)
         {
             if (string.IsNullOrWhiteSpace(hex) || !hex.StartsWith("#"))
                 throw new ArgumentException("Hex color must start with #", nameof(hex));
@@ -214,7 +217,7 @@ namespace DINOForge.Domains.UI
             if (hex.Length == 8)
                 a = byte.Parse(hex.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
 
-            return new Color { R = r, G = g, B = b, A = a };
+            return new ThemeColor { R = r, G = g, B = b, A = a };
         }
 
         /// <summary>
@@ -229,9 +232,9 @@ namespace DINOForge.Domains.UI
         /// Creates a brighter variant of this color (for hover states).
         /// </summary>
         /// <param name="factor">Brightness factor (1.0 = no change, 1.2 = 20% brighter).</param>
-        public Color Brighten(double factor = 1.2)
+        public ThemeColor Brighten(double factor = 1.2)
         {
-            return new Color
+            return new ThemeColor
             {
                 R = (byte)Math.Min(255, (int)(R * factor)),
                 G = (byte)Math.Min(255, (int)(G * factor)),
@@ -244,9 +247,9 @@ namespace DINOForge.Domains.UI
         /// Creates a darker variant of this color (for pressed states).
         /// </summary>
         /// <param name="factor">Darkness factor (1.0 = no change, 0.8 = 20% darker).</param>
-        public Color Darken(double factor = 0.8)
+        public ThemeColor Darken(double factor = 0.8)
         {
-            return new Color
+            return new ThemeColor
             {
                 R = (byte)(R * factor),
                 G = (byte)(G * factor),

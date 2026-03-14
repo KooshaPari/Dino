@@ -1,7 +1,7 @@
 # Example Balance Pack
 # Demonstrates a content pack with units, buildings, and a faction
 
-id: example-balance-tweak
+id: example-balance
 name: Example Balance Tweak
 version: 0.1.0
 framework_version: ">=0.1.0 <1.0.0"

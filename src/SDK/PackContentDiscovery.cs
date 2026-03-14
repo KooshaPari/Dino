@@ -11,20 +11,29 @@ namespace DINOForge.SDK
     {
         private readonly IFileDiscoveryService _fileDiscovery;
 
+        /// <summary>
+        /// Creates a new ContentDiscoveryService with default FileDiscoveryService.
+        /// </summary>
         public ContentDiscoveryService() : this(new FileDiscoveryService())
         {
         }
 
+        /// <summary>
+        /// Creates a new ContentDiscoveryService with the specified FileDiscoveryService.
+        /// </summary>
+        /// <param name="fileDiscovery">The file discovery service to use.</param>
         public ContentDiscoveryService(IFileDiscoveryService fileDiscovery)
         {
             _fileDiscovery = fileDiscovery ?? throw new ArgumentNullException(nameof(fileDiscovery));
         }
 
+        /// <inheritdoc />
         public IReadOnlyList<string> DiscoverPackDirectories(string packsRootDirectory)
         {
             return _fileDiscovery.DiscoverPackDirectories(packsRootDirectory);
         }
 
+        /// <inheritdoc />
         public IReadOnlyList<string> DiscoverYamlFiles(
             string packDirectory,
             string contentType,
