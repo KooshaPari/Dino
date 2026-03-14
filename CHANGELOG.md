@@ -5,6 +5,8 @@ All notable changes to DINOForge will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
 ## [0.8.0] - 2026-03-13
 
 ### Added
@@ -20,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `VFXIntegrationTests` nullable reference warnings (CS8602/CS8603) — added `!` null-forgiving operators on `_poolManager` usages
 - CI: `ResourceReaderTests.cs` formatting standardised to pass pre-commit hooks
 - CI: CodeQL build now runs `restore` before build step; `gh-pages` deploy has `contents:write` permission
+- CI: CodeQL build now passes `/p:BuildProjectReferences=true` to fix domain DLL ordering
 
 ### Tests
 
