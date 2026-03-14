@@ -40,8 +40,8 @@ build:
         [Fact]
         public void DeserializeActualFile()
         {
-            // Test runs from project root
-            string configPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "packs", "warfare-starwars", "asset_pipeline.yaml");
+            // Navigate from bin/Release/net9.0/ to repo root (6 levels up)
+            string configPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "packs", "warfare-starwars", "asset_pipeline.yaml");
             configPath = Path.GetFullPath(configPath);
             Assert.True(File.Exists(configPath), $"File not found: {configPath}");
 
