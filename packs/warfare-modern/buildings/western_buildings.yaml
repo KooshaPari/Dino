@@ -1,0 +1,162 @@
+# Western Coalition Buildings
+
+- id: wc_command_center
+  display_name: Command Center
+  description: Central tactical operations hub coordinating all Western forces in the sector.
+  building_type: command
+  health: 2000
+  cost:
+    food: 0
+    wood: 70
+    stone: 120
+    iron: 100
+    gold: 60
+    population: 0
+  production: {}
+  visual_asset: mod-wc-command-center
+
+- id: wc_command_post
+  display_name: Command Post
+  description: Field command post deploying infantry units and coordinating ground operations.
+  building_type: barracks
+  health: 1200
+  cost:
+    food: 0
+    wood: 50
+    stone: 70
+    iron: 40
+    gold: 20
+    population: 0
+  production:
+    wc_rifleman: 2
+    wc_squad_leader: 1
+  visual_asset: mod-wc-command-post
+
+- id: wc_vehicle_depot
+  display_name: Vehicle Depot
+  description: Motor pool for tanks and armored vehicles. Produces heavy combat equipment.
+  building_type: barracks
+  health: 1100
+  cost:
+    food: 0
+    wood: 45
+    stone: 60
+    iron: 100
+    gold: 45
+    population: 0
+  production:
+    wc_tank_crew: 1
+  visual_asset: mod-wc-vehicle-depot
+
+- id: wc_airfield
+  display_name: Airfield
+  description: Military airfield for helicopter and aircraft operations. Provides air support and strike capability.
+  building_type: barracks
+  health: 1000
+  cost:
+    food: 0
+    wood: 40
+    stone: 50
+    iron: 80
+    gold: 50
+    population: 0
+  production:
+    wc_helicopter_crew: 1
+  visual_asset: mod-wc-airfield
+
+- id: wc_field_hospital
+  display_name: Field Hospital
+  description: Medical facility treating casualties and maintaining troop health. Increases combat effectiveness.
+  building_type: barracks
+  health: 900
+  cost:
+    food: 0
+    wood: 60
+    stone: 50
+    iron: 30
+    gold: 35
+    population: 0
+  production:
+    wc_medic: 1
+  visual_asset: mod-wc-field-hospital
+
+- id: wc_supply_depot
+  display_name: Supply Depot
+  description: Logistics center providing steady resource income and supply management.
+  building_type: economy
+  health: 800
+  cost:
+    food: 0
+    wood: 45
+    stone: 35
+    iron: 25
+    gold: 15
+    population: 0
+  production:
+    food: 6
+    iron: 3
+  visual_asset: mod-wc-supply-depot
+
+- id: wc_radar_station
+  display_name: Radar Station
+  description: Early warning radar system detecting enemy movements and providing targeting information.
+  building_type: defense
+  health: 700
+  cost:
+    food: 0
+    wood: 35
+    stone: 45
+    iron: 50
+    gold: 40
+    population: 0
+  production: {}
+  defense_tags: [AntiAir]
+  anti_air:
+    range: 45.0
+    damage_bonus: 1.3
+  visual_asset: mod-wc-radar-station
+
+- id: wc_fortified_bunker
+  display_name: Fortified Bunker
+  description: Heavily reinforced defensive bunker with hardened firing positions and deep shelters.
+  building_type: defense
+  health: 1600
+  cost:
+    food: 0
+    wood: 20
+    stone: 80
+    iron: 70
+    gold: 40
+    population: 0
+  production: {}
+  visual_asset: mod-wc-fortified-bunker
+
+- id: wc_tech_center
+  display_name: Technology Center
+  description: Research and development facility unlocking advanced military technologies and equipment upgrades.
+  building_type: research
+  health: 900
+  cost:
+    food: 0
+    wood: 50
+    stone: 70
+    iron: 60
+    gold: 50
+    population: 0
+  production: {}
+  visual_asset: mod-wc-tech-center
+
+- id: wc_concrete_barrier
+  display_name: Concrete Barrier
+  description: Reinforced concrete wall segment for perimeter defense and fortification.
+  building_type: defense
+  health: 1400
+  cost:
+    food: 0
+    wood: 10
+    stone: 60
+    iron: 35
+    gold: 15
+    population: 0
+  production: {}
+  visual_asset: mod-wc-concrete-barrier

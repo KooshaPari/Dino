@@ -127,7 +127,26 @@ namespace DINOForge.Tools.PackCompiler
                             continue;
                         }
 
-                        var optimized = await optimizeService.OptimizeAsync(imported, new List<int> { 50, 25 });
+                        // Build a default AssetDefinition for legacy optimize path
+                        var defaultDef = new AssetDefinition
+                        {
+                            Id = imported.AssetId,
+                            File = imported.SourcePath,
+                            Type = "unit",
+                            Faction = "unknown",
+                            PolyCountTarget = imported.Mesh.TriangleCount,
+                            Scale = 1.0f,
+                            LOD = new LODDefinition
+                            {
+                                Enabled = true,
+                                Levels = new List<int> { 100, 60, 30 },
+                                ScreenSizes = new List<int> { 100, 50, 20 }
+                            },
+                            Material = "default",
+                            AddressableKey = imported.AssetId,
+                            OutputPrefab = $"prefabs/{imported.AssetId}.prefab"
+                        };
+                        var optimized = await optimizeService.OptimizeAsync(imported, defaultDef);
                         var outputPath = Path.Combine(optimizedDir, $"{imported.AssetId}_optimized.json");
                         var json = System.Text.Json.JsonSerializer.Serialize(optimized, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
                         File.WriteAllText(outputPath, json);
@@ -172,7 +191,26 @@ namespace DINOForge.Tools.PackCompiler
                         }
 
                         var prefabPath = Path.Combine(prefabDir, $"{optimized.AssetId}.prefab");
-                        await prefabService.GeneratePrefabAsync(optimized, prefabPath);
+                        // Build a minimal AssetDefinition for prefab generation
+                        var prefabDef = new AssetDefinition
+                        {
+                            Id = optimized.AssetId,
+                            File = string.Empty,
+                            Type = "unit",
+                            Faction = "unknown",
+                            PolyCountTarget = optimized.LOD0.TriangleCount,
+                            Scale = 1.0f,
+                            LOD = new LODDefinition
+                            {
+                                Enabled = true,
+                                Levels = new List<int> { 100, 60, 30 },
+                                ScreenSizes = new List<int> { 100, 50, 20 }
+                            },
+                            Material = "default",
+                            AddressableKey = optimized.AssetId,
+                            OutputPrefab = $"prefabs/{optimized.AssetId}.prefab"
+                        };
+                        await prefabService.GeneratePrefabAsync(optimized, prefabDef, prefabPath);
 
                         logWriter.WriteLine($"  OK: {optimized.AssetId} → {Path.GetFileName(prefabPath)}");
                         prefabSuccess++;

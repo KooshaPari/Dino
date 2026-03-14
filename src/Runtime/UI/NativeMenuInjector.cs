@@ -415,24 +415,18 @@ namespace DINOForge.Runtime.UI
                     {
                         LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.2] EventSystem found, getting current selection...");
                         GameObject? currentSelected = es.currentSelectedGameObject;
-                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.3] BEFORE: current selection = {currentSelected?.name ?? "NULL"}");
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.3] Current selection = {currentSelected?.name ?? "NULL"}");
 
-                        // Strategy 1: Explicitly set the Mods button as the selected object
-                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.4] Calling SetSelectedGameObject({modsButton.gameObject.name})...");
-                        es.SetSelectedGameObject(modsButton.gameObject);
-                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.5] SetSelectedGameObject completed");
-                        GameObject? afterSelect = es.currentSelectedGameObject;
-                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.6] AFTER SetSelectedGameObject: selection = {afterSelect?.name ?? "NULL"}");
+                        // Do not force-select the injected button. Taking focus here can couple it
+                        // into native submit/navigation flows and trigger non-DINO handlers.
+                        LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.4] Leaving EventSystem selection unchanged for native-menu safety.");
 
-                        // Strategy 2: Isolate the Mods button from navigation graph to prevent
-                        // Options button from "stealing" focus back
                         LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.7] Setting navigation mode to None...");
                         Navigation modsNav = modsButton.navigation;
                         modsNav.mode = Navigation.Mode.None;
                         modsButton.navigation = modsNav;
                         LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.8] Mods button navigation mode: {modsNav.mode} (ISOLATED)");
 
-                        // Log navigation mode for both buttons for debugging
                         Navigation settingsNav = settingsButton.navigation;
                         LogInfo($"[NativeMenuInjector::{_sessionId}] Attempt#{attemptId}     [7.9] Settings button navigation mode: {settingsNav.mode}");
                     }

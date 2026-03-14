@@ -1,0 +1,43 @@
+# Modern Warfare Doctrines
+
+# Western Coalition Doctrines
+
+- id: shock_and_awe
+  display_name: Shock and Awe
+  description: Western doctrine emphasizing rapid deployment, overwhelming firepower, and swift victory through superior technology and coordination.
+  faction_archetype: professional_elite
+  modifiers:
+    damage: 1.15
+    fire_rate: 1.1
+    speed: 1.12
+    accuracy: 1.1
+
+- id: iron_curtain
+  display_name: Iron Curtain
+  description: Eastern Bloc doctrine of defensive depth, massed firepower, and fortified positions to repel any aggression.
+  faction_archetype: mass_production
+  modifiers:
+    armor: 1.25
+    hp: 1.15
+    range: 1.08
+    speed: 0.85
+
+- id: guerrilla_support
+  display_name: Guerrilla Support
+  description: Doctrine of asymmetric warfare with emphasis on mobility, surprise, and irregular tactics to counter superior forces.
+  faction_archetype: professional_elite
+  modifiers:
+    speed: 1.2
+    cost: 0.85
+    morale: 1.1
+    armor: 0.9
+
+- id: combined_arms
+  display_name: Combined Arms
+  description: Integrated doctrine combining infantry, armor, artillery, and air support for maximum tactical flexibility and battlefield dominance.
+  faction_archetype: mass_production
+  modifiers:
+    damage: 1.08
+    morale: 1.1
+    hp: 1.05
+    fire_rate: 1.05

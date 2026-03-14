@@ -64,6 +64,11 @@ namespace DINOForge.Runtime.UI
             return cloneBtn;
         }
 
+        internal static void SanitizeUiClone(GameObject root)
+        {
+            StripNonUiBehaviours(root);
+        }
+
         private static void StripNonUiBehaviours(GameObject root)
         {
             MonoBehaviour[] behaviours = root.GetComponentsInChildren<MonoBehaviour>(includeInactive: true);

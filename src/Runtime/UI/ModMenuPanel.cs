@@ -22,8 +22,8 @@ namespace DINOForge.Runtime.UI
         /// <summary>Callback invoked when a pack is toggled (packId, isEnabled).</summary>
         public Action<string, bool>? OnPackToggled { get; set; }
 
-        /// <summary>Whether this panel is currently visible.</summary>
-        public bool IsVisible => _canvasGroup != null && _canvasGroup.alpha > 0.01f;
+        /// <summary>Whether this panel is currently visible or transitioning visible.</summary>
+        public bool IsVisible => _targetVisible;
 
         /// <summary>The currently selected pack index in the current presenter list, or -1 if none.</summary>
         public int SelectedPackIndex => _presenter.SelectedIndex;
