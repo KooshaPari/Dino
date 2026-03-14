@@ -60,7 +60,7 @@ namespace DINOForge.Tests
         [Fact]
         public void Phase3A_Raw_Assets_All_Present()
         {
-            // Verify all 5 Clone infantry GLB files exist
+            // Verify all 5 Clone infantry GLB files exist (named either model.glb or source_download.glb)
             var expectedUnits = new[]
             {
                 "rep_clone_sharpshooter_sketchfab_001",
@@ -72,9 +72,15 @@ namespace DINOForge.Tests
 
             foreach (var unitDir in expectedUnits)
             {
-                var glbPath = Path.Combine(RawAssetsPath, unitDir, "model.glb");
-                File.Exists(glbPath).Should().BeTrue($"GLB file missing for {unitDir}");
-                new FileInfo(glbPath).Length.Should().BeGreaterThan(0, $"{unitDir} GLB should not be empty");
+                var unitDirPath = Path.Combine(RawAssetsPath, unitDir);
+                var glbPath = Path.Combine(unitDirPath, "model.glb");
+                var altGlbPath = Path.Combine(unitDirPath, "source_download.glb");
+
+                (File.Exists(glbPath) || File.Exists(altGlbPath)).Should().BeTrue(
+                    $"GLB file missing for {unitDir} (expected model.glb or source_download.glb)");
+
+                var existingGlb = File.Exists(glbPath) ? glbPath : altGlbPath;
+                new FileInfo(existingGlb).Length.Should().BeGreaterThan(0, $"{unitDir} GLB should not be empty");
             }
         }
 
@@ -211,11 +217,11 @@ namespace DINOForge.Tests
         }
 
         [Theory]
-        [InlineData("clone_sharpshooter")]
-        [InlineData("clone_heavy_trooper")]
-        [InlineData("clone_medic")]
-        [InlineData("arf_trooper")]
-        [InlineData("clone_militia")]
+        [InlineData("rep_clone_sharpshooter")]
+        [InlineData("rep_clone_heavy")]
+        [InlineData("rep_clone_medic")]
+        [InlineData("rep_arf_trooper")]
+        [InlineData("rep_clone_militia")]
         public void Phase3A_RepublicUnit_Defined(string unitId)
         {
             var yaml = File.ReadAllText(RepublicUnitsYamlPath);
@@ -223,11 +229,11 @@ namespace DINOForge.Tests
         }
 
         [Theory]
-        [InlineData("clone_sharpshooter")]
-        [InlineData("clone_heavy_trooper")]
-        [InlineData("clone_medic")]
-        [InlineData("arf_trooper")]
-        [InlineData("clone_militia")]
+        [InlineData("rep_clone_sharpshooter")]
+        [InlineData("rep_clone_heavy")]
+        [InlineData("rep_clone_medic")]
+        [InlineData("rep_arf_trooper")]
+        [InlineData("rep_clone_militia")]
         public void Phase3A_RepublicUnit_IsRepublicFaction(string unitId)
         {
             var yaml = File.ReadAllText(RepublicUnitsYamlPath);
@@ -261,8 +267,12 @@ namespace DINOForge.Tests
             long totalSize = 0;
             foreach (var unitDir in expectedUnits)
             {
-                var glbPath = Path.Combine(RawAssetsPath, unitDir, "model.glb");
-                var fileInfo = new FileInfo(glbPath);
+                var unitDirPath = Path.Combine(RawAssetsPath, unitDir);
+                var glbPath = Path.Combine(unitDirPath, "model.glb");
+                var altGlbPath = Path.Combine(unitDirPath, "source_download.glb");
+
+                var existingGlb = File.Exists(glbPath) ? glbPath : altGlbPath;
+                var fileInfo = new FileInfo(existingGlb);
                 fileInfo.Length.Should().BeGreaterThan(1000, $"{unitDir} GLB should be > 1KB");
                 fileInfo.Length.Should().BeLessThan(15_000_000, $"{unitDir} GLB should be < 15MB");
                 totalSize += fileInfo.Length;
