@@ -554,7 +554,7 @@ namespace DINOForge.Runtime.Bridge
                     {
                         Ready = false,
                         Selector = selector,
-                        State = string.IsNullOrWhiteSpace(state) ? "visible" : state,
+                        State = string.IsNullOrWhiteSpace(state) ? "visible" : state!,
                         Message = "Timed out while evaluating UI state on the main thread."
                     };
                     UiActionTrace.Record("wait", selector, timeoutResult, timeoutResult.MatchedNode);
@@ -575,7 +575,7 @@ namespace DINOForge.Runtime.Bridge
             {
                 Ready = false,
                 Selector = selector,
-                State = string.IsNullOrWhiteSpace(state) ? "visible" : state,
+                State = string.IsNullOrWhiteSpace(state) ? "visible" : state!,
                 Message = $"Timed out waiting for selector '{selector}'."
             };
             UiActionTrace.Record("wait", selector, finalResult, finalResult.MatchedNode);

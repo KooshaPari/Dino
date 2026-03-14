@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Newtonsoft.Json;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
@@ -52,6 +54,8 @@ namespace DINOForge.Runtime
         private bool _initialized;
         private bool _worldReady;
         private ContentLoadResult? _lastLoadResult;
+        private readonly HashSet<string> _disabledPacks = new HashSet<string>();
+        private const string DisabledPacksFile = "disabled_packs.json";
 
         /// <summary>The registry manager containing all loaded content.</summary>
         public RegistryManager? Registry => _registryManager;
@@ -131,6 +135,9 @@ namespace DINOForge.Runtime
                 _vanillaCatalog = new VanillaCatalog();
 
                 _log.LogInfo("[ModPlatform] Core subsystems created.");
+
+                // Load disabled packs from disk
+                LoadDisabledPacks();
             }
             catch (Exception ex)
             {
@@ -352,6 +359,30 @@ namespace DINOForge.Runtime
             string packsDir = _packsDirectory.Value;
             _log.LogInfo($"[ModPlatform] Loading packs from: {packsDir}");
 
+            // Temporarily disable packs by renaming directories
+            List<string> temporarilyDisabledDirs = new List<string>();
+            if (_disabledPacks.Count > 0)
+            {
+                foreach (string packId in _disabledPacks)
+                {
+                    string packPath = Path.Combine(packsDir, packId);
+                    if (Directory.Exists(packPath))
+                    {
+                        string disabledPath = packPath + ".disabled";
+                        try
+                        {
+                            Directory.Move(packPath, disabledPath);
+                            temporarilyDisabledDirs.Add(packPath);
+                            _log.LogInfo($"[ModPlatform] Temporarily disabled pack: {packId}");
+                        }
+                        catch (Exception ex)
+                        {
+                            _log.LogWarning($"[ModPlatform] Failed to disable pack {packId}: {ex.Message}");
+                        }
+                    }
+                }
+            }
+
             ContentLoadResult result;
             try
             {
@@ -366,6 +397,26 @@ namespace DINOForge.Runtime
                 _lastLoadResult = result;
                 UpdateUI(result);
                 return result;
+            }
+            finally
+            {
+                // Re-enable temporarily disabled packs
+                foreach (string originalPath in temporarilyDisabledDirs)
+                {
+                    string disabledPath = originalPath + ".disabled";
+                    try
+                    {
+                        if (Directory.Exists(disabledPath))
+                        {
+                            Directory.Move(disabledPath, originalPath);
+                            _log.LogInfo($"[ModPlatform] Re-enabled pack: {Path.GetFileName(originalPath)}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.LogWarning($"[ModPlatform] Failed to re-enable pack {originalPath}: {ex.Message}");
+                    }
+                }
             }
 
             // Log results
@@ -560,6 +611,8 @@ namespace DINOForge.Runtime
                                     break;
                                 }
                             }
+                            // Check if pack is disabled by user
+                            bool isDisabled = _disabledPacks.Contains(manifest.Id);
 
                             packInfos.Add(new PackDisplayInfo(
                                 id: manifest.Id,
@@ -569,7 +622,7 @@ namespace DINOForge.Runtime
                                 type: manifest.Type,
                                 description: manifest.Description,
                                 loadOrder: manifest.LoadOrder,
-                                isEnabled: isLoaded,
+                                isEnabled: isLoaded && !isDisabled,
                                 dependencies: manifest.DependsOn.AsReadOnly(),
                                 conflicts: manifest.ConflictsWith.AsReadOnly(),
                                 errors: new List<string>().AsReadOnly()));
@@ -647,9 +700,65 @@ namespace DINOForge.Runtime
         private void OnPackToggled(string packId, bool enabled)
         {
             _log.LogInfo($"[ModPlatform] Pack '{packId}' toggled: enabled={enabled}");
-            if (!enabled)
+            if (enabled)
             {
-                _log.LogInfo("[ModPlatform] Runtime pack disable is not yet supported. Changes will apply on next reload.");
+                _disabledPacks.Remove(packId);
+                _log.LogInfo($"[ModPlatform] Pack '{packId}' enabled - will load on next reload.");
+            }
+            else
+            {
+                _disabledPacks.Add(packId);
+                _log.LogInfo($"[ModPlatform] Pack '{packId}' disabled - will be skipped on next reload.");
+            }
+            SaveDisabledPacks();
+        }
+
+        /// <summary>
+        /// Saves the list of disabled packs to disk for persistence.
+        /// </summary>
+        private void SaveDisabledPacks()
+        {
+            try
+            {
+                string packsDir = _packsDirectory?.Value;
+                if (string.IsNullOrEmpty(packsDir)) return;
+                string filePath = Path.Combine(packsDir, DisabledPacksFile);
+                string json = JsonConvert.SerializeObject(_disabledPacks.ToList());
+                File.WriteAllText(filePath, json);
+                _log.LogInfo($"[ModPlatform] Saved {_disabledPacks.Count} disabled pack(s) to {DisabledPacksFile}");
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[ModPlatform] Failed to save disabled packs: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Loads the list of disabled packs from disk.
+        /// </summary>
+        private void LoadDisabledPacks()
+        {
+            try
+            {
+                string packsDir = _packsDirectory?.Value;
+                if (string.IsNullOrEmpty(packsDir)) return;
+                string filePath = Path.Combine(packsDir, DisabledPacksFile);
+                if (!File.Exists(filePath)) return;
+                string json = File.ReadAllText(filePath);
+                List<string>? disabled = JsonConvert.DeserializeObject<List<string>>(json);
+                if (disabled != null)
+                {
+                    _disabledPacks.Clear();
+                    foreach (string packId in disabled)
+                    {
+                        _disabledPacks.Add(packId);
+                    }
+                    _log.LogInfo($"[ModPlatform] Loaded {_disabledPacks.Count} disabled pack(s) from {DisabledPacksFile}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[ModPlatform] Failed to load disabled packs: {ex.Message}");
             }
         }
 

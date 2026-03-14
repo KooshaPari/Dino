@@ -70,7 +70,7 @@ namespace DINOForge.Tools.DumpTools
                 return Path.Combine(bepInExRoot, "dinoforge_dumps");
 
             // Fallback: look relative to game install (configurable via DINOFORGE_GAME_PATH)
-            string gamePath = Environment.GetEnvironmentVariable("DINOFORGE_GAME_PATH") 
+            string gamePath = Environment.GetEnvironmentVariable("DINOFORGE_GAME_PATH")
                 ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Steam", "steamapps", "common", "Diplomacy is Not an Option");
             return Path.Combine(gamePath, "BepInEx", "dinoforge_dumps");
         }

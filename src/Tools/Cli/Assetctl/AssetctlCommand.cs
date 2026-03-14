@@ -8,6 +8,10 @@ using DINOForge.Tools.Cli.Assetctl.Sketchfab;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 
+// CS1998: These async lambdas are required by System.CommandLine's SetAction API.
+// The lambdas are synchronous but the API signature requires async delegate.
+#pragma warning disable CS1998
+
 namespace DINOForge.Tools.Cli.Assetctl;
 
 internal static class AssetctlCommand

@@ -3,9 +3,6 @@ namespace DINOForge.SDK.Models
     /// <summary>
     /// Aerial flight parameters for a unit definition.
     /// Deserialized from the <c>aerial:</c> block in unit YAML files.
-    ///
-    /// These values are mapped to <see cref="DINOForge.Runtime.Aviation.AerialUnitComponent"/>
-    /// when a unit with the <c>Aerial</c> behavior_tag is spawned.
     /// </summary>
     public class AerialProperties
     {

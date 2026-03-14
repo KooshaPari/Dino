@@ -64,7 +64,7 @@ namespace DINOForge.SDK
         /// <param name="schemaResolver">Schema resolution service.</param>
         /// <param name="registryImport">Registry import service.</param>
         /// <param name="registryManager">
-        /// Optional registry manager reference used to wire <see cref="AssetSwapRegistry"/>
+        /// Optional registry manager reference used to wire <see cref="DINOForge.SDK.Assets.AssetSwapRegistry"/>
         /// after units and buildings are loaded. Pass null to skip asset swap registration.
         /// </param>
         internal ContentLoader(

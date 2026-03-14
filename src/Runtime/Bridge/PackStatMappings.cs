@@ -63,7 +63,7 @@ namespace DINOForge.Runtime.Bridge
             if (string.IsNullOrWhiteSpace(vanillaMapping))
                 return false;
 
-            return VanillaMappingToComponentType.TryGetValue(vanillaMapping, out componentType);
+            return VanillaMappingToComponentType.TryGetValue(vanillaMapping!, out componentType);
         }
 
         /// <summary>
