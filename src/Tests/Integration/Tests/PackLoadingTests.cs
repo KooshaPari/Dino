@@ -33,7 +33,7 @@ public class PackLoadingTests
         {
             return; // Reload failed - likely no mods loaded
         }
-        
+
         result.Success.Should().BeTrue();
     }
 
@@ -46,7 +46,7 @@ public class PackLoadingTests
 
         // Reload first to ensure state is fresh
         ReloadResult reloadResult = await _fixture.Client.ReloadPacksAsync();
-        
+
         // Skip if no packs are loaded - requires mod pack to be active in-game
         if (reloadResult.LoadedPacks.Count == 0)
         {
