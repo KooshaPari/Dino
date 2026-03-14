@@ -1,9 +1,24 @@
 {
   "mcpServers": {
     "dinoforge": {
-      "command": "dotnet",
-      "args": ["run", "--project", "src/Tools/McpServer/DINOForge.Tools.McpServer.csproj"],
-      "description": "DINOForge game bridge MCP server — provides 13 tools for querying and controlling the running DINO game instance"
+      "command": "python",
+      "args": ["-m", "dinoforge_mcp.server"],
+      "env": {
+        "DINOFORGE_CLI_PATH": "src/Tools/Cli",
+        "DINOFORGE_PIPE_NAME": "dinoforge_game",
+        "DINOFORGE_MCP_DEBUG": "false"
+      },
+      "description": "DINOForge game automation - query entities, UI automation, spawn units, apply overrides"
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/filesystem", "packs", "src", "docs"],
+      "description": "Access to project files"
+    },
+    "git": {
+      "command": "uvx",
+      "args": ["mcp-server-git", "--repository", "/Users/koosh/Dino"],
+      "description": "Git operations"
     }
   }
 }

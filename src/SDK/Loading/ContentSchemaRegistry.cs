@@ -5,7 +5,7 @@ using System.Linq;
 namespace DINOForge.SDK
 {
     /// <summary>
-    /// Central mapping from loader content types to schema names.
+    /// Implementation of <see cref="ISchemaResolverService"/> for schema mapping.
     /// </summary>
     internal sealed class SchemaResolverService : ISchemaResolverService
     {
@@ -22,10 +22,8 @@ namespace DINOForge.SDK
                 { "faction_patches", "faction-patch" }
             };
 
-        /// <inheritdoc />
         public IReadOnlyCollection<string> ContentTypes => SchemaNames.Keys.ToList();
 
-        /// <inheritdoc />
         public bool TryResolveSchemaName(string contentType, out string schemaName)
         {
             if (SchemaNames.TryGetValue(contentType, out string? resolved))

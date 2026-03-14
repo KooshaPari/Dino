@@ -108,7 +108,8 @@ namespace DINOForge.Runtime.UI
             }
 
             // Log font status
-            Debug.Log($"[UiDiagnostics] Font loaded: '{UiBuilder.FontName}'");
+            Font? arialFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            Debug.Log($"[UiDiagnostics] Font loaded: '{(arialFont != null ? "Arial.ttf" : "NONE")}'");
         }
 
         /// <summary>
@@ -119,7 +120,8 @@ namespace DINOForge.Runtime.UI
             var issues = new List<string>();
 
             // Check for missing fonts
-            if (string.IsNullOrEmpty(UiBuilder.FontName) || UiBuilder.FontName == "NONE")
+            Font? diagFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            if (diagFont == null)
             {
                 issues.Add("CRITICAL: No font loaded - text will not render!");
             }

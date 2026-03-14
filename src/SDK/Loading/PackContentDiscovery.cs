@@ -5,14 +5,13 @@ using System.IO;
 namespace DINOForge.SDK
 {
     /// <summary>
-    /// Default content discovery implementation for pack directories and YAML files.
+    /// Implementation of <see cref="IContentDiscoveryService"/> for filesystem traversal.
     /// </summary>
     internal sealed class ContentDiscoveryService : IContentDiscoveryService
     {
         private readonly IFileDiscoveryService _fileDiscovery;
 
-        public ContentDiscoveryService()
-            : this(new FileDiscoveryService())
+        public ContentDiscoveryService() : this(new FileDiscoveryService())
         {
         }
 
@@ -21,13 +20,11 @@ namespace DINOForge.SDK
             _fileDiscovery = fileDiscovery ?? throw new ArgumentNullException(nameof(fileDiscovery));
         }
 
-        /// <inheritdoc />
         public IReadOnlyList<string> DiscoverPackDirectories(string packsRootDirectory)
         {
             return _fileDiscovery.DiscoverPackDirectories(packsRootDirectory);
         }
 
-        /// <inheritdoc />
         public IReadOnlyList<string> DiscoverYamlFiles(
             string packDirectory,
             string contentType,
@@ -54,6 +51,7 @@ namespace DINOForge.SDK
                                                fullPath.EndsWith(".yml", StringComparison.OrdinalIgnoreCase)
                             ? fullPath
                             : fullPath + ".yaml";
+
                         if (File.Exists(withExtension))
                         {
                             yamlFiles.Add(withExtension);

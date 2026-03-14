@@ -6,14 +6,16 @@ using System.Linq;
 namespace DINOForge.SDK
 {
     /// <summary>
-    /// Default implementation of <see cref="IFileDiscoveryService"/> with directory exclusions
-    /// for generated and archived content.
+    /// Default implementation of <see cref="IFileDiscoveryService"/> that provides
+    /// centralized filesystem traversal with configurable exclusion patterns.
     /// </summary>
-    internal sealed class FileDiscoveryService : IFileDiscoveryService
+    public class FileDiscoveryService : IFileDiscoveryService
     {
-        private static readonly string[] DefaultExclusionsArray =
+        /// <summary>
+        /// Default exclusion patterns for build artifacts and generated content.
+        /// </summary>
+        private static readonly string[] DefaultExclusionsArray = new[]
         {
-            "_archived",
             "archived",
             "export",
             "generated",
@@ -23,32 +25,83 @@ namespace DINOForge.SDK
             ".git",
             ".vs",
             ".idea",
-            "packages"
+            "packages",
+            "node_modules"
         };
 
-        private readonly HashSet<string> _exclusions = new HashSet<string>(DefaultExclusionsArray, StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> _exclusions;
+        private readonly bool _useDefaults;
+
+        /// <summary>
+        /// Initializes a new <see cref="FileDiscoveryService"/> with default exclusions.
+        /// </summary>
+        public FileDiscoveryService() : this(useDefaults: true)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="FileDiscoveryService"/> with optional default exclusions.
+        /// </summary>
+        /// <param name="useDefaults">Whether to include default exclusions.</param>
+        public FileDiscoveryService(bool useDefaults)
+        {
+            _useDefaults = useDefaults;
+            _exclusions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (useDefaults)
+            {
+                foreach (var exclusion in DefaultExclusionsArray)
+                {
+                    _exclusions.Add(exclusion);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="FileDiscoveryService"/> with custom exclusions.
+        /// </summary>
+        /// <param name="customExclusions">Custom exclusion patterns.</param>
+        public FileDiscoveryService(IEnumerable<string> customExclusions)
+        {
+            _useDefaults = false;
+            _exclusions = new HashSet<string>(customExclusions, StringComparer.OrdinalIgnoreCase);
+        }
 
         /// <inheritdoc />
         public IReadOnlyList<string> DefaultExclusions => Array.AsReadOnly(DefaultExclusionsArray);
 
         /// <inheritdoc />
+        public string[] GetFiles(string directory, string searchPattern, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        {
+            return GetFiles(directory, new[] { searchPattern }, searchOption);
+        }
+
+        /// <inheritdoc />
         public string[] GetFiles(string directory, string[] searchPatterns, SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
-            if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory) || searchPatterns.Length == 0)
+            if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory))
             {
                 return Array.Empty<string>();
             }
 
-            HashSet<string> results = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (string pattern in searchPatterns)
+            if (searchPatterns == null || searchPatterns.Length == 0)
             {
-                foreach (string file in GetFilesInternal(directory, pattern, searchOption))
+                return Array.Empty<string>();
+            }
+
+            var results = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var pattern in searchPatterns)
+            {
+                var files = GetFilesInternal(directory, pattern, searchOption);
+                foreach (var file in files)
                 {
                     results.Add(file);
                 }
             }
 
-            return results.OrderBy(path => path, StringComparer.OrdinalIgnoreCase).ToArray();
+            var sortedResults = results.ToList();
+            sortedResults.Sort(StringComparer.OrdinalIgnoreCase);
+            return sortedResults.ToArray();
         }
 
         /// <inheritdoc />
@@ -59,59 +112,129 @@ namespace DINOForge.SDK
                 return Array.Empty<string>();
             }
 
+            var results = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             if (searchOption == SearchOption.TopDirectoryOnly)
             {
-                return Directory.GetDirectories(directory)
-                    .Where(path => !ShouldExclude(Path.GetFileName(path)))
-                    .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
-                    .ToArray();
+                foreach (var dir in Directory.GetDirectories(directory))
+                {
+                    string dirName = Path.GetFileName(dir);
+                    if (!ShouldExclude(dirName))
+                    {
+                        results.Add(dir);
+                    }
+                }
+            }
+            else
+            {
+                // Recursive search
+                GetDirectoriesRecursive(directory, results);
             }
 
-            HashSet<string> results = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            GetDirectoriesRecursive(directory, results);
-            return results.OrderBy(path => path, StringComparer.OrdinalIgnoreCase).ToArray();
+            var sortedResults = results.ToList();
+            sortedResults.Sort(StringComparer.OrdinalIgnoreCase);
+            return sortedResults.ToArray();
         }
 
         /// <inheritdoc />
         public string[] DiscoverPackDirectories(string rootDirectory)
         {
-            return GetDirectories(rootDirectory)
-                .Where(directory => File.Exists(Path.Combine(directory, "pack.yaml")))
-                .ToArray();
+            if (string.IsNullOrEmpty(rootDirectory) || !Directory.Exists(rootDirectory))
+            {
+                return Array.Empty<string>();
+            }
+
+            var packDirectories = new List<string>();
+            var allDirs = GetDirectories(rootDirectory, SearchOption.TopDirectoryOnly);
+
+            foreach (var dir in allDirs)
+            {
+                string manifestPath = Path.Combine(dir, "pack.yaml");
+                if (File.Exists(manifestPath))
+                {
+                    packDirectories.Add(dir);
+                }
+            }
+
+            return packDirectories.ToArray();
         }
 
-        private IEnumerable<string> GetFilesInternal(string directory, string searchPattern, SearchOption searchOption)
+        /// <inheritdoc />
+        public void AddExclusion(string pattern)
+        {
+            if (!string.IsNullOrWhiteSpace(pattern))
+            {
+                _exclusions.Add(pattern.Trim());
+            }
+        }
+
+        /// <inheritdoc />
+        public void RemoveExclusion(string pattern)
+        {
+            if (!string.IsNullOrWhiteSpace(pattern))
+            {
+                _exclusions.Remove(pattern.Trim());
+            }
+        }
+
+        /// <inheritdoc />
+        public void ClearExclusions()
+        {
+            _exclusions.Clear();
+        }
+
+        /// <inheritdoc />
+        public void ResetToDefaults()
+        {
+            _exclusions.Clear();
+            foreach (var exclusion in DefaultExclusionsArray)
+            {
+                _exclusions.Add(exclusion);
+            }
+        }
+
+        private string[] GetFilesInternal(string directory, string searchPattern, SearchOption searchOption)
         {
             if (searchOption == SearchOption.TopDirectoryOnly)
             {
-                return Directory.GetFiles(directory, searchPattern, SearchOption.TopDirectoryOnly);
+                return Directory.GetFiles(directory, searchPattern)
+                    .Where(f => !ShouldExclude(Path.GetDirectoryName(f) ?? ""))
+                    .ToArray();
             }
 
-            List<string> files = new List<string>();
-            GetFilesRecursive(directory, searchPattern, files);
-            return files;
+            // For recursive search, we need to filter out excluded directories
+            var results = new List<string>();
+            GetFilesRecursive(directory, searchPattern, results);
+            return results.ToArray();
         }
 
         private void GetFilesRecursive(string directory, string searchPattern, List<string> results)
         {
             try
             {
-                results.AddRange(Directory.GetFiles(directory, searchPattern, SearchOption.TopDirectoryOnly));
-                foreach (string subDirectory in Directory.GetDirectories(directory, "*", SearchOption.TopDirectoryOnly))
+                // Get files in current directory
+                foreach (var file in Directory.GetFiles(directory, searchPattern))
                 {
-                    if (ShouldExclude(Path.GetFileName(subDirectory)))
-                    {
-                        continue;
-                    }
+                    results.Add(file);
+                }
 
-                    GetFilesRecursive(subDirectory, searchPattern, results);
+                // Recurse into subdirectories (excluding excluded ones)
+                foreach (var subDir in Directory.GetDirectories(directory))
+                {
+                    string dirName = Path.GetFileName(subDir);
+                    if (!ShouldExclude(dirName))
+                    {
+                        GetFilesRecursive(subDir, searchPattern, results);
+                    }
                 }
             }
             catch (UnauthorizedAccessException)
             {
+                // Skip directories we can't access
             }
             catch (DirectoryNotFoundException)
             {
+                // Skip directories that were deleted during enumeration
             }
         }
 
@@ -119,28 +242,38 @@ namespace DINOForge.SDK
         {
             try
             {
-                foreach (string subDirectory in Directory.GetDirectories(directory, "*", SearchOption.TopDirectoryOnly))
+                foreach (var dir in Directory.GetDirectories(directory))
                 {
-                    if (ShouldExclude(Path.GetFileName(subDirectory)))
+                    string dirName = Path.GetFileName(dir);
+                    if (!ShouldExclude(dirName))
                     {
-                        continue;
+                        results.Add(dir);
+                        GetDirectoriesRecursive(dir, results);
                     }
-
-                    results.Add(subDirectory);
-                    GetDirectoriesRecursive(subDirectory, results);
                 }
             }
             catch (UnauthorizedAccessException)
             {
+                // Skip directories we can't access
             }
             catch (DirectoryNotFoundException)
             {
+                // Skip directories that were deleted during enumeration
             }
         }
 
-        private bool ShouldExclude(string? directoryName)
+        private bool ShouldExclude(string path)
         {
-            return !string.IsNullOrEmpty(directoryName) && _exclusions.Contains(directoryName);
+            // Check each path segment for exclusions
+            var segments = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            foreach (var segment in segments)
+            {
+                if (_exclusions.Contains(segment))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

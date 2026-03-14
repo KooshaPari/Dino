@@ -91,10 +91,7 @@ namespace DINOForge.SDK
             }
 
             Action<string> logger = log ?? (_ => { });
-            IDeserializer deserializer = new DeserializerBuilder()
-                .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                .IgnoreUnmatchedProperties()
-                .Build();
+            IDeserializer deserializer = YamlLoader.Deserializer;
 
             return new RegistryImportService(
                 registryManager,

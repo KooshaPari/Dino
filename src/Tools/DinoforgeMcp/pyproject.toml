@@ -1,0 +1,34 @@
+{
+  "name": "dinoforge-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for DINOForge game automation with FastMCP 3.0",
+  "requires": ["fastmcp>=3.0.0", "pydantic>=2.0.0"],
+  "dependencies": {
+    "fastmcp": ">=3.0.0",
+    "pydantic": ">=2.0.0",
+    "python-dotenv": ">=1.0.0"
+  },
+  "scripts": {
+    "start": "python -m dinoforge_mcp.server",
+    "dev": "python -m dinoforge_mcp.server --verbose"
+  },
+  "engines": {
+    "python": ">=3.10"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol", 
+    "dinoforge",
+    "game-automation",
+    "unity",
+    "ecs"
+  ],
+  " classifiers": [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11", 
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13"
+  ]
+}
