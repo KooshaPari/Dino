@@ -96,6 +96,7 @@ rootCommand.Add(ScreenshotCommand.Create());
 rootCommand.Add(ComponentMapCommand.Create());
 rootCommand.Add(WatchCommand.Create());
 rootCommand.Add(AssetctlCommand.Create(serviceProvider));
+rootCommand.Add(SyncCommand.Create());
 
 ParseResult parseResult = rootCommand.Parse(args);
 return await parseResult.InvokeAsync();

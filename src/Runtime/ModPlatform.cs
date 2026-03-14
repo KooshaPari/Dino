@@ -60,6 +60,13 @@ namespace DINOForge.Runtime
         /// <summary>The registry manager containing all loaded content.</summary>
         public RegistryManager? Registry => _registryManager;
 
+        /// <summary>
+        /// Invoked after every pack load (initial and reload) with (packCount, errorCount).
+        /// Wire this to <see cref="UI.HudStrip.SetStatus"/> or <see cref="UI.HudIndicator.UpdateCounts"/>
+        /// from the active UI layer so the HUD counter stays in sync.
+        /// </summary>
+        public Action<int, int>? OnHudCountsChanged;
+
         /// <summary>The vanilla entity catalog built from the ECS world.</summary>
         public VanillaCatalog? Catalog => _vanillaCatalog;
 
