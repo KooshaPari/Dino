@@ -33,7 +33,7 @@ jobs:
         run: dotnet restore src/DINOForge.CI.sln
 
       - name: Build
-        run: dotnet build src/DINOForge.CI.sln --configuration Release --no-restore
+        run: dotnet build src/DINOForge.CI.sln --configuration Release --no-restore /p:BuildProjectReferences=true
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@820e3160e279568db735cee8ed8f8e77a6da7818 # v3
