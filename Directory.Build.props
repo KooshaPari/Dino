@@ -27,8 +27,11 @@
     <NuGetAuditMode Condition="'$(CI)' == 'true'">all</NuGetAuditMode>
 
     <!-- Reproducible builds: lock NuGet package versions -->
+    <!-- Lock files are kept for reference but not enforced in locked-mode because MinVer -->
+    <!-- is conditionally included (disabled on Windows/MSYS2), causing cross-platform   -->
+    <!-- lock file drift. Packages are pinned via Version ranges in csproj instead.     -->
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <RestoreLockedMode Condition="'$(CI)' == 'true'">true</RestoreLockedMode>
+    <RestoreLockedMode>false</RestoreLockedMode>
 
     <!--
       When building via the solution, MSBuild's default recursive project-reference
