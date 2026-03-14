@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `SyncCommand` CLI command for content synchronization
+- `packs/warfare-aerial/` — new aerial warfare pack with airfield buildings and aerial unit doctrines
+
+### Changed
+
+- Archived 6 inactive placeholder packs to `packs/_archived/` (economy-balanced, example-balance, scenario-tutorial, warfare-airforce, warfare-guerrilla, warfare-modern)
+- Synced all `packages.lock.json` files across projects
+
 - `AssetSwapRequest.VanillaMapping` — optional field passed from `UnitDefinition.VanillaMapping` so `AssetSwapSystem` can narrow entity targeting to the correct ECS archetype during live RenderMesh swap
 - `AssetSwapSystem` improvements — expanded entity query and swap logic using `VanillaMapping` for precision targeting
 
