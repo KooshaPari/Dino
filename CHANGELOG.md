@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lock files synced across all projects (CRLF normalization + dependency updates)
 - `ThemeColorPalette` refactored to resolve naming conflicts; minor fixes in `CompatibilityChecker`, `PackManifest`, `Registry`, `BalanceCalculator`, `PackCompiler`, and `DumpTools`
+- Runtime UI whitespace formatting applied to `DebugPanel.cs` and `ModMenuPanel.cs`
 
 ## [0.9.1] - 2026-03-14
 
