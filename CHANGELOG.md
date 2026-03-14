@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `SyncCommand` CLI command for content synchronization
 - `packs/warfare-aerial/` — new aerial warfare pack with airfield buildings and aerial unit doctrines
+- `packs/warfare-aerial/stats/aerial_buffs.yaml` — stat overrides for aerial units
+- `packs/warfare-starwars/stats/starwars_buffs.yaml` — stat overrides for Star Wars units
 
 ### Changed
 
