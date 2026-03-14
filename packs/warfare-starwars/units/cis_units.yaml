@@ -32,6 +32,7 @@
 
 # 2. Line Infantry - B1 Squad
 - id: cis_b1_squad
+  visual_asset: sw-b1-squad
   display_name: B1 Squad
   description: Coordinated B1 squad with marginally better tactics via improved droid brains.
   unit_class: CoreLineInfantry
@@ -57,7 +58,6 @@
       iron: 12
       gold: 5
       population: 1
-  visual_asset: sw-cis-b1-squad
 
 # 3. Heavy Infantry - B2 Super Battle Droid
 - id: cis_b2_super_battle_droid
@@ -177,6 +177,7 @@
 
 # 7. Support - Medical Droid
 - id: cis_medical_droid
+  visual_asset: sw-medical-droid
   display_name: Medical Droid
   description: Repurposed medical unit providing repair functions to damaged battle droids.
   unit_class: SupportEngineer
@@ -202,7 +203,6 @@
       iron: 10
       gold: 8
       population: 1
-  visual_asset: sw-cis-medical-droid
 
 # 8. Scout - Probe Droid
 - id: cis_probe_droid
@@ -351,6 +351,7 @@
 
 # 13. Special - MagnaGuard
 - id: cis_magnaguard
+  visual_asset: sw-magnaguard
   display_name: IG-100 MagnaGuard
   description: Elite bodyguard droids wielding electrostaffs. Grievous's personal guard and anti-Jedi specialists.
   unit_class: ShieldedElite
@@ -376,10 +377,10 @@
       iron: 50
       gold: 40
       population: 2
-  visual_asset: sw-cis-magnaguard
 
 # 14. Aerial Fighter - Tri-Fighter
 - id: cis_tri_fighter
+  visual_asset: sw-tri-fighter
   display_name: Tri-Fighter
   description: Automated droid starfighter with three-pronged design and rapid-fire plasma cannons. Multiple units form deadly swarms.
   unit_class: AirstrikeProxy
@@ -405,7 +406,6 @@
       iron: 25
       gold: 30
       population: 1
-  visual_asset: sw-cis-tri-fighter
   aerial:
     cruise_altitude: 18.0
     ascend_speed: 10.0

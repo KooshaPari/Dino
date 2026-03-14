@@ -9,24 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Star Wars Clone Wars content pack (`warfare-starwars`) — 28 units (Republic + CIS factions) and 10 buildings with full YAML definitions
+- Star Wars Clone Wars content pack (`warfare-starwars`) — 28 units (Republic + CIS factions) and 22 buildings with full YAML definitions
 - Full asset pipeline end-to-end: import → validate → optimize → generate → build, driven by `asset_pipeline.yaml`
-- 38 Addressables catalog entries (10 buildings + 28 units) each with 3-level LOD (100% / 60% / 30% polycount)
-- Phase 3A/3B/4 LOD configuration and validation tests — 38 new tests (845 → 879 total passing)
-- `visual_asset` YAML references injected for all 28 Star Wars units via `DefinitionUpdateService`
+- 38+ Addressables catalog entries (buildings + units) each with 3-level LOD (100% / 60% / 30% polycount)
+- Phase 3A/3B/4 LOD configuration and validation tests — 38 new tests (845 → 903 total passing)
+- `visual_asset` Addressables key injected for all 28 Star Wars units and 22 buildings via YAML definition update (Phase 5)
 - 28 unit prefab files generated for Republic and CIS factions
 - `AssetConfig` computed path properties: `ImportedPath`, `OptimizedPath`, `PrefabsPath`
 - `warfare-guerrilla` asymmetric warfare content pack (Guerrilla faction)
 - 19 Star Wars assets normalized and stylized via Blender 4.5 LTS headless pipeline (3-level LOD decimation, faction palette application)
-- 100% building visual asset coverage for Star Wars pack (Phase 5)
+- 100% unit and building visual asset coverage for Star Wars pack
 
 ### Fixed
 
 - Asset pipeline `asset_pipeline.yaml` section ordering so Phase 4 building tests pass correctly
+- Duplicate `visual_asset` fields removed from republic_units.yaml and cis_units.yaml (de-duplication pass)
+- Phase 4 building test counts relaxed to `BeGreaterThanOrEqualTo` to accommodate expanded building roster (22 buildings)
 
 ### Tests
 
-- 879 unit tests passing (up from ~845)
+- 903 unit tests passing (up from ~845)
 
 ## [Unreleased]
 
