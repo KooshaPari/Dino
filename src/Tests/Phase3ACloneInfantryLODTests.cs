@@ -92,14 +92,14 @@ namespace DINOForge.Tests
             {
                 return; // Assets not present - skip
             }
-            
+
             // Check if any GLB files exist
             var hasAssets = Directory.GetFiles(RawAssetsPath, "*.glb", SearchOption.AllDirectories).Any();
             if (!hasAssets)
             {
                 return; // No GLB files - skip
             }
-            
+
             // If we get here, assets exist - run the check
             var expectedUnits = new[]
             {
@@ -120,7 +120,7 @@ namespace DINOForge.Tests
                     if (hasGlb) foundCount++;
                 }
             }
-            
+
             // At least verify we found some units if assets exist
             foundCount.Should().BeGreaterThan(0, "should find at least some clone infantry assets");
         }
@@ -133,13 +133,13 @@ namespace DINOForge.Tests
             {
                 return;
             }
-            
+
             var glbFiles = Directory.GetFiles(RawAssetsPath, "*.glb", SearchOption.AllDirectories);
             if (glbFiles.Length == 0)
             {
                 return;
             }
-            
+
             // If we have assets, verify they're reasonable size
             long totalSize = glbFiles.Sum(f => new FileInfo(f).Length);
             totalSize.Should().BeGreaterThan(0, "GLB files should not be empty");

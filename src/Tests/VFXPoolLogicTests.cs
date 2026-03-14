@@ -30,7 +30,7 @@ public class VFXPoolLogicTests
     public void Rent_IncreasesActiveCount()
     {
         var vfx = _pool.Rent();
-        
+
         Assert.NotNull(vfx);
         Assert.Equal(1, _pool.ActiveCount);
     }
@@ -43,7 +43,7 @@ public class VFXPoolLogicTests
     {
         var vfx = _pool.Rent();
         _pool.Return(vfx);
-        
+
         Assert.Equal(0, _pool.ActiveCount);
     }
 
@@ -95,7 +95,7 @@ public class VFXPool
 {
     private readonly Queue<VFXInstance> _available = new();
     private readonly List<VFXInstance> _active = new();
-    
+
     public string Name { get; }
     public int Capacity { get; }
     public int ActiveCount => _active.Count;
@@ -115,7 +115,7 @@ public class VFXPool
             instance.IsActive = true;
             return instance;
         }
-        
+
         // Create new if under capacity
         if (_active.Count < Capacity)
         {
@@ -123,7 +123,7 @@ public class VFXPool
             _active.Add(instance);
             return instance;
         }
-        
+
         // Recycle oldest active
         var oldest = _active[0];
         _active.RemoveAt(0);
@@ -179,7 +179,7 @@ public static class VFXMath
             return 1.0f;
         if (distance >= 500)
             return 0.0f;
-        
+
         // Linear falloff from 1.0 to 0.0 between 50 and 500
         return 1.0f - ((distance - 50) / 450f);
     }

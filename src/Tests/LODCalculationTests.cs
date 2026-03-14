@@ -115,7 +115,7 @@ public static class LODCalculator
     {
         if (distance <= 0)
             return 100f;
-            
+
         // Simplified: screen size is inversely proportional to distance
         return (fov * 100f) / distance;
     }
