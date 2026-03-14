@@ -1,100 +1,80 @@
 #nullable enable
 using System;
-using System.Collections.Generic;
+using System.IO;
 using FluentAssertions;
 using Xunit;
 
 namespace DINOForge.Tests
 {
     /// <summary>
-    /// Unit tests for VFX system classes: ProjectileVFXSystem, UnitDeathVFXSystem,
-    /// and BuildingDestructionVFXSystem.
-    ///
-    /// Note: These systems are in DINOForge.Runtime, which is a BepInEx plugin assembly
-    /// and cannot be directly tested from the main Tests project. Instead, manual testing
-    /// is performed in-game. See test documentation below.
-    ///
-    /// Manual Testing Approach:
-    ///   1. Load the game with the mod installed
-    ///   2. Spawn units and projectiles via wave injector
-    ///   3. Observe VFX spawning at impact points and unit deaths
-    ///   4. Verify faction-specific coloring (blue for Republic, orange for CIS)
-    ///   5. Check debug log for VFX lifecycle messages
-    ///
-    /// Testing Criteria:
-    ///   - ProjectileVFXSystem: Impact particles spawn at projectile impact position
-    ///   - UnitDeathVFXSystem: Death particles spawn at unit center when health reaches 0
-    ///   - BuildingDestructionVFXSystem: Destruction particles scale by building size
-    ///   - All systems: Gracefully handle missing pool manager
-    ///   - All systems: Return VFX to pool after lifetime expires
+    /// Source-contract tests for VFX runtime infrastructure that cannot be loaded into the
+    /// CI test host because DINOForge.Runtime depends on Unity/BepInEx assemblies.
+    /// These tests lock down the repo-local invariants we can still validate safely.
     /// </summary>
     public class VFXSystemTests
     {
-        [Fact]
-        public void VFXSystems_Documentation_Exists()
-        {
-            // Placeholder test to keep the test class in place.
-            // Actual VFX system tests require in-game testing due to:
-            // 1. DINOForge.Runtime is a BepInEx plugin (cannot be referenced from tests)
-            // 2. VFX systems depend on ECS World and GameObjects
-            // 3. ParticleSystem requires Unity engine initialization
+        private static readonly string RepoRoot = GetRepoRoot();
+        private static readonly string LodManagerSourcePath = Path.Combine(RepoRoot, "src/Runtime/Bridge/LODManager.cs");
+        private static readonly string VfxPoolManagerSourcePath = Path.Combine(RepoRoot, "src/Runtime/Bridge/VFXPoolManager.cs");
 
-            // See VFXIntegrationTests.cs for integration test guidance.
-            Assert.True(true, "VFX system implementation complete. See inline documentation for testing approach.");
+        private static string GetRepoRoot()
+        {
+            string? currentDir = AppContext.BaseDirectory;
+            while (currentDir != null && !Directory.Exists(Path.Combine(currentDir, "packs")))
+            {
+                currentDir = Path.GetDirectoryName(currentDir);
+            }
+
+            return currentDir ?? throw new InvalidOperationException("Could not find repo root");
         }
 
         [Fact]
-        public void VFXPoolManager_ConceptualBehavior_IsCorrect()
+        public void LODManager_Source_DeclaresExpectedDistanceThresholds_AndTierNames()
         {
-            // Document expected pooling behavior
-            // - Register prefabs with pool size
-            // - Get() retrieves and activates instances
-            // - Return() deactivates and re-enqueues instances
-            // - Pool exhaustion returns null
-            // - Dispose() cleans up all instances
+            string source = File.ReadAllText(LodManagerSourcePath);
 
-            Assert.True(true, "Pool manager design follows object pool pattern");
+            source.Should().Contain("private const float FullQualityDistance = 100f;");
+            source.Should().Contain("private const float MediumQualityDistance = 200f;");
+            source.Should().Contain("FULL = 0");
+            source.Should().Contain("MEDIUM = 1");
+            source.Should().Contain("CULLED = 2");
+            source.Should().Contain("LOD tier enumeration");
         }
 
         [Fact]
-        public void ProjectileVFXSystem_ConceptualBehavior_IsCorrect()
+        public void LODManager_Source_DeclaresExpectedEmissionMultipliers_AndLookupHelpers()
         {
-            // Document expected projectile VFX behavior
-            // - Queries for ProjectileDataBase components
-            // - Detects impact events (simplified frame-based in v0)
-            // - Spawns faction-aware particles (Republic=blue, CIS=orange)
-            // - Positions VFX at impact point
-            // - Returns to pool after particles finish
+            string source = File.ReadAllText(LodManagerSourcePath);
 
-            Assert.True(true, "ProjectileVFXSystem design is sound");
+            source.Should().Contain("LODTier.FULL => 1.0f");
+            source.Should().Contain("LODTier.MEDIUM => 0.6f");
+            source.Should().Contain("LODTier.CULLED => 0.0f");
+            source.Should().Contain("public int GetLODTierIndex(float distance)");
+            source.Should().Contain("public string GetLODTierName(LODTier tier)");
         }
 
         [Fact]
-        public void UnitDeathVFXSystem_ConceptualBehavior_IsCorrect()
+        public void VFXPoolManager_Source_PrewarmsExpectedCatalog_AndUsesQueuePools()
         {
-            // Document expected unit death VFX behavior
-            // - Queries for Unit + Health components
-            // - Detects death transitions (health > 0 -> health <= 0)
-            // - Spawns faction-specific effects (Republic=disintegration, CIS=explosion)
-            // - Positions VFX at unit center
-            // - Manages lifetime (2.5 seconds typical)
-            // - Returns to pool when expired
+            string source = File.ReadAllText(VfxPoolManagerSourcePath);
 
-            Assert.True(true, "UnitDeathVFXSystem design is sound");
+            source.Should().Contain("Dictionary<string, Queue<ParticleSystem>>");
+            source.Should().Contain("AllocatePool(\"vfx/BlasterBolt_Rep.prefab\", 12)");
+            source.Should().Contain("AllocatePool(\"vfx/BlasterBolt_CIS.prefab\", 12)");
+            source.Should().Contain("AllocatePool(\"vfx/Explosion_CIS.prefab\", 12)");
+            source.Should().Contain("Max 48 concurrent instances across all effect types");
         }
 
         [Fact]
-        public void BuildingDestructionVFXSystem_ConceptualBehavior_IsCorrect()
+        public void VFXPoolManager_Source_DeclaresFallbackAndLifecycleOperations()
         {
-            // Document expected building destruction VFX behavior
-            // - Queries for BuildingBase + Health components
-            // - Detects destruction transitions (health > 0 -> health <= 0)
-            // - Spawns faction-aware dust clouds
-            // - Scales particles by building size (0.8-1.2x range)
-            // - Manages lifetime (5 seconds typical)
-            // - Returns to pool when expired
+            string source = File.ReadAllText(VfxPoolManagerSourcePath);
 
-            Assert.True(true, "BuildingDestructionVFXSystem design is sound");
+            source.Should().Contain("CreatePrefabFromDescriptor");
+            source.Should().Contain("VFXPrefabCatalog.GetAllPrefabs()");
+            source.Should().Contain("public ParticleSystem? Get(string prefabPath)");
+            source.Should().Contain("public void Return(ParticleSystem instance)");
+            source.Should().Contain("public void Shutdown()");
         }
     }
 

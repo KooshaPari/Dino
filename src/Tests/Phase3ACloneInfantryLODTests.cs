@@ -207,6 +207,44 @@ namespace DINOForge.Tests
         [InlineData("rep_clone_medic")]
         [InlineData("rep_arf_trooper")]
         [InlineData("rep_clone_militia")]
+        public void Phase3A_CloneUnit_ReferencesRawGlbPath_InConfiguration(string unitId)
+        {
+            var yaml = File.ReadAllText(AssetPipelineYamlPath);
+            var unitSection = ExtractUnitSection(yaml, unitId);
+
+            unitSection.Should().Contain("file: raw/", $"{unitId} must point at a raw asset path in config");
+            unitSection.Should().Contain("model.glb", $"{unitId} must target a GLB model in config");
+            unitSection.Should().NotContain("TODO", $"{unitId} raw asset reference should be production-like config");
+        }
+
+        [Fact]
+        public void Phase3A_CloneUnits_UseDistinctRawGlbPaths()
+        {
+            var yaml = File.ReadAllText(AssetPipelineYamlPath);
+            var unitIds = new[]
+            {
+                "rep_clone_sharpshooter",
+                "rep_clone_heavy",
+                "rep_clone_medic",
+                "rep_arf_trooper",
+                "rep_clone_militia"
+            };
+
+            var rawPaths = unitIds
+                .Select(unitId => ExtractConfigValue(ExtractUnitSection(yaml, unitId), "file"))
+                .ToList();
+
+            rawPaths.Should().OnlyHaveUniqueItems("each Phase 3A clone unit should map to a distinct source GLB path");
+            rawPaths.Should().OnlyContain(path => path.StartsWith("raw/", StringComparison.Ordinal), "Phase 3A source assets should remain under the raw asset tree");
+            rawPaths.Should().OnlyContain(path => path.EndsWith("model.glb", StringComparison.OrdinalIgnoreCase), "Phase 3A units should still reference GLB sources");
+        }
+
+        [Theory]
+        [InlineData("rep_clone_sharpshooter")]
+        [InlineData("rep_clone_heavy")]
+        [InlineData("rep_clone_medic")]
+        [InlineData("rep_arf_trooper")]
+        [InlineData("rep_clone_militia")]
         public void Phase3A_CloneUnit_HasDefinitionUpdate(string unitId)
         {
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
@@ -298,6 +336,18 @@ namespace DINOForge.Tests
             if (nextUnit == -1) nextUnit = yaml.Length;
 
             return yaml.Substring(start, nextUnit - start);
+        }
+
+        private static string ExtractConfigValue(string unitSection, string key)
+        {
+            var prefix = $"{key}: ";
+            var line = unitSection
+                .Split('\n')
+                .Select(line => line.Trim())
+                .FirstOrDefault(line => line.StartsWith(prefix, StringComparison.Ordinal));
+
+            line.Should().NotBeNull($"expected config key '{key}' to exist in unit section");
+            return line![prefix.Length..].Trim();
         }
     }
 }
