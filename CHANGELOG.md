@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `AssetSwapRequest.VanillaMapping` — optional field passed from `UnitDefinition.VanillaMapping` so `AssetSwapSystem` can narrow entity targeting to the correct ECS archetype during live RenderMesh swap
+- `AssetSwapSystem` improvements — expanded entity query and swap logic using `VanillaMapping` for precision targeting
+
 ## [0.10.0] - 2026-03-14
 
 ### Security

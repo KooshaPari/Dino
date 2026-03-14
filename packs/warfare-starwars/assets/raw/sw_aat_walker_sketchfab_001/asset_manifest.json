@@ -7,5 +7,10 @@
   "downloaded": "2026-03-12T23:39:14.734115",
   "license": "CC-BY-4.0",
   "attribution": "See SKETCHFAB_MODELS.json for author info",
-  "source": "https://sketchfab.com/3d-models/aat-armored-assault-tank-7bdce26cbd3440fa8cbcfc135c698b1d"
+  "source": "https://sketchfab.com/3d-models/aat-armored-assault-tank-7bdce26cbd3440fa8cbcfc135c698b1d",
+  "notes": [
+    "[2026-03-14] Placeholder GLB created (minimal unit cube). Original model not available for API download (Free plan / author-disabled download). Replace with real asset when obtained manually."
+  ],
+  "technical_status": "discovered",
+  "local_path": "raw/sw_aat_walker_sketchfab_001/source_download.glb"
 }
