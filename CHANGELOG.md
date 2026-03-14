@@ -27,6 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`RegisterItems<T>` deserialization** — narrowed `catch {}` scope to list-parse only; registration failures no longer swallowed silently
 - **Integration test resilience** — `PackLoadingTests` and `StatTests` skip gracefully when game is unavailable
 
+### Added
+
+- **LOD Calculation Tests** — `LODCalculationTests.cs` covering polycount targets, LOD ratios, and screen threshold math
+- **VFX Pool Logic Tests** — `VFXPoolLogicTests.cs` covering pool lifecycle, faction coloring, and impact positioning
+- **Phase 3A/3B LOD test expansions** — additional assertions for raw GLB path references and distinct asset paths per unit
+- **Integration test resilience** — `PackLoadingTests` and `StatTests` now skip gracefully when game is unavailable
+
 ### Changed
 
 - Lock files synced across all 17 projects (CRLF normalization + dependency updates)
