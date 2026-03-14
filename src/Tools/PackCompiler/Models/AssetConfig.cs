@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace DINOForge.Tools.PackCompiler.Models
 {
@@ -30,6 +31,15 @@ namespace DINOForge.Tools.PackCompiler.Models
         public string MaterialsPath { get; init; } = "materials";
         public string TextureQuality { get; init; } = "high";  // low | medium | high
         public string LODStrategy { get; init; } = "aggressive";  // aggressive | balanced | conservative
+
+        /// <summary>Computed path to imported assets subdirectory</summary>
+        public string ImportedPath => Path.Combine(BasePath, "imported");
+
+        /// <summary>Computed path to optimized assets subdirectory</summary>
+        public string OptimizedPath => Path.Combine(BasePath, "optimized");
+
+        /// <summary>Computed path to prefabs subdirectory</summary>
+        public string PrefabsPath => Path.Combine(BasePath, "prefabs");
     }
 
     /// <summary>Material definition with faction colors</summary>
