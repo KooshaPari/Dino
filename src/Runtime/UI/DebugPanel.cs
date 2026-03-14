@@ -205,7 +205,7 @@ namespace DINOForge.Runtime.UI
 
         private void RefreshContent()
         {
-            if (_contentRoot == null) 
+            if (_contentRoot == null)
             {
                 Debug.LogWarning("[DebugPanel.RefreshContent] _contentRoot is NULL - cannot build content");
                 return;

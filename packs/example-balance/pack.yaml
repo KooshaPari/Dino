@@ -1,8 +1,8 @@
 # Example Balance Pack
 # Demonstrates a content pack with units, buildings, and a faction
 
-id: example-balance-tweak
-name: Example Balance Tweak
+id: example-balance
+name: Example Balance
 version: 0.1.0
 framework_version: ">=0.1.0 <1.0.0"
 author: DINOForge Examples
