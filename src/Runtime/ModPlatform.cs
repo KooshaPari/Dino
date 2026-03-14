@@ -289,7 +289,25 @@ namespace DINOForge.Runtime
                 return;
             }
 
-            // Re-enqueue all stat overrides now that the catalog is populated
+            // Apply pack unit stat definitions to matching vanilla ECS entities.
+            // PackStatInjector replaces the no-op ApplyUnitOverrides path for vanilla_mapping units.
+            if (_registryManager != null)
+            {
+                try
+                {
+                    int injectedWrites = PackStatInjector.Apply(
+                        world.EntityManager,
+                        _registryManager,
+                        msg => _log.LogInfo(msg));
+                    _log.LogInfo($"[ModPlatform] PackStatInjector: {injectedWrites} entity-field write(s) applied.");
+                }
+                catch (Exception ex)
+                {
+                    _log.LogWarning($"[ModPlatform] PackStatInjector failed: {ex.Message}");
+                }
+            }
+
+            // Re-enqueue global YAML stat overrides now that the catalog is populated
             if (_registryManager != null && _contentLoader != null)
             {
                 try
