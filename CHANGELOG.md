@@ -5,6 +5,31 @@ All notable changes to DINOForge will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-03-13
+
+### Added
+
+- **Aviation system — faction-aware targeting**: `AerialTargetingSystem` now queries only `Components.Enemy`-tagged entities; aerial units no longer attack friendly units
+- **Aviation system — anti-air building wiring**: `AerialBuildingMapper` attaches `AntiAirComponent` to buildings with `defense_tags: [AntiAir]` at startup sweep via `AerialSpawnSystem`
+- `BuildingDefinition` extended with `DefenseTags` (`List<string>`) and `AntiAir` (`BuildingAntiAirProperties`) for YAML deserialization
+- `AerialSpawnSystem.Initialize(RegistryManager)` called from `ModPlatform.LoadPacks()` to wire building registry
+- **Phase 5 building expansion**: 12 new buildings (6 Republic + 6 CIS) with `visual_asset` keys, prefabs, and `v1_1_0_buildings_expansion` pipeline section
+- **Phase 5 unit pipeline section**: `v1_2_0_units_phase5` with 8 units (rep_jedi_knight, rep_clone_commando, rep_clone_sniper, rep_clone_wall_guard, cis_b1_squad, cis_medical_droid, cis_magnaguard, cis_tri_fighter)
+- `AviationStarWarsTests.cs` — 24 tests: aerial unit YAML config, anti-air building config, faction aerial counts, asset pipeline section validation
+- `warfare-modern` content pack: 24 units, 20 buildings, 9 weapons, 4 doctrines, 10 waves (Western Coalition vs Eastern Bloc)
+- Sketchfab sourcing manifests for all 12 Phase 5 expansion buildings
+- VitePress docs sidebar reorganized into 8 sections; all 37 docs linked
+
+### Fixed
+
+- Star Wars manifest updated to canonical unit/building IDs (`rep_clone_trooper`, `cis_b1_droid`, etc.); aerial and anti-air units wired into faction lists
+- Legacy `clone-trooper.yaml` removed (superseded by `republic_units.yaml`)
+- All pending packages.lock.json files committed (fixes CI `--locked-mode` restore failure)
+
+### Tests
+
+- 903 unit tests passing (24 new aviation+SW tests)
+
 ## [0.6.0] - 2026-03-13
 
 ### Added
