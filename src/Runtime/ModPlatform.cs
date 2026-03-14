@@ -375,6 +375,18 @@ namespace DINOForge.Runtime
                 _log.LogError($"[ModPlatform] Failed to initialize PackUnitSpawner: {ex.Message}");
             }
 
+            // Initialize AerialSpawnSystem so it can sweep baked building entities for
+            // defense_tags: [AntiAir] and attach AntiAirComponent on its startup pass.
+            try
+            {
+                DINOForge.Runtime.Aviation.AerialSpawnSystem.Initialize(_registryManager);
+                _log.LogInfo("[ModPlatform] AerialSpawnSystem initialized with building registry.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogError($"[ModPlatform] Failed to initialize AerialSpawnSystem: {ex.Message}");
+            }
+
             // Apply stat overrides from loaded units
             try
             {

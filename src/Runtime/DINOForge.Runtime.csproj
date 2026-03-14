@@ -23,6 +23,12 @@
     <MSBuildWarningsAsMessages>MSB3277</MSBuildWarningsAsMessages>
   </PropertyGroup>
 
+  <!-- Exclude WIP UI files that reference types not yet implemented -->
+  <ItemGroup>
+    <!-- ContextualModMenuHost depends on NativeMainMenuModMenu, which is not yet implemented -->
+    <Compile Remove="UI\ContextualModMenuHost.cs" />
+  </ItemGroup>
+
   <!-- Exclude UGUI-dependent UI files when the game is not installed (no UnityEngine.UIModule.dll) -->
   <ItemGroup Condition="'$(GameInstalled)' != 'true'">
     <Compile Remove="UI\DebugPanel.cs" />

@@ -43,5 +43,45 @@ namespace DINOForge.SDK.Models
         /// </summary>
         [YamlMember(Alias = "production")]
         public Dictionary<string, int> Production { get; set; } = new Dictionary<string, int>();
+
+        /// <summary>
+        /// Defense tags controlling how this building interacts with combat systems.
+        /// Supported values: AntiAir, Fortified, Shielded.
+        /// A building with "AntiAir" will have <c>AntiAirComponent</c>
+        /// attached to its ECS entity on world load by <c>AerialBuildingMapper</c>.
+        /// </summary>
+        [YamlMember(Alias = "defense_tags")]
+        public List<string> DefenseTags { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Anti-air parameters. Only relevant when <see cref="DefenseTags"/> contains "AntiAir".
+        /// If omitted, defaults in <c>AerialBuildingMapper</c> apply (range 20f, damage bonus 1.5f).
+        /// </summary>
+        [YamlMember(Alias = "anti_air")]
+        public BuildingAntiAirProperties? AntiAir { get; set; }
+    }
+
+    /// <summary>
+    /// Anti-air combat parameters for a building definition.
+    /// Deserialized from the <c>anti_air:</c> block in building YAML files.
+    ///
+    /// These values are mapped to <c>AntiAirComponent</c>
+    /// when a building with the <c>AntiAir</c> defense_tag is initialised on world load.
+    /// </summary>
+    public class BuildingAntiAirProperties
+    {
+        /// <summary>
+        /// Maximum engagement range in world units at which this building can
+        /// target aerial entities.  Default 20f.
+        /// </summary>
+        [YamlMember(Alias = "range")]
+        public float Range { get; set; } = 20f;
+
+        /// <summary>
+        /// Damage multiplier applied when attacking aerial targets
+        /// (e.g. 1.5f = +50 % damage vs aerial).  Default 1.5f.
+        /// </summary>
+        [YamlMember(Alias = "damage_bonus")]
+        public float DamageBonus { get; set; } = 1.5f;
     }
 }
