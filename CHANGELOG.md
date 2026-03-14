@@ -7,19 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-03-14
+
 ### Security
 
-- **SixLabors.ImageSharp 3.0.2 → 3.1.11** — patches 7 CVEs in PackCompiler: 3 high severity (OOB write CVE-2024-41132, Use After Free CVE-2024-41133, CVE-2024-41134) and 4 medium severity (memory allocation, data leakage, infinite loop issues)
+- **SixLabors.ImageSharp 3.0.2 → 3.1.11** — patches 7 CVEs in PackCompiler: 3 high severity (OOB write CVE-2024-41132, Use After Free CVE-2024-41133, CVE-2024-41134) and 4 medium severity (memory allocation, data leakage, infinite loop issues); supersedes Dependabot PR #24
+
+### Added
+
+- **LOD Calculation Tests** (`LODCalculationTests.cs`) — polycount targets, LOD ratios, and screen threshold math
+- **VFX Pool Logic Tests** (`VFXPoolLogicTests.cs`) — pool lifecycle, faction coloring, and impact positioning (215 tests)
+- **Phase 3A/3B LOD test expansions** — raw GLB path reference assertions and distinct asset path per-unit checks
+- **MCP server `cwd` config** — `src/Tools/DinoforgeMcp` CWD set so `python -m dinoforge_mcp.server` resolves correctly
 
 ### Fixed
 
-- **UI panel alpha flicker** — `DebugPanel.Show()` and `ModMenuPanel.Show()` now set `_animT = 1f` so `AnimatePanel()` doesn't reset alpha to ~0 on the next frame
+- **UI panel alpha flicker** — `DebugPanel.Show()` and `ModMenuPanel.Show()` set `_animT = 1f` so `AnimatePanel()` doesn't reset alpha to ~0 on the next frame
+- **`example-balance` pack ID** — `pack.yaml` `id:` aligned with directory name; fixed `ContentLoaderIntegrationTests` failures
+- **`RegisterItems<T>` deserialization** — narrowed `catch {}` scope to list-parse only; registration failures no longer swallowed silently
+- **Integration test resilience** — `PackLoadingTests` and `StatTests` skip gracefully when game is unavailable
 
 ### Changed
 
-- Lock files synced across all projects (CRLF normalization + dependency updates)
+- Lock files synced across all 17 projects (CRLF normalization + dependency updates)
 - `ThemeColorPalette` refactored to resolve naming conflicts; minor fixes in `CompatibilityChecker`, `PackManifest`, `Registry`, `BalanceCalculator`, `PackCompiler`, and `DumpTools`
 - Runtime UI whitespace formatting applied to `DebugPanel.cs` and `ModMenuPanel.cs`
+- Unity AssetBundles and prefab GUIDs synchronized after Unity project rebuild
 
 ## [0.9.1] - 2026-03-14
 
