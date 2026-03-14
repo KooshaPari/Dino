@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1571081902
+CRC: 2447058914
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 44739907b8ed80083e63039b2dd4b365
+    Hash: 56d7655110a42f42a893b296dd5d8787
   TypeTreeHash:
     serializedVersion: 2
     Hash: a3954d9da6324b836c32a89fa85d00a9
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 44739907b8ed80083e63039b2dd4b365
+    Hash: 56d7655110a42f42a893b296dd5d8787
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -32,4 +32,5 @@ SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Materials/Republic/sw-rep-at-te-walker.mat
 - Assets/Prefabs/Republic/sw-rep-at-te-walker.prefab
+- Assets/Materials/Republic/sw-rep-at-te-walker-primary.mat
 Dependencies: []

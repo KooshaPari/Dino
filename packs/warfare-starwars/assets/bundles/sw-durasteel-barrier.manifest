@@ -1,35 +1,22 @@
 ManifestFileVersion: 0
-CRC: 1669445015
+CRC: 169892647
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: c9354eb4d83cbded719bd9a5fadd1c50
+    Hash: 9eb072f9d9f7f80fe2251f8b63eb41bc
   TypeTreeHash:
     serializedVersion: 2
-    Hash: a3954d9da6324b836c32a89fa85d00a9
+    Hash: 1397ad235555a4f37791d5b3ff19e7a7
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: c9354eb4d83cbded719bd9a5fadd1c50
+    Hash: 9eb072f9d9f7f80fe2251f8b63eb41bc
 HashAppended: 0
 ClassTypes:
-- Class: 1
-  Script: {instanceID: 0}
-- Class: 4
-  Script: {instanceID: 0}
 - Class: 21
-  Script: {instanceID: 0}
-- Class: 23
-  Script: {instanceID: 0}
-- Class: 33
-  Script: {instanceID: 0}
-- Class: 43
   Script: {instanceID: 0}
 - Class: 48
   Script: {instanceID: 0}
-- Class: 65
-  Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
-- Assets/Prefabs/CIS/sw-durasteel-barrier.prefab
 - Assets/Materials/CIS/sw-durasteel-barrier.mat
 Dependencies: []

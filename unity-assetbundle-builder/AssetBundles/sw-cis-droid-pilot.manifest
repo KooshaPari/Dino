@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1169940467
+CRC: 3821926608
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 0b1e5b58068db0c58ecdfdf6f08a240c
+    Hash: 772bb143b50a862fc25fbf8e7fc1336e
   TypeTreeHash:
     serializedVersion: 2
     Hash: e2a11be68d6287ac10b047eee7e3b6d6
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 0b1e5b58068db0c58ecdfdf6f08a240c
+    Hash: 772bb143b50a862fc25fbf8e7fc1336e
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -32,4 +32,5 @@ SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Materials/CIS/sw-cis-droid-pilot.mat
 - Assets/Prefabs/CIS/sw-cis-droid-pilot.prefab
+- Assets/Materials/CIS/sw-cis-droid-pilot-primary.mat
 Dependencies: []

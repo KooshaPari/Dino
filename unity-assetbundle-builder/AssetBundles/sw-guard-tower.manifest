@@ -1,35 +1,22 @@
 ManifestFileVersion: 0
-CRC: 1733968784
+CRC: 161218416
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 8fbeb13569620ea72aad50a4a80657cb
+    Hash: 732ea8b411ab8f8296e64cebfbabba11
   TypeTreeHash:
     serializedVersion: 2
-    Hash: e2a11be68d6287ac10b047eee7e3b6d6
+    Hash: 1397ad235555a4f37791d5b3ff19e7a7
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 8fbeb13569620ea72aad50a4a80657cb
+    Hash: 732ea8b411ab8f8296e64cebfbabba11
 HashAppended: 0
 ClassTypes:
-- Class: 1
-  Script: {instanceID: 0}
-- Class: 4
-  Script: {instanceID: 0}
 - Class: 21
   Script: {instanceID: 0}
-- Class: 23
-  Script: {instanceID: 0}
-- Class: 33
-  Script: {instanceID: 0}
-- Class: 43
-  Script: {instanceID: 0}
 - Class: 48
-  Script: {instanceID: 0}
-- Class: 136
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Materials/Republic/sw-guard-tower.mat
-- Assets/Prefabs/Republic/sw-guard-tower.prefab
 Dependencies: []

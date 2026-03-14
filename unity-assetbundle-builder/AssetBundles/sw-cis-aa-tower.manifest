@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1115137819
+CRC: 3420900000
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 177a6c060b59556d67bcb470c7364bbb
+    Hash: 2ed094b557954cfb6623c920cf752ba2
   TypeTreeHash:
     serializedVersion: 2
     Hash: e2a11be68d6287ac10b047eee7e3b6d6
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 177a6c060b59556d67bcb470c7364bbb
+    Hash: 2ed094b557954cfb6623c920cf752ba2
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -31,5 +31,6 @@ ClassTypes:
 SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Prefabs/CIS/sw-cis-aa-tower.prefab
+- Assets/Materials/CIS/sw-cis-aa-tower-primary.mat
 - Assets/Materials/CIS/sw-cis-aa-tower.mat
 Dependencies: []

@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3405188257
+CRC: 3110353725
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 126716cc9d405acba7835f362b33cac9
+    Hash: 6ae2098b1b91b0e0bb47c02c0e9041b4
   TypeTreeHash:
     serializedVersion: 2
     Hash: a3954d9da6324b836c32a89fa85d00a9
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 126716cc9d405acba7835f362b33cac9
+    Hash: 6ae2098b1b91b0e0bb47c02c0e9041b4
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -30,6 +30,7 @@ ClassTypes:
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
+- Assets/Materials/Republic/sw-rep-at-rt-walker-primary.mat
 - Assets/Materials/Republic/sw-rep-at-rt-walker.mat
 - Assets/Prefabs/Republic/sw-rep-at-rt-walker.prefab
 Dependencies: []

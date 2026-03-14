@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 4153062623
+CRC: 3893261684
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: f239b2b91d6d477a81c3e1bc4bec71f2
+    Hash: 8f7c2ee5bf441178b55293cffc6d9dec
   TypeTreeHash:
     serializedVersion: 2
     Hash: a3954d9da6324b836c32a89fa85d00a9
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: f239b2b91d6d477a81c3e1bc4bec71f2
+    Hash: 8f7c2ee5bf441178b55293cffc6d9dec
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -30,6 +30,7 @@ ClassTypes:
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
+- Assets/Materials/CIS/sw-cis-command-center-primary.mat
 - Assets/Prefabs/CIS/sw-cis-command-center.prefab
 - Assets/Materials/CIS/sw-cis-command-center.mat
 Dependencies: []
