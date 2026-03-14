@@ -12,23 +12,24 @@ using YamlDotNet.Serialization.NamingConventions;
 namespace DINOForge.SDK
 {
     /// <summary>
-    /// Orchestrates loading content packs from disk into the registry system.
-    /// Handles manifest parsing, schema validation, YAML deserialization, and registration.
+    /// Orchestrates pack loading while delegating filesystem discovery, schema resolution,
+    /// and registry registration to specialized SDK services.
     /// </summary>
     public class ContentLoader
     {
-        private readonly RegistryManager _registryManager;
-        private readonly ISchemaValidator? _schemaValidator;
-        private readonly Action<string> _log;
+        private readonly IContentDiscoveryService _discoveryService;
+        private readonly ISchemaResolverService _schemaResolver;
+        private readonly IRegistryImportService _registryImport;
         private readonly PackLoader _packLoader;
         private readonly PackDependencyResolver _dependencyResolver;
-        private readonly IDeserializer _deserializer;
-        private readonly List<StatOverrideDefinition> _loadedOverrides = new List<StatOverrideDefinition>();
+
+        // Stored so RegisterAssetSwaps() can enumerate units/buildings after registration.
+        private readonly RegistryManager? _registryManager;
 
         /// <summary>
         /// All stat override definitions loaded from packs.
         /// </summary>
-        public IReadOnlyList<StatOverrideDefinition> LoadedOverrides => _loadedOverrides;
+        public IReadOnlyList<StatOverrideDefinition> LoadedOverrides => _registryImport.LoadedOverrides;
 
         /// <summary>
         /// Errors from the last load operation.
@@ -41,38 +42,67 @@ namespace DINOForge.SDK
         public int LastLoadErrorCount => LastLoadErrors.Count;
 
         /// <summary>
-        /// Mapping from content type keys (as used in pack.yaml loads section)
-        /// to the schema name used for validation.
-        /// </summary>
-        private static readonly Dictionary<string, string> ContentTypeToSchema = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "units", "unit" },
-            { "buildings", "building" },
-            { "factions", "faction" },
-            { "weapons", "weapon" },
-            { "projectiles", "projectile" },
-            { "doctrines", "doctrine" },
-            { "stats", "stat-override" },
-            { "faction_patches", "faction-patch" }
-        };
-
-        /// <summary>
-        /// Initializes a new <see cref="ContentLoader"/>.
+        /// Initializes a new <see cref="ContentLoader"/> with the default SDK services.
         /// </summary>
         /// <param name="registryManager">The registry manager to populate.</param>
         /// <param name="schemaValidator">Optional schema validator. Pass null to skip validation.</param>
         /// <param name="log">Logging callback. Pass null for no logging.</param>
         public ContentLoader(RegistryManager registryManager, ISchemaValidator? schemaValidator = null, Action<string>? log = null)
+            : this(
+                new ContentDiscoveryService(),
+                new SchemaResolverService(),
+                CreateRegistryImport(registryManager, schemaValidator, log),
+                registryManager)
         {
-            _registryManager = registryManager ?? throw new ArgumentNullException(nameof(registryManager));
-            _schemaValidator = schemaValidator;
-            _log = log ?? (_ => { });
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="ContentLoader"/> with custom internal services.
+        /// </summary>
+        /// <param name="discoveryService">Content discovery service.</param>
+        /// <param name="schemaResolver">Schema resolution service.</param>
+        /// <param name="registryImport">Registry import service.</param>
+        /// <param name="registryManager">
+        /// Optional registry manager reference used to wire <see cref="AssetSwapRegistry"/>
+        /// after units and buildings are loaded. Pass null to skip asset swap registration.
+        /// </param>
+        internal ContentLoader(
+            IContentDiscoveryService discoveryService,
+            ISchemaResolverService schemaResolver,
+            IRegistryImportService registryImport,
+            RegistryManager? registryManager = null)
+        {
+            _discoveryService = discoveryService ?? throw new ArgumentNullException(nameof(discoveryService));
+            _schemaResolver = schemaResolver ?? throw new ArgumentNullException(nameof(schemaResolver));
+            _registryImport = registryImport ?? throw new ArgumentNullException(nameof(registryImport));
+            _registryManager = registryManager;
             _packLoader = new PackLoader();
             _dependencyResolver = new PackDependencyResolver();
-            _deserializer = new DeserializerBuilder()
+        }
+
+        private static IRegistryImportService CreateRegistryImport(
+            RegistryManager registryManager,
+            ISchemaValidator? schemaValidator,
+            Action<string>? log)
+        {
+            if (registryManager == null)
+            {
+                throw new ArgumentNullException(nameof(registryManager));
+            }
+
+            Action<string> logger = log ?? (_ => { });
+            IDeserializer deserializer = new DeserializerBuilder()
                 .WithNamingConvention(UnderscoredNamingConvention.Instance)
                 .IgnoreUnmatchedProperties()
                 .Build();
+
+            return new RegistryImportService(
+                registryManager,
+                schemaValidator,
+                new SchemaResolverService(),
+                deserializer,
+                new List<StatOverrideDefinition>(),
+                logger);
         }
 
         /// <summary>
@@ -82,68 +112,42 @@ namespace DINOForge.SDK
         /// <returns>Result indicating success or failure with errors.</returns>
         public ContentLoadResult LoadPack(string packDirectory)
         {
-            List<string> errors = new List<string>();
+            if (packDirectory == null)
+            {
+                throw new ArgumentNullException(nameof(packDirectory));
+            }
 
-            // 1. Find and parse manifest
             string manifestPath = Path.Combine(packDirectory, "pack.yaml");
             if (!File.Exists(manifestPath))
             {
-                return ContentLoadResult.Failure(new List<string>
-                {
-                    $"Pack manifest not found: {manifestPath}"
-                }.AsReadOnly());
+                List<string> errors = new List<string> { $"Pack manifest not found: {manifestPath}" };
+                LastLoadErrors = errors.AsReadOnly();
+                return ContentLoadResult.Failure(LastLoadErrors);
             }
 
             PackManifest manifest;
             try
             {
                 manifest = _packLoader.LoadFromFile(manifestPath);
-                _log($"[ContentLoader] Loaded manifest for pack '{manifest.Id}'");
             }
             catch (Exception ex)
             {
-                return ContentLoadResult.Failure(new List<string>
-                {
-                    $"Failed to parse manifest at {manifestPath}: {ex.Message}"
-                }.AsReadOnly());
-            }
-
-            // 2. Walk content types from the Loads section
-            if (manifest.Loads != null)
-            {
-                LoadContentType(packDirectory, manifest, "units", manifest.Loads.Units, errors);
-                LoadContentType(packDirectory, manifest, "buildings", manifest.Loads.Buildings, errors);
-                LoadContentType(packDirectory, manifest, "factions", manifest.Loads.Factions, errors);
-                LoadContentType(packDirectory, manifest, "weapons", manifest.Loads.Weapons, errors);
-                LoadContentType(packDirectory, manifest, "doctrines", manifest.Loads.Doctrines, errors);
-                LoadContentType(packDirectory, manifest, "faction_patches", manifest.Loads.FactionPatches, errors);
-
-                // 3. Load stat overrides from Overrides section or conventional stats/ subdirectory
-                if (manifest.Overrides?.Stats != null && manifest.Overrides.Stats.Count > 0)
-                {
-                    LoadContentType(packDirectory, manifest, "stats", manifest.Overrides.Stats, errors);
-                }
-                else
-                {
-                    // Scan conventional stats/ subdirectory
-                    LoadContentType(packDirectory, manifest, "stats", null, errors);
-                }
-            }
-            else
-            {
-                // Scan conventional subdirectories if Loads is not specified
-                ScanConventionalDirectories(packDirectory, manifest, errors);
-            }
-
-            if (errors.Count > 0)
-            {
+                List<string> errors = new List<string> { $"Failed to parse manifest at {manifestPath}: {ex.Message}" };
                 LastLoadErrors = errors.AsReadOnly();
-                return ContentLoadResult.Partial(
-                    new List<string> { manifest.Id }.AsReadOnly(),
-                    errors.AsReadOnly());
+                return ContentLoadResult.Failure(LastLoadErrors);
             }
 
-            return ContentLoadResult.Success(new List<string> { manifest.Id }.AsReadOnly());
+            List<string> loadErrors = new List<string>();
+            LoadManifestContent(packDirectory, manifest, loadErrors);
+
+            // Wire AssetSwapRegistry for all units and buildings with visual_asset references.
+            RegisterAssetSwaps(packDirectory);
+
+            LastLoadErrors = loadErrors.AsReadOnly();
+            IReadOnlyList<string> loadedPackIds = new List<string> { manifest.Id }.AsReadOnly();
+            return loadErrors.Count > 0
+                ? ContentLoadResult.Partial(loadedPackIds, LastLoadErrors)
+                : ContentLoadResult.Success(loadedPackIds);
         }
 
         /// <summary>
@@ -155,71 +159,45 @@ namespace DINOForge.SDK
         {
             if (!Directory.Exists(packsRootDirectory))
             {
-                return ContentLoadResult.Failure(new List<string>
-                {
-                    $"Packs directory not found: {packsRootDirectory}"
-                }.AsReadOnly());
+                List<string> pathErrors = new List<string> { $"Packs directory not found: {packsRootDirectory}" };
+                LastLoadErrors = pathErrors.AsReadOnly();
+                return ContentLoadResult.Failure(LastLoadErrors);
             }
 
             List<string> errors = new List<string>();
-            List<(string Directory, PackManifest Manifest)> manifests = new List<(string Directory, PackManifest Manifest)>();
-
-            // 1. Discover all pack directories
-            foreach (string dir in Directory.GetDirectories(packsRootDirectory))
-            {
-                string manifestPath = Path.Combine(dir, "pack.yaml");
-                if (!File.Exists(manifestPath))
-                    continue;
-
-                try
-                {
-                    PackManifest manifest = _packLoader.LoadFromFile(manifestPath);
-                    manifests.Add((dir, manifest));
-                }
-                catch (Exception ex)
-                {
-                    errors.Add($"Failed to parse manifest in {dir}: {ex.Message}");
-                }
-            }
-
+            List<(string Directory, PackManifest Manifest)> manifests = DiscoverPackManifests(packsRootDirectory, errors);
             if (manifests.Count == 0)
             {
-                if (errors.Count > 0)
-                    return ContentLoadResult.Failure(errors.AsReadOnly());
-                return ContentLoadResult.Success(new List<string>().AsReadOnly());
+                LastLoadErrors = errors.AsReadOnly();
+                return errors.Count > 0
+                    ? ContentLoadResult.Failure(LastLoadErrors)
+                    : ContentLoadResult.Success(new List<string>().AsReadOnly());
             }
 
-            // 2. Resolve dependencies and compute load order
-            DependencyResult depResult = _dependencyResolver.ComputeLoadOrder(
-                manifests.Select(m => m.Manifest));
-
-            if (!depResult.IsSuccess)
+            DependencyResult dependencyResult = _dependencyResolver.ComputeLoadOrder(manifests.Select(item => item.Manifest));
+            if (!dependencyResult.IsSuccess)
             {
-                errors.AddRange(depResult.Errors);
-                return ContentLoadResult.Failure(errors.AsReadOnly());
+                errors.AddRange(dependencyResult.Errors);
+                LastLoadErrors = errors.AsReadOnly();
+                return ContentLoadResult.Failure(LastLoadErrors);
             }
 
-            // 3. Check for conflicts
-            IReadOnlyList<string> conflicts = _dependencyResolver.DetectConflicts(
-                manifests.Select(m => m.Manifest));
-            if (conflicts.Count > 0)
-            {
-                errors.AddRange(conflicts);
-            }
+            errors.AddRange(_dependencyResolver.DetectConflicts(manifests.Select(item => item.Manifest)));
 
-            // 4. Load packs in dependency order
-            List<string> loadedPacks = new List<string>();
-            Dictionary<string, string> dirByPackId = manifests.ToDictionary(
-                m => m.Manifest.Id,
-                m => m.Directory,
+            Dictionary<string, string> directoriesByPackId = manifests.ToDictionary(
+                item => item.Manifest.Id,
+                item => item.Directory,
                 StringComparer.OrdinalIgnoreCase);
 
-            foreach (PackManifest orderedManifest in depResult.LoadOrder)
+            List<string> loadedPacks = new List<string>();
+            foreach (PackManifest orderedManifest in dependencyResult.LoadOrder)
             {
-                if (!dirByPackId.TryGetValue(orderedManifest.Id, out string? packDir))
+                if (!directoriesByPackId.TryGetValue(orderedManifest.Id, out string? packDirectory))
+                {
                     continue;
+                }
 
-                ContentLoadResult packResult = LoadPack(packDir);
+                ContentLoadResult packResult = LoadPack(packDirectory);
                 loadedPacks.AddRange(packResult.LoadedPacks);
                 if (!packResult.IsSuccess)
                 {
@@ -227,228 +205,126 @@ namespace DINOForge.SDK
                 }
             }
 
-            if (errors.Count > 0)
-            {
-                LastLoadErrors = errors.AsReadOnly();
-                return ContentLoadResult.Partial(loadedPacks.AsReadOnly(), errors.AsReadOnly());
-            }
-
-            return ContentLoadResult.Success(loadedPacks.AsReadOnly());
+            LastLoadErrors = errors.AsReadOnly();
+            return errors.Count > 0
+                ? ContentLoadResult.Partial(loadedPacks.AsReadOnly(), LastLoadErrors)
+                : ContentLoadResult.Success(loadedPacks.AsReadOnly());
         }
 
-        /// <summary>
-        /// Loads content files for a specific type from declared paths or a conventional subdirectory.
-        /// </summary>
+        private List<(string Directory, PackManifest Manifest)> DiscoverPackManifests(
+            string packsRootDirectory,
+            List<string> errors)
+        {
+            List<(string Directory, PackManifest Manifest)> manifests = new List<(string Directory, PackManifest Manifest)>();
+
+            foreach (string directory in _discoveryService.DiscoverPackDirectories(packsRootDirectory))
+            {
+                string manifestPath = Path.Combine(directory, "pack.yaml");
+                try
+                {
+                    manifests.Add((directory, _packLoader.LoadFromFile(manifestPath)));
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Failed to parse manifest in {directory}: {ex.Message}");
+                }
+            }
+
+            return manifests;
+        }
+
+        private void LoadManifestContent(string packDirectory, PackManifest manifest, List<string> errors)
+        {
+            if (manifest.Loads != null)
+            {
+                LoadContentType(packDirectory, manifest, "units", manifest.Loads.Units, errors);
+                LoadContentType(packDirectory, manifest, "buildings", manifest.Loads.Buildings, errors);
+                LoadContentType(packDirectory, manifest, "factions", manifest.Loads.Factions, errors);
+                LoadContentType(packDirectory, manifest, "weapons", manifest.Loads.Weapons, errors);
+                LoadContentType(packDirectory, manifest, "doctrines", manifest.Loads.Doctrines, errors);
+                LoadContentType(packDirectory, manifest, "faction_patches", manifest.Loads.FactionPatches, errors);
+
+                List<string>? statsPaths = manifest.Overrides?.Stats?.Count > 0
+                    ? manifest.Overrides.Stats
+                    : null;
+                LoadContentType(packDirectory, manifest, "stats", statsPaths, errors);
+                return;
+            }
+
+            ScanConventionalDirectories(packDirectory, manifest, errors);
+        }
+
         private void LoadContentType(
             string packDirectory,
             PackManifest manifest,
             string contentType,
             List<string>? declaredPaths,
-            List<string> errors)
+            IList<string> errors)
         {
-            // Collect YAML files to load
-            List<string> yamlFiles;
-
-            if (declaredPaths != null && declaredPaths.Count > 0)
-            {
-                // Declared paths can be relative file paths or directory names
-                yamlFiles = new List<string>();
-                foreach (string path in declaredPaths)
-                {
-                    string fullPath = Path.Combine(packDirectory, path);
-                    if (Directory.Exists(fullPath))
-                    {
-                        yamlFiles.AddRange(Directory.GetFiles(fullPath, "*.yaml"));
-                        yamlFiles.AddRange(Directory.GetFiles(fullPath, "*.yml"));
-                    }
-                    else if (File.Exists(fullPath))
-                    {
-                        yamlFiles.Add(fullPath);
-                    }
-                    else
-                    {
-                        // Try as a relative path with yaml extension
-                        string withExt = fullPath.EndsWith(".yaml") || fullPath.EndsWith(".yml")
-                            ? fullPath
-                            : fullPath + ".yaml";
-                        if (File.Exists(withExt))
-                            yamlFiles.Add(withExt);
-                    }
-                }
-            }
-            else
-            {
-                // Scan conventional subdirectory
-                string subDir = Path.Combine(packDirectory, contentType);
-                if (!Directory.Exists(subDir))
-                    return;
-
-                yamlFiles = new List<string>(Directory.GetFiles(subDir, "*.yaml"));
-                yamlFiles.AddRange(Directory.GetFiles(subDir, "*.yml"));
-            }
+            IReadOnlyList<string> yamlFiles = _discoveryService.DiscoverYamlFiles(
+                packDirectory,
+                contentType,
+                declaredPaths);
 
             foreach (string yamlFile in yamlFiles)
             {
-                LoadAndRegisterContent(yamlFile, contentType, manifest, errors);
+                _registryImport.LoadAndRegisterContent(yamlFile, contentType, manifest, errors);
             }
         }
 
-        /// <summary>
-        /// Scans conventional subdirectories (units/, buildings/, factions/, etc.) for content files.
-        /// </summary>
-        private void ScanConventionalDirectories(string packDirectory, PackManifest manifest, List<string> errors)
+        private void ScanConventionalDirectories(string packDirectory, PackManifest manifest, IList<string> errors)
         {
-            foreach (string contentType in ContentTypeToSchema.Keys)
+            foreach (string contentType in _schemaResolver.ContentTypes)
             {
                 LoadContentType(packDirectory, manifest, contentType, null, errors);
             }
         }
 
         /// <summary>
-        /// Reads a YAML file, optionally validates it, deserializes it, and registers it.
+        /// Registers asset swaps in <see cref="DINOForge.SDK.Assets.AssetSwapRegistry"/> for all
+        /// units and buildings loaded from this pack that declare a <c>visual_asset</c> field.
+        /// The bundle path is resolved as <c>{packDirectory}/assets/bundles/{visual_asset}</c>.
+        /// Registration is skipped silently when the bundle file does not exist on disk
+        /// (e.g. bundles not yet built), so this method never blocks content loading.
         /// </summary>
-        private void LoadAndRegisterContent(
-            string yamlFilePath,
-            string contentType,
-            PackManifest manifest,
-            List<string> errors)
+        /// <param name="packDirectory">Absolute path to the pack root directory.</param>
+        private void RegisterAssetSwaps(string packDirectory)
         {
-            string yamlContent;
-            try
-            {
-                yamlContent = File.ReadAllText(yamlFilePath);
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"Failed to read {yamlFilePath}: {ex.Message}");
+            if (_registryManager == null)
                 return;
+
+            string bundlesDir = Path.Combine(packDirectory, "assets", "bundles");
+
+            foreach (DINOForge.SDK.Registry.RegistryEntry<Models.UnitDefinition> entry in _registryManager.Units.All.Values)
+            {
+                Models.UnitDefinition unit = entry.Data;
+                if (string.IsNullOrEmpty(unit.VisualAsset))
+                    continue;
+
+                string bundlePath = Path.Combine(bundlesDir, unit.VisualAsset!);
+                if (!File.Exists(bundlePath))
+                    continue;
+
+                Assets.AssetSwapRegistry.Register(new Assets.AssetSwapRequest(
+                    unit.VisualAsset!,
+                    bundlePath,
+                    unit.VisualAsset!));
             }
 
-            // Validate against schema if validator is available
-            if (_schemaValidator != null && ContentTypeToSchema.TryGetValue(contentType, out string? schemaName))
+            foreach (DINOForge.SDK.Registry.RegistryEntry<Models.BuildingDefinition> entry in _registryManager.Buildings.All.Values)
             {
-                try
-                {
-                    ValidationResult validationResult = _schemaValidator.Validate(schemaName, yamlContent);
-                    if (!validationResult.IsValid)
-                    {
-                        foreach (ValidationError error in validationResult.Errors)
-                        {
-                            errors.Add($"Validation error in {yamlFilePath} [{error.Path}]: {error.Message}");
-                        }
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Log validation failure but continue (schema might not be loaded)
-                    _log($"[ContentLoader] Schema validation skipped for {yamlFilePath}: {ex.Message}");
-                }
-            }
+                Models.BuildingDefinition building = entry.Data;
+                if (string.IsNullOrEmpty(building.VisualAsset))
+                    continue;
 
-            // Deserialize and register
-            try
-            {
-                RegisterContent(yamlContent, contentType, manifest);
-                _log($"[ContentLoader] Registered {contentType} from {Path.GetFileName(yamlFilePath)}");
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"Failed to deserialize/register {yamlFilePath}: {ex.Message}");
-            }
-        }
+                string bundlePath = Path.Combine(bundlesDir, building.VisualAsset!);
+                if (!File.Exists(bundlePath))
+                    continue;
 
-        /// <summary>
-        /// Deserializes YAML content to the appropriate model type and registers it.
-        /// Supports both single-object YAML files and array (list) YAML files.
-        /// </summary>
-        private void RegisterContent(string yamlContent, string contentType, PackManifest manifest)
-        {
-            switch (contentType.ToLowerInvariant())
-            {
-                case "units":
-                    RegisterItems<UnitDefinition>(
-                        yamlContent,
-                        (u) => _registryManager.Units.Register(u.Id, u, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
-                    break;
-
-                case "buildings":
-                    RegisterItems<BuildingDefinition>(
-                        yamlContent,
-                        (b) => _registryManager.Buildings.Register(b.Id, b, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
-                    break;
-
-                case "factions":
-                    RegisterItems<FactionDefinition>(
-                        yamlContent,
-                        (f) => _registryManager.Factions.Register(f.Faction.Id, f, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
-                    break;
-
-                case "weapons":
-                    RegisterItems<WeaponDefinition>(
-                        yamlContent,
-                        (w) => _registryManager.Weapons.Register(w.Id, w, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
-                    break;
-
-                case "projectiles":
-                    RegisterItems<ProjectileDefinition>(
-                        yamlContent,
-                        (p) => _registryManager.Projectiles.Register(p.Id, p, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
-                    break;
-
-                case "doctrines":
-                    RegisterItems<DoctrineDefinition>(
-                        yamlContent,
-                        (d) => _registryManager.Doctrines.Register(d.Id, d, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
-                    break;
-
-                case "stats":
-                    RegisterItems<StatOverrideDefinition>(
-                        yamlContent,
-                        (s) => _loadedOverrides.Add(s));
-                    break;
-
-                case "faction_patches":
-                    RegisterItems<FactionPatchDefinition>(
-                        yamlContent,
-                        (fp) => _registryManager.FactionPatches.Register(fp.TargetFaction, fp, RegistrySource.Pack, manifest.Id, manifest.LoadOrder));
-                    break;
-
-                default:
-                    _log($"[ContentLoader] Unknown content type '{contentType}', skipping.");
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Deserializes YAML content as either a <see cref="List{T}"/> or a single <typeparamref name="T"/>,
-        /// then invokes <paramref name="register"/> for each item.
-        /// </summary>
-        private void RegisterItems<T>(string yamlContent, Action<T> register) where T : class
-        {
-            // Try list deserialization first (handles array YAML files like warfare packs)
-            try
-            {
-                List<T>? items = _deserializer.Deserialize<List<T>>(yamlContent);
-                if (items != null && items.Count > 0)
-                {
-                    foreach (T item in items)
-                    {
-                        register(item);
-                    }
-                    return;
-                }
-            }
-            catch
-            {
-                // Fall through to single-object deserialization
-            }
-
-            // Fall back to single-object deserialization
-            T single = _deserializer.Deserialize<T>(yamlContent);
-            if (single != null)
-            {
-                register(single);
+                Assets.AssetSwapRegistry.Register(new Assets.AssetSwapRequest(
+                    building.VisualAsset!,
+                    bundlePath,
+                    building.VisualAsset!));
             }
         }
     }
