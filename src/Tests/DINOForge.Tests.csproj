@@ -57,11 +57,13 @@
   </ItemGroup>
 
   <!-- Temporarily exclude UnitSpawnerTests which requires ECS infrastructure -->
-  <!-- Also exclude tests that depend on Runtime types excluded in CI (FactionSystem, WaveInjector) -->
+  <!-- Also exclude tests that depend on Runtime types excluded in CI (FactionSystem, WaveInjector, PackStatInjector) -->
+  <!-- PackStatInjectorTests uses DINOForge.Runtime.Bridge.PackStatMappings which is not referenced by this project -->
   <ItemGroup>
     <Compile Remove="UnitSpawnerTests.cs" />
     <Compile Remove="FactionSystemTests.cs" />
     <Compile Remove="WaveInjectorTests.cs" />
+    <Compile Remove="PackStatInjectorTests.cs" />
   </ItemGroup>
 
 </Project>

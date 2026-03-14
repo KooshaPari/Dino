@@ -1,5 +1,7 @@
 # DINOForge v0.7.0 + v0.8.0 - START HERE
 
+> **Note**: This file was moved from the project root. Related implementation guides are now in `docs/archive/`.
+
 **Current Status**: ✅ All preparation complete, ready for manual Unity implementation
 **Last Updated**: 2026-03-13
 **Time to v0.7.0 Release**: 3-4 weeks
@@ -239,27 +241,26 @@ A: Edit unit/building YAML in packs/warfare-starwars/units/ and packs/warfare-st
 
 ## Files Reference
 
+> **Note**: Many of these files have been moved to `docs/archive/`.
+
 ```
-Project Root:
-├── START_HERE.md (this file)
+docs/archive/
 ├── UNITY_QUICK_START.md ..................... Quick start (read first)
 ├── V0_7_0_IMPLEMENTATION_TRACKER.md ........ Progress tracker
-├── UNITY_IMPORT_GUIDE.md ................... Detailed FBX guide
 ├── V0_7_0_V0_8_0_IMPLEMENTATION_PLAN.md ... Week-by-week plan
-├── PROJECT_STATUS.md ....................... Overall status
-└── V0_7_0_V0_8_0_WORK_COMPLETE.md ........ Handoff summary
+├── V0_7_0_V0_8_0_WORK_COMPLETE.md ........ Handoff summary
 
-packs/warfare-starwars/assets/
-├── SKETCHFAB_MODELS.json .................. Model metadata
-├── MODEL_MAPPINGS.yaml .................... Game bindings
-├── UNITY_IMPORT_GUIDE.md .................. (copy of root)
-└── raw/
+docs/guide/
+├── start-here.md (this file)
+└── project-status.md ....................... Overall status
+
+packs/warfare-starwars/
+├── pack.yaml ................................. Pack manifest
+├── asset_pipeline.yaml ..................... Asset pipeline config
+├── addressables.yaml ......................... Addressables catalog
+└── assets/raw/
     ├── 9 v0.7.0/v0.8.0 models (GLB files)
     └── 4 v0.6.0 existing models
-
-scripts/
-├── download_models_web.py ................. Working downloader
-└── [other downloaders for reference]
 ```
 
 ---

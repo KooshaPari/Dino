@@ -197,6 +197,7 @@
     <Compile Remove="Bridge\StatModifierSystem.cs" />
     <Compile Remove="Bridge\VanillaCatalog.cs" />
     <Compile Remove="Bridge\MainThreadDispatcher.cs" />
+    <Compile Remove="Bridge\PackStatInjector.cs" />
     <Compile Remove="HotReload\HotReloadBridge.cs" />
     <Compile Remove="UI\ModMenuOverlay.cs" />
     <Compile Remove="UI\ModSettingsPanel.cs" />
@@ -209,6 +210,8 @@
     <Compile Remove="UI\HudStrip.cs" />
     <Compile Remove="UI\ModMenuPanel.cs" />
     <Compile Remove="UI\UiBuilder.cs" />
+    <Compile Remove="UI\UiDiagnostics.cs" />
+    <Compile Remove="UI\UiActionTrace.cs" />
     <Compile Remove="UI\DebugPanel.cs" />
     <Compile Remove="UI\DFCanvas.cs" />
     <Compile Remove="UI\Assets\UiAssets.cs" />

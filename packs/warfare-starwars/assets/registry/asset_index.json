@@ -150,5 +150,109 @@
     "technical_status": "ready_for_prototype",
     "ip_status": "fan_star_wars_private_only",
     "release_allowed": false
+  },
+  {
+    "asset_id": "rep_jedi_knight_sketchfab_001",
+    "canonical_name": "Jedi Knight",
+    "source_platform": "sketchfab",
+    "technical_status": "normalized",
+    "ip_status": "fan_star_wars_private_only",
+    "release_allowed": false
+  },
+  {
+    "asset_id": "cis_sentry_turret_sketchfab_001",
+    "canonical_name": "",
+    "source_platform": "sketchfab",
+    "technical_status": "normalized",
+    "ip_status": "fan_star_wars_private_only",
+    "release_allowed": false
+  },
+  {
+    "asset_id": "cis_heavy_foundry_sketchfab_001",
+    "canonical_name": "",
+    "source_platform": "sketchfab",
+    "technical_status": "normalized",
+    "ip_status": "fan_star_wars_private_only",
+    "release_allowed": false
+  },
+  {
+    "asset_id": "cis_droid_factory_sketchfab_001",
+    "canonical_name": "",
+    "source_platform": "sketchfab",
+    "technical_status": "normalized",
+    "ip_status": "fan_star_wars_private_only",
+    "release_allowed": false
+  },
+  {
+    "asset_id": "rep_clone_commando_sketchfab_001",
+    "canonical_name": "Clone Commando",
+    "source_platform": "sketchfab",
+    "technical_status": "normalized",
+    "ip_status": "fan_star_wars_private_only",
+    "release_allowed": false
+  },
+  {
+    "asset_id": "cis_ray_shield_sketchfab_001",
+    "canonical_name": "",
+    "source_platform": "sketchfab",
+    "technical_status": "normalized",
+    "ip_status": "fan_star_wars_private_only",
+    "release_allowed": false
+  },
+  {
+    "asset_id": "cis_b2_super_droid_sketchfab_001",
+    "canonical_name": "",
+    "source_platform": "sketchfab",
+    "technical_status": "normalized",
+    "ip_status": "fan_star_wars_private_only",
+    "release_allowed": false
+  },
+  {
+    "asset_id": "cis_assembly_line_sketchfab_001",
+    "canonical_name": "",
+    "source_platform": "sketchfab",
+    "technical_status": "normalized",
+    "ip_status": "fan_star_wars_private_only",
+    "release_allowed": false
+  },
+  {
+    "asset_id": "sw_general_grievous_sketchfab_001",
+    "canonical_name": "",
+    "source_platform": "",
+    "technical_status": "normalized",
+    "ip_status": "fan_star_wars_private_only",
+    "release_allowed": false
+  },
+  {
+    "asset_id": "sw_arc_trooper_sketchfab_001",
+    "canonical_name": "",
+    "source_platform": "",
+    "technical_status": "normalized",
+    "ip_status": "fan_star_wars_private_only",
+    "release_allowed": false
+  },
+  {
+    "asset_id": "rep_clone_wall_guard_sketchfab_001",
+    "canonical_name": "Clone Wall Guard",
+    "source_platform": "sketchfab",
+    "technical_status": "normalized",
+    "ip_status": "fan_star_wars_private_only",
+    "release_allowed": false
+  },
+  {
+    "asset_id": "sw_at_te_walker_sketchfab_001",
+    "canonical_name": "",
+    "source_platform": "",
+    "technical_status": "normalized",
+    "ip_status": "fan_star_wars_private_only",
+    "release_allowed": false
+  },
+  {
+    "asset_id": "rep_clone_sniper_sketchfab_001",
+    "canonical_name": "Clone Sniper",
+    "source_platform": "sketchfab",
+    "technical_status": "normalized",
+    "ip_status": "fan_star_wars_private_only",
+    "release_allowed": false
   }
 ]

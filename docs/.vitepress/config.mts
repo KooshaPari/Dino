@@ -41,6 +41,7 @@ export default withMermaid(
             { text: 'Home', link: '/' },
             { text: 'Installation', link: '/guide/getting-started' },
             { text: 'Quick Start', link: '/guide/quick-start' },
+            { text: 'Creating Packs', link: '/guide/creating-packs' },
             { text: 'Pack Registry', link: '/packs' },
           ],
         },
@@ -50,12 +51,23 @@ export default withMermaid(
             { text: 'Architecture Overview', link: '/concepts/architecture' },
             { text: 'ECS Bridge Layer', link: '/concepts/ecs-bridge' },
             { text: 'Registry System', link: '/concepts/registry-system' },
+            { text: 'Aviation System', link: '/concepts/aviation' },
           ],
         },
         {
-          text: 'Pack Development',
+          text: 'API Reference',
           items: [
-            { text: 'Creating Packs', link: '/guide/creating-packs' },
+            { text: 'Registry API', link: '/api/registry' },
+            { text: 'Content Loader API', link: '/api/content-loader' },
+          ],
+        },
+        {
+          text: 'Schema Reference',
+          items: [
+            { text: 'Unit Schema', link: '/reference/unit-schema' },
+            { text: 'Building Schema', link: '/reference/building-schema' },
+            { text: 'Asset Pipeline', link: '/reference/asset-pipeline' },
+            { text: 'All Schemas', link: '/reference/schemas' },
           ],
         },
         {
@@ -63,9 +75,9 @@ export default withMermaid(
           items: [
             { text: 'Overview', link: '/asset-intake/README' },
             { text: 'Asset Control PRD', link: '/asset-intake/assetctl-prd' },
-            { text: 'Quick Reference', link: '/asset-intake/QUICK_REFERENCE' },
-            { text: 'Implementation Roadmap', link: '/asset-intake/IMPLEMENTATION_ROADMAP' },
-            { text: 'Sketchfab CLI Commands', link: '/asset-intake/SKETCHFAB_CLI_COMMANDS' },
+            { text: 'Quick Reference', link: '/asset-intake/quick-reference' },
+            { text: 'Implementation Roadmap', link: '/asset-intake/implementation-roadmap' },
+            { text: 'Sketchfab CLI Commands', link: '/asset-intake/sketchfab-cli-commands' },
           ],
         },
         {
@@ -74,16 +86,16 @@ export default withMermaid(
             { text: 'Overview', link: '/warfare/overview' },
             { text: 'Factions & Archetypes', link: '/warfare/factions' },
             { text: 'Unit Roles & Composition', link: '/warfare/unit-roles' },
-            { text: 'Domain Specification', link: '/warfare/WARFARE-DOMAIN-SPEC' },
+            { text: 'Domain Specification', link: '/warfare/domain-spec' },
           ],
         },
         {
           text: 'Reference',
           items: [
-            { text: 'Schemas', link: '/reference/schemas' },
             { text: 'CLI Reference', link: '/reference/cli' },
-            { text: 'Game Data Reference', link: '/reference/DINO-GAME-NOTES' },
-            { text: 'Modding DX Reference', link: '/reference/MODDING-DX-REFERENCE' },
+            { text: 'Game Data Reference', link: '/reference/dino-game-notes' },
+            { text: 'Modding DX Reference', link: '/reference/modding-dx-reference' },
+            { text: 'Modding Research', link: '/reference/modding-research' },
             { text: 'Project Semantics', link: '/reference/kooshapari-project-semantics' },
             {
               text: 'Asset Intake Specs',
@@ -117,6 +129,7 @@ export default withMermaid(
             { text: 'Roadmap', link: '/roadmap/' },
             { text: 'Community', link: '/community' },
             { text: 'Compatibility', link: '/compat' },
+            { text: 'Worklog & Research', link: '/worklog/' },
           ],
         },
       ],

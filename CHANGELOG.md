@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-03-13
+
+### Added
+
+- **AssetSwapRegistry** — unified asset swapping system wired into ContentLoader after unit/building registration
+- **Bridge Client + UI diagnostics** — integrated bridge communication layer with in-game diagnostic overlays
+- **PackStatInjector** — wire pack unit stats to vanilla ECS entities via `vanilla_mapping` configuration
+- **Comprehensive VitePress documentation expansion** — complete site depth with architecture guides, asset pipeline workflows, and integration documentation
+- **File organization** — systematic kebab-case renaming of documentation files and archive materials for improved navigation
+
+### Fixed
+
+- **YAML deserialization forward-compatibility** — YamlDotNet deserializer now ignores unmatched properties, allowing optional fields in YAML definitions without breaking load
+- Multiple CI and integration test resolutions
+- Code formatting and linting standardizations across bridge and test suites
+- Registry_StarWarsPack_LoadsAndUnitsHaveVisualAsset test failure due to extra weapon fields
+
+### Changed
+
+- Documentation file structure reorganized to kebab-case conventions for consistency
+- SDK services staged and consolidated for v0.9+ integration work
+
+### Tests
+
+- All integration tests passing; BridgeRoundTripTests added for bridge smoke testing
 ## [0.8.0] - 2026-03-13
 
 ### Added
