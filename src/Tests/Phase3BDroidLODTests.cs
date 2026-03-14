@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DINOForge.SDK;
 using FluentAssertions;
 using Xunit;
 using Xunit.Sdk;
@@ -84,10 +85,7 @@ namespace DINOForge.Tests
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
 
             // Parse YAML to count Phase 3B models
-            var deserializer = new DeserializerBuilder()
-                .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                .IgnoreUnmatchedProperties()
-                .Build();
+            var deserializer = YamlLoader.Deserializer;
 
             // Extract just the v0_9_0_cis_droids section
             var phaseStart = yaml.IndexOf("v0_9_0_cis_droids:");

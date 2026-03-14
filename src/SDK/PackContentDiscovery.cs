@@ -7,7 +7,7 @@ namespace DINOForge.SDK
     /// <summary>
     /// Implementation of <see cref="IContentDiscoveryService"/> for filesystem traversal.
     /// </summary>
-    internal sealed class ContentDiscoveryService : IContentDiscoveryService
+    public sealed class ContentDiscoveryService : IContentDiscoveryService
     {
         private readonly IFileDiscoveryService _fileDiscovery;
 

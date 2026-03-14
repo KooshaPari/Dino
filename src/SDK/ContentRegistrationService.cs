@@ -171,21 +171,24 @@ namespace DINOForge.SDK
 
         private void RegisterItems<T>(string yamlContent, Action<T> register) where T : class
         {
+            List<T>? items = null;
             try
             {
-                List<T>? items = _deserializer.Deserialize<List<T>>(yamlContent);
-                if (items != null && items.Count > 0)
-                {
-                    foreach (T item in items)
-                    {
-                        register(item);
-                    }
-
-                    return;
-                }
+                items = _deserializer.Deserialize<List<T>>(yamlContent);
             }
             catch
             {
+                // Not a list — fall through to single-object parse.
+            }
+
+            if (items != null && items.Count > 0)
+            {
+                foreach (T item in items)
+                {
+                    register(item);
+                }
+
+                return;
             }
 
             T single = _deserializer.Deserialize<T>(yamlContent);

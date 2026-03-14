@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DINOForge.SDK.Dependencies;
+using DINOForge.SDK.HotReload;
 using DINOForge.SDK.Models;
 using DINOForge.SDK.Registry;
 using DINOForge.SDK.Validation;
@@ -15,7 +16,7 @@ namespace DINOForge.SDK
     /// Orchestrates pack loading while delegating filesystem discovery, schema resolution,
     /// and registry registration to specialized SDK services.
     /// </summary>
-    public class ContentLoader
+    public class ContentLoader : IPackReloadService
     {
         private readonly IContentDiscoveryService _discoveryService;
         private readonly ISchemaResolverService _schemaResolver;
@@ -145,6 +146,11 @@ namespace DINOForge.SDK
             return loadErrors.Count > 0
                 ? ContentLoadResult.Partial(loadedPackIds, LastLoadErrors)
                 : ContentLoadResult.Success(loadedPackIds);
+        }
+
+        ContentLoadResult IPackReloadService.ReloadPack(string packDirectory)
+        {
+            return LoadPack(packDirectory);
         }
 
         /// <summary>

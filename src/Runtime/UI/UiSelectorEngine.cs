@@ -21,7 +21,7 @@ namespace DINOForge.Runtime.UI
         {
             var (matches, disambiguation) = FindMatches(selector);
             var normalized = NormalizeSelector(selector);
-            
+
             if (matches.Count == 0)
             {
                 return new UiActionResult
@@ -37,7 +37,7 @@ namespace DINOForge.Runtime.UI
 
             var (index, useFirst, useLast) = disambiguation;
             Transform? target = SelectByDisambiguation(matches, index, useFirst, useLast);
-            
+
             if (target == null)
             {
                 return new UiActionResult
@@ -69,7 +69,7 @@ namespace DINOForge.Runtime.UI
         public static UiActionResult Click(string selector)
         {
             var (matches, disambiguation) = FindMatches(selector);
-            
+
             if (matches.Count == 0)
             {
                 return new UiActionResult
@@ -85,7 +85,7 @@ namespace DINOForge.Runtime.UI
 
             var (index, useFirst, useLast) = disambiguation;
             Transform? target = SelectByDisambiguation(matches, index, useFirst, useLast);
-            
+
             if (target == null)
             {
                 return new UiActionResult
@@ -100,7 +100,7 @@ namespace DINOForge.Runtime.UI
             }
 
             var node = UiTreeSnapshotBuilder.BuildNodeSnapshot(target, "root");
-            
+
             if (!IsActionable(target, out string reason))
             {
                 return new UiActionResult
@@ -158,7 +158,7 @@ namespace DINOForge.Runtime.UI
         {
             string normalizedState = string.IsNullOrWhiteSpace(state) ? "visible" : state.Trim().ToLowerInvariant();
             var (matches, disambiguation) = FindMatches(selector);
-            
+
             if (matches.Count == 0)
             {
                 return new UiWaitResult
@@ -173,7 +173,7 @@ namespace DINOForge.Runtime.UI
 
             var (index, useFirst, useLast) = disambiguation;
             Transform? target = SelectByDisambiguation(matches, index, useFirst, useLast);
-            
+
             if (target == null)
             {
                 return new UiWaitResult
@@ -204,7 +204,7 @@ namespace DINOForge.Runtime.UI
         {
             string normalizedCondition = string.IsNullOrWhiteSpace(condition) ? "visible" : condition.Trim().ToLowerInvariant();
             var (matches, disambiguation) = FindMatches(selector);
-            
+
             if (matches.Count == 0)
             {
                 return new UiExpectationResult
@@ -219,7 +219,7 @@ namespace DINOForge.Runtime.UI
 
             var (index, useFirst, useLast) = disambiguation;
             Transform? target = SelectByDisambiguation(matches, index, useFirst, useLast);
-            
+
             if (target == null)
             {
                 return new UiExpectationResult
@@ -276,7 +276,7 @@ namespace DINOForge.Runtime.UI
 
             var matches = new List<Transform>();
             var canvases = Resources.FindObjectsOfTypeAll<Canvas>();
-            
+
             foreach (var canvas in canvases)
             {
                 if (canvas == null || !canvas.gameObject.activeInHierarchy)
@@ -499,7 +499,7 @@ namespace DINOForge.Runtime.UI
         private static bool IsActionable(Transform transform, out string reason)
         {
             reason = string.Empty;
-            
+
             if (!transform.gameObject.activeInHierarchy)
             {
                 reason = "inactive";

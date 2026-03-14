@@ -685,7 +685,7 @@ public sealed class AssetDownloader
         }
 
         var normalizedLicense = NormalizeLicense(license);
-        return normalizedLicense == "cc0" || normalizedLicense == "cc-by";
+        return normalizedLicense == "cc0" || normalizedLicense == "cc-by" || normalizedLicense.Contains("cc attribution");
     }
 
     /// <summary>

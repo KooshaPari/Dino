@@ -7,7 +7,7 @@ namespace DINOForge.SDK
     /// <summary>
     /// Implementation of <see cref="ISchemaResolverService"/> for schema mapping.
     /// </summary>
-    internal sealed class SchemaResolverService : ISchemaResolverService
+    public sealed class SchemaResolverService : ISchemaResolverService
     {
         private static readonly Dictionary<string, string> SchemaNames =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
