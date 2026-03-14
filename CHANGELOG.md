@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **SixLabors.ImageSharp 3.0.2 → 3.1.11** — patches 7 CVEs in PackCompiler: 3 high severity (OOB write CVE-2024-41132, Use After Free CVE-2024-41133, CVE-2024-41134) and 4 medium severity (memory allocation, data leakage, infinite loop issues)
+
 ### Changed
 
 - Lock files synced across all projects (CRLF normalization + dependency updates)
