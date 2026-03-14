@@ -42,7 +42,7 @@ namespace DINOForge.Tests
         {
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
             int start = yaml.IndexOf("v1_1_0_buildings_expansion:");
-            int end   = yaml.IndexOf("v0_9_0_future:", start + 1);
+            int end = yaml.IndexOf("v0_9_0_future:", start + 1);
             var section = yaml.Substring(start, end - start);
 
             var count = section.Split(new[] { "- id: " }, StringSplitOptions.None).Length - 1;
@@ -54,7 +54,7 @@ namespace DINOForge.Tests
         {
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
             int start = yaml.IndexOf("v1_1_0_buildings_expansion:");
-            int end   = yaml.IndexOf("v0_9_0_future:", start + 1);
+            int end = yaml.IndexOf("v0_9_0_future:", start + 1);
             var section = yaml.Substring(start, end - start);
 
             section.Split(new[] { "faction: republic" }, StringSplitOptions.None).Length.Should().Be(7,
@@ -66,7 +66,7 @@ namespace DINOForge.Tests
         {
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
             int start = yaml.IndexOf("v1_1_0_buildings_expansion:");
-            int end   = yaml.IndexOf("v0_9_0_future:", start + 1);
+            int end = yaml.IndexOf("v0_9_0_future:", start + 1);
             var section = yaml.Substring(start, end - start);
 
             section.Split(new[] { "faction: cis" }, StringSplitOptions.None).Length.Should().Be(7,
@@ -78,7 +78,7 @@ namespace DINOForge.Tests
         {
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
             int start = yaml.IndexOf("v1_1_0_buildings_expansion:");
-            int end   = yaml.IndexOf("v0_9_0_future:", start + 1);
+            int end = yaml.IndexOf("v0_9_0_future:", start + 1);
             var section = yaml.Substring(start, end - start);
 
             var lines = section.Split('\n');
@@ -91,11 +91,11 @@ namespace DINOForge.Tests
         // ── Republic expansion: visual_asset injection ─────────────────────
 
         [Theory]
-        [InlineData("rep_command_center",      "sw-command-center")]
-        [InlineData("rep_supply_station",      "sw-supply-station")]
-        [InlineData("rep_tibanna_refinery",    "sw-tibanna-refinery")]
-        [InlineData("rep_research_lab",        "sw-research-lab")]
-        [InlineData("rep_blast_wall",          "sw-blast-wall")]
+        [InlineData("rep_command_center", "sw-command-center")]
+        [InlineData("rep_supply_station", "sw-supply-station")]
+        [InlineData("rep_tibanna_refinery", "sw-tibanna-refinery")]
+        [InlineData("rep_research_lab", "sw-research-lab")]
+        [InlineData("rep_blast_wall", "sw-blast-wall")]
         [InlineData("rep_skyshield_generator", "sw-skyshield-generator")]
         public void Phase5_RepublicExpansion_HasVisualAsset(string buildingId, string expectedKey)
         {
@@ -109,12 +109,12 @@ namespace DINOForge.Tests
         // ── CIS expansion: visual_asset injection ──────────────────────────
 
         [Theory]
-        [InlineData("cis_tactical_center",   "sw-tactical-center")]
-        [InlineData("cis_mining_facility",   "sw-mining-facility")]
-        [InlineData("cis_processing_plant",  "sw-processing-plant")]
-        [InlineData("cis_tech_union_lab",    "sw-tech-union-lab")]
+        [InlineData("cis_tactical_center", "sw-tactical-center")]
+        [InlineData("cis_mining_facility", "sw-mining-facility")]
+        [InlineData("cis_processing_plant", "sw-processing-plant")]
+        [InlineData("cis_tech_union_lab", "sw-tech-union-lab")]
         [InlineData("cis_durasteel_barrier", "sw-durasteel-barrier")]
-        [InlineData("cis_vulture_nest",      "sw-vulture-nest")]
+        [InlineData("cis_vulture_nest", "sw-vulture-nest")]
         public void Phase5_CISExpansion_HasVisualAsset(string buildingId, string expectedKey)
         {
             var yaml = File.ReadAllText(CISBuildingsYamlPath);

@@ -64,12 +64,12 @@ namespace DINOForge.Tests
         // ── Building model configuration tests ──────────────────────────────
 
         [Theory]
-        [InlineData("rep_clone_barracks", "Clone Barracks")]
-        [InlineData("rep_weapons_factory", "Weapons Factory")]
-        [InlineData("rep_vehicle_bay", "Vehicle Bay")]
-        [InlineData("rep_guard_tower", "Guard Tower")]
-        [InlineData("rep_shield_generator", "Shield Generator")]
-        public void Phase4_RepublicBuilding_ConfiguredCorrectly(string modelId, string displayName)
+        [InlineData("rep_clone_barracks")]
+        [InlineData("rep_weapons_factory")]
+        [InlineData("rep_vehicle_bay")]
+        [InlineData("rep_guard_tower")]
+        [InlineData("rep_shield_generator")]
+        public void Phase4_RepublicBuilding_ConfiguredCorrectly(string modelId)
         {
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
             yaml.Should().Contain($"- id: {modelId}")
@@ -78,12 +78,12 @@ namespace DINOForge.Tests
         }
 
         [Theory]
-        [InlineData("cis_droid_factory", "Droid Factory")]
-        [InlineData("cis_assembly_line", "Assembly Line")]
-        [InlineData("cis_heavy_foundry", "Heavy Foundry")]
-        [InlineData("cis_sentry_turret", "Sentry Turret")]
-        [InlineData("cis_ray_shield", "Ray Shield")]
-        public void Phase4_CISBuilding_ConfiguredCorrectly(string modelId, string displayName)
+        [InlineData("cis_droid_factory")]
+        [InlineData("cis_assembly_line")]
+        [InlineData("cis_heavy_foundry")]
+        [InlineData("cis_sentry_turret")]
+        [InlineData("cis_ray_shield")]
+        public void Phase4_CISBuilding_ConfiguredCorrectly(string modelId)
         {
             var yaml = File.ReadAllText(AssetPipelineYamlPath);
             yaml.Should().Contain($"- id: {modelId}")

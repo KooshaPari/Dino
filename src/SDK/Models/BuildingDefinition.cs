@@ -45,6 +45,13 @@ namespace DINOForge.SDK.Models
         public Dictionary<string, int> Production { get; set; } = new Dictionary<string, int>();
 
         /// <summary>
+        /// Addressables key for the building's 3D visual asset (LOD0 prefab).
+        /// Set by the asset pipeline; resolved at runtime via the pack's addressables.yaml catalog.
+        /// </summary>
+        [YamlMember(Alias = "visual_asset")]
+        public string? VisualAsset { get; set; }
+
+        /// <summary>
         /// Defense tags controlling how this building interacts with combat systems.
         /// Supported values: AntiAir, Fortified, Shielded.
         /// A building with "AntiAir" will have <c>AntiAirComponent</c>
