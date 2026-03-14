@@ -261,9 +261,9 @@ internal sealed class FakeGameBridge : IGameBridge
     // Default stat values before any override is applied.
     private static readonly Dictionary<string, float> DefaultStats = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["unit.stats.hp"]      = 100f,
-        ["unit.stats.speed"]   = 3f,
-        ["unit.stats.damage"]  = 25f,
+        ["unit.stats.hp"] = 100f,
+        ["unit.stats.speed"] = 3f,
+        ["unit.stats.damage"] = 25f,
     };
 
     // ── IGameBridge implementation ───────────────────────────────────────────────
@@ -271,26 +271,26 @@ internal sealed class FakeGameBridge : IGameBridge
     /// <inheritdoc />
     public GameStatus Status() => new()
     {
-        Running          = true,
-        WorldReady       = _packsLoaded,
-        WorldName        = _packsLoaded ? "Default World" : "",
-        EntityCount      = _packsLoaded ? 45776 : 0,
+        Running = true,
+        WorldReady = _packsLoaded,
+        WorldName = _packsLoaded ? "Default World" : "",
+        EntityCount = _packsLoaded ? 45776 : 0,
         ModPlatformReady = _packsLoaded,
-        LoadedPacks      = new List<string>(_loadedPacks),
-        Version          = "0.1.0-fake",
+        LoadedPacks = new List<string>(_loadedPacks),
+        Version = "0.1.0-fake",
     };
 
     /// <inheritdoc />
     public WaitResult WaitForWorld(int? timeoutMs) => new()
     {
-        Ready     = _packsLoaded,
+        Ready = _packsLoaded,
         WorldName = _packsLoaded ? "Default World" : "",
     };
 
     /// <inheritdoc />
     public QueryResult QueryEntities(string? componentType, string? category) => new()
     {
-        Count    = _packsLoaded ? 100 : 0,
+        Count = _packsLoaded ? 100 : 0,
         Entities = _packsLoaded
             ? new List<EntityInfo> { new() { Index = 0, Components = new List<string> { "Components.Health" } } }
             : new List<EntityInfo>(),
@@ -305,14 +305,14 @@ internal sealed class FakeGameBridge : IGameBridge
 
         return new StatResult
         {
-            SdkPath       = sdkPath,
-            Value         = value,
-            EntityCount   = _packsLoaded ? 28 : 0,
+            SdkPath = sdkPath,
+            Value = value,
+            EntityCount = _packsLoaded ? 28 : 0,
             ComponentType = sdkPath.StartsWith("unit.stats.hp", StringComparison.OrdinalIgnoreCase)
                 ? "Components.Health"
                 : "Components.Unknown",
-            FieldName     = sdkPath.Split('.').LastOrDefault() ?? "",
-            Values        = _packsLoaded ? new List<float> { value } : new List<float>(),
+            FieldName = sdkPath.Split('.').LastOrDefault() ?? "",
+            Values = _packsLoaded ? new List<float> { value } : new List<float>(),
         };
     }
 
@@ -328,19 +328,19 @@ internal sealed class FakeGameBridge : IGameBridge
 
         float newValue = mode switch
         {
-            "add"      => current + value,
+            "add" => current + value,
             "multiply" => current * value,
-            _          => value, // "override" mode stores the absolute value
+            _ => value, // "override" mode stores the absolute value
         };
 
         _statOverrides[sdkPath] = newValue;
 
         return new OverrideResult
         {
-            Success       = true,
+            Success = true,
             ModifiedCount = 14, // rep_clone_trooper appears in 14 Republic unit entries
-            SdkPath       = sdkPath,
-            Message       = $"Applied {mode ?? "override"}: {sdkPath} = {newValue}",
+            SdkPath = sdkPath,
+            Message = $"Applied {mode ?? "override"}: {sdkPath} = {newValue}",
         };
     }
 
@@ -354,9 +354,9 @@ internal sealed class FakeGameBridge : IGameBridge
         // Overrides persist across reload by design (hot-reload must not reset runtime state).
         return new ReloadResult
         {
-            Success     = true,
+            Success = true,
             LoadedPacks = new List<string>(_loadedPacks),
-            Errors      = new List<string>(),
+            Errors = new List<string>(),
         };
     }
 
@@ -369,17 +369,17 @@ internal sealed class FakeGameBridge : IGameBridge
     /// <inheritdoc />
     public ResourceSnapshot GetResources() => new()
     {
-        Food  = 400,
-        Wood  = 300,
+        Food = 400,
+        Wood = 300,
         Stone = 200,
-        Iron  = 100,
+        Iron = 100,
     };
 
     /// <inheritdoc />
     public ScreenshotResult Screenshot(string? path) => new()
     {
         Success = true,
-        Path    = path ?? "screenshot.png",
+        Path = path ?? "screenshot.png",
     };
 
     /// <inheritdoc />
@@ -392,8 +392,8 @@ internal sealed class FakeGameBridge : IGameBridge
     /// <inheritdoc />
     public PingResult Ping() => new()
     {
-        Pong          = true,
-        Version       = "0.1.0-fake",
+        Pong = true,
+        Version = "0.1.0-fake",
         UptimeSeconds = 42.0,
     };
 
@@ -474,26 +474,26 @@ internal sealed class FakeGameBridge : IGameBridge
         List<CatalogEntry> units = republicIds
             .Select(id => new CatalogEntry
             {
-                InferredId     = id,
-                Category       = "unit",
-                EntityCount    = 1,
+                InferredId = id,
+                Category = "unit",
+                EntityCount = 1,
                 ComponentCount = 8,
             })
             .Concat(cisIds.Select(id => new CatalogEntry
             {
-                InferredId     = id,
-                Category       = "unit",
-                EntityCount    = 1,
+                InferredId = id,
+                Category = "unit",
+                EntityCount = 1,
                 ComponentCount = 8,
             }))
             .ToList();
 
         return new CatalogSnapshot
         {
-            Units       = units,
-            Buildings   = new List<CatalogEntry>(),
+            Units = units,
+            Buildings = new List<CatalogEntry>(),
             Projectiles = new List<CatalogEntry>(),
-            Other       = new List<CatalogEntry>(),
+            Other = new List<CatalogEntry>(),
         };
     }
 }
