@@ -58,33 +58,6 @@ namespace DINOForge.Tests
             yaml.Should().Contain("Clone infantry variants");
         }
 
-        [Fact(Skip = "Raw GLB files are sourcing placeholders; not committed to repo. Run locally after model download.")]
-        public void Phase3A_Raw_Assets_All_Present()
-        {
-            // Verify all 5 Clone infantry GLB files exist (named either model.glb or source_download.glb)
-            var expectedUnits = new[]
-            {
-                "rep_clone_sharpshooter_sketchfab_001",
-                "rep_clone_heavy_sketchfab_001",
-                "rep_clone_medic_sketchfab_001",
-                "rep_arf_trooper_sketchfab_001",
-                "rep_clone_militia_sketchfab_001"
-            };
-
-            foreach (var unitDir in expectedUnits)
-            {
-                var unitDirPath = Path.Combine(RawAssetsPath, unitDir);
-                var glbPath = Path.Combine(unitDirPath, "model.glb");
-                var altGlbPath = Path.Combine(unitDirPath, "source_download.glb");
-
-                (File.Exists(glbPath) || File.Exists(altGlbPath)).Should().BeTrue(
-                    $"GLB file missing for {unitDir} (expected model.glb or source_download.glb)");
-
-                var existingGlb = File.Exists(glbPath) ? glbPath : altGlbPath;
-                new FileInfo(existingGlb).Length.Should().BeGreaterThan(0, $"{unitDir} GLB should not be empty");
-            }
-        }
-
         [Fact]
         public void Phase3A_Configuration_Has5CloneUnits()
         {
@@ -246,38 +219,6 @@ namespace DINOForge.Tests
 
             var unitSection = yaml.Substring(unitStart, nextUnit - unitStart);
             unitSection.Should().Contain("faction_id: republic", $"{unitId} must belong to Republic faction");
-        }
-
-        // ── Raw Assets Inventory ─────────────────────────────────────────────
-
-        [Fact(Skip = "Raw GLB files are sourcing placeholders; not committed to repo. Run locally after model download.")]
-        public void Phase3A_RawAssets_Sizes_Reasonable()
-        {
-            var expectedUnits = new[]
-            {
-                "rep_clone_sharpshooter_sketchfab_001",
-                "rep_clone_heavy_sketchfab_001",
-                "rep_clone_medic_sketchfab_001",
-                "rep_arf_trooper_sketchfab_001",
-                "rep_clone_militia_sketchfab_001"
-            };
-
-            long totalSize = 0;
-            foreach (var unitDir in expectedUnits)
-            {
-                var unitDirPath = Path.Combine(RawAssetsPath, unitDir);
-                var glbPath = Path.Combine(unitDirPath, "model.glb");
-                var altGlbPath = Path.Combine(unitDirPath, "source_download.glb");
-
-                var existingGlb = File.Exists(glbPath) ? glbPath : altGlbPath;
-                var fileInfo = new FileInfo(existingGlb);
-                fileInfo.Length.Should().BeGreaterThan(1000, $"{unitDir} GLB should be > 1KB");
-                fileInfo.Length.Should().BeLessThan(15_000_000, $"{unitDir} GLB should be < 15MB");
-                totalSize += fileInfo.Length;
-            }
-
-            // All 5 units together should be reasonable
-            totalSize.Should().BeGreaterThan(100_000, "Total Clone infantry asset size should be > 100KB");
         }
 
         // ── Helper Methods ───────────────────────────────────────────────────

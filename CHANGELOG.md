@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Lock files synced across all projects (CRLF normalization + dependency updates)
+- `ThemeColorPalette` refactored to resolve naming conflicts; minor fixes in `CompatibilityChecker`, `PackManifest`, `Registry`, `BalanceCalculator`, `PackCompiler`, and `DumpTools`
+
 ## [0.9.1] - 2026-03-14
 
 ### Added

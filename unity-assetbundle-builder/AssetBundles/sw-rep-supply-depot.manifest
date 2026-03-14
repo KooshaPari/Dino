@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3535107636
+CRC: 3228435647
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 15c909005ce768b09d11930579c8204f
+    Hash: 8ff5d8fe87501f4dfc3ac686f205cb2f
   TypeTreeHash:
     serializedVersion: 2
     Hash: a3954d9da6324b836c32a89fa85d00a9
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 15c909005ce768b09d11930579c8204f
+    Hash: 8ff5d8fe87501f4dfc3ac686f205cb2f
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -32,4 +32,5 @@ SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Prefabs/Republic/sw-rep-supply-depot.prefab
 - Assets/Materials/Republic/sw-rep-supply-depot.mat
+- Assets/Materials/Republic/sw-rep-supply-depot-primary.mat
 Dependencies: []

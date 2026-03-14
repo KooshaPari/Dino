@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3354200447
+CRC: 4087860943
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 9ea5117c523581505f8f5db1a0022d11
+    Hash: 0034253076125bd1e8800108d3f9da69
   TypeTreeHash:
     serializedVersion: 2
     Hash: 34c66e1a55654dedabb7cdcd0f409d91
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 9ea5117c523581505f8f5db1a0022d11
+    Hash: 0034253076125bd1e8800108d3f9da69
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -32,4 +32,5 @@ SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Prefabs/Republic/sw-rep-jedi-fighter.prefab
 - Assets/Materials/Republic/sw-rep-jedi-fighter.mat
+- Assets/Materials/Republic/sw-rep-jedi-fighter-primary.mat
 Dependencies: []

@@ -156,7 +156,7 @@ namespace DINOForge.Runtime.UI
 
         public static UiWaitResult EvaluateState(string selector, string? state)
         {
-            string normalizedState = string.IsNullOrWhiteSpace(state) ? "visible" : state.Trim().ToLowerInvariant();
+            string normalizedState = string.IsNullOrWhiteSpace(state) ? "visible" : state!.Trim().ToLowerInvariant();
             var (matches, disambiguation) = FindMatches(selector);
 
             if (matches.Count == 0)

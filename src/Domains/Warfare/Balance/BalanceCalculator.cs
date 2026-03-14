@@ -146,7 +146,7 @@ namespace DINOForge.Domains.Warfare.Balance
             float dps = stats.Damage * stats.FireRate * stats.Accuracy;
             float mobility = 1f + stats.Speed / 10f;
             int totalCost = stats.Cost.Food + stats.Cost.Wood + stats.Cost.Stone +
-                            stats.Cost.Iron + stats.Cost.Gold;
+                            stats.Cost.Iron + stats.Cost.Gold + stats.Cost.Population;
             float costFactor = Math.Max(totalCost, 1);
 
             return (survivability * dps * mobility) / costFactor;

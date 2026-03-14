@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2422627808
+CRC: 1591492295
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: fb394fbcee6dae4662ac8a0dea20d7fc
+    Hash: c9639fad007b60e183b7a8b2e5849f1a
   TypeTreeHash:
     serializedVersion: 2
     Hash: e2a11be68d6287ac10b047eee7e3b6d6
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: fb394fbcee6dae4662ac8a0dea20d7fc
+    Hash: c9639fad007b60e183b7a8b2e5849f1a
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -30,6 +30,7 @@ ClassTypes:
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
+- Assets/Materials/Republic/sw-rep-clone-sniper-primary.mat
 - Assets/Materials/Republic/sw-rep-clone-sniper.mat
 - Assets/Prefabs/Republic/sw-rep-clone-sniper.prefab
 Dependencies: []

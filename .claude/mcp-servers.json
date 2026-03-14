@@ -3,6 +3,7 @@
     "dinoforge": {
       "command": "python",
       "args": ["-m", "dinoforge_mcp.server"],
+      "cwd": "src/Tools/DinoforgeMcp",
       "env": {
         "DINOFORGE_CLI_PATH": "src/Tools/Cli",
         "DINOFORGE_PIPE_NAME": "dinoforge_game",

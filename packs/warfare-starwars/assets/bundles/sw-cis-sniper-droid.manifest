@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2619743903
+CRC: 814546877
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 19e9998f96a8861e99c82da72982aaee
+    Hash: 113debce373ccb40202a32f213a81bc1
   TypeTreeHash:
     serializedVersion: 2
-    Hash: e2a11be68d6287ac10b047eee7e3b6d6
+    Hash: 81fc4833398717ae320ec5bd08c661f4
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 19e9998f96a8861e99c82da72982aaee
+    Hash: 113debce373ccb40202a32f213a81bc1
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -26,10 +26,9 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 48
   Script: {instanceID: 0}
-- Class: 136
-  Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Prefabs/CIS/sw-cis-sniper-droid.prefab
 - Assets/Materials/CIS/sw-cis-sniper-droid.mat
+- Assets/Materials/CIS/sw-cis-sniper-droid-primary.mat
 Dependencies: []

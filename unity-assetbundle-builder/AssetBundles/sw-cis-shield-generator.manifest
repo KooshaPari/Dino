@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3496543828
+CRC: 2422748391
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 095d9d3b842334fb8d6ef3a673e8d63b
+    Hash: 9e330949e7a7beb91aa5f24f8a01a033
   TypeTreeHash:
     serializedVersion: 2
     Hash: 34c66e1a55654dedabb7cdcd0f409d91
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 095d9d3b842334fb8d6ef3a673e8d63b
+    Hash: 9e330949e7a7beb91aa5f24f8a01a033
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -30,6 +30,7 @@ ClassTypes:
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
+- Assets/Materials/CIS/sw-cis-shield-generator-primary.mat
 - Assets/Materials/CIS/sw-cis-shield-generator.mat
 - Assets/Prefabs/CIS/sw-cis-shield-generator.prefab
 Dependencies: []

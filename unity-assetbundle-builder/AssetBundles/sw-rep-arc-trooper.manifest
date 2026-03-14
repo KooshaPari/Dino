@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 479893589
+CRC: 1933085427
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 5a908b875b31f91a82276f8a15fb25d0
+    Hash: 1e374ce55c06f2f5cbff9f1d97359350
   TypeTreeHash:
     serializedVersion: 2
     Hash: e2a11be68d6287ac10b047eee7e3b6d6
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 5a908b875b31f91a82276f8a15fb25d0
+    Hash: 1e374ce55c06f2f5cbff9f1d97359350
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -31,5 +31,6 @@ ClassTypes:
 SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Materials/Republic/sw-rep-arc-trooper.mat
+- Assets/Materials/Republic/sw-rep-arc-trooper-primary.mat
 - Assets/Prefabs/Republic/sw-rep-arc-trooper.prefab
 Dependencies: []

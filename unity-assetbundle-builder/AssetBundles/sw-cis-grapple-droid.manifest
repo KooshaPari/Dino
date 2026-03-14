@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3492897343
+CRC: 17502725
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 0622ff8c24eed6aa9dc9862590680f32
+    Hash: d9b263e44d7eaf55f145f7a6eda7c282
   TypeTreeHash:
     serializedVersion: 2
     Hash: e2a11be68d6287ac10b047eee7e3b6d6
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 0622ff8c24eed6aa9dc9862590680f32
+    Hash: d9b263e44d7eaf55f145f7a6eda7c282
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -31,5 +31,6 @@ ClassTypes:
 SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Prefabs/CIS/sw-cis-grapple-droid.prefab
+- Assets/Materials/CIS/sw-cis-grapple-droid-primary.mat
 - Assets/Materials/CIS/sw-cis-grapple-droid.mat
 Dependencies: []

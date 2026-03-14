@@ -242,7 +242,7 @@ namespace DINOForge.SDK
         }
 
         /// <summary>
-        /// Tilde compatibility: allows patch changes only.
+        /// Caret compatibility: allows minor and patch changes only (^1.2.3 = >=1.2.3 &lt;2.0.0).
         /// </summary>
         private static bool IsCaretCompatible(Version actual, Version specified)
         {
@@ -255,7 +255,7 @@ namespace DINOForge.SDK
         }
 
         /// <summary>
-        /// Caret compatibility: allows minor and patch changes only.
+        /// Tilde compatibility: allows patch changes only (~1.2.3 = >=1.2.3 &lt;1.3.0).
         /// </summary>
         private static bool IsTildeCompatible(Version actual, Version specified)
         {

@@ -19,9 +19,8 @@ namespace DINOForge.SDK.HotReload
     {
         private FileSystemWatcher? _watcher;
         private readonly string _packsDirectory;
-        private readonly ContentLoader _contentLoader;
-        private readonly RegistryManager _registryManager;
-        private readonly ISchemaValidator? _schemaValidator;
+        private readonly IPackReloadService _packReloadService;
+        private readonly IPackRootResolver _packRootResolver;
         private readonly Action<string> _log;
         private readonly int _debounceMs;
 
@@ -58,9 +57,10 @@ namespace DINOForge.SDK.HotReload
             int debounceMs = 500)
         {
             _packsDirectory = packsDirectory ?? throw new ArgumentNullException(nameof(packsDirectory));
-            _contentLoader = contentLoader ?? throw new ArgumentNullException(nameof(contentLoader));
-            _registryManager = registryManager ?? throw new ArgumentNullException(nameof(registryManager));
-            _schemaValidator = schemaValidator;
+            _packReloadService = contentLoader ?? throw new ArgumentNullException(nameof(contentLoader));
+            _packRootResolver = new FileSystemPackRootResolver();
+            _ = registryManager ?? throw new ArgumentNullException(nameof(registryManager));
+            _ = schemaValidator;
             _log = log ?? (_ => { });
             _debounceMs = debounceMs > 0 ? debounceMs : 500;
         }
@@ -203,7 +203,7 @@ namespace DINOForge.SDK.HotReload
                 HashSet<string> affectedPackDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 foreach (string file in changedFiles)
                 {
-                    string? packDir = FindPackDirectory(file);
+                    string? packDir = _packRootResolver.ResolvePackRoot(file, _packsDirectory);
                     if (packDir != null)
                     {
                         affectedPackDirs.Add(packDir);
@@ -214,7 +214,7 @@ namespace DINOForge.SDK.HotReload
                 {
                     try
                     {
-                        ContentLoadResult loadResult = _contentLoader.LoadPack(packDir);
+                        ContentLoadResult loadResult = _packReloadService.ReloadPack(packDir);
                         if (loadResult.IsSuccess)
                         {
                             updatedEntries.AddRange(loadResult.LoadedPacks);
@@ -252,27 +252,6 @@ namespace DINOForge.SDK.HotReload
 
             return HotReloadResult.Failure(changedFilesRo, errorsRo);
         }
-
-        /// <summary>
-        /// Walks up from a changed file path to find the pack directory (one containing pack.yaml).
-        /// </summary>
-        private string? FindPackDirectory(string filePath)
-        {
-            string? dir = Path.GetDirectoryName(filePath);
-            while (dir != null && !string.Equals(dir, _packsDirectory, StringComparison.OrdinalIgnoreCase))
-            {
-                if (File.Exists(Path.Combine(dir, "pack.yaml")))
-                    return dir;
-                dir = Path.GetDirectoryName(dir);
-            }
-
-            // Check if the packs directory itself is a pack
-            if (dir != null && File.Exists(Path.Combine(dir, "pack.yaml")))
-                return dir;
-
-            return null;
-        }
-
         /// <inheritdoc />
         public void Dispose()
         {
