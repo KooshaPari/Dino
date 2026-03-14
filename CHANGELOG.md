@@ -22,14 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **UI panel alpha flicker** — `DebugPanel.Show()` and `ModMenuPanel.Show()` set `_animT = 1f` so `AnimatePanel()` doesn't reset alpha to ~0 on the next frame (CodeRabbit issue)
+- **UI panel alpha flicker** — `DebugPanel.Show()` and `ModMenuPanel.Show()` set `_animT = 1f` so `AnimatePanel()` doesn't reset alpha to ~0 on the next frame
 - **`example-balance` pack ID** — `pack.yaml` `id:` aligned with directory name; fixed `ContentLoaderIntegrationTests` failures
 - **`RegisterItems<T>` deserialization** — narrowed `catch {}` scope to list-parse only; registration failures no longer swallowed silently
 - **Integration test resilience** — `PackLoadingTests` and `StatTests` skip gracefully when game is unavailable
-
-### Fixed
-
-- **UI panel alpha flicker** — `DebugPanel.Show()` and `ModMenuPanel.Show()` now set `_animT = 1f` so `AnimatePanel()` doesn't reset alpha to ~0 on the next frame
 
 ### Changed
 
