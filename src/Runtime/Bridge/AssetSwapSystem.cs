@@ -186,17 +186,22 @@ namespace DINOForge.Runtime.Bridge
             }
 
             // Best-effort live RenderMesh swap on ECS entities.
-            bool entitySwapResult = TrySwapRenderMeshFromBundle(modBundleFullPath, request.AssetName);
+            bool entitySwapResult = TrySwapRenderMeshFromBundle(
+                modBundleFullPath, request.AssetName, request.VanillaMapping);
             WriteDebug($"ApplySwap: entity swap result={entitySwapResult} for '{request.AssetAddress}'");
 
             return patchResult || entitySwapResult;
         }
 
         /// <summary>
-        /// Attempts to load a Mesh or Material from the mod bundle and apply it to all ECS
-        /// entities carrying a RenderMesh shared component.
+        /// Attempts to load a Mesh or Material from the mod bundle and apply it to ECS entities
+        /// carrying a RenderMesh shared component.
+        /// When <paramref name="vanillaMapping"/> is provided the entity query is narrowed to only
+        /// entities that also carry the corresponding unit-archetype component (e.g.
+        /// <c>Components.MeleeUnit</c>), preventing the replacement from touching unrelated geometry.
         /// </summary>
-        private bool TrySwapRenderMeshFromBundle(string modBundlePath, string assetName)
+        private bool TrySwapRenderMeshFromBundle(
+            string modBundlePath, string assetName, string? vanillaMapping)
         {
             AssetBundle? bundle = LoadBundle(modBundlePath);
             if (bundle == null) return false;
@@ -218,8 +223,41 @@ namespace DINOForge.Runtime.Bridge
                 return false;
             }
 
+            // Resolve vanilla_mapping → ECS component type for targeted entity filtering.
+            // When the mapping is absent or unrecognised we fall back to RenderMesh-only query,
+            // which at minimum avoids modifying non-unit geometry in cases like buildings.
+            ComponentType[] queryComponents;
+            if (!string.IsNullOrWhiteSpace(vanillaMapping)
+                && PackStatMappings.TryResolveMapping(vanillaMapping, out string? archetypeTypeName)
+                && !string.IsNullOrEmpty(archetypeTypeName))
+            {
+                Type? archetypeType = ResolveTypeByName(archetypeTypeName!);
+                if (archetypeType != null)
+                {
+                    queryComponents = new[]
+                    {
+                        ComponentType.ReadOnly(renderMeshType),
+                        ComponentType.ReadOnly(archetypeType),
+                    };
+                    WriteDebug(
+                        $"TrySwapRenderMeshFromBundle: filtering by '{archetypeTypeName}' " +
+                        $"for vanilla_mapping='{vanillaMapping}'");
+                }
+                else
+                {
+                    WriteDebug(
+                        $"TrySwapRenderMeshFromBundle: archetype type '{archetypeTypeName}' not " +
+                        $"found in assemblies; falling back to RenderMesh-only query");
+                    queryComponents = new[] { ComponentType.ReadOnly(renderMeshType) };
+                }
+            }
+            else
+            {
+                queryComponents = new[] { ComponentType.ReadOnly(renderMeshType) };
+            }
+
             EntityQuery query = EntityManager.CreateEntityQuery(
-                new EntityQueryDesc { All = new[] { ComponentType.ReadOnly(renderMeshType) } });
+                new EntityQueryDesc { All = queryComponents });
             NativeArray<Entity> entities = query.ToEntityArray(Allocator.Temp);
 
             MethodInfo? getShared = typeof(EntityManager).GetMethod(
@@ -308,6 +346,33 @@ namespace DINOForge.Runtime.Bridge
                 catch { }
             }
             return null;
+        }
+
+        private static readonly Dictionary<string, Type?> _resolvedTypeCache =
+            new Dictionary<string, Type?>(StringComparer.Ordinal);
+
+        /// <summary>
+        /// Resolves a fully-qualified type name (e.g. "Components.MeleeUnit") from any loaded assembly.
+        /// Results are cached to avoid repeated assembly scans.
+        /// </summary>
+        private static Type? ResolveTypeByName(string typeName)
+        {
+            if (_resolvedTypeCache.TryGetValue(typeName, out Type? cached))
+                return cached;
+
+            Type? found = null;
+            foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                try
+                {
+                    found = asm.GetType(typeName, throwOnError: false);
+                    if (found != null) break;
+                }
+                catch { }
+            }
+
+            _resolvedTypeCache[typeName] = found;
+            return found;
         }
 
         /// <summary>

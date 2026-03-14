@@ -30,16 +30,29 @@ namespace DINOForge.SDK.Assets
         public bool Applied { get; set; }
 
         /// <summary>
+        /// Pack <c>vanilla_mapping</c> value (e.g. "line_infantry", "ranged_infantry") that
+        /// identifies which ECS archetype to target when swapping live RenderMesh components.
+        /// Null means the swap targets all entities with RenderMesh (legacy / building swaps).
+        /// </summary>
+        public string? VanillaMapping { get; }
+
+        /// <summary>
         /// Initializes a new <see cref="AssetSwapRequest"/>.
         /// </summary>
         /// <param name="assetAddress">Addressables key identifying the vanilla asset to replace.</param>
         /// <param name="modBundlePath">Path to the mod bundle that supplies the replacement.</param>
         /// <param name="assetName">Asset name or PathID within the mod bundle.</param>
-        public AssetSwapRequest(string assetAddress, string modBundlePath, string assetName)
+        /// <param name="vanillaMapping">
+        /// Optional pack <c>vanilla_mapping</c> used to narrow entity targeting during live mesh swap.
+        /// When non-null, only entities with the matching ECS archetype component receive the swap.
+        /// </param>
+        public AssetSwapRequest(string assetAddress, string modBundlePath, string assetName,
+            string? vanillaMapping = null)
         {
             AssetAddress = assetAddress ?? throw new ArgumentNullException(nameof(assetAddress));
             ModBundlePath = modBundlePath ?? throw new ArgumentNullException(nameof(modBundlePath));
             AssetName = assetName ?? throw new ArgumentNullException(nameof(assetName));
+            VanillaMapping = vanillaMapping;
         }
     }
 

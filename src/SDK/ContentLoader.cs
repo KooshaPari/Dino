@@ -311,7 +311,8 @@ namespace DINOForge.SDK
                 Assets.AssetSwapRegistry.Register(new Assets.AssetSwapRequest(
                     unit.VisualAsset!,
                     bundlePath,
-                    unit.VisualAsset!));
+                    unit.VisualAsset!,
+                    unit.VanillaMapping));
             }
 
             foreach (DINOForge.SDK.Registry.RegistryEntry<Models.BuildingDefinition> entry in _registryManager.Buildings.All.Values)
