@@ -499,6 +499,12 @@ namespace DINOForge.Runtime
         {
             if (!_initialized) return;
 
+            // Debug: log every ~5 seconds to confirm Update is running
+            if (Time.frameCount % 300 == 0)
+            {
+                _log.LogInfo($"[RuntimeDriver] Update running frame {Time.frameCount}");
+            }
+
             // ── F9/F10 key handling — always runs regardless of UI layer ─────────
             // These handlers are intentionally on RuntimeDriver so they work even if
             // DFCanvas or the fallback menu host fails to initialise.
