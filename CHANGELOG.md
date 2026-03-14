@@ -19,8 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **YAML deserialization forward-compatibility** — YamlDotNet deserializer now ignores unmatched properties, allowing optional fields in YAML definitions without breaking load
 - Multiple CI and integration test resolutions
 - Code formatting and linting standardizations across bridge and test suites
+- Registry_StarWarsPack_LoadsAndUnitsHaveVisualAsset test failure due to extra weapon fields
 
 ### Changed
 
