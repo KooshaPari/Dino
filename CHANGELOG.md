@@ -5,6 +5,18 @@ All notable changes to DINOForge will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2026-03-14
+
+### Added
+
+- `UnitDefinition.VisualAsset` (`visual_asset:` YAML alias) — Addressables key for 3D prefab, deserialized from unit YAML and stored in registry
+- `BuildingDefinition.VisualAsset` (`visual_asset:` YAML alias) — same for buildings
+- `Phase7VisualAssetIntegrationTests` — 14 tests validating the full YAML → ContentLoader → Registry → Addressables key resolution chain for all 28 units and 22 buildings
+
+### Tests
+
+- 916 tests passing (14 new Phase 7 integration tests)
+
 ## [0.7.0] - 2026-03-13
 
 ### Added
@@ -58,6 +70,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Added a PR-time repo hygiene gate to block new generated test artifacts, machine-specific absolute paths, and legacy schema aliases from being introduced in changed files.
+- Declared canonical JSON schema references in governance/docs entrypoints to reduce schema-path drift across docs and tooling.
 
 #### Phase 2C-B: Star Wars Clone Wars CIS Unit Sourcing Manifest
 - **Comprehensive gap analysis** — Identified all 58 missing CIS units for vanilla-dino parity (14/72 current → 72/72 target)
