@@ -23,11 +23,13 @@ namespace DINOForge.Runtime.UI
 
         private void Awake()
         {
-            LogInfo($"[UiEventInterceptor::{_sessionId}] ===== UI EVENT INTERCEPTOR STARTED ===== at {System.DateTime.UtcNow:HH:mm:ss.fff} UTC");
+            LogWarning($"[UiEventInterceptor::{_sessionId}] UiEventInterceptor is disabled and will self-destruct.");
+            Destroy(this);
         }
 
         private void Start()
         {
+            if (!this) return;
             // Hook all existing buttons
             Button[] allButtons = Resources.FindObjectsOfTypeAll<Button>();
             LogInfo($"[UiEventInterceptor::{_sessionId}] Found {allButtons.Length} buttons in scene at start. Hooking click interceptors...");
@@ -43,6 +45,7 @@ namespace DINOForge.Runtime.UI
 
         private void Update()
         {
+            if (!this) return;
             // In case buttons are created dynamically, check periodically for new ones
             // This is expensive so we do it less frequently
             if (Time.frameCount % 60 == 0)  // Every ~1 second at 60fps

@@ -27,5 +27,13 @@ namespace DINOForge.Bridge.Protocol
         /// <summary>Total number of matching nodes.</summary>
         [JsonProperty("matchCount")]
         public int MatchCount { get; set; }
+
+        /// <summary>Whether the first matched node is currently actionable.</summary>
+        [JsonProperty("actionable")]
+        public bool Actionable { get; set; }
+
+        /// <summary>Best-effort reason why the first matched node is not actionable.</summary>
+        [JsonProperty("actionabilityReason")]
+        public string ActionabilityReason { get; set; } = "";
     }
 }

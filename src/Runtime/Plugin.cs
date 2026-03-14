@@ -9,6 +9,7 @@ using DINOForge.SDK;
 using HarmonyLib;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace DINOForge.Runtime
 {
@@ -223,6 +224,8 @@ namespace DINOForge.Runtime
             _dumpOutputPath = dumpOutputPath;
             _initialized = true;
 
+            CleanupUiInterceptors();
+
             // Initialize Kenney CC0 UI asset loader.
             // Sprites are expected at BepInEx/plugins/dinoforge-ui-assets/ (deployed by MSBuild target).
             // If the directory or files are absent UiAssets falls back silently — all properties return null.
@@ -347,6 +350,42 @@ namespace DINOForge.Runtime
             // ── Step 4: Log key handler registration ────────────────────────────────
             _log.LogInfo($"[RuntimeDriver] F9/F10 key handlers registered on {gameObject.name}.");
             _log.LogInfo("[RuntimeDriver] Waiting for ECS World (Update polling)...");
+        }
+
+        private void CleanupUiInterceptors()
+        {
+            try
+            {
+                UiEventInterceptor[] interceptors = Resources.FindObjectsOfTypeAll<UiEventInterceptor>();
+                foreach (UiEventInterceptor interceptor in interceptors)
+                {
+                    if (interceptor == null) continue;
+                    _log.LogWarning($"[RuntimeDriver] Destroying stale UiEventInterceptor on '{interceptor.gameObject.name}'.");
+                    Destroy(interceptor);
+                }
+
+                Button[] buttons = Resources.FindObjectsOfTypeAll<Button>();
+                int renamedCount = 0;
+                foreach (Button button in buttons)
+                {
+                    if (button == null) continue;
+                    string currentName = button.gameObject.name;
+                    int suffixIndex = currentName.IndexOf("_intercepted", StringComparison.Ordinal);
+                    if (suffixIndex < 0) continue;
+
+                    button.gameObject.name = currentName.Substring(0, suffixIndex);
+                    renamedCount++;
+                }
+
+                if (interceptors.Length > 0 || renamedCount > 0)
+                {
+                    _log.LogInfo($"[RuntimeDriver] Removed {interceptors.Length} interceptor component(s) and restored {renamedCount} button name(s).");
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[RuntimeDriver] UiEventInterceptor cleanup failed: {ex.Message}");
+            }
         }
 
         /// <summary>
