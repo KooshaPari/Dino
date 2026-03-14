@@ -678,10 +678,7 @@ namespace DINOForge.Tools.PackCompiler
                     return;
                 }
 
-                var deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                    .IgnoreUnmatchedProperties()
-                    .Build();
+                var deserializer = YamlLoader.Deserializer;
 
                 string yaml = File.ReadAllText(manifestPath);
                 var manifest = deserializer.Deserialize<TotalConversionManifest>(yaml);
@@ -900,10 +897,7 @@ namespace DINOForge.Tools.PackCompiler
                 Console.WriteLine("[DEBUG] Creating DeserializerBuilder...");
                 Console.Out.Flush();
 
-                var deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                    .IgnoreUnmatchedProperties()
-                    .Build();
+                var deserializer = YamlLoader.Deserializer;
 
                 Console.WriteLine("[DEBUG] DeserializerBuilder created, reading YAML file...");
                 Console.Out.Flush();
@@ -1011,10 +1005,7 @@ namespace DINOForge.Tools.PackCompiler
                     return;
                 }
 
-                var deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                    .IgnoreUnmatchedProperties()
-                    .Build();
+                var deserializer = YamlLoader.Deserializer;
 
                 var configYaml = File.ReadAllText(configPath);
 
@@ -1085,10 +1076,7 @@ namespace DINOForge.Tools.PackCompiler
                     return;
                 }
 
-                var deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                    .IgnoreUnmatchedProperties()
-                    .Build();
+                var deserializer = YamlLoader.Deserializer;
 
                 var configYaml = File.ReadAllText(configPath);
 
@@ -1195,10 +1183,7 @@ namespace DINOForge.Tools.PackCompiler
                     return;
                 }
 
-                var deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                    .IgnoreUnmatchedProperties()
-                    .Build();
+                var deserializer = YamlLoader.Deserializer;
 
                 var configYaml = File.ReadAllText(configPath);
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using DINOForge.SDK;
 using DINOForge.Tools.PackCompiler.Models;
 using DINOForge.Tools.PackCompiler.Services;
 using YamlDotNet.Serialization;
@@ -38,10 +39,7 @@ namespace DINOForge.Tools.PackCompiler
                     return 1;
                 }
 
-                var deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(UnderscoredNamingConvention.Instance)
-                    .IgnoreUnmatchedProperties()
-                    .Build();
+                var deserializer = YamlLoader.Deserializer;
 
                 var configYaml = File.ReadAllText(configPath);
                 var config = deserializer.Deserialize<AssetPipelineConfig>(configYaml);

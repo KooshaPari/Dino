@@ -26,6 +26,11 @@
     <InternalsVisibleTo Include="DINOForge.Tests" />
   </ItemGroup>
 
+  <!-- Exclude duplicate Loading folder -->
+  <ItemGroup>
+    <Compile Remove="Loading\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" Condition="Exists('..\..\README.md')" />
   </ItemGroup>

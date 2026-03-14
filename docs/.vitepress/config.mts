@@ -41,6 +41,7 @@ export default withMermaid(
             { text: 'Home', link: '/' },
             { text: 'Installation', link: '/guide/getting-started' },
             { text: 'Quick Start', link: '/guide/quick-start' },
+            { text: 'Creating Packs', link: '/guide/creating-packs' },
             { text: 'Pack Registry', link: '/packs' },
           ],
         },
@@ -50,12 +51,23 @@ export default withMermaid(
             { text: 'Architecture Overview', link: '/concepts/architecture' },
             { text: 'ECS Bridge Layer', link: '/concepts/ecs-bridge' },
             { text: 'Registry System', link: '/concepts/registry-system' },
+            { text: 'Aviation System', link: '/concepts/aviation' },
           ],
         },
         {
-          text: 'Pack Development',
+          text: 'API Reference',
           items: [
-            { text: 'Creating Packs', link: '/guide/creating-packs' },
+            { text: 'Registry API', link: '/api/registry' },
+            { text: 'Content Loader API', link: '/api/content-loader' },
+          ],
+        },
+        {
+          text: 'Schema Reference',
+          items: [
+            { text: 'Unit Schema', link: '/reference/unit-schema' },
+            { text: 'Building Schema', link: '/reference/building-schema' },
+            { text: 'Asset Pipeline', link: '/reference/asset-pipeline' },
+            { text: 'All Schemas', link: '/reference/schemas' },
           ],
         },
         {
@@ -80,7 +92,6 @@ export default withMermaid(
         {
           text: 'Reference',
           items: [
-            { text: 'Schemas', link: '/reference/schemas' },
             { text: 'CLI Reference', link: '/reference/cli' },
             { text: 'Game Data Reference', link: '/reference/dino-game-notes' },
             { text: 'Modding DX Reference', link: '/reference/modding-dx-reference' },
