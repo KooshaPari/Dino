@@ -14,16 +14,33 @@ internal static class UiQueryCommand
     public static Command Create()
     {
         Argument<string> selectorArg = new("selector") { Description = "UI selector (e.g., role=button, text=Mods)" };
+        Option<string> formatOpt = CommandOutput.CreateFormatOption();
         Command command = new("ui-query", "Query UI elements by selector");
         command.Add(selectorArg);
+        command.Add(formatOpt);
 
         command.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
+            bool json = CommandOutput.IsJson(parseResult, formatOpt);
             string selector = parseResult.GetRequiredValue(selectorArg);
-            using GameClient? client = await CommandHelper.ConnectAsync(ct);
-            if (client is null) return;
+            using GameClient? client = await CommandHelper.ConnectAsync(ct, writeErrors: !json);
+            if (client is null)
+            {
+                if (json)
+                {
+                    CommandOutput.WriteJsonError("game_not_running", "Game not running. Start DINO first.");
+                }
+
+                return;
+            }
 
             UiActionResult result = await client.QueryUiAsync(selector, ct);
+
+            if (json)
+            {
+                CommandOutput.WriteJson(result);
+                return;
+            }
 
             AnsiConsole.MarkupLine($"[bold]Query Result[/]");
             AnsiConsole.MarkupLine($"[dim]Success: {result.Success}[/]");

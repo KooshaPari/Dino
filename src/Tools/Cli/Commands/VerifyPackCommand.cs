@@ -17,16 +17,33 @@ internal static class VerifyPackCommand
     public static Command Create()
     {
         Argument<string> packPathArg = new("packPath") { Description = "Path to the pack directory to verify" };
+        Option<string> formatOpt = CommandOutput.CreateFormatOption();
         Command command = new("verify", "End-to-end pack verification");
         command.Add(packPathArg);
+        command.Add(formatOpt);
 
         command.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
+            bool json = CommandOutput.IsJson(parseResult, formatOpt);
             string packPath = parseResult.GetRequiredValue(packPathArg);
-            using GameClient? client = await CommandHelper.ConnectAsync(ct);
-            if (client is null) return;
+            using GameClient? client = await CommandHelper.ConnectAsync(ct, writeErrors: !json);
+            if (client is null)
+            {
+                if (json)
+                {
+                    CommandOutput.WriteJsonError("game_not_running", "Game not running. Start DINO first.");
+                }
+
+                return;
+            }
 
             VerifyResult result = await client.VerifyModAsync(packPath, ct);
+
+            if (json)
+            {
+                CommandOutput.WriteJson(result);
+                return;
+            }
 
             Table table = new Table()
                 .Border(TableBorder.Rounded)
