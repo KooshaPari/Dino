@@ -1,0 +1,36 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.3.11f1
+CRC: 3821367602
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: cc997702f8ebbb8c8333fd12007eeb08
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 573ff556cc2fb1d04810703b7d6405c0
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: a130e53d7b624a7d3dffdf8330588c86
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 136
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Prefabs/Republic/sw-guard-tower.prefab
+- Assets/Materials/Republic/sw-guard-tower.mat
+Dependencies: []

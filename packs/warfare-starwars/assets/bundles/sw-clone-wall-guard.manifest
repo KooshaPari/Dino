@@ -1,0 +1,36 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.3.11f1
+CRC: 1846057626
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: ab19943439ad0c47a19254ae9ae6ea9f
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 573ff556cc2fb1d04810703b7d6405c0
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: a369320b69d0957cc2e73a5ab99c1fb8
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 136
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Prefabs/Republic/sw-clone-wall-guard.prefab
+- Assets/Materials/Republic/sw-clone-wall-guard.mat
+Dependencies: []

@@ -1,0 +1,36 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.3.11f1
+CRC: 1789076855
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: bd408a1fe25c6d2dba07bbc596c59125
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 573ff556cc2fb1d04810703b7d6405c0
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 1f982ad3947c635e8bbbc30298249d42
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 136
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Prefabs/CIS/sw-medical-droid.prefab
+- Assets/Materials/CIS/sw-medical-droid.mat
+Dependencies: []

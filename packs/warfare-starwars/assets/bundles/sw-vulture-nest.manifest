@@ -1,0 +1,36 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.3.11f1
+CRC: 1807173927
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: bf7d762ef1aaa5822707a7c036d21b33
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: af33ec919e3192a365d243cf42d8bb55
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 7afded8924054939afb5a10eacbc26be
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Materials/CIS/sw-vulture-nest.mat
+- Assets/Prefabs/CIS/sw-vulture-nest.prefab
+Dependencies: []

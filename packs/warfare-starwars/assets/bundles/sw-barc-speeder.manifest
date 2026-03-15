@@ -1,0 +1,36 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.3.11f1
+CRC: 4068505961
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 6b10432caa63ad156f6e9ebe5c05a6a1
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: af33ec919e3192a365d243cf42d8bb55
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 0f6494e77c4830e9df219505caa409cf
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Prefabs/Republic/sw-barc-speeder.prefab
+- Assets/Materials/Republic/sw-barc-speeder.mat
+Dependencies: []
