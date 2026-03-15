@@ -17,16 +17,33 @@ internal static class ScreenshotCommand
     public static Command Create()
     {
         Option<string?> outputOpt = new("--output") { Description = "Output file path for the screenshot" };
+        Option<string> formatOpt = CommandOutput.CreateFormatOption();
         Command command = new("screenshot", "Capture game screenshot");
         command.Add(outputOpt);
+        command.Add(formatOpt);
 
         command.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
+            bool json = CommandOutput.IsJson(parseResult, formatOpt);
             string? output = parseResult.GetValue(outputOpt);
-            using GameClient? client = await CommandHelper.ConnectAsync(ct);
-            if (client is null) return;
+            using GameClient? client = await CommandHelper.ConnectAsync(ct, writeErrors: !json);
+            if (client is null)
+            {
+                if (json)
+                {
+                    CommandOutput.WriteJsonError("game_not_running", "Game not running. Start DINO first.");
+                }
+
+                return;
+            }
 
             ScreenshotResult result = await client.ScreenshotAsync(output, ct);
+
+            if (json)
+            {
+                CommandOutput.WriteJson(result);
+                return;
+            }
 
             if (result.Success)
             {

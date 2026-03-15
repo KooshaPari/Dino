@@ -14,16 +14,33 @@ internal static class UiTreeCommand
     public static Command Create()
     {
         Option<string?> selectorOpt = new("--selector") { Description = "Optional selector string echoed in result" };
+        Option<string> formatOpt = CommandOutput.CreateFormatOption();
         Command command = new("ui-tree", "Capture live Unity UI hierarchy snapshot");
         command.Add(selectorOpt);
+        command.Add(formatOpt);
 
         command.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
+            bool json = CommandOutput.IsJson(parseResult, formatOpt);
             string? selector = parseResult.GetValue(selectorOpt);
-            using GameClient? client = await CommandHelper.ConnectAsync(ct);
-            if (client is null) return;
+            using GameClient? client = await CommandHelper.ConnectAsync(ct, writeErrors: !json);
+            if (client is null)
+            {
+                if (json)
+                {
+                    CommandOutput.WriteJsonError("game_not_running", "Game not running. Start DINO first.");
+                }
+
+                return;
+            }
 
             UiTreeResult result = await client.GetUiTreeAsync(selector, ct);
+
+            if (json)
+            {
+                CommandOutput.WriteJson(result);
+                return;
+            }
 
             AnsiConsole.MarkupLine($"[bold]UI Tree Snapshot[/]");
             AnsiConsole.MarkupLine($"[dim]Success: {result.Success}[/]");

@@ -17,16 +17,33 @@ internal static class ReloadCommand
     public static Command Create()
     {
         Option<string?> pathOpt = new("--path") { Description = "Path to packs directory to reload from" };
+        Option<string> formatOpt = CommandOutput.CreateFormatOption();
         Command command = new("reload", "Reload packs");
         command.Add(pathOpt);
+        command.Add(formatOpt);
 
         command.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
+            bool json = CommandOutput.IsJson(parseResult, formatOpt);
             string? path = parseResult.GetValue(pathOpt);
-            using GameClient? client = await CommandHelper.ConnectAsync(ct);
-            if (client is null) return;
+            using GameClient? client = await CommandHelper.ConnectAsync(ct, writeErrors: !json);
+            if (client is null)
+            {
+                if (json)
+                {
+                    CommandOutput.WriteJsonError("game_not_running", "Game not running. Start DINO first.");
+                }
+
+                return;
+            }
 
             ReloadResult result = await client.ReloadPacksAsync(path, ct);
+
+            if (json)
+            {
+                CommandOutput.WriteJson(result);
+                return;
+            }
 
             if (result.Success)
             {

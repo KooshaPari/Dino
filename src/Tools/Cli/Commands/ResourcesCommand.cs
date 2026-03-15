@@ -17,12 +17,29 @@ internal static class ResourcesCommand
     public static Command Create()
     {
         Command command = new("resources", "Show current resource values");
+        Option<string> formatOpt = CommandOutput.CreateFormatOption();
+        command.Add(formatOpt);
         command.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
-            using GameClient? client = await CommandHelper.ConnectAsync(ct);
-            if (client is null) return;
+            bool json = CommandOutput.IsJson(parseResult, formatOpt);
+            using GameClient? client = await CommandHelper.ConnectAsync(ct, writeErrors: !json);
+            if (client is null)
+            {
+                if (json)
+                {
+                    CommandOutput.WriteJsonError("game_not_running", "Game not running. Start DINO first.");
+                }
+
+                return;
+            }
 
             ResourceSnapshot resources = await client.GetResourcesAsync(ct);
+
+            if (json)
+            {
+                CommandOutput.WriteJson(resources);
+                return;
+            }
 
             Table table = new Table()
                 .Border(TableBorder.Rounded)
