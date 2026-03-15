@@ -261,6 +261,7 @@ namespace DINOForge.Runtime.UI
             scrollRect.vertical = true;
             scrollRect.scrollSensitivity = 20f;
             scrollRect.movementType = ScrollRect.MovementType.Clamped;
+            scrollRect.viewport = rt;
 
             return (scrollRect, contentRt);
         }

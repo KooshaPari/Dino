@@ -27,11 +27,41 @@ DINOForge is a mod operating system, not a single mod. It provides the framework
 | M2 | Generic Mod SDK (registries, schemas, ContentLoader) | Done |
 | M3 | Dev Tooling (PackCompiler, DumpTools, DebugOverlay) | Done |
 | M4 | Warfare Domain (archetypes, doctrines, roles, waves, balance) | Done |
-| M5 | Example Packs (warfare-starwars 28u/10b, warfare-guerrilla, warfare-modern) | In Progress — substantially complete |
-| Docs | VitePress site (kooshapari.github.io/Dino) | In Progress |
-| CI/QA | GitHub Actions, templates, contributing guides | In Progress |
+| M5 | Example Packs (warfare-starwars, warfare-aerial, warfare-guerrilla, warfare-modern) | Done |
+| M6 | In-Game Mod Menu + HMR (F9/F10, hot reload) | Done |
+| M7 | Installer + Universe Bible | Done |
+| M8 | Runtime Integration (ModPlatform, ECS bridge, asset swap) | Done |
+| M9 | Desktop Companion (WinUI 3, Mica, pack manager) | Done |
+| M10 | Fuzzing (FsCheck 30+ props, SharpFuzz, corpus, nightly CI) | Done |
+| M11 | Test Coverage + Code Completion (1017+ tests) | Done |
 
-**Current test count: 879 passing**
+**Current test count: 1,017+ passing**
+
+## Install
+
+### Desktop Companion (out-of-game pack manager + F9/F10 mirror)
+
+**Windows (PowerShell) — recommended:**
+```powershell
+irm https://raw.githubusercontent.com/KooshaPari/Dino/main/scripts/install-companion.ps1 | iex
+```
+
+**WSL / bash:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/KooshaPari/Dino/main/scripts/install-companion.sh | bash
+```
+
+Or download `DINOForge.Companion-vX.Y.Z-win-x64.zip` directly from [Releases](https://github.com/KooshaPari/Dino/releases/latest).
+
+> **First run**: Settings → set *Packs Directory* to `BepInEx\dinoforge_packs\` in your game folder.
+
+### Game Plugin (BepInEx)
+
+```powershell
+irm https://raw.githubusercontent.com/KooshaPari/Dino/main/src/Tools/Installer/Install-DINOForge.ps1 | iex
+```
+
+---
 
 ## Quick Start
 
