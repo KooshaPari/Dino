@@ -15,7 +15,7 @@ internal static class CommandHelper
     /// </summary>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A connected <see cref="GameClient"/>, or null if the connection failed.</returns>
-    public static async Task<GameClient?> ConnectAsync(CancellationToken ct = default)
+    public static async Task<GameClient?> ConnectAsync(CancellationToken ct = default, bool writeErrors = true)
     {
         GameClient client = new();
         try
@@ -25,7 +25,11 @@ internal static class CommandHelper
         }
         catch (GameClientException)
         {
-            AnsiConsole.MarkupLine("[red]Error:[/] Game not running. Start DINO first.");
+            if (writeErrors)
+            {
+                AnsiConsole.MarkupLine("[red]Error:[/] Game not running. Start DINO first.");
+            }
+
             client.Dispose();
             return null;
         }

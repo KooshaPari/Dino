@@ -21,18 +21,35 @@ internal static class DumpCommand
             Description = "Category to dump: units, buildings, projectiles, or all",
             DefaultValueFactory = _ => null
         };
+        Option<string> formatOpt = CommandOutput.CreateFormatOption();
         Command command = new("dump", "Dump game state (units/buildings/projectiles/all)");
         command.Add(categoryArg);
+        command.Add(formatOpt);
 
         command.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
+            bool json = CommandOutput.IsJson(parseResult, formatOpt);
             string? category = parseResult.GetValue(categoryArg);
-            using GameClient? client = await CommandHelper.ConnectAsync(ct);
-            if (client is null) return;
+            using GameClient? client = await CommandHelper.ConnectAsync(ct, writeErrors: !json);
+            if (client is null)
+            {
+                if (json)
+                {
+                    CommandOutput.WriteJsonError("game_not_running", "Game not running. Start DINO first.");
+                }
+
+                return;
+            }
 
             CatalogSnapshot catalog = category is not null
                 ? await client.DumpStateAsync(category, ct)
                 : await client.GetCatalogAsync(ct);
+
+            if (json)
+            {
+                CommandOutput.WriteJson(catalog);
+                return;
+            }
 
             RenderCategory("Units", catalog.Units);
             RenderCategory("Buildings", catalog.Buildings);

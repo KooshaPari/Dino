@@ -16,12 +16,29 @@ internal static class StatusCommand
     public static Command Create()
     {
         Command command = new("status", "Show game and mod platform status");
+        Option<string> formatOpt = CommandOutput.CreateFormatOption();
+        command.Add(formatOpt);
         command.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
-            using GameClient? client = await CommandHelper.ConnectAsync(ct);
-            if (client is null) return;
+            bool json = CommandOutput.IsJson(parseResult, formatOpt);
+            using GameClient? client = await CommandHelper.ConnectAsync(ct, writeErrors: !json);
+            if (client is null)
+            {
+                if (json)
+                {
+                    CommandOutput.WriteJsonError("game_not_running", "Game not running. Start DINO first.");
+                }
+
+                return;
+            }
 
             Bridge.Protocol.GameStatus status = await client.StatusAsync(ct);
+
+            if (json)
+            {
+                CommandOutput.WriteJson(status);
+                return;
+            }
 
             Table table = new Table()
                 .Border(TableBorder.Rounded)

@@ -20,24 +20,41 @@ internal static class OverrideCommand
         Argument<float> valueArg = new("value") { Description = "Value to apply" };
         Option<string?> modeOpt = new("--mode") { Description = "Override mode: override, add, or multiply" };
         Option<string?> filterOpt = new("--filter") { Description = "Entity filter expression" };
+        Option<string> formatOpt = CommandOutput.CreateFormatOption();
 
         Command command = new("override", "Apply stat override");
         command.Add(pathArg);
         command.Add(valueArg);
         command.Add(modeOpt);
         command.Add(filterOpt);
+        command.Add(formatOpt);
 
         command.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
+            bool json = CommandOutput.IsJson(parseResult, formatOpt);
             string path = parseResult.GetRequiredValue(pathArg);
             float value = parseResult.GetRequiredValue(valueArg);
             string? mode = parseResult.GetValue(modeOpt);
             string? filter = parseResult.GetValue(filterOpt);
 
-            using GameClient? client = await CommandHelper.ConnectAsync(ct);
-            if (client is null) return;
+            using GameClient? client = await CommandHelper.ConnectAsync(ct, writeErrors: !json);
+            if (client is null)
+            {
+                if (json)
+                {
+                    CommandOutput.WriteJsonError("game_not_running", "Game not running. Start DINO first.");
+                }
+
+                return;
+            }
 
             OverrideResult result = await client.ApplyOverrideAsync(path, value, mode, filter, ct);
+
+            if (json)
+            {
+                CommandOutput.WriteJson(result);
+                return;
+            }
 
             if (result.Success)
             {

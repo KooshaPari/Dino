@@ -18,15 +18,32 @@ internal static class QueryCommand
     {
         Argument<string> pathArg = new("path") { Description = "SDK path or component type to query" };
         Command command = new("query", "Query entities by SDK path or component type");
+        Option<string> formatOpt = CommandOutput.CreateFormatOption();
         command.Add(pathArg);
+        command.Add(formatOpt);
 
         command.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
+            bool json = CommandOutput.IsJson(parseResult, formatOpt);
             string path = parseResult.GetRequiredValue(pathArg);
-            using GameClient? client = await CommandHelper.ConnectAsync(ct);
-            if (client is null) return;
+            using GameClient? client = await CommandHelper.ConnectAsync(ct, writeErrors: !json);
+            if (client is null)
+            {
+                if (json)
+                {
+                    CommandOutput.WriteJsonError("game_not_running", "Game not running. Start DINO first.");
+                }
+
+                return;
+            }
 
             QueryResult result = await client.QueryEntitiesAsync(componentType: path, ct: ct);
+
+            if (json)
+            {
+                CommandOutput.WriteJson(result);
+                return;
+            }
 
             AnsiConsole.MarkupLine($"[bold]Found {result.Count} entities[/]");
 
