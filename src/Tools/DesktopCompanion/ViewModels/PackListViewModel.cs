@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -57,6 +58,9 @@ namespace DINOForge.DesktopCompanion.ViewModels
                 if (string.IsNullOrEmpty(_packsDirectory))
                 {
                     StatusMessage = "Packs directory not configured — go to Settings.";
+                    // Unsubscribe all before clearing
+                    foreach (PackViewModel p in Packs)
+                        p.PropertyChanged -= OnPackPropertyChanged;
                     Packs.Clear();
                     return;
                 }
@@ -69,10 +73,15 @@ namespace DINOForge.DesktopCompanion.ViewModels
                     .LoadAsync(_packsDirectory)
                     .ConfigureAwait(true);
 
+                // Unsubscribe old items
+                foreach (PackViewModel p in Packs)
+                    p.PropertyChanged -= OnPackPropertyChanged;
                 Packs.Clear();
+
                 foreach (PackViewModel pack in result.Packs)
                 {
                     pack.Enabled = !disabled.Contains(pack.Id);
+                    pack.PropertyChanged += OnPackPropertyChanged;
                     Packs.Add(pack);
                 }
 
@@ -90,15 +99,16 @@ namespace DINOForge.DesktopCompanion.ViewModels
             }
         }
 
-        /// <summary>Toggles the enabled state of <paramref name="pack"/> and persists the change.</summary>
-        [RelayCommand]
-        public async Task TogglePackAsync(PackViewModel? pack)
+        private async void OnPackPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (pack == null) return;
+            if (e.PropertyName == nameof(PackViewModel.Enabled))
+                await PersistDisabledPacksAsync().ConfigureAwait(false);
+        }
 
-            pack.Enabled = !pack.Enabled;
+        private async Task PersistDisabledPacksAsync()
+        {
+            if (string.IsNullOrEmpty(_packsDirectory)) return;
 
-            // Rebuild disabled set and persist
             List<string> disabled = new List<string>();
             foreach (PackViewModel p in Packs)
             {
