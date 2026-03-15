@@ -15,8 +15,10 @@ namespace DINOForge.Runtime.Bridge
     ///
     /// Lifecycle:
     ///   1. Mod pack loaders call <see cref="AssetSwapRegistry.Register"/> (SDK layer, any thread).
-    ///   2. This system waits <see cref="MinFrameDelay"/> frames for the game world to fully load.
-    ///   3. On each update cycle after the delay, pending swaps are drained from
+    ///   2. On the first <see cref="OnUpdate"/> tick that has pending requests, vanilla bundles
+    ///      are patched on disk via <see cref="AssetService.ReplaceAsset"/> (phase 1, no ECS dep).
+    ///   3. On each subsequent update, once <see cref="EntityQueries.GetRenderMeshEntities"/>
+    ///      returns a non-empty result, pending swaps are drained from
     ///      <see cref="AssetSwapRegistry"/>, patched bundles are written to
     ///      <c>BepInEx/dinoforge_patched_bundles/</c> via <see cref="AssetService.ReplaceAsset"/>,
     ///      and <see cref="AssetSwapRegistry.MarkApplied"/> is called on success.
@@ -63,7 +65,7 @@ namespace DINOForge.Runtime.Bridge
 
         /// <summary>
         /// Cached entity query for detecting when RenderMesh entities exist.
-        /// Created lazily once <see cref="ResolveRenderMeshType"/> succeeds.
+        /// Created lazily on first <see cref="OnUpdate"/> via <see cref="EntityQueries.GetRenderMeshEntities"/>.
         /// </summary>
         private EntityQuery _renderMeshProbeQuery;
         private bool _probeQueryCreated;
@@ -96,14 +98,14 @@ namespace DINOForge.Runtime.Bridge
             PatchUnpatchedBundles(pending);
 
             // Phase 2: live RenderMesh entity swap — only when entities exist.
-            Type? renderMeshType = ResolveRenderMeshType();
-            if (renderMeshType == null)
-                return;
-
+            // Use EntityQueries helper to keep ECS query patterns centralized in the Bridge layer.
             if (!_probeQueryCreated)
             {
-                _renderMeshProbeQuery = EntityManager.CreateEntityQuery(
-                    new EntityQueryDesc { All = new[] { ComponentType.ReadOnly(renderMeshType) } });
+                EntityQuery? probeQuery = DINOForge.Runtime.Bridge.EntityQueries.GetRenderMeshEntities(EntityManager);
+                if (probeQuery == null)
+                    return; // RenderMesh type not loaded yet
+
+                _renderMeshProbeQuery = probeQuery.Value;
                 _probeQueryCreated = true;
             }
 
@@ -167,7 +169,17 @@ namespace DINOForge.Runtime.Bridge
             using AssetService assetService = new AssetService(BepInEx.Paths.GameRootPath);
 
             // Read catalog once — it doesn't change between requests.
-            IReadOnlyDictionary<string, string> catalog = assetService.ReadCatalog();
+            // Guard against catalog read failures so phase 2 entity swaps still run this frame.
+            IReadOnlyDictionary<string, string> catalog;
+            try
+            {
+                catalog = assetService.ReadCatalog();
+            }
+            catch (Exception ex)
+            {
+                WriteDebug($"PatchUnpatchedBundles: catalog read failed — {ex.Message}");
+                return;
+            }
 
             foreach (AssetSwapRequest request in pending)
             {
