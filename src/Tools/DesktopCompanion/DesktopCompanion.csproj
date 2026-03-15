@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+    <TargetFramework>net11.0-windows10.0.26100.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.26100.0</TargetPlatformMinVersion>
     <RootNamespace>DINOForge.DesktopCompanion</RootNamespace>
     <AssemblyName>DINOForge.DesktopCompanion</AssemblyName>
@@ -10,31 +10,24 @@
     <WindowsPackageType>None</WindowsPackageType>
     <SelfContained>false</SelfContained>
     <ImplicitUsings>disable</ImplicitUsings>
-    <!-- Suppress MinVer on Windows/MSYS2 -->
+    <!-- Disable auto-generated Main -->
+    <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+    <!-- Suppress MinVer -->
     <DisableMinVer Condition="'$(OS)' == 'Windows_NT' and '$(MSYSTEM)' != ''">true</DisableMinVer>
     <DisableMinVer Condition="'$(DisableMinVer)' == ''">true</DisableMinVer>
-    <!-- Disable NuGet audit for local builds -->
     <NuGetAudit>false</NuGetAudit>
-    <!-- Disable lock file enforcement -->
     <RestoreLockedMode>false</RestoreLockedMode>
-    <!-- Point AppxMSBuildToolsPath to the VS 2022 Preview install where Pri.Tasks.dll lives -->
-    <AppxMSBuildToolsPath Condition="'$(AppxMSBuildToolsPath)' == '' and Exists('C:\Program Files\Microsoft Visual Studio\2022\Preview\MSBuild\Microsoft\VisualStudio\v17.0\AppxPackage\')">C:\Program Files\Microsoft Visual Studio\2022\Preview\MSBuild\Microsoft\VisualStudio\v17.0\AppxPackage\</AppxMSBuildToolsPath>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.0.0-preview1" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.0.0-experimental6" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.251219" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.4" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
-
-  <!-- SDK reference (netstandard2.0, no Unity deps) -->
   <ItemGroup>
-    <ProjectReference Include="../../SDK/DINOForge.SDK.csproj"
-                      SetTargetFramework="TargetFramework=netstandard2.0"
-                      SkipGetTargetFrameworkProperties="true" />
+    <ProjectReference Include="../../SDK/DINOForge.SDK.csproj" SetTargetFramework="TargetFramework=netstandard2.0" SkipGetTargetFrameworkProperties="true" />
   </ItemGroup>
 </Project>
