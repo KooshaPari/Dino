@@ -151,9 +151,10 @@ namespace DINOForge.Tools.PackCompiler.Services
             }
 
             // Check: LOD progression is sensible (each should be smaller than previous)
-            int lod0Poly = asset.LOD0.TriangleCount;
-            int lod1Poly = asset.LOD1.TriangleCount;
-            int lod2Poly = asset.LOD2.TriangleCount;
+            // Null-forgiving: LOD0/1/2 were validated non-null above; compiler can't track through early-return
+            int lod0Poly = asset.LOD0!.TriangleCount;
+            int lod1Poly = asset.LOD1!.TriangleCount;
+            int lod2Poly = asset.LOD2!.TriangleCount;
 
             if (lod1Poly >= lod0Poly)
             {

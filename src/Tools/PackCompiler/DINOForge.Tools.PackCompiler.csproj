@@ -7,6 +7,8 @@
     <RootNamespace>DINOForge.Tools.PackCompiler</RootNamespace>
     <Description>CLI tool for validating and bundling DINOForge content packs</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- CS1591: missing XML doc on internal tool types — not a public library API -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <!-- Wrapped dependencies (ADR-008) -->
