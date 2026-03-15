@@ -1,12 +1,15 @@
 using System.Collections.Generic;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace DINOForge.DesktopCompanion.Data
 {
     /// <summary>
     /// Flat DTO representing a discovered pack for display in the companion UI.
     /// Does not reference any Runtime type — constructed purely from filesystem data.
+    /// Extends <see cref="ObservableObject"/> so x:Bind OneWay in the DataTemplate
+    /// can subscribe to property change notifications (required by WinUI 3).
     /// </summary>
-    public sealed class PackViewModel
+    public sealed partial class PackViewModel : ObservableObject
     {
         /// <summary>Unique pack identifier (from pack.yaml id field).</summary>
         public string Id { get; init; } = "";
@@ -27,13 +30,20 @@ namespace DINOForge.DesktopCompanion.Data
         public string? Description { get; init; }
 
         /// <summary>Whether this pack is currently enabled (not in disabled_packs.json).</summary>
-        public bool Enabled { get; set; } = true;
+        [ObservableProperty]
+        private bool _enabled = true;
 
         /// <summary>Number of validation errors detected for this pack.</summary>
         public int ErrorCount { get; init; } = 0;
 
         /// <summary>True when this pack has one or more validation errors.</summary>
         public bool HasErrors => ErrorCount > 0;
+
+        /// <summary>Error count as string for TextBlock binding.</summary>
+        public string ErrorCountText => ErrorCount.ToString();
+
+        /// <summary>Load order as string for TextBlock binding.</summary>
+        public string LoadOrderText => LoadOrder.ToString();
 
         /// <summary>List of error messages for this pack.</summary>
         public IReadOnlyList<string> Errors { get; init; } = System.Array.Empty<string>();
