@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Desktop Companion UI** — DashboardViewModel, DashboardPage XAML, MainWindow updates with in-progress companion dashboard
 - **Star Wars asset bundles** — built Unity AssetBundles for 25 warfare-starwars pack units/buildings (CIS + Republic); prefab sources added to `unity-assetbundle-builder/Assets/Prefabs/`
 - **`.gitignore`** — excluded `packcompiler-out/`, `publish/`, `.claire/` local build/publish output directories
 
