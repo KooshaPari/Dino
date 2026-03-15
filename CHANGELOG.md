@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **CI .NET version** — all workflows now install .NET 8 + 9 + 10 to match `global.json` SDK 10.0.201; restores global.json to 10.0.201 (latestMajor) which was reverted incorrectly in prior commits
+
+### Added
+
+- **Star Wars asset bundles** — built Unity AssetBundles for 25 warfare-starwars pack units/buildings (CIS + Republic); prefab sources added to `unity-assetbundle-builder/Assets/Prefabs/`
+- **`.gitignore`** — excluded `packcompiler-out/`, `publish/`, `.claire/` local build/publish output directories
+
+## [0.11.0] - 2026-03-15
+
+### Fixed
+
+- **Release workflow `workflow_dispatch`** — added manual trigger with `tag` input for retroactive artifact builds; checkout & version extraction use input tag when dispatched manually
+- **Release workflow .NET version** — installed only .NET 8 but PackCompiler targets net9.0; all releases since v0.7.1 failed before producing any artifacts; now installs both 8.0.x and 9.0.x
+- **Required-artifact gate in release workflow** — new verification step before GitHub Release publish; fails with named list of missing files if any of the 6 required artifacts (Installer EXE, SHA256, Windows ZIP, SDK NuGet, Templates NuGet, SHA256SUMS.txt) are absent
+- **PackCompiler CS1591 warnings** — suppressed missing XML doc warnings (internal tool, not a public library API)
+- **AssetValidationService / PrefabGenerationService CS8602/CS8604** — null-forgiving on LOD0/1/2 after validated non-null; compiler could not track through early-return guard
+- **CompanionTests double-compilation** — excluded `CompanionTests\` from main Tests project (has own `.csproj`, was accidentally globbed in causing CS0246 on missing Moq)
+
+### Added
+
+- **`scripts/install-companion.ps1`** — `irm .../install-companion.ps1 | iex`; auto-fetches latest release, installs WindowsAppRuntime if needed, SHA256 verification, desktop shortcut
+- **`scripts/install-companion.sh`** — `curl -fsSL .../install-companion.sh | bash` (WSL)
+- **Release workflow** — Desktop Companion zip + sha256 added as release artifacts (`DINOForge.Companion-vX.Y.Z-win-x64.zip`)
+- **`WORKLOG.md`** — unified active work item log (WI-001 through WI-006)
+- **`docs/WBS.md`** — full work breakdown structure covering M8-M11 (79 tasks)
+- **`docs/adr/ADR-011-desktop-companion.md`** — WinUI 3 / WindowsAppSDK companion app decision record
+- **`docs/adr/ADR-012-fuzzing-strategy.md`** — FsCheck + SharpFuzz fuzzing strategy decision record
+- **`docs/roadmap/index.md`** — M9 (Desktop Companion), M10 (Fuzzing), M11 (Coverage + Code Completion) milestones added
+- **`docs/product-requirements-document.md`** v0.6.0 — Desktop Companion, fuzzing, and code completion requirements (user/tech/biz)
+
+- `SyncCommand` CLI command for content synchronization
+- `packs/warfare-aerial/` — new aerial warfare pack with airfield buildings and aerial unit doctrines
+- `packs/warfare-aerial/stats/aerial_buffs.yaml` — stat overrides for aerial units
+- `packs/warfare-starwars/stats/starwars_buffs.yaml` — stat overrides for Star Wars units
+
+### Changed
+
+- Archived 6 inactive placeholder packs to `packs/_archived/` (economy-balanced, example-balance, scenario-tutorial, warfare-airforce, warfare-guerrilla, warfare-modern)
+- Synced all `packages.lock.json` files across projects
+- Added `stats` load sections to `packs/warfare-aerial/pack.yaml` and `packs/warfare-starwars/pack.yaml`
+
+- `AssetSwapRequest.VanillaMapping` — optional field passed from `UnitDefinition.VanillaMapping` so `AssetSwapSystem` can narrow entity targeting to the correct ECS archetype during live RenderMesh swap
+- `AssetSwapSystem` improvements — expanded entity query and swap logic using `VanillaMapping` for precision targeting
+- `ModPlatform` status message now surfaces first error detail for faster in-game debugging
+- `Plugin.cs` wires `HudIndicator` to receive pack counts on every load/reload via `OnHudCountsChanged`
+
 ## [0.10.0] - 2026-03-14
 
 ### Security
@@ -22,14 +70,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **UI panel alpha flicker** — `DebugPanel.Show()` and `ModMenuPanel.Show()` set `_animT = 1f` so `AnimatePanel()` doesn't reset alpha to ~0 on the next frame (CodeRabbit issue)
+- **UI panel alpha flicker** — `DebugPanel.Show()` and `ModMenuPanel.Show()` set `_animT = 1f` so `AnimatePanel()` doesn't reset alpha to ~0 on the next frame
 - **`example-balance` pack ID** — `pack.yaml` `id:` aligned with directory name; fixed `ContentLoaderIntegrationTests` failures
 - **`RegisterItems<T>` deserialization** — narrowed `catch {}` scope to list-parse only; registration failures no longer swallowed silently
 - **Integration test resilience** — `PackLoadingTests` and `StatTests` skip gracefully when game is unavailable
 
-### Fixed
+### Added
 
-- **UI panel alpha flicker** — `DebugPanel.Show()` and `ModMenuPanel.Show()` now set `_animT = 1f` so `AnimatePanel()` doesn't reset alpha to ~0 on the next frame
+- **LOD Calculation Tests** — `LODCalculationTests.cs` covering polycount targets, LOD ratios, and screen threshold math
+- **VFX Pool Logic Tests** — `VFXPoolLogicTests.cs` covering pool lifecycle, faction coloring, and impact positioning
+- **Phase 3A/3B LOD test expansions** — additional assertions for raw GLB path references and distinct asset paths per unit
+- **Integration test resilience** — `PackLoadingTests` and `StatTests` now skip gracefully when game is unavailable
 
 ### Changed
 
