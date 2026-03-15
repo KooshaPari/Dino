@@ -163,6 +163,29 @@ namespace DINOForge.Runtime.UI
                 _canvasGroup.interactable = true;
                 _canvasGroup.blocksRaycasts = true;
             }
+
+            // Force panel to be fully visible
+            if (_panelRt != null)
+            {
+                _panelRt.gameObject.SetActive(true);
+            }
+
+            // Force all children to be visible
+            if (_listContent != null)
+            {
+                _listContent.gameObject.SetActive(true);
+                for (int i = 0; i < _listContent.childCount; i++)
+                {
+                    _listContent.GetChild(i).gameObject.SetActive(true);
+                }
+                UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(_listContent);
+            }
+
+            // Also force the entire panel hierarchy to rebuild
+            if (_panelRt != null)
+            {
+                UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(_panelRt);
+            }
         }
 
         /// <summary>Hides the panel with a fade animation.</summary>
@@ -552,6 +575,10 @@ namespace DINOForge.Runtime.UI
                 }
             }
             _log?.LogInfo($"[ModMenuPanel.RebuildPackList] MANUAL CALCULATION: expected total height={expectedHeight} (padding.top={vlg?.padding.top}, padding.bottom={vlg?.padding.bottom}, spacing={vlg?.spacing}, items={_listContent.childCount})");
+
+            // Drive layout immediately so the ScrollRect sees the correct content bounds
+            // even when the panel is currently hidden.
+            UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(_listContent);
         }
 
         private void BuildPackListItem(PackDisplayInfo pack, int index)

@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build retroactive release for (e.g. v0.9.0)'
+        required: true
+        type: string
 
 permissions: {}
 
@@ -21,6 +27,8 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          # For workflow_dispatch retro-runs, check out the specific tag's commit
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
       # Install both SDKs: net8.0 targets (Installer, CLI, Tests) + net9.0 (PackCompiler)
       - name: Setup .NET 8 + 9
@@ -32,12 +40,13 @@ jobs:
 
       # ---------------------------------------------------------------
       # Extract version metadata from the tag
+      # workflow_dispatch: use inputs.tag; tag push: use github.ref_name
       # ---------------------------------------------------------------
       - name: Extract version from tag
         id: version
         shell: pwsh
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
         run: |
           $tag = $env:RELEASE_TAG
           $version = $tag.TrimStart('v')
@@ -57,7 +66,7 @@ jobs:
         run: dotnet restore src/DINOForge.CI.sln
 
       - name: Build CI solution (Release)
-        run: dotnet build src/DINOForge.CI.sln -c Release --no-restore --verbosity minimal
+        run: dotnet build src/DINOForge.CI.sln -c Release --no-restore --verbosity minimal -m:1
 
       # ---------------------------------------------------------------
       # Run tests — must pass before packaging
@@ -125,6 +134,32 @@ jobs:
         shell: pwsh
 
       # ---------------------------------------------------------------
+      # Build Desktop Companion (WinUI 3, self-contained folder → zip)
+      # ---------------------------------------------------------------
+      - name: Build Desktop Companion
+        shell: pwsh
+        run: |
+          dotnet publish src/Tools/DesktopCompanion/DesktopCompanion.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:Platform=x64 `
+            -o staging/companion `
+            --verbosity minimal
+
+      - name: Package Companion and generate checksum
+        shell: pwsh
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          $version = $env:PACKAGE_VERSION
+          $zipName = "staging/DINOForge.Companion-v$version-win-x64.zip"
+          Compress-Archive -Path staging/companion/* -DestinationPath $zipName -Force
+          $hash = (Get-FileHash $zipName -Algorithm SHA256).Hash
+          "$hash *DINOForge.Companion-v$version-win-x64.zip" | `
+            Out-File -FilePath "staging/DINOForge.Companion-v$version-win-x64.zip.sha256" -Encoding utf8
+          Write-Host "Companion zip: $zipName ($([math]::Round((Get-Item $zipName).Length/1MB,1)) MB)"
+
       # Build the GUI Installer (net8.0-windows, self-contained EXE)
       # ---------------------------------------------------------------
       - name: Build Installer EXE
@@ -232,6 +267,8 @@ jobs:
           New-Item -ItemType Directory -Force -Path staging/scripts | Out-Null
           Copy-Item src/Tools/Installer/Install-DINOForge.ps1 staging/scripts/ -ErrorAction SilentlyContinue
           Copy-Item src/Tools/Installer/install.sh staging/scripts/ -ErrorAction SilentlyContinue
+          Copy-Item scripts/install-companion.ps1 staging/scripts/ -ErrorAction SilentlyContinue
+          Copy-Item scripts/install-companion.sh staging/scripts/ -ErrorAction SilentlyContinue
 
           # Copy packs directory
           if (Test-Path packs) {
@@ -386,6 +423,8 @@ jobs:
           $required = @(
             "staging/DINOForge-v$version-Installer.exe",
             "staging/DINOForge-v$version-Installer.exe.sha256",
+            "staging/DINOForge.Companion-v$version-win-x64.zip",
+            "staging/DINOForge.Companion-v$version-win-x64.zip.sha256",
             "staging/SHA256SUMS.txt",
             "DINOForge-v$version-windows.zip"
           )
@@ -417,8 +456,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: DINOForge ${{ github.ref_name }}
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          name: DINOForge ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
           body_path: release-notes.md
           prerelease: ${{ steps.version.outputs.IS_PRERELEASE }}
           draft: false
@@ -427,6 +466,8 @@ jobs:
             staging/nuget/*.nupkg
             staging/DINOForge-v${{ steps.version.outputs.VERSION }}-Installer.exe
             staging/DINOForge-v${{ steps.version.outputs.VERSION }}-Installer.exe.sha256
+            staging/DINOForge.Companion-v${{ steps.version.outputs.VERSION }}-win-x64.zip
+            staging/DINOForge.Companion-v${{ steps.version.outputs.VERSION }}-win-x64.zip.sha256
             staging/SHA256SUMS.txt
           fail_on_unmatched_files: true
         env:

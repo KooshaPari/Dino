@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-03-15
+
 ### Fixed
 
+- **Release workflow `workflow_dispatch`** — added manual trigger with `tag` input for retroactive artifact builds; checkout & version extraction use input tag when dispatched manually
 - **Release workflow .NET version** — installed only .NET 8 but PackCompiler targets net9.0; all releases since v0.7.1 failed before producing any artifacts; now installs both 8.0.x and 9.0.x
 - **Required-artifact gate in release workflow** — new verification step before GitHub Release publish; fails with named list of missing files if any of the 6 required artifacts (Installer EXE, SHA256, Windows ZIP, SDK NuGet, Templates NuGet, SHA256SUMS.txt) are absent
 - **PackCompiler CS1591 warnings** — suppressed missing XML doc warnings (internal tool, not a public library API)
@@ -17,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`scripts/install-companion.ps1`** — `irm .../install-companion.ps1 | iex`; auto-fetches latest release, installs WindowsAppRuntime if needed, SHA256 verification, desktop shortcut
+- **`scripts/install-companion.sh`** — `curl -fsSL .../install-companion.sh | bash` (WSL)
+- **Release workflow** — Desktop Companion zip + sha256 added as release artifacts (`DINOForge.Companion-vX.Y.Z-win-x64.zip`)
 - **`WORKLOG.md`** — unified active work item log (WI-001 through WI-006)
 - **`docs/WBS.md`** — full work breakdown structure covering M8-M11 (79 tasks)
 - **`docs/adr/ADR-011-desktop-companion.md`** — WinUI 3 / WindowsAppSDK companion app decision record
