@@ -30,13 +30,14 @@ jobs:
           # For workflow_dispatch retro-runs, check out the specific tag's commit
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
-      # Install both SDKs: net8.0 targets (Installer, CLI, Tests) + net9.0 (PackCompiler)
-      - name: Setup .NET 8 + 9
+      # Install all SDKs: net8.0 (Installer, CLI, Tests) + net9.0 (PackCompiler) + net10.0 (global.json)
+      - name: Setup .NET 8 + 9 + 10
         uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
         with:
           dotnet-version: |
             8.0.x
             9.0.x
+            10.0.x
 
       # ---------------------------------------------------------------
       # Extract version metadata from the tag
