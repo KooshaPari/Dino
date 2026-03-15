@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Star Wars asset bundles** — built Unity AssetBundles for 25 warfare-starwars pack units/buildings (CIS + Republic); prefab sources added to `unity-assetbundle-builder/Assets/Prefabs/`
 - **`.gitignore`** — excluded `packcompiler-out/`, `publish/`, `.claire/` local build/publish output directories
 
+### Changed
+
+- **VFXIntegrationTests** — refactored from runtime-instantiation to source-inspection contracts; tests now compile without Unity runtime dependency
+- **Star Wars vanilla bundles** — removed 42 primitive placeholder AssetBundles; units now fall back to vanilla DINO visuals until real assets are imported
+
 ## [0.11.0] - 2026-03-15
 
 ### Fixed
