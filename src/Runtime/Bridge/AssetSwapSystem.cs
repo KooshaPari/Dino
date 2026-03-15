@@ -56,10 +56,17 @@ namespace DINOForge.Runtime.Bridge
 
         /// <summary>
         /// Tracks which asset addresses have had their disk bundle patched (phase 1).
-        /// Live entity swaps (phase 2) are attempted separately once RenderMesh entities exist.
+        /// Must use OrdinalIgnoreCase to match asset address lookups elsewhere in the system.
         /// </summary>
         private readonly HashSet<string> _patchedAddresses =
-            new HashSet<string>(StringComparer.Ordinal);
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Cached entity query for detecting when RenderMesh entities exist.
+        /// Created lazily once <see cref="ResolveRenderMeshType"/> succeeds.
+        /// </summary>
+        private EntityQuery _renderMeshProbeQuery;
+        private bool _probeQueryCreated;
 
         /// <summary>
         /// Subdirectory under BepInEx root where patched bundles are written.
@@ -70,39 +77,41 @@ namespace DINOForge.Runtime.Bridge
         protected override void OnCreate()
         {
             base.OnCreate();
-            WriteDebug("AssetSwapSystem.OnCreate");
-
-            // Phase 1: patch bundles on disk immediately at system creation.
-            // This has no ECS dependency — vanilla bundle files can be overwritten as soon as
-            // the system exists, before any entity data is available.
-            PatchPendingBundlesOnDisk();
+            WriteDebug("AssetSwapSystem.OnCreate — awaiting pack load before patching");
+            // NOTE: packs are not loaded yet at OnCreate time (LoadPacks() is called from
+            // RuntimeDriver.Update() after the ECS world becomes available). Bundle patching
+            // and entity swaps both happen in OnUpdate once pending registrations appear.
         }
 
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            // Phase 2: live RenderMesh entity swap.
-            // Only attempt once RenderMesh entities actually exist; no fixed frame delay.
-            Type? renderMeshType = ResolveRenderMeshType();
-            if (renderMeshType == null)
-                return;
-
-            // Identify requests that need a live entity swap (registered after OnCreate,
-            // or whose bundle patch succeeded but whose entities weren't ready yet).
             IReadOnlyList<AssetSwapRequest> pending = AssetSwapRegistry.GetPending();
             if (pending.Count == 0)
                 return;
 
-            // Check if any RenderMesh entities exist yet; bail early if none.
-            EntityQuery probeQuery = EntityManager.CreateEntityQuery(
-                new EntityQueryDesc { All = new[] { ComponentType.ReadOnly(renderMeshType) } });
-            int entityCount = probeQuery.CalculateEntityCount();
-            probeQuery.Dispose();
-            if (entityCount == 0)
+            // Phase 1: patch vanilla bundles on disk for any address not yet patched.
+            // No ECS dependency — run as soon as packs are loaded (i.e. pending.Count > 0).
+            // Read the catalog once outside the loop to avoid repeated file I/O.
+            PatchUnpatchedBundles(pending);
+
+            // Phase 2: live RenderMesh entity swap — only when entities exist.
+            Type? renderMeshType = ResolveRenderMeshType();
+            if (renderMeshType == null)
                 return;
 
-            WriteDebug($"AssetSwapSystem: {entityCount} RenderMesh entities found — " +
-                       $"applying {pending.Count} live entity swap(s)");
+            if (!_probeQueryCreated)
+            {
+                _renderMeshProbeQuery = EntityManager.CreateEntityQuery(
+                    new EntityQueryDesc { All = new[] { ComponentType.ReadOnly(renderMeshType) } });
+                _probeQueryCreated = true;
+            }
+
+            if (_renderMeshProbeQuery.CalculateEntityCount() == 0)
+                return;
+
+            WriteDebug($"AssetSwapSystem: RenderMesh entities present — " +
+                       $"attempting live swap for {pending.Count} request(s)");
 
             foreach (AssetSwapRequest request in pending)
             {
@@ -112,15 +121,20 @@ namespace DINOForge.Runtime.Bridge
                     bool entitySwapped = TrySwapRenderMeshFromBundle(
                         modBundleFullPath, request.AssetName, request.VanillaMapping);
 
-                    if (entitySwapped || _patchedAddresses.Contains(request.AssetAddress))
+                    // Only mark applied once the live entity swap succeeds. The disk patch
+                    // alone is not sufficient — entities using the vanilla address must be
+                    // updated in-memory for the current session. If entity swap fails (e.g.
+                    // no matching entities yet) the request remains pending for the next frame.
+                    if (entitySwapped)
                     {
                         AssetSwapRegistry.MarkApplied(request.AssetAddress);
                         WriteDebug($"AssetSwapSystem: swap complete — address='{request.AssetAddress}' " +
-                                   $"entitySwap={entitySwapped} bundlePatched={_patchedAddresses.Contains(request.AssetAddress)}");
+                                   $"bundlePatched={_patchedAddresses.Contains(request.AssetAddress)}");
                     }
                     else
                     {
-                        WriteDebug($"AssetSwapSystem: live swap failed — address='{request.AssetAddress}'");
+                        WriteDebug($"AssetSwapSystem: live swap pending — address='{request.AssetAddress}' " +
+                                   $"(no matching entities yet)");
                     }
                 }
                 catch (Exception ex)
@@ -131,35 +145,41 @@ namespace DINOForge.Runtime.Bridge
         }
 
         /// <summary>
-        /// Patches vanilla bundle files on disk for all currently pending swap requests.
-        /// Called from <see cref="OnCreate"/> so patches are written at load time,
-        /// not deferred until entities are present.
+        /// Patches vanilla bundle files on disk for all pending requests not yet patched.
+        /// Called from <see cref="OnUpdate"/> on every frame that has pending swaps, but
+        /// each address is patched at most once (tracked via <see cref="_patchedAddresses"/>).
+        /// The catalog is read once per call rather than once per request to minimise file I/O.
         /// </summary>
-        private void PatchPendingBundlesOnDisk()
+        private void PatchUnpatchedBundles(IReadOnlyList<AssetSwapRequest> pending)
         {
-            IReadOnlyList<AssetSwapRequest> pending = AssetSwapRegistry.GetPending();
-            if (pending.Count == 0)
+            // Quick check: if all pending addresses are already patched, nothing to do.
+            bool anyUnpatched = false;
+            foreach (AssetSwapRequest r in pending)
             {
-                WriteDebug("PatchPendingBundlesOnDisk: no pending swaps at OnCreate");
-                return;
+                if (!_patchedAddresses.Contains(r.AssetAddress)) { anyUnpatched = true; break; }
             }
-
-            WriteDebug($"PatchPendingBundlesOnDisk: patching {pending.Count} bundle(s) at load time");
+            if (!anyUnpatched) return;
 
             string patchDir = Path.Combine(BepInEx.Paths.BepInExRootPath, PatchedBundlesDir);
             AssetService assetService = new AssetService(BepInEx.Paths.GameRootPath);
+
+            // Read catalog once — it doesn't change between requests.
+            IReadOnlyDictionary<string, string> catalog = assetService.ReadCatalog();
 
             int patched = 0;
             int skipped = 0;
 
             foreach (AssetSwapRequest request in pending)
             {
+                if (_patchedAddresses.Contains(request.AssetAddress))
+                    continue;
+
                 try
                 {
                     string modBundleFullPath = ResolveModBundlePath(request.ModBundlePath);
                     if (!File.Exists(modBundleFullPath))
                     {
-                        WriteDebug($"PatchPendingBundlesOnDisk: mod bundle not found: {modBundleFullPath}");
+                        WriteDebug($"PatchUnpatchedBundles: mod bundle not found: {modBundleFullPath}");
                         skipped++;
                         continue;
                     }
@@ -167,14 +187,16 @@ namespace DINOForge.Runtime.Bridge
                     byte[]? modAssetBytes = assetService.ExtractAsset(modBundleFullPath, request.AssetName);
                     if (modAssetBytes == null || modAssetBytes.Length == 0)
                     {
+                        WriteDebug($"PatchUnpatchedBundles: could not extract '{request.AssetName}' " +
+                                   $"from '{modBundleFullPath}'");
                         skipped++;
                         continue;
                     }
 
-                    IReadOnlyDictionary<string, string> catalog = assetService.ReadCatalog();
                     if (!catalog.TryGetValue(request.AssetAddress, out string? vanillaBundleRelPath)
                         || string.IsNullOrEmpty(vanillaBundleRelPath))
                     {
+                        WriteDebug($"PatchUnpatchedBundles: address '{request.AssetAddress}' not in catalog");
                         skipped++;
                         continue;
                     }
@@ -184,6 +206,7 @@ namespace DINOForge.Runtime.Bridge
 
                     if (!File.Exists(vanillaBundlePath))
                     {
+                        WriteDebug($"PatchUnpatchedBundles: vanilla bundle not found: {vanillaBundlePath}");
                         skipped++;
                         continue;
                     }
@@ -196,7 +219,7 @@ namespace DINOForge.Runtime.Bridge
                     {
                         _patchedAddresses.Add(request.AssetAddress);
                         patched++;
-                        WriteDebug($"PatchPendingBundlesOnDisk: patched '{request.AssetAddress}' → '{outputPath}'");
+                        WriteDebug($"PatchUnpatchedBundles: patched '{request.AssetAddress}' → '{outputPath}'");
                     }
                     else
                     {
@@ -206,12 +229,13 @@ namespace DINOForge.Runtime.Bridge
                 catch (Exception ex)
                 {
                     skipped++;
-                    WriteDebug($"PatchPendingBundlesOnDisk: exception for '{request.AssetAddress}': {ex.Message}");
+                    WriteDebug($"PatchUnpatchedBundles: exception for '{request.AssetAddress}': {ex.Message}");
                 }
             }
 
             assetService.Dispose();
-            WriteDebug($"PatchPendingBundlesOnDisk: {patched} patched, {skipped} skipped");
+            if (patched > 0 || skipped > 0)
+                WriteDebug($"PatchUnpatchedBundles: {patched} patched, {skipped} skipped");
         }
 
         /// <summary>
@@ -481,6 +505,9 @@ namespace DINOForge.Runtime.Bridge
                 catch { }
             }
             _loadedBundles.Clear();
+
+            if (_probeQueryCreated)
+                _renderMeshProbeQuery.Dispose();
 
             base.OnDestroy();
             WriteDebug("AssetSwapSystem.OnDestroy - bundles unloaded");
