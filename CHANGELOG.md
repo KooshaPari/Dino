@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Migrated to .NET 11 (Preview 2)** — all `net8.0`/`net9.0`/`net10.0` TFMs updated to `net11.0`; DesktopCompanion updated to `net11.0-windows10.0.26100.0`; Installer GUI updated to `net11.0-windows`; `netstandard2.0` (Runtime, SDK, BepInEx-facing) and `net472` (VFXPrefabGenerator) preserved unchanged; `global.json` pinned to `11.0.100-preview.2.26159.112` with `latestMajor` rollForward; all CI workflows updated to install `11.0.x`
+- **Desktop Companion preview stack** — DesktopCompanion moved from Windows App SDK `2.0.0-experimental6` to `2.0.0-preview1`, `Microsoft.Extensions.Hosting`/`DependencyInjection` moved to `10.0.5`, `Newtonsoft.Json` moved to `13.0.4`, `MainWindow` restored to the navigation shell, and WinUI view-model observable members now use partial-property generation to remove `MVVMTK0045` WinRT/AOT warnings
 
 ### Fixed
 
