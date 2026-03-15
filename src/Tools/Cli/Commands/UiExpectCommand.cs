@@ -15,22 +15,44 @@ internal static class UiExpectCommand
     {
         Argument<string> selectorArg = new("selector") { Description = "UI selector" };
         Argument<string> conditionArg = new("condition") { Description = "Condition: visible, hidden, interactable, text=..., text-exact=..., count=N, count>=N" };
+        Option<string> formatOpt = CommandOutput.CreateFormatOption();
 
         Command command = new("ui-expect", "Assert UI element state");
         command.Add(selectorArg);
         command.Add(conditionArg);
+        command.Add(formatOpt);
 
         command.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
+            bool json = CommandOutput.IsJson(parseResult, formatOpt);
             string selector = parseResult.GetRequiredValue(selectorArg);
             string condition = parseResult.GetRequiredValue(conditionArg);
 
-            using GameClient? client = await CommandHelper.ConnectAsync(ct);
-            if (client is null) return;
+            using GameClient? client = await CommandHelper.ConnectAsync(ct, writeErrors: !json);
+            if (client is null)
+            {
+                if (json)
+                {
+                    CommandOutput.WriteJsonError("game_not_running", "Game not running. Start DINO first.");
+                }
 
-            AnsiConsole.MarkupLine($"[bold]Expecting:[/] {selector} -> {condition}");
+                return;
+            }
 
             UiExpectationResult result = await client.ExpectUiAsync(selector, condition, ct);
+
+            if (json)
+            {
+                if (!result.Success)
+                {
+                    Environment.ExitCode = 1;
+                }
+
+                CommandOutput.WriteJson(result);
+                return;
+            }
+
+            AnsiConsole.MarkupLine($"[bold]Expecting:[/] {selector} -> {condition}");
 
             if (result.Success)
             {
