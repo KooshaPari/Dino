@@ -161,13 +161,13 @@ namespace DINOForge.Runtime.Bridge
             if (!anyUnpatched) return;
 
             string patchDir = Path.Combine(BepInEx.Paths.BepInExRootPath, PatchedBundlesDir);
-            AssetService assetService = new AssetService(BepInEx.Paths.GameRootPath);
+            int patched = 0;
+            int skipped = 0;
+
+            using AssetService assetService = new AssetService(BepInEx.Paths.GameRootPath);
 
             // Read catalog once — it doesn't change between requests.
             IReadOnlyDictionary<string, string> catalog = assetService.ReadCatalog();
-
-            int patched = 0;
-            int skipped = 0;
 
             foreach (AssetSwapRequest request in pending)
             {
@@ -233,7 +233,6 @@ namespace DINOForge.Runtime.Bridge
                 }
             }
 
-            assetService.Dispose();
             if (patched > 0 || skipped > 0)
                 WriteDebug($"PatchUnpatchedBundles: {patched} patched, {skipped} skipped");
         }
