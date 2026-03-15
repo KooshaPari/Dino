@@ -26,6 +26,11 @@ namespace DINOForge.DesktopCompanion.ViewModels
         [ObservableProperty]
         private bool _isLoading;
 
+        /// <summary>True when not loading — used to enable the Refresh button.</summary>
+        public bool IsNotLoading => !IsLoading;
+
+        partial void OnIsLoadingChanged(bool value) => OnPropertyChanged(nameof(IsNotLoading));
+
         [ObservableProperty]
         private bool _hasErrors;
 
