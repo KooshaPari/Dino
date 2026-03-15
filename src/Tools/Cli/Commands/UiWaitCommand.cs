@@ -16,25 +16,42 @@ internal static class UiWaitCommand
         Argument<string> selectorArg = new("selector") { Description = "UI selector" };
         Option<string> stateOpt = new("--state") { Description = "State to wait for: visible, hidden, interactable, actionable" };
         Option<int> timeoutOpt = new("--timeout") { Description = "Timeout in milliseconds" };
+        Option<string> formatOpt = CommandOutput.CreateFormatOption();
 
         Command command = new("ui-wait", "Wait for UI element state");
         command.Add(selectorArg);
         command.Add(stateOpt);
         command.Add(timeoutOpt);
+        command.Add(formatOpt);
 
         command.SetAction(async (ParseResult parseResult, CancellationToken ct) =>
         {
+            bool json = CommandOutput.IsJson(parseResult, formatOpt);
             string selector = parseResult.GetRequiredValue(selectorArg);
             string? state = parseResult.GetValue(stateOpt) ?? "visible";
             int timeout = parseResult.GetValue(timeoutOpt);
             if (timeout == 0) timeout = 5000;
 
-            using GameClient? client = await CommandHelper.ConnectAsync(ct);
-            if (client is null) return;
+            using GameClient? client = await CommandHelper.ConnectAsync(ct, writeErrors: !json);
+            if (client is null)
+            {
+                if (json)
+                {
+                    CommandOutput.WriteJsonError("game_not_running", "Game not running. Start DINO first.");
+                }
 
-            AnsiConsole.MarkupLine($"[bold]Waiting:[/] {selector} -> {state} (timeout: {timeout}ms)");
+                return;
+            }
 
             UiWaitResult result = await client.WaitForUiAsync(selector, state, timeout, ct);
+
+            if (json)
+            {
+                CommandOutput.WriteJson(result);
+                return;
+            }
+
+            AnsiConsole.MarkupLine($"[bold]Waiting:[/] {selector} -> {state} (timeout: {timeout}ms)");
 
             if (result.Ready)
             {
