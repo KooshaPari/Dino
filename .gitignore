@@ -83,3 +83,8 @@ import_output.log
 phase3a_runner.csx
 tmp_*.png
 .factory/
+
+# Local build & publish outputs
+packcompiler-out/
+publish/
+.claire/

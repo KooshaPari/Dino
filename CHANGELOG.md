@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Star Wars asset bundles** — built Unity AssetBundles for 25 warfare-starwars pack units/buildings (CIS + Republic); prefab sources added to `unity-assetbundle-builder/Assets/Prefabs/`
+- **`.gitignore`** — excluded `packcompiler-out/`, `publish/`, `.claire/` local build/publish output directories
+
 ## [0.11.0] - 2026-03-15
 
 ### Fixed

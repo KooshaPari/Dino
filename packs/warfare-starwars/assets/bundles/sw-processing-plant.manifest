@@ -1,0 +1,36 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.3.11f1
+CRC: 1497028582
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 58034ba2769a4383d25d69dd49bf8591
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: af33ec919e3192a365d243cf42d8bb55
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 26771255af90bd9da7dee074e0f73f72
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Materials/CIS/sw-processing-plant.mat
+- Assets/Prefabs/CIS/sw-processing-plant.prefab
+Dependencies: []
