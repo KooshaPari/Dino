@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:data="using:DINOForge.DesktopCompanion.Data"
+    xmlns:vm="using:DINOForge.DesktopCompanion.ViewModels"
     mc:Ignorable="d"
     Background="Transparent">
 
@@ -50,6 +51,7 @@
         <!-- Pack list -->
         <ListView
             Grid.Row="3"
+            x:Name="PackListView"
             ItemsSource="{x:Bind ViewModel.Packs, Mode=OneWay}"
             SelectedItem="{x:Bind ViewModel.SelectedPack, Mode=TwoWay}"
             SelectionMode="Single">
@@ -65,10 +67,10 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <!-- Enable toggle -->
+                            <!-- Enable toggle — IsOn TwoWay so the toggle actually writes back -->
                             <ToggleSwitch
                                 Grid.Column="0"
-                                IsOn="{x:Bind Enabled, Mode=OneWay}"
+                                IsOn="{x:Bind Enabled, Mode=TwoWay}"
                                 OnContent=""
                                 OffContent=""
                                 VerticalAlignment="Center" />
@@ -102,7 +104,7 @@
                                 VerticalAlignment="Center"
                                 Visibility="{x:Bind HasErrors, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock
-                                    Text="{x:Bind ErrorCount}"
+                                    Text="{x:Bind ErrorCountText}"
                                     Foreground="White"
                                     FontSize="11" />
                             </Border>
@@ -110,7 +112,7 @@
                             <!-- Load order -->
                             <TextBlock
                                 Grid.Column="3"
-                                Text="{x:Bind LoadOrder}"
+                                Text="{x:Bind LoadOrderText}"
                                 Style="{StaticResource DFSecondaryText}"
                                 VerticalAlignment="Center"
                                 ToolTipService.ToolTip="Load order" />
