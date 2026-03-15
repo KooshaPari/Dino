@@ -7,7 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Release workflow .NET version** — installed only .NET 8 but PackCompiler targets net9.0; all releases since v0.7.1 failed before producing any artifacts; now installs both 8.0.x and 9.0.x
+- **Required-artifact gate in release workflow** — new verification step before GitHub Release publish; fails with named list of missing files if any of the 6 required artifacts (Installer EXE, SHA256, Windows ZIP, SDK NuGet, Templates NuGet, SHA256SUMS.txt) are absent
+- **PackCompiler CS1591 warnings** — suppressed missing XML doc warnings (internal tool, not a public library API)
+- **AssetValidationService / PrefabGenerationService CS8602/CS8604** — null-forgiving on LOD0/1/2 after validated non-null; compiler could not track through early-return guard
+- **CompanionTests double-compilation** — excluded `CompanionTests\` from main Tests project (has own `.csproj`, was accidentally globbed in causing CS0246 on missing Moq)
+
 ### Added
+
+- **`WORKLOG.md`** — unified active work item log (WI-001 through WI-006)
+- **`docs/WBS.md`** — full work breakdown structure covering M8-M11 (79 tasks)
+- **`docs/adr/ADR-011-desktop-companion.md`** — WinUI 3 / WindowsAppSDK companion app decision record
+- **`docs/adr/ADR-012-fuzzing-strategy.md`** — FsCheck + SharpFuzz fuzzing strategy decision record
+- **`docs/roadmap/index.md`** — M9 (Desktop Companion), M10 (Fuzzing), M11 (Coverage + Code Completion) milestones added
+- **`docs/product-requirements-document.md`** v0.6.0 — Desktop Companion, fuzzing, and code completion requirements (user/tech/biz)
 
 - `SyncCommand` CLI command for content synchronization
 - `packs/warfare-aerial/` — new aerial warfare pack with airfield buildings and aerial unit doctrines
