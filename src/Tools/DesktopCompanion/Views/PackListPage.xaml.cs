@@ -24,7 +24,7 @@ namespace DINOForge.DesktopCompanion.Views
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            await ViewModel.ReloadAsync().ConfigureAwait(false);
+            await ViewModel.ReloadAsync().ConfigureAwait(true);
         }
     }
 }
