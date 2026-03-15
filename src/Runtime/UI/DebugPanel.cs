@@ -90,8 +90,33 @@ namespace DINOForge.Runtime.UI
                 _canvasGroup.interactable = true;
                 _canvasGroup.blocksRaycasts = true;
             }
+
+            // Force panel to be fully visible
+            if (_panelRt != null)
+            {
+                _panelRt.gameObject.SetActive(true);
+            }
+
             // Immediately refresh content so panel displays on first open
             RefreshContent();
+            
+            // Force all content children visible
+            if (_contentRoot != null)
+            {
+                _contentRoot.gameObject.SetActive(true);
+                for (int i = 0; i < _contentRoot.childCount; i++)
+                {
+                    _contentRoot.GetChild(i).gameObject.SetActive(true);
+                }
+                UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(_contentRoot);
+            }
+
+            // Force entire panel layout rebuild
+            if (_panelRt != null)
+            {
+                UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(_panelRt);
+            }
+            
             Debug.Log($"[DebugPanel] Show() called. ModPlatform={(_modPlatform != null ? "set" : "NULL")}. Content refreshed.");
         }
 
@@ -258,6 +283,9 @@ namespace DINOForge.Runtime.UI
                 copyLe.preferredHeight = 30f;
                 copyLe.flexibleWidth = 1f;
             }
+
+            // Drive layout immediately so all sections are correctly sized.
+            UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(_contentRoot);
         }
 
         private void BuildSection(

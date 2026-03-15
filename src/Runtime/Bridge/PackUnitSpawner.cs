@@ -89,8 +89,9 @@ namespace DINOForge.Runtime.Bridge
             lock (_spawnQueue)
             {
                 int pendingCount = _spawnQueue.Count;
-                Plugin.Log?.LogDebug(
-                    $"[PackUnitSpawner] Spawn queue processing not yet fully implemented (WBS WI-004b). {pendingCount} request(s) pending.");
+                // Plugin.Log is private - skip debug logging for now
+                // Plugin.Log?.LogDebug(
+                //     $"[PackUnitSpawner] Spawn queue processing not yet fully implemented (WBS WI-004b). {pendingCount} request(s) pending.");
 
                 if (_spawnQueue.Count == 0)
                     return;

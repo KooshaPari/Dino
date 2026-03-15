@@ -57,7 +57,7 @@ jobs:
         run: dotnet restore src/DINOForge.CI.sln
 
       - name: Build CI solution (Release)
-        run: dotnet build src/DINOForge.CI.sln -c Release --no-restore --verbosity minimal
+        run: dotnet build src/DINOForge.CI.sln -c Release --no-restore --verbosity minimal -m:1
 
       # ---------------------------------------------------------------
       # Run tests — must pass before packaging

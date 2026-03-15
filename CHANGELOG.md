@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-03-15
+
 ### Fixed
 
 - **Release workflow .NET version** — installed only .NET 8 but PackCompiler targets net9.0; all releases since v0.7.1 failed before producing any artifacts; now installs both 8.0.x and 9.0.x

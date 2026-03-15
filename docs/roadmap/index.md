@@ -146,12 +146,57 @@ ModPlatform orchestrator wiring SDK to Bridge to UI to HMR.
 
 ---
 
+### M9 — Desktop Companion :clock3:
+
+**Status**: Planned
+
+WinUI 3 / WindowsAppSDK 1.6 desktop GUI that mirrors F9/F10 in-game panels for out-of-game evaluation.
+
+- WinUI 3 + Mica background + NavigationView shell
+- Pack list view (mirrors F10 mod menu) with enable/disable toggle
+- Debug panel view (mirrors F9 panel) with 5 collapsible sections
+- `disabled_packs.json` read/write parity with game
+- No game launch required for pack configuration evaluation
+- ADR-011
+
+---
+
+### M10 — Fuzzing Infrastructure :clock3:
+
+**Status**: Planned
+
+Comprehensive property-based and coverage-guided fuzzing across all serialization paths.
+
+- FsCheck expanded from 4 domains / 14 properties to 10+ domains / 30+ properties
+- SharpFuzz coverage-guided fuzzing on YAML, JSON, semver, and PackManifest parsers
+- Persistent fuzz corpus (`src/Tests/FuzzCorpus/`)
+- Nightly CI fuzz gate (`.github/workflows/fuzz.yml`)
+- ADR-012
+
+---
+
+### M11 — Test Coverage + Code Completion :clock3:
+
+**Status**: Planned
+
+Fill test gaps and resolve build-excluded incomplete code items.
+
+- `AssetSwapRegistryTests`, `FileSystemPackRootResolverTests`, `PackFileWatcherIntegrationTests` added
+- Excluded test re-enablement (UnitSpawner, FactionSystem behind mock ECS)
+- Target: 130+ passing tests (up from ~80)
+- `ContextualModMenuHost` unblocked (NativeMainMenuModMenu implemented)
+- `PackUnitSpawner.OnUpdate()` completed (spawn queue + entity instantiation)
+- `HotReloadBridge` entity update logic completed
+- Aviation namespace: decision and resolution
+
+---
+
 ## Current Stats
 
 - **17 projects** in the solution
-- **342 tests passing** (328 unit + 14 integration)
+- **80+ tests passing** (unit + integration)
 - **17 schemas** covering all content types
-- **6 example packs** demonstrating all mod categories
+- **9 example packs** demonstrating all mod categories
 - **4 domain plugins**: Warfare, Economy, Scenario, UI
 
 ---

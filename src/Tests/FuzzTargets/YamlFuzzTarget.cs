@@ -19,6 +19,7 @@ namespace DINOForge.Tests.FuzzTargets
         /// Core fuzz action: parse arbitrary bytes as YAML.
         /// Any exception other than YamlException is a potential crash bug.
         /// </summary>
+        [Fact]
         public static void FuzzAction(ReadOnlySpan<byte> data)
         {
             try
@@ -46,7 +47,8 @@ namespace DINOForge.Tests.FuzzTargets
         /// SharpFuzz LibFuzzer entry point. Invoke from a standalone harness program.
         /// Usage: set LIBFUZZER_DOTNET_TARGET to this method and run via libFuzzer.
         /// </summary>
-        public static void RunLibFuzzer(string[] args)
+        [Fact]
+        public static void RunLibFuzzer()
         {
             Fuzzer.LibFuzzer.Run(FuzzAction);
         }
@@ -54,7 +56,8 @@ namespace DINOForge.Tests.FuzzTargets
         /// <summary>
         /// SharpFuzz out-of-process entry point for AFL++.
         /// </summary>
-        public static void RunAfl(string[] args)
+        [Fact]
+        public static void RunAfl()
         {
             Fuzzer.OutOfProcess.Run(stream =>
             {

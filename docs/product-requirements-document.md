@@ -1,9 +1,9 @@
 # DINOForge - Product Requirements Document
 
-**Version**: 0.5.0
+**Version**: 0.6.0
 **Status**: Active
 **Created**: 2026-03-09
-**Updated**: 2026-03-11
+**Updated**: 2026-03-14
 **Author**: kooshapari + Agent Org
 
 ---
@@ -316,7 +316,68 @@ If every mod still needs runtime surgery, the framework failed.
 
 ---
 
-## 14. Reference Models
+## 14. New Requirements (v0.6.0, 2026-03-14)
+
+### 14.1 Desktop Companion (M9)
+
+**User Requirements**:
+- As a mod author, I can evaluate pack list and pack status without launching DINO, so iteration time drops from ~2min to <5s
+- As a developer, I can toggle packs enabled/disabled from the companion and the game will respect the change on next launch
+- As a developer, I can see the F9 debug panel sections (entity counts, system state, errors) populated from a file dump without an active game session
+- As a developer, I can preview F9/F10 UI component layout changes in the companion before testing in-game
+
+**Technical Requirements**:
+- Target framework: `net8.0-windows`, unpackaged WinUI 3 app
+- No Unity runtime dependency — `PackViewModel` DTO replaces `PackDisplayInfo`
+- `disabled_packs.json` round-trips identically between companion and game
+- SDK (`DINOForge.SDK.dll`, `netstandard2.0`) directly referenceable from companion
+- Pack file watcher reloads companion state on YAML change (500ms debounce, via SDK `PackFileWatcher`)
+- Mica material background, NavigationView shell, dark colour tokens matching `DinoForgeStyle.cs`
+
+**Business Requirements**:
+- Reduces game-launch friction for mod authors, directly increasing mod ecosystem growth
+- Provides a standalone pack manager UI that can be distributed independently of game modding knowledge
+- ADR: ADR-011
+
+---
+
+### 14.2 Fuzzing Infrastructure (M10)
+
+**User Requirements**:
+- As a pack author, I am guaranteed that a malformed pack.yaml will produce a clear error, not a crash or silent data corruption
+- As a developer, I can run `dotnet test --filter Category=Property` in the PR gate with <30s runtime
+- As a developer, I can run the nightly fuzz job and get a report of any newly-discovered crash inputs
+
+**Technical Requirements**:
+- FsCheck coverage: 30+ properties across 10+ domains (up from 14 properties / 4 domains)
+- SharpFuzz targets for: YAML deserialization, JSON schema validation, semver parsing, PackManifest round-trip
+- Persistent fuzz corpus: `src/Tests/FuzzCorpus/` committed to git
+- CI gate: nightly `.github/workflows/fuzz.yml` running SharpFuzz targets on Linux runner
+- All crash-inducing inputs added as regression fixtures before PR merge
+- ADR: ADR-012
+
+**Business Requirements**:
+- Platform stability is a prerequisite for third-party pack adoption
+- A crash from a bad pack.yaml before mod community grows would damage DINOForge reputation
+
+---
+
+### 14.3 Code Completion (M11)
+
+**User Requirements**:
+- As a developer, I can build the full solution with zero excluded files for known features (no Compile Remove for non-WIP items)
+- As a pack author with aerial units, my `warfare-aerial` pack's units spawn correctly via `PackUnitSpawner`
+
+**Technical Requirements**:
+- `ContextualModMenuHost.cs` re-included in build (requires `NativeMainMenuModMenu` implementation)
+- `PackUnitSpawner.OnUpdate()` implements spawn queue and entity instantiation
+- `HotReloadBridge.cs:127` implements affected-entity lookup + component update
+- Aviation namespace: `AerialUnitComponent` defined and 8 Aviation files re-included OR formally deferred to M12 in roadmap
+- Test coverage target: 130+ passing tests
+
+---
+
+## 15. Reference Models
 
 Best modding DX/UX to emulate:
 
