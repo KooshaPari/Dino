@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`scripts/install-companion.ps1`** — `irm .../install-companion.ps1 | iex`; auto-fetches latest release, installs WindowsAppRuntime if needed, SHA256 verification, desktop shortcut
+- **`scripts/install-companion.sh`** — `curl -fsSL .../install-companion.sh | bash` (WSL)
+- **Release workflow** — Desktop Companion zip + sha256 added as release artifacts (`DINOForge.Companion-vX.Y.Z-win-x64.zip`)
 - **`WORKLOG.md`** — unified active work item log (WI-001 through WI-006)
 - **`docs/WBS.md`** — full work breakdown structure covering M8-M11 (79 tasks)
 - **`docs/adr/ADR-011-desktop-companion.md`** — WinUI 3 / WindowsAppSDK companion app decision record
