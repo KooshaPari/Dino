@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -8,6 +8,10 @@ using Xunit;
 
 namespace DINOForge.Tests.FuzzTargets
 {
+    /// <summary>
+    /// Coverage-guided fuzz target for YAML parsing paths.
+    /// FuzzAction/RunLibFuzzer/RunAfl are SharpFuzz entry points, not xUnit tests.
+    /// </summary>
     public static class YamlFuzzTarget
     {
         internal static void FuzzAction(ReadOnlySpan<byte> data)
@@ -17,7 +21,7 @@ namespace DINOForge.Tests.FuzzTargets
                 string yaml = System.Text.Encoding.UTF8.GetString(data);
                 YamlDotNet.Serialization.IDeserializer deserializer =
                     new YamlDotNet.Serialization.DeserializerBuilder().Build();
-                deserializer.Deserialize<System.Collections.Generic.Dictionary<string, object>>(yaml);
+                deserializer.Deserialize<Dictionary<string, object>>(yaml);
             }
             catch (YamlDotNet.Core.YamlException) { }
             catch (Exception e) when (e is not OutOfMemoryException && e is not StackOverflowException) { }
@@ -37,11 +41,10 @@ namespace DINOForge.Tests.FuzzTargets
 
         [Theory]
         [Trait("Category", "Fuzz")]
-        [InlineData("id: test
-name: Test Pack
-version: 0.1.0")]
+        [InlineData("id: test pack version: 0.1.0")]
         [InlineData("")]
         [InlineData("not yaml at all: [[[")]
+        [InlineData("id: test  name: broken-indent")]
         public static void Smoke_DoesNotThrow(string yamlInput)
         {
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(yamlInput);
