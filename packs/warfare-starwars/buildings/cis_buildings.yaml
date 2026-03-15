@@ -14,7 +14,7 @@
     population: 0
   production: {}
 
-  visual_asset: sw-tactical-center
+  visual_asset: sw-cis-command-center
 - id: cis_droid_factory
   display_name: Droid Factory
   description: Automated assembly line mass-producing B1 battle droids at extreme rates.
@@ -30,7 +30,7 @@
   production:
     cis_b1_battle_droid: 6
     cis_b1_squad: 3
-  visual_asset: sw-droid-factory
+  visual_asset: sw-cis-droid-factory
 
 - id: cis_assembly_line
   display_name: Advanced Assembly Line
@@ -79,7 +79,7 @@
     gold: 5
     population: 0
   production: {}
-  visual_asset: sw-sentry-turret
+  visual_asset: sw-cis-aa-tower
 
 - id: cis_ray_shield
   display_name: Ray Shield Generator
@@ -94,7 +94,7 @@
     gold: 40
     population: 0
   production: {}
-  visual_asset: sw-ray-shield
+  visual_asset: sw-cis-shield-generator
 
 - id: cis_mining_facility
   display_name: Mining Facility
