@@ -1,41 +1,18 @@
-﻿using System;
-using System.IO;
-using Microsoft.UI.Xaml;
-
+﻿using Microsoft.UI.Xaml;
 
 namespace DINOForge.DesktopCompanion
 {
     /// <summary>
     /// Application entry point for the unpackaged WinUI 3 companion app.
-    /// Must initialize the Windows App Runtime bootstrap before any WinUI code.
+    /// The SDK auto-initializer (MddBootstrapAutoInitializer) handles Windows App Runtime bootstrap.
     /// </summary>
     public static class Program
     {
-        [STAThread]
+        [global::System.STAThread]
         static void Main(string[] args)
         {
-            // Bootstrap Windows App Runtime for unpackaged apps.
-            // This must happen before any WinUI/XAML type is touched.
-            try
-            {
-                Bootstrap.Initialize(0x00010006); // WindowsAppSDK 1.6
-            }
-            catch (Exception ex)
-            {
-                string logPath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "DINOForge", "companion-crash.log");
-                Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
-                File.WriteAllText(logPath,
-                    $"[{DateTime.Now:O}] Bootstrap.Initialize failed:\n{ex}\n");
-                throw;
-            }
-
-            Application.Start(_ =>
-            {
-                global::WinRT.ComWrappersSupport.InitializeComWrappers();
-                App app = new App();
-            });
+            global::WinRT.ComWrappersSupport.InitializeComWrappers();
+            Application.Start(p => { _ = new App(); });
         }
     }
 }
