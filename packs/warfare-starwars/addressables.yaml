@@ -735,9 +735,143 @@ entries:
       - level: 2
         polycount: 16000
 
+  # ── Faction-prefixed aliases (bundle name realignment) ──────────────────
+  - key: sw-cis-b1-battle-droid
+    address: units/B1_Battle_Droid_CIS
+    path: prefabs/B1_Battle_Droid_CIS.prefab
+    type: unit
+    faction: cis
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-cis-b2-super-droid
+    address: units/B2_Super_Droid_CIS
+    path: prefabs/B2_Super_Droid_CIS.prefab
+    type: unit
+    faction: cis
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-cis-droideka
+    address: units/Droideka_CIS
+    path: prefabs/Droideka_CIS.prefab
+    type: unit
+    faction: cis
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-cis-stap
+    address: units/STAP_Speeder_CIS
+    path: prefabs/STAP_Speeder_CIS.prefab
+    type: unit
+    faction: cis
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-cis-spider-droid
+    address: units/Dwarf_Spider_Droid_CIS
+    path: prefabs/Dwarf_Spider_Droid_CIS.prefab
+    type: unit
+    faction: cis
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-cis-magna-guard
+    address: units/MagnaGuard_CIS
+    path: prefabs/MagnaGuard_CIS.prefab
+    type: unit
+    faction: cis
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-rep-at-te-walker
+    address: units/AT_TE_Walker_Republic
+    path: prefabs/AT_TE_Walker_Republic.prefab
+    type: unit
+    faction: republic
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-rep-clone-sniper
+    address: units/Clone_Sharpshooter_Republic
+    path: prefabs/Clone_Sharpshooter_Republic.prefab
+    type: unit
+    faction: republic
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-rep-arc-trooper
+    address: units/ARC_Trooper_Republic
+    path: prefabs/ARC_Trooper_Republic.prefab
+    type: unit
+    faction: republic
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-rep-arf-trooper
+    address: units/ARF_Trooper_Republic
+    path: prefabs/ARF_Trooper_Republic.prefab
+    type: unit
+    faction: republic
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-rep-command-center
+    address: buildings/Command_Center_Republic
+    path: prefabs/Command_Center_Republic.prefab
+    type: building
+    faction: republic
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-rep-vehicle-bay
+    address: buildings/Vehicle_Bay_Republic
+    path: prefabs/Vehicle_Bay_Republic.prefab
+    type: building
+    faction: republic
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-rep-shield-generator
+    address: buildings/Shield_Generator_Republic
+    path: prefabs/Shield_Generator_Republic.prefab
+    type: building
+    faction: republic
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-rep-supply-depot
+    address: buildings/Supply_Station_Republic
+    path: prefabs/Supply_Station_Republic.prefab
+    type: building
+    faction: republic
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-rep-research-lab
+    address: buildings/Research_Lab_Republic
+    path: prefabs/Research_Lab_Republic.prefab
+    type: building
+    faction: republic
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-cis-command-center
+    address: buildings/Tactical_Center_CIS
+    path: prefabs/Tactical_Center_CIS.prefab
+    type: building
+    faction: cis
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-cis-droid-factory
+    address: buildings/Droid_Factory_CIS
+    path: prefabs/Droid_Factory_CIS.prefab
+    type: building
+    faction: cis
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-cis-aa-tower
+    address: buildings/AA_Tower_CIS
+    path: prefabs/AA_Tower_CIS.prefab
+    type: building
+    faction: cis
+    phase: v1_2_0_bundle_realign
+
+  - key: sw-cis-shield-generator
+    address: buildings/Ray_Shield_CIS
+    path: prefabs/Ray_Shield_CIS.prefab
+    type: building
+    faction: cis
+    phase: v1_2_0_bundle_realign
+
 metadata:
-  generated_at: 2026-03-14T02:03:14Z
-  total_entries: 52
-  total_units: 30
-  total_buildings: 22
+  generated_at: 2026-03-15T07:30:00Z
+  total_entries: 71
+  total_units: 39
+  total_buildings: 30
   total_lod_variants: 156

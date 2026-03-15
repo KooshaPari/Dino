@@ -14,7 +14,7 @@
     population: 0
   production: {}
 
-  visual_asset: sw-command-center
+  visual_asset: sw-rep-command-center
 - id: rep_clone_facility
   display_name: Clone Training Facility
   description: Clone trooper deployment center producing militia and standard clone troopers.
@@ -64,7 +64,7 @@
   production:
     rep_atte_crew: 1
     rep_barc_speeder: 1
-  visual_asset: sw-vehicle-bay
+  visual_asset: sw-rep-vehicle-bay
 
 - id: rep_guard_tower
   display_name: Guard Tower
@@ -94,7 +94,7 @@
     gold: 60
     population: 0
   production: {}
-  visual_asset: sw-shield-generator
+  visual_asset: sw-rep-shield-generator
 
 - id: rep_supply_station
   display_name: Supply Station
@@ -112,7 +112,7 @@
     food: 5
     iron: 2
 
-  visual_asset: sw-supply-station
+  visual_asset: sw-rep-supply-depot
 - id: rep_tibanna_refinery
   display_name: Tibanna Gas Refinery
   description: Processes tibanna gas for blaster ammunition and trade.
@@ -143,7 +143,7 @@
     population: 0
   production: {}
 
-  visual_asset: sw-research-lab
+  visual_asset: sw-rep-research-lab
 - id: rep_blast_wall
   display_name: Blast Wall
   description: Reinforced durasteel wall segment for perimeter defense.

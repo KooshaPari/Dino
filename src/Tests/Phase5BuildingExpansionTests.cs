@@ -91,10 +91,10 @@ namespace DINOForge.Tests
         // ── Republic expansion: visual_asset injection ─────────────────────
 
         [Theory]
-        [InlineData("rep_command_center", "sw-command-center")]
-        [InlineData("rep_supply_station", "sw-supply-station")]
+        [InlineData("rep_command_center", "sw-rep-command-center")]
+        [InlineData("rep_supply_station", "sw-rep-supply-depot")]
         [InlineData("rep_tibanna_refinery", "sw-tibanna-refinery")]
-        [InlineData("rep_research_lab", "sw-research-lab")]
+        [InlineData("rep_research_lab", "sw-rep-research-lab")]
         [InlineData("rep_blast_wall", "sw-blast-wall")]
         [InlineData("rep_skyshield_generator", "sw-skyshield-generator")]
         public void Phase5_RepublicExpansion_HasVisualAsset(string buildingId, string expectedKey)
@@ -109,7 +109,7 @@ namespace DINOForge.Tests
         // ── CIS expansion: visual_asset injection ──────────────────────────
 
         [Theory]
-        [InlineData("cis_tactical_center", "sw-tactical-center")]
+        [InlineData("cis_tactical_center", "sw-cis-command-center")]
         [InlineData("cis_mining_facility", "sw-mining-facility")]
         [InlineData("cis_processing_plant", "sw-processing-plant")]
         [InlineData("cis_tech_union_lab", "sw-tech-union-lab")]

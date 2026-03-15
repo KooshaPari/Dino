@@ -90,7 +90,7 @@
 
 # 4. Ranged Infantry - Clone Sharpshooter
 - id: rep_clone_sharpshooter
-  visual_asset: sw-clone-sharpshooter
+  visual_asset: sw-rep-clone-sniper
   display_name: Clone Sharpshooter
   description: Precision marksman trained in long-range engagement and target elimination.
   unit_class: Skirmisher
@@ -148,7 +148,7 @@
 
 # 6. Siege - AT-TE Crew
 - id: rep_atte_crew
-  visual_asset: sw-atte-walker
+  visual_asset: sw-rep-at-te-walker
   display_name: AT-TE Crew
   description: All Terrain Tactical Enforcer crew providing heavy fire support and siege capability.
   unit_class: MainBattleVehicle
@@ -206,7 +206,7 @@
 
 # 8. Scout - ARF Trooper
 - id: rep_arf_trooper
-  visual_asset: sw-arf-trooper
+  visual_asset: sw-rep-arf-trooper
   display_name: ARF Trooper
   description: Advanced Recon Force trooper trained for reconnaissance and forward observation.
   unit_class: Recon
@@ -235,7 +235,7 @@
 
 # 9. Elite - ARC Trooper
 - id: rep_arc_trooper
-  visual_asset: sw-arc-trooper
+  visual_asset: sw-rep-arc-trooper
   display_name: ARC Trooper
   description: Advanced Recon Commando, elite clone troopers trained for independent special operations.
   unit_class: EliteLineInfantry
