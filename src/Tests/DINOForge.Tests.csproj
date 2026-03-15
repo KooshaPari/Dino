@@ -48,12 +48,16 @@
     <ProjectReference Include="..\Bridge\Client\DINOForge.Bridge.Client.csproj" />
   </ItemGroup>
 
-  <!-- Exclude the Integration sub-project which has its own csproj -->
+  <!-- Exclude sub-projects that have their own csproj -->
   <ItemGroup>
     <Compile Remove="Integration\**" />
     <None Remove="Integration\**" />
     <Content Remove="Integration\**" />
     <EmbeddedResource Remove="Integration\**" />
+    <Compile Remove="CompanionTests\**" />
+    <None Remove="CompanionTests\**" />
+    <Content Remove="CompanionTests\**" />
+    <EmbeddedResource Remove="CompanionTests\**" />
   </ItemGroup>
 
   <!-- Temporarily exclude UnitSpawnerTests which requires ECS infrastructure -->

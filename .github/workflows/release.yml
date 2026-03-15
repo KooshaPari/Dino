@@ -22,10 +22,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup .NET 8
+      # Install both SDKs: net8.0 targets (Installer, CLI, Tests) + net9.0 (PackCompiler)
+      - name: Setup .NET 8 + 9
         uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            8.0.x
+            9.0.x
 
       # ---------------------------------------------------------------
       # Extract version metadata from the tag
@@ -366,6 +369,47 @@ jobs:
           # Write to a temp file to avoid multiline env var issues
           $body | Out-File -FilePath release-notes.md -Encoding utf8
           Write-Host "Release notes extracted ($($body.Length) chars)"
+
+      # ---------------------------------------------------------------
+      # Verify all required release artifacts exist before publishing.
+      # This is the hard gate — if any file is missing the release fails
+      # with a clear list of what's absent rather than a cryptic error.
+      # Required set: Installer EXE, EXE checksum, Windows ZIP,
+      #               SDK NuGet, Templates NuGet, SHA256SUMS.txt
+      # ---------------------------------------------------------------
+      - name: Verify required release artifacts
+        shell: pwsh
+        env:
+          PACKAGE_VERSION: ${{ steps.version.outputs.VERSION }}
+        run: |
+          $version = $env:PACKAGE_VERSION
+          $required = @(
+            "staging/DINOForge-v$version-Installer.exe",
+            "staging/DINOForge-v$version-Installer.exe.sha256",
+            "staging/SHA256SUMS.txt",
+            "DINOForge-v$version-windows.zip"
+          )
+          # NuGet packages — at least one SDK and one Templates nupkg must exist
+          $nugetFiles = Get-ChildItem "staging/nuget/*.nupkg" -ErrorAction SilentlyContinue
+          $hasSdk       = $nugetFiles | Where-Object { $_.Name -match "DINOForge\.SDK\." }
+          $hasTemplates = $nugetFiles | Where-Object { $_.Name -match "DINOForge\.Templates\." }
+
+          $missing = @()
+          foreach ($path in $required) {
+            if (-not (Test-Path $path)) { $missing += $path }
+          }
+          if (-not $hasSdk)       { $missing += "staging/nuget/DINOForge.SDK.*.nupkg" }
+          if (-not $hasTemplates) { $missing += "staging/nuget/DINOForge.Templates.*.nupkg" }
+
+          if ($missing.Count -gt 0) {
+            Write-Host "::error::Release artifact check FAILED. Missing files:"
+            $missing | ForEach-Object { Write-Host "::error::  - $_" }
+            exit 1
+          }
+
+          Write-Host "All required release artifacts present:"
+          $required | ForEach-Object { Write-Host "  [OK] $_" }
+          $nugetFiles | ForEach-Object { Write-Host "  [OK] staging/nuget/$($_.Name)" }
 
       # ---------------------------------------------------------------
       # Publish GitHub Release

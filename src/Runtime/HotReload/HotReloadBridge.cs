@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using BepInEx.Logging;
+using DINOForge.Runtime.Bridge;
 using DINOForge.SDK;
 using DINOForge.SDK.HotReload;
 using DINOForge.SDK.Registry;
@@ -124,9 +125,21 @@ namespace DINOForge.Runtime.HotReload
                 _log.LogInfo($"[HotReloadBridge] Registry entry updated: {entry}");
             }
 
-            // TODO: Find affected entities in the ECS world and update their component data.
-            // This requires knowledge of which entities correspond to which registry entries,
-            // which will be implemented as part of the runtime entity tracking system.
+            // Notify StatModifierSystem to re-process all pending modifications against
+            // the updated registry entries. Direct per-entity surgical updates require a
+            // bidirectional entity-to-registry-entry index that is planned for a later
+            // milestone; the "re-apply all" approach is safe and sufficient here because
+            // StatModifierSystem is idempotent (Override mode writes the current value,
+            // so re-applying to already-updated entities is a no-op in practice).
+            try
+            {
+                StatModifierSystem.Reapply();
+                _log.LogInfo("[HotReloadBridge] StatModifierSystem.Reapply() triggered after registry update.");
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning($"[HotReloadBridge] StatModifierSystem.Reapply() failed: {ex.Message}");
+            }
 
             OnRuntimeUpdated?.Invoke(this, result);
         }

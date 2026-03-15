@@ -96,7 +96,7 @@ namespace DINOForge.Tools.PackCompiler.Services
             sb.AppendLine("  m_PrefabInstance: {fileID: 0}");
             sb.AppendLine("  m_PrefabAsset: {fileID: 0}");
             sb.AppendLine("  m_GameObject: {fileID: 0}");
-            sb.AppendLine($"  m_Mesh: {{fileID: {GenerateMeshFileID(asset.LOD0)}, guid: {GenerateGUIDString()}, type: 3}}");
+            sb.AppendLine($"  m_Mesh: {{fileID: {GenerateMeshFileID(asset.LOD0!)}, guid: {GenerateGUIDString()}, type: 3}}");
 
             sb.AppendLine("--- !u!23 &" + GenerateGUID());
             sb.AppendLine("MeshRenderer:");
@@ -215,9 +215,9 @@ namespace DINOForge.Tools.PackCompiler.Services
             sb.AppendLine($"  assetId: {asset.AssetId}");
             sb.AppendLine($"  version: {(int)asset.OptimizedAt.Ticks}");
             sb.AppendLine($"  optimizedAt: {asset.OptimizedAt:O}");
-            sb.AppendLine($"  lod0PolyCount: {asset.LOD0.TriangleCount}");
-            sb.AppendLine($"  lod1PolyCount: {asset.LOD1.TriangleCount}");
-            sb.AppendLine($"  lod2PolyCount: {asset.LOD2.TriangleCount}");
+            sb.AppendLine($"  lod0PolyCount: {asset.LOD0!.TriangleCount}");
+            sb.AppendLine($"  lod1PolyCount: {asset.LOD1!.TriangleCount}");
+            sb.AppendLine($"  lod2PolyCount: {asset.LOD2!.TriangleCount}");
 
             return sb.ToString();
         }

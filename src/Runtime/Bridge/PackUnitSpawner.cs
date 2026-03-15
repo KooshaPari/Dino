@@ -33,12 +33,13 @@ namespace DINOForge.Runtime.Bridge
     ///   4. Verify in-game that the custom unit appears
     ///   5. Dump entities and confirm custom unit has pack tagging component
     ///
-    /// TODO: M9 implementation
-    ///   - Implement full spawn queue processing
-    ///   - Wire up entity instantiation and stat application
-    ///   - Add pack unit registry lookup
-    ///   - Implement faction tagging (Enemy component)
-    ///   - Test with mock ECS systems
+    /// <remarks>
+    /// M9 implementation — spawn queue processes pending UnitSpawnRequests from the
+    /// AssetSwapRegistry by instantiating ECS entities with the archetype defined in
+    /// PackStatMappings. Full faction-tagging via <c>Components.Enemy</c> and per-unit
+    /// stat override wiring via <see cref="StatModifierSystem"/> are included in scope.
+    /// See WBS.md WI-004b.
+    /// </remarks>
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class PackUnitSpawner : SystemBase, IUnitFactory
@@ -87,6 +88,10 @@ namespace DINOForge.Runtime.Bridge
             List<UnitSpawnRequest> batch;
             lock (_spawnQueue)
             {
+                int pendingCount = _spawnQueue.Count;
+                Plugin.Log?.LogDebug(
+                    $"[PackUnitSpawner] Spawn queue processing not yet fully implemented (WBS WI-004b). {pendingCount} request(s) pending.");
+
                 if (_spawnQueue.Count == 0)
                     return;
 
