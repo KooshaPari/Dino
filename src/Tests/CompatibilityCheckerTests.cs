@@ -217,7 +217,7 @@ namespace DINOForge.Tests
                 Id = "test-pack",
                 Name = "Test Pack",
                 Version = "0.1.0",
-                FrameworkVersion = ">=1.0.0",  // Current framework is 0.3.0
+                FrameworkVersion = ">=99.0.0",  // No real version satisfies this
                 GameVersion = "*",
                 BepInExVersion = "*",
                 UnityVersion = "*",
@@ -336,8 +336,8 @@ namespace DINOForge.Tests
                 Id = "test-pack",
                 Name = "Test Pack",
                 Version = "0.1.0",
-                FrameworkVersion = ">=1.0.0",  // Error (current is 0.3.0)
-                GameVersion = ">=2.0.0",       // Warning (current is 1.0.0)
+                FrameworkVersion = ">=99.0.0",  // Error (no real version satisfies this)
+                GameVersion = ">=2.0.0",        // Warning (current is 1.0.0)
                 BepInExVersion = "*",
                 UnityVersion = "*",
             };
@@ -359,7 +359,7 @@ namespace DINOForge.Tests
                 Id = "test-pack",
                 Name = "Test Pack",
                 Version = "0.1.0",
-                FrameworkVersion = ">=0.1.0 <1.0.0",
+                FrameworkVersion = ">=0.1.0",
                 GameVersion = ">=1.0.0",
                 BepInExVersion = ">=5.4.0 <6.0.0",
                 UnityVersion = "2021.3.*",

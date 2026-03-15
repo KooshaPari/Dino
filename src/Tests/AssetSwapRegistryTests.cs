@@ -163,6 +163,7 @@ namespace DINOForge.Tests
             // Arrange — 10 threads, each registers 10 unique addresses = 100 total
             const int threadCount = 10;
             const int itemsPerThread = 10;
+            int countBefore = AssetSwapRegistry.Count;
 
             // Act
             Parallel.For(0, threadCount, threadIndex =>
@@ -174,8 +175,8 @@ namespace DINOForge.Tests
                 }
             });
 
-            // Assert
-            AssetSwapRegistry.Count.Should().Be(threadCount * itemsPerThread);
+            // Assert — all 100 unique registrations must be present (other tests may also have items)
+            AssetSwapRegistry.Count.Should().Be(countBefore + threadCount * itemsPerThread);
         }
     }
 }
