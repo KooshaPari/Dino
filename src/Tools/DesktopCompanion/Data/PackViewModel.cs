@@ -32,6 +32,9 @@ namespace DINOForge.DesktopCompanion.Data
         /// <summary>Number of validation errors detected for this pack.</summary>
         public int ErrorCount { get; init; } = 0;
 
+        /// <summary>True when this pack has one or more validation errors.</summary>
+        public bool HasErrors => ErrorCount > 0;
+
         /// <summary>List of error messages for this pack.</summary>
         public IReadOnlyList<string> Errors { get; init; } = System.Array.Empty<string>();
 
