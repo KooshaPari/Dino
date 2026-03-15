@@ -1,7 +1,7 @@
-using System;
+﻿using System;
 using System.IO;
 using Microsoft.UI.Xaml;
-using Microsoft.WindowsAppRuntime.Bootstrap;
+
 
 namespace DINOForge.DesktopCompanion
 {
