@@ -78,7 +78,7 @@
                     Content="Save Settings"
                     Style="{StaticResource DFAccentButton}"
                     Command="{x:Bind ViewModel.SaveCommand}"
-                    IsEnabled="{x:Bind ViewModel.IsSaving, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    IsEnabled="{x:Bind ViewModel.IsNotSaving, Mode=OneWay}" />
                 <TextBlock
                     Text="{x:Bind ViewModel.SaveStatus, Mode=OneWay}"
                     Style="{StaticResource DFSecondaryText}"

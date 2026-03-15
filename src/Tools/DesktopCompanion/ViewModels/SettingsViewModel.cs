@@ -28,6 +28,11 @@ namespace DINOForge.DesktopCompanion.ViewModels
         [ObservableProperty]
         private bool _isSaving;
 
+        /// <summary>True when not saving — used to enable the Save button.</summary>
+        public bool IsNotSaving => !IsSaving;
+
+        partial void OnIsSavingChanged(bool value) => OnPropertyChanged(nameof(IsNotSaving));
+
         /// <summary>Initializes a new instance of <see cref="SettingsViewModel"/>.</summary>
         public SettingsViewModel(AppConfigService configService)
         {
