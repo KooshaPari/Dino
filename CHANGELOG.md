@@ -7,11 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- **CLI `--format json`** — all commands (`status`, `query`, `resources`, `override`, `dump`, `reload`, `screenshot`, `component-map`, `ui-query`, `ui-tree`, `ui-click`, `ui-wait`, `ui-expect`, `verify`) now accept `--format json`; `ui-expect` sets exit code 1 on failure in JSON mode; `CommandOutput` helper provides `WriteJson`/`WriteJsonError`/`CreateFormatOption`/`IsJson` utilities; errors suppress ANSI markup when `--format json` is active
-- **CLI UI automation commands** — `ui tree`, `ui query`, `ui click`, `ui wait`, `ui expect` wired into the root CLI command
-
 ### Changed
 
 - **Migrated to .NET 11 (Preview 2)** — all `net8.0`/`net9.0`/`net10.0` TFMs updated to `net11.0`; DesktopCompanion updated to `net11.0-windows10.0.26100.0`; Installer GUI updated to `net11.0-windows`; `netstandard2.0` (Runtime, SDK, BepInEx-facing) and `net472` (VFXPrefabGenerator) preserved unchanged; `global.json` pinned to `11.0.100-preview.2.26159.112` with `latestMajor` rollForward; all CI workflows updated to install `11.0.x`
@@ -19,15 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Desktop Companion startup crash** — `Icon="Code"` is not a valid WinUI 3 Symbol enum value; changed to `Icon="Repair"`; added `Program.cs` with `DISABLE_XAML_GENERATED_MAIN` proper WinUI 3 unpackaged entry point; removed `BoolToVisibilityConverter` from bool-typed `IsOpen`/`IsEnabled` bindings causing `InvalidCastException`
-- **Desktop Companion double Settings button** — `NavigationView` auto-inserts a built-in Settings footer item; set `IsSettingsVisible="False"` so only our custom footer item appears
-- **Desktop Companion Settings crash on save** — `BoolToVisibilityConverter` was bound to `IsEnabled` (a `bool` target) on the Save button, causing `InvalidCastException`; replaced with `IsNotSaving` computed property (mirrors `IsLoading`/`IsNotLoading` pattern on DashboardViewModel)
-- **Desktop Companion page crash on open** — all four page code-behinds used `ConfigureAwait(false)` in `OnNavigatedTo`; ViewModel property-change notifications fired off the UI thread crashing WinUI 3; changed to `ConfigureAwait(true)`
-- **Desktop Companion Pack List crash** — `BoolToVisibilityConverter` bound to `ErrorCount` (`int`) in `PackListPage.xaml`; WinUI 3 `x:Bind` cannot cast `int` to `bool` for a converter expecting `bool`; added `HasErrors` computed bool property to `PackViewModel` and bound the error badge `Visibility` to that instead
-- **Desktop Companion MainWindow.xaml** — background linter repeatedly replaces NavigationView with a `<TextBlock>` placeholder, removing `<Frame x:Name="ContentFrame"/>` and causing CS0103; restored full NavigationView with MicaBackdrop, IsSettingsVisible=False, and Frame
-- **Release workflow checkout** — `workflow_dispatch` retro-builds now checkout `main` instead of the old tag ref; old tag code doesn't compile against current SDK/workflows; `inputs.tag` is used only for release name/version/upload target
-- **CI + Release workflow build order** — added explicit ordered pre-build of SDK/Bridge/Domains/Installer in both `ci.yml` and `release.yml`; prevents CS0006 "metadata file not found" when Tests compiles before its dependencies on net11.0
-- **CompatibilityChecker tests** — updated framework version ranges to `>=99.0.0` for incompatibility tests; `AllVersionsCompatible` updated from `>=0.1.0 <1.0.0` to `>=0.1.0`
-- **AssetSwapRegistry concurrent tests** — use Guid-prefixed addresses + `Where(prefix)` filter to isolate test assertions from other parallel test classes sharing the static registry; eliminates flaky count mismatches
+- **Release workflow build order** — explicit ordered pre-build of SDK/Bridge/Domains/Installer before CI solution build; prevents CS0006 "metadata file not found" when Tests compiles before its dependencies
+- **CompatibilityChecker tests** — updated framework version ranges to `>=99.0.0` for incompatibility tests (MinVer now sets SDK version from git tags, so old `>=1.0.0` is satisfied); `AllVersionsCompatible` updated from `>=0.1.0 <1.0.0` to `>=0.1.0`
+- **AssetSwapRegistry concurrent test** — capture `countBefore` to handle pre-existing items from other parallel tests
+
 - **CI .NET version** — all workflows now install .NET 8 + 9 + 10 to match `global.json` SDK 10.0.201; restores global.json to 10.0.201 (latestMajor) which was reverted incorrectly in prior commits
 
 ### Added
