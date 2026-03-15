@@ -31,7 +31,7 @@ VERSION="${DF_VERSION:-}"
 if [[ -z "$VERSION" ]]; then
     step "Fetching latest release..."
     VERSION=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" \
-        | grep '"tag_name"' | sed 's/.*"tag_name": *"\(.*\)".*/\1/')
+        | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4)
     [[ -n "$VERSION" ]] || die "Could not determine latest version. Set DF_VERSION manually."
 fi
 VERSION_NUM="${VERSION#v}"
