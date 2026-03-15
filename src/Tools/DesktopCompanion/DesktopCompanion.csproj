@@ -10,6 +10,8 @@
     <WindowsPackageType>None</WindowsPackageType>
     <SelfContained>false</SelfContained>
     <ImplicitUsings>disable</ImplicitUsings>
+    <!-- Disable XAML-generated Main so Program.cs provides the entry point + bootstrap -->
+    <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <!-- Suppress MinVer on Windows/MSYS2 -->
     <DisableMinVer Condition="'$(OS)' == 'Windows_NT' and '$(MSYSTEM)' != ''">true</DisableMinVer>
     <DisableMinVer Condition="'$(DisableMinVer)' == ''">true</DisableMinVer>

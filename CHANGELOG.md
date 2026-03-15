@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Desktop Companion startup crash** — `Icon="Code"` is not a valid WinUI 3 Symbol; changed to `Icon="Repair"`; added `Program.cs` with `DISABLE_XAML_GENERATED_MAIN` entry point; removed `BoolToVisibilityConverter` from bool-typed `IsOpen`/`IsEnabled` bindings
 - **CI .NET version** — all workflows now install .NET 8 + 9 + 10 to match `global.json` SDK 10.0.201; restores global.json to 10.0.201 (latestMajor) which was reverted incorrectly in prior commits
 
 ### Added
