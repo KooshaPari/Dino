@@ -100,7 +100,7 @@
                                 CornerRadius="12"
                                 Padding="8,2"
                                 VerticalAlignment="Center"
-                                Visibility="{x:Bind ErrorCount, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                Visibility="{x:Bind HasErrors, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock
                                     Text="{x:Bind ErrorCount}"
                                     Foreground="White"
