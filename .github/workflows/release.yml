@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build retroactive release for (e.g. v0.9.0)'
+        required: true
+        type: string
 
 permissions: {}
 
@@ -21,6 +27,8 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          # For workflow_dispatch retro-runs, check out the specific tag's commit
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
       # Install both SDKs: net8.0 targets (Installer, CLI, Tests) + net9.0 (PackCompiler)
       - name: Setup .NET 8 + 9
@@ -32,12 +40,13 @@ jobs:
 
       # ---------------------------------------------------------------
       # Extract version metadata from the tag
+      # workflow_dispatch: use inputs.tag; tag push: use github.ref_name
       # ---------------------------------------------------------------
       - name: Extract version from tag
         id: version
         shell: pwsh
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
         run: |
           $tag = $env:RELEASE_TAG
           $version = $tag.TrimStart('v')
