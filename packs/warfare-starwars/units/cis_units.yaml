@@ -28,7 +28,7 @@
       iron: 8
       gold: 3
       population: 1
-  visual_asset: sw-b1-battle-droid
+  visual_asset: sw-cis-b1-battle-droid
 
 # 2. Line Infantry - B1 Squad
 - id: cis_b1_squad
@@ -86,7 +86,7 @@
       iron: 30
       gold: 15
       population: 1
-  visual_asset: sw-b2-super-droid
+  visual_asset: sw-cis-b2-super-droid
 
 # 4. Ranged Infantry - Sniper Droid
 - id: cis_sniper_droid
@@ -144,7 +144,7 @@
       iron: 20
       gold: 8
       population: 1
-  visual_asset: sw-stap-speeder
+  visual_asset: sw-cis-stap
 
 # 6. Siege - AAT Crew
 - id: cis_aat_crew
@@ -318,7 +318,7 @@
       iron: 45
       gold: 30
       population: 2
-  visual_asset: sw-droideka
+  visual_asset: sw-cis-droideka
 
 # 12. Skirmisher - DSD1 Dwarf Spider Droid
 - id: cis_dwarf_spider_droid
@@ -347,11 +347,11 @@
       iron: 40
       gold: 20
       population: 2
-  visual_asset: sw-dwarf-spider-droid
+  visual_asset: sw-cis-spider-droid
 
 # 13. Special - MagnaGuard
 - id: cis_magnaguard
-  visual_asset: sw-magnaguard
+  visual_asset: sw-cis-magna-guard
   display_name: IG-100 MagnaGuard
   description: Elite bodyguard droids wielding electrostaffs. Grievous's personal guard and anti-Jedi specialists.
   unit_class: ShieldedElite

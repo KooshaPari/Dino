@@ -209,6 +209,39 @@ namespace DINOForge.Runtime.Bridge
             Mesh? replacementMesh = bundle.LoadAsset<Mesh>(assetName);
             Material? replacementMat = bundle.LoadAsset<Material>(assetName);
 
+            // Bundles built from Unity prefabs store a GameObject hierarchy, not a bare Mesh/Material.
+            // Fall back to loading the prefab and extracting its mesh and material.
+            if (replacementMesh == null && replacementMat == null)
+            {
+                GameObject? prefab = bundle.LoadAsset<GameObject>(assetName);
+                if (prefab != null)
+                {
+                    MeshFilter? mf = prefab.GetComponentInChildren<MeshFilter>();
+                    if (mf != null)
+                        replacementMesh = mf.sharedMesh;
+
+                    MeshRenderer? mr = prefab.GetComponentInChildren<MeshRenderer>();
+                    if (mr != null && mr.sharedMaterials.Length > 0)
+                        replacementMat = mr.sharedMaterials[0];
+
+                    // Also check SkinnedMeshRenderer (animated characters)
+                    if (replacementMesh == null || replacementMat == null)
+                    {
+                        SkinnedMeshRenderer? smr =
+                            prefab.GetComponentInChildren<SkinnedMeshRenderer>();
+                        if (smr != null)
+                        {
+                            if (replacementMesh == null) replacementMesh = smr.sharedMesh;
+                            if (replacementMat == null && smr.sharedMaterials.Length > 0)
+                                replacementMat = smr.sharedMaterials[0];
+                        }
+                    }
+
+                    if (replacementMesh != null || replacementMat != null)
+                        WriteDebug($"TrySwapRenderMeshFromBundle: extracted from prefab '{assetName}'");
+                }
+            }
+
             if (replacementMesh == null && replacementMat == null)
             {
                 WriteDebug(
