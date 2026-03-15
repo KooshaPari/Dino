@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Desktop Companion startup crash** — `Icon="Code"` is not a valid WinUI 3 Symbol enum value; changed to `Icon="Repair"`; added `Program.cs` with `DISABLE_XAML_GENERATED_MAIN` proper WinUI 3 unpackaged entry point; removed `BoolToVisibilityConverter` from bool-typed `IsOpen`/`IsEnabled` bindings causing `InvalidCastException`
+- **Release workflow checkout** — `workflow_dispatch` retro-builds now checkout `main` instead of the old tag ref; old tag code doesn't compile against current SDK/workflows; `inputs.tag` is used only for release name/version/upload target
 - **Release workflow build order** — explicit ordered pre-build of SDK/Bridge/Domains/Installer before CI solution build; prevents CS0006 "metadata file not found" when Tests compiles before its dependencies
 - **CompatibilityChecker tests** — updated framework version ranges to `>=99.0.0` for incompatibility tests; `AllVersionsCompatible` updated from `>=0.1.0 <1.0.0` to `>=0.1.0`
 - **AssetSwapRegistry concurrent test** — capture `countBefore` to handle pre-existing items from other parallel tests
