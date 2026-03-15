@@ -502,35 +502,6 @@
           "YamlDotNet": "[16.*, )"
         }
       }
-    },
-    "net10.0-windows10.0.26100/win-x64": {
-      "Microsoft.Web.WebView2": {
-        "type": "Transitive",
-        "resolved": "1.0.3405.78",
-        "contentHash": "ceiIKuPHnzOf5CUv9nGpIBx0CWCCMWcBdv05QuonmUnpPtm6XDyAh6osgvin7MTpVD5O0+NbS5ts/WU9sgXgvA=="
-      },
-      "Microsoft.WindowsAppSDK.Foundation": {
-        "type": "Transitive",
-        "resolved": "2.0.11-experimental",
-        "contentHash": "RZpSFR/XoIFlfALF9qjY2CWo8qrElnAID2rs7N8gImlsUON4+ns8esl8PlDACl+B9KYQCPd/nkBjboqmWjn32g==",
-        "dependencies": {
-          "Microsoft.WindowsAppSDK.Base": "2.0.1-experimental",
-          "Microsoft.WindowsAppSDK.InteractiveExperiences": "2.0.5-experimental"
-        }
-      },
-      "Microsoft.WindowsAppSDK.ML": {
-        "type": "Transitive",
-        "resolved": "2.0.255-experimental",
-        "contentHash": "WHNpyCuSeIhuGf6YH15ia0ZOxCxux36kZkFjEKd8c1tRy/0CVQ/7dVjElNlSpAFxBWogNj2Qn1iyl7HJxvuZyw==",
-        "dependencies": {
-          "System.Numerics.Tensors": "9.0.0"
-        }
-      },
-      "System.Diagnostics.EventLog": {
-        "type": "Transitive",
-        "resolved": "10.0.0",
-        "contentHash": "uaFRda9NjtbJRkdx311eXlAA3n2em7223c1A8d1VWyl+4FL9vkG7y2lpPfBU9HYdj/9KgdRNdn1vFK8ZYCYT/A=="
-      }
     }
   }
 }
