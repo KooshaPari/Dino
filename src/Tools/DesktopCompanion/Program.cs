@@ -4,7 +4,7 @@ namespace DINOForge.DesktopCompanion
 {
     /// <summary>
     /// Application entry point for the unpackaged WinUI 3 companion app.
-    /// The SDK MddBootstrapAutoInitializer handles Windows App Runtime bootstrap automatically.
+    /// The SDK auto-initializer (MddBootstrapAutoInitializer) handles Windows App Runtime bootstrap.
     /// </summary>
     public static class Program
     {

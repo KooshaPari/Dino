@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Migrated to .NET 11 (Preview 2)** — all `net8.0`/`net9.0`/`net10.0` TFMs updated to `net11.0`; DesktopCompanion updated to `net11.0-windows10.0.26100.0`; Installer GUI updated to `net11.0-windows`; `netstandard2.0` (Runtime, SDK, BepInEx-facing) and `net472` (VFXPrefabGenerator) preserved unchanged; `global.json` pinned to `11.0.100-preview.2.26159.112` with `latestMajor` rollForward; all CI workflows updated to install `11.0.x`
+
 ### Fixed
 
-- **Desktop Companion startup crash** — `Icon="Code"` is not a valid WinUI 3 Symbol; changed to `Icon="Repair"`; added `Program.cs` with `DISABLE_XAML_GENERATED_MAIN` entry point; removed `BoolToVisibilityConverter` from bool-typed `IsOpen`/`IsEnabled` bindings
+- **Desktop Companion startup crash** — `Icon="Code"` is not a valid WinUI 3 Symbol enum value; changed to `Icon="Repair"`; added `Program.cs` with `DISABLE_XAML_GENERATED_MAIN` proper WinUI 3 unpackaged entry point; removed `BoolToVisibilityConverter` from bool-typed `IsOpen`/`IsEnabled` bindings causing `InvalidCastException`
+- **Release workflow build order** — explicit ordered pre-build of SDK/Bridge/Domains/Installer before CI solution build; prevents CS0006 "metadata file not found" when Tests compiles before its dependencies
+- **CompatibilityChecker tests** — updated framework version ranges to `>=99.0.0` for incompatibility tests; `AllVersionsCompatible` updated from `>=0.1.0 <1.0.0` to `>=0.1.0`
+- **AssetSwapRegistry concurrent test** — capture `countBefore` to handle pre-existing items from other parallel tests
 - **CI .NET version** — all workflows now install .NET 8 + 9 + 10 to match `global.json` SDK 10.0.201; restores global.json to 10.0.201 (latestMajor) which was reverted incorrectly in prior commits
 
 ### Added
@@ -18,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Star Wars asset bundles** — built Unity AssetBundles for 25 warfare-starwars pack units/buildings (CIS + Republic); prefab sources added to `unity-assetbundle-builder/Assets/Prefabs/`
 - **`.gitignore`** — excluded `packcompiler-out/`, `publish/`, `.claire/` local build/publish output directories
 
-### Changed
+### Changed (prior)
 
 - **VFXIntegrationTests** — refactored from runtime-instantiation to source-inspection contracts; tests now compile without Unity runtime dependency
 - **Star Wars vanilla bundles** — removed 42 primitive placeholder AssetBundles; units now fall back to vanilla DINO visuals until real assets are imported
