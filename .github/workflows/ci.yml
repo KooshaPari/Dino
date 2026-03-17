@@ -46,11 +46,11 @@ jobs:
             src/Domains/UI/DINOForge.Domains.UI.csproj \
             src/Tools/Installer/InstallerLib/DINOForge.Tools.Installer.csproj \
             src/Runtime/DINOForge.Runtime.csproj; do
-            dotnet build "$p" -c Release --no-restore --verbosity minimal || exit 1
+            dotnet build "$p" -c Release --no-restore --verbosity minimal -p:GameInstalled=false || exit 1
           done
 
       - name: Build
-        run: dotnet build src/DINOForge.CI.sln --no-restore --configuration Release /p:BuildInParallel=false
+        run: dotnet build src/DINOForge.CI.sln --no-restore --configuration Release /p:BuildInParallel=false -p:GameInstalled=false
 
       - name: Test with coverage
         run: |
@@ -64,6 +64,7 @@ jobs:
             /p:Threshold=60 \
             /p:ThresholdType=line \
             /p:ThresholdStat=total \
+            -p:GameInstalled=false \
             --logger "trx;LogFileName=test-results.trx" \
             --results-directory ./test-results \
             -- xunit.parallelizeAssembly=true
