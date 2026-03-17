@@ -1,0 +1,44 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
+        with:
+          dotnet-version: 11.0.x
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@e0b5b6c6d7c48db0a3f6a2613d6b2d98b2d5b9e # v3
+        with:
+          languages: csharp
+          config-file: .github/codeql/codeql-config.yml
+
+      - name: Build
+        run: dotnet build src/DINOForge.CI.NoRuntime.sln -c Release --no-restore
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@e0b5b6c6d7c48db0a3f6a2613d6b2d98b2d5b9e # v3
+        with:
+          category: "/language:csharp"
