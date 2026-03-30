@@ -795,4 +795,142 @@ public class InstallerCoverageTests
     {
         SteamLocator.DinoAppId.Should().Be(1272320);
     }
+
+    // ──────────────────────── SteamLocator ParseInstallDirFromAcf edge cases ────────────────────────
+
+    [Fact]
+    public void FindGameInLibrary_ValidManifestWithCorrectInstallPath_ReturnsPath()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), $"dino_test_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        string steamAppsDir = Path.Combine(tempDir, "steamapps");
+        Directory.CreateDirectory(steamAppsDir);
+        string acfFile = Path.Combine(steamAppsDir, $"appmanifest_{SteamLocator.DinoAppId}.acf");
+        File.WriteAllText(acfFile, @"
+""AppState""
+{
+    ""appname""    ""Diplomacy is Not an Option""
+    ""installdir""    ""Diplomacy is Not an Option""
+}");
+        string gameDir = Path.Combine(steamAppsDir, "common", "Diplomacy is Not an Option");
+        Directory.CreateDirectory(gameDir);
+
+        try
+        {
+            string? result = SteamLocator.FindGameInLibrary(tempDir, SteamLocator.DinoAppId);
+
+            result.Should().Be(gameDir);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [Fact]
+    public void FindGameInLibrary_ManifestExistsButInstallDirNotOnDisk_ReturnsNull()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), $"dino_test_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        string steamAppsDir = Path.Combine(tempDir, "steamapps");
+        Directory.CreateDirectory(steamAppsDir);
+        string acfFile = Path.Combine(steamAppsDir, $"appmanifest_{SteamLocator.DinoAppId}.acf");
+        File.WriteAllText(acfFile, @"
+""AppState""
+{
+    ""appname""    ""Diplomacy is Not an Option""
+    ""installdir""    ""Diplomacy is Not an Option""
+}");
+        // Do NOT create the game directory — so FindGameInLibrary will try the fallback
+
+        try
+        {
+            string? result = SteamLocator.FindGameInLibrary(tempDir, SteamLocator.DinoAppId);
+
+            // Falls back to common/DINO_NAME — but that doesn't exist either
+            result.Should().BeNull();
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    // ──────────────────────── SteamLocator FindGameInLibrary edge cases ────────────────────────
+
+    [Fact]
+    public void FindGameInLibrary_SteamAppsExistsButNoManifest_ReturnsNull()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), $"dino_test_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        string steamAppsDir = Path.Combine(tempDir, "steamapps");
+        Directory.CreateDirectory(steamAppsDir);
+        // Create common directory but no manifest
+        Directory.CreateDirectory(Path.Combine(steamAppsDir, "common"));
+
+        try
+        {
+            string? result = SteamLocator.FindGameInLibrary(tempDir, SteamLocator.DinoAppId);
+
+            // Should return null since no manifest and common dir doesn't match DINO name
+            result.Should().BeNull();
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [Fact]
+    public void FindGameInLibrary_ManifestWithNoInstallDir_ReturnsNull()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), $"dino_test_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        string steamAppsDir = Path.Combine(tempDir, "steamapps");
+        Directory.CreateDirectory(steamAppsDir);
+        string acfFile = Path.Combine(steamAppsDir, $"appmanifest_{SteamLocator.DinoAppId}.acf");
+        File.WriteAllText(acfFile, @"
+""AppState""
+{
+    ""appname""    ""Test""
+}");
+
+        try
+        {
+            string? result = SteamLocator.FindGameInLibrary(tempDir, SteamLocator.DinoAppId);
+
+            result.Should().BeNull();
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    // ──────────────────────── SteamLocator GetLibraryFolders VDF error path ────────────────────────
+
+    [Fact]
+    public void GetLibraryFolders_VdfFileWithGarbage_ParsingFailsGracefully()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), $"dino_test_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        string configDir = Path.Combine(tempDir, "config");
+        Directory.CreateDirectory(configDir);
+        string vdfFile = Path.Combine(configDir, "libraryfolders.vdf");
+        // Write malformed VDF that could cause regex or parsing issues
+        File.WriteAllText(vdfFile, "not valid vdf {{{[[[]]]}}}");
+
+        try
+        {
+            IReadOnlyList<string> folders = SteamLocator.GetLibraryFolders(tempDir);
+
+            // Should return steam root (fallback) without throwing
+            folders.Should().NotBeEmpty();
+            folders[0].Should().Be(tempDir);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
 }
