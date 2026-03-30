@@ -119,45 +119,50 @@ public class InstallerCoverageTests
     public void GetBepInExDirectory_CombinesPathsCorrectly()
     {
         string gamePath = @"C:\Games\DINO";
-        string result = InstallLifecycle.GetBepInExDirectory(gamePath);
+        string result = Path.GetFullPath(InstallLifecycle.GetBepInExDirectory(gamePath));
+        string expected = Path.GetFullPath(@"C:\Games\DINO\BepInEx");
 
-        result.Should().Be(@"C:\Games\DINO\BepInEx");
+        result.Replace('\\', '/').Should().Be(expected.Replace('\\', '/'));
     }
 
     [Fact]
     public void GetPluginsDirectory_CombinesPathsCorrectly()
     {
         string gamePath = @"C:\Games\DINO";
-        string result = InstallLifecycle.GetPluginsDirectory(gamePath);
+        string result = Path.GetFullPath(InstallLifecycle.GetPluginsDirectory(gamePath));
+        string expected = Path.GetFullPath(@"C:\Games\DINO\BepInEx\plugins");
 
-        result.Should().Be(@"C:\Games\DINO\BepInEx\plugins");
+        result.Replace('\\', '/').Should().Be(expected.Replace('\\', '/'));
     }
 
     [Fact]
     public void GetPacksDirectory_CombinesPathsCorrectly()
     {
         string gamePath = @"C:\Games\DINO";
-        string result = InstallLifecycle.GetPacksDirectory(gamePath);
+        string result = Path.GetFullPath(InstallLifecycle.GetPacksDirectory(gamePath));
+        string expected = Path.GetFullPath(@"C:\Games\DINO\BepInEx\dinoforge_packs");
 
-        result.Should().Be(@"C:\Games\DINO\BepInEx\dinoforge_packs");
+        result.Replace('\\', '/').Should().Be(expected.Replace('\\', '/'));
     }
 
     [Fact]
     public void GetLegacyPacksDirectory_CombinesPathsCorrectly()
     {
         string gamePath = @"C:\Games\DINO";
-        string result = InstallLifecycle.GetLegacyPacksDirectory(gamePath);
+        string result = Path.GetFullPath(InstallLifecycle.GetLegacyPacksDirectory(gamePath));
+        string expected = Path.GetFullPath(@"C:\Games\DINO\dinoforge_packs");
 
-        result.Should().Be(@"C:\Games\DINO\dinoforge_packs");
+        result.Replace('\\', '/').Should().Be(expected.Replace('\\', '/'));
     }
 
     [Fact]
     public void GetManifestPath_CombinesPathsCorrectly()
     {
         string gamePath = @"C:\Games\DINO";
-        string result = InstallLifecycle.GetManifestPath(gamePath);
+        string result = Path.GetFullPath(InstallLifecycle.GetManifestPath(gamePath));
+        string expected = Path.GetFullPath(@"C:\Games\DINO\BepInEx\plugins\dinoforge.install_manifest.json");
 
-        result.Should().Be(@"C:\Games\DINO\BepInEx\plugins\dinoforge.install_manifest.json");
+        result.Replace('\\', '/').Should().Be(expected.Replace('\\', '/'));
     }
 
     [Fact]
