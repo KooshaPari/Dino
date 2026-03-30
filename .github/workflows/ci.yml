@@ -10,7 +10,7 @@ permissions: {}
 
 jobs:
   build-and-test:
-    name: Build & Test
+    name: build
     runs-on: ubuntu-latest
     permissions:
       contents: read
