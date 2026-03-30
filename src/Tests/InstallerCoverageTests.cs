@@ -304,7 +304,7 @@ public class InstallerCoverageTests
     {
         string tempDir = Path.Combine(Path.GetTempPath(), $"dino_test_{Guid.NewGuid():N}");
         Directory.CreateDirectory(tempDir);
-        string legacyFile = Path.Combine(tempDir, @"BepInEx\ecs_plugins\DINOForge.Runtime.dll");
+        string legacyFile = Path.Combine(tempDir, "BepInEx", "ecs_plugins", "DINOForge.Runtime.dll");
         Directory.CreateDirectory(Path.GetDirectoryName(legacyFile)!);
         File.WriteAllBytes(legacyFile, new byte[] { 0 });
 
