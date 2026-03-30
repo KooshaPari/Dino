@@ -10,7 +10,7 @@ jobs:
     name: FsCheck Property Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-dotnet@v5
         with:
@@ -58,7 +58,7 @@ jobs:
     name: Fuzz Target Smoke Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-dotnet@v5
         with:
@@ -106,7 +106,7 @@ jobs:
     name: Validate Fuzz Corpus Files
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Check corpus files exist
         run: |
