@@ -1,5 +1,74 @@
 # DINOForge — Agent Collaboration Guide
 
+## Kilo Gastown Mechanics
+
+**This repo is a Kilo Gastown rig.**
+
+| Property | Value |
+|----------|-------|
+| Rig ID | `6c6d4555-91e8-4f06-a974-018cf3e766d2` |
+| Town | `78a8d430-a206-4a25-96c0-5cd9f5caf984` |
+
+### Work Delegation (gt_sling / gt_sling_batch)
+
+Kilo Gastown uses **gt_sling** (single bead) and **gt_sling_batch** (batched work) to delegate tasks to polecat agents.
+
+| Tool | Purpose |
+|------|---------|
+| `gt_sling` | Assign a single bead (task) to a polecat agent |
+| `gt_sling_batch` | Assign multiple beads to multiple polecats in one call |
+| `gt_prime` | Get full context: agent record, hooked bead, undelivered mail, open beads |
+| `gt_done` | Signal work complete; pushes branch and transitions bead to `in_review` |
+| `gt_bead_close` | Close a bead after work is verified and merged |
+| `gt_bead_status` | Inspect current state of any bead by ID |
+| `gt_mail_send` | Send a typed message to another agent in the rig |
+| `gt_mail_check` | Read and acknowledge pending undelivered mail |
+| `gt_status` | Emit a plain-language status update for the dashboard |
+| `gt_checkpoint` | Write crash-recovery data for session resume |
+| `gt_escalate` | Escalate an unresolved issue; creates an escalation bead |
+
+### Bead Lifecycle
+
+```
+open → in_progress → in_review → closed
+```
+
+- **open**: Task available for assignment
+- **in_progress**: Agent is working on the bead (hooked via `gt_done` / `gt_prime`)
+- **in_review**: Agent pushed branch and called `gt_done`; refinery picks up for merge
+- **closed**: Bead merged and complete
+
+### Convoys
+
+Convoys (`gt:convoy` label) group related beads for batched feature work. Feature branches follow the pattern:
+```
+convoy/<feature-name>/<convoy-id>/head
+```
+
+### Merge Modes
+
+- **review-then-land**: Agent pushes branch, calls `gt_done`, refinery reviews and merges
+- **review-and-merge**: Same flow — refinery handles the actual merge; do NOT merge manually
+
+### Pre-Submission Gates (run before `gt_done`)
+
+1. `dotnet build src/DINOForge.sln` — 0 failures
+2. `dotnet test src/DINOForge.sln` — 0 failures
+3. `dotnet format src/DINOForge.sln --verify-no-changes` — no formatting drift
+4. Update CHANGELOG.md [Unreleased] section
+5. Commit with Co-Authored-By header
+6. Push branch
+7. Call `gt_done`
+
+### Escalation Path
+
+If stuck after a few attempts at the same problem:
+1. Call `gt_escalate` with a clear description and what was tried
+2. Continue working on other aspects if possible
+3. Wait for guidance
+
+---
+
 ## Quick Start for New Agents
 
 1. Read CLAUDE.md (governance, build commands, architecture)
