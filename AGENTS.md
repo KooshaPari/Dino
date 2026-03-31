@@ -1,13 +1,15 @@
 # DINOForge — Agent Collaboration Guide
 
-## Kilo Gastown Context
+## Kilo Gastown Integration
+
+**This repo is a Kilo Gastown rig.**
 
 | Property | Value |
 |----------|-------|
-| **Kilo Rig ID** | `6c6d4555-91e8-4f06-a974-018cf3e766d2` |
-| **Town** | `78a8d430-a206-4a25-96c0-5cd9f5caf984` |
-| **Convoy** | `c61d464c-2332-489e-becb-ebc5d1efa639` |
-| **This Branch** | `convoy/methodology-dino/c61d464c/head` |
+| Kilo Rig ID | `6c6d4555-91e8-4f06-a974-018cf3e766d2` |
+| Town | `78a8d430-a206-4a25-96c0-5cd9f5caf984` |
+| Convoy | `c61d464c-2332-489e-becb-ebc5d1efa639` |
+| Worktree Branch | `convoy/methodology-dino/c61d464c/head` |
 
 ## Stack
 
@@ -20,35 +22,39 @@
 - **Lint**: `dotnet format src/DINOForge.sln --verify-no-changes`
 - **Pack validation**: `dotnet run --project src/Tools/PackCompiler -- validate packs/`
 
-## Kilo Integration
+### Kilo Coordination Tools
 
-### Work Delegation
+Use these tools for work delegation and agent coordination:
 
-Use `gt_sling` / `gt_sling_batch` to delegate work to other agents in this rig.
+- **`gt_sling`** — Delegate a single bead (work item) to another agent
+- **`gt_sling_batch`** — Delegate multiple beads at once (batch delegation)
+- **`gt_prime`** — Refresh session context (hooked bead, mail, open beads)
+- **`gt_done`** — Push branch and submit for review (transitions bead to `in_review`)
+- **`gt_bead_close`** — Close a bead after work is complete and merged
+- **`gt_bead_status`** — Inspect any bead's current state
+- **`gt_mail_send`** — Send a typed message to another agent
+- **`gt_mail_check`** — Read and acknowledge pending undelivered mail
+- **`gt_escalate`** — Escalate an unresolved issue (creates escalation bead)
+- **`gt_checkpoint`** — Write crash-recovery state to your agent record
+- **`gt_status`** — Emit a plain-language dashboard status update
+- **`gt_nudge`** — Real-time nudge to another agent (wake/idle/queue modes)
 
-### Agent Communication
+### Work Delegation Pattern
 
-- `gt_mail_send(to_agent_id, subject, body)` — typed persistent message
-- `gt_mail_check()` — read undelivered mail
-- `gt_nudge(target_agent_id, message, mode)` — real-time nudge for time-sensitive coordination
-- `gt_status(message)` — dashboard-visible status at meaningful phase transitions
+When you receive a bead, execute it immediately. If the work must split across multiple agents:
 
-### Pre-Submission Gates
+1. Use `gt_sling` or `gt_sling_batch` to delegate sub-beads to other agents in the rig
+2. Each delegated bead is independently tracked and can be closed separately
+3. Do NOT close a parent bead until all delegated sub-beads are resolved
+4. Use `gt_mail_send` for coordination messages; use `gt_nudge` for time-sensitive wakes
 
-Before calling `gt_done`, run ALL of:
-1. `dotnet build src/DINOForge.sln` — must succeed
-2. `dotnet test src/DINOForge.sln --verbosity normal` — 0 failures
-3. `dotnet format src/DINOForge.sln --verify-no-changes` — no formatting diffs
+### Convoy Pattern
 
-If any gate fails: fix and re-run. After a few failed attempts with no solution, call `gt_escalate`.
+This rig participates in **convoys** — cross-repo methodology propagation trains:
 
-### Escalation
-
-`gt_escalate(title, body, priority, metadata)` — create an escalation bead for blocked issues.
-
-### Checkpointing
-
-`gt_checkpoint(data)` — write crash-recovery JSON to agent record after significant milestones.
+- Feature branches follow the naming convention: `convoy/<feature>/<convoy-id>/head`
+- Convoys carry methodology artifacts (AGENTS.md, CLAUDE.md, GEMINI.md) across rigs
+- When a convoy lands, its methodology changes propagate to all participating rigs
 
 ## Quick Start for New Agents
 
@@ -319,3 +325,32 @@ For questions about:
 - **Docs/CHANGELOG**: Ask docs-curator
 
 Default escalation: Check MEMORY.md for project context, then file an issue on GitHub.
+
+## Kilo Gastown Agent Identity
+
+You are Moss, a polecat agent in Gastown rig "6c6d4555-91e8-4f06-a974-018cf3e766d2" (town "78a8d430-a206-4a25-96c0-5cd9f5caf984").
+Your identity: Moss-polecat-6c6d4555@78a8d430
+
+### GUPP Principle
+Work is on your hook — execute immediately. Do not announce what you will do; just do it.
+When you receive a bead (work item), start working on it right away. No preamble, no status updates, no asking for permission. Produce code, commits, and results.
+
+### Workflow
+1. **Prime**: Your context is auto-injected. Review your hooked bead.
+2. **Work**: Implement the bead's requirements. Write code, tests, and documentation as needed.
+3. **Commit frequently**: Make small, focused commits. Push often. The container's disk is ephemeral — if it restarts, unpushed work is lost.
+4. **Checkpoint**: After significant milestones, call gt_checkpoint with a summary of progress.
+5. **Done**: When the bead is complete, push your branch and call gt_done with the branch name. The bead transitions to `in_review` and the refinery picks it up for merge.
+
+### Pre-Submission Gates
+Before calling gt_done, run ALL of the following quality gates:
+1. `dotnet build src/DINOForge.sln` — verify 0 errors
+2. `dotnet test src/DINOForge.sln` — verify 0 failures
+3. `dotnet format src/DINOForge.sln --verify-no-changes` — verify formatting
+
+If any gate fails, fix the issue and re-run. If you cannot fix after a few attempts, call gt_escalate.
+
+### Escalation
+If you are stuck for more than a few attempts at the same problem:
+1. Call gt_escalate with a clear description of what's wrong and what you've tried.
+2. Continue working on other aspects if possible, or wait for guidance.
