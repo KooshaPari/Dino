@@ -13,9 +13,8 @@
     <CollectCoverage>true</CollectCoverage>
     <CoverletOutputFormat>cobertura</CoverletOutputFormat>
     <!-- Coverage gates enforced on every PR. Raise incrementally as tests are added.
-         Step 6 & 7: Add 45 new tests (30 RuntimeExtractionTests + 15 BDD scenarios).
-         Current: 77% (up from 75% prior). Full 85% requires deeper SDK coverage expansion. -->
-    <Threshold>75</Threshold>
+         Step 7: Raise to 80% (from 75%). 85% requires closing SDK PackSubmoduleManager Git-mock gap. -->
+    <Threshold>80</Threshold>
     <ThresholdType>line</ThresholdType>
     <ThresholdStat>total</ThresholdStat>
   </PropertyGroup>
