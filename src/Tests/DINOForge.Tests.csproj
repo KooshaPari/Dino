@@ -13,9 +13,8 @@
     <CollectCoverage>true</CollectCoverage>
     <CoverletOutputFormat>cobertura</CoverletOutputFormat>
     <!-- Coverage gates enforced on every PR. Raise incrementally as tests are added.
-         Step 6 & 7: Add 45 new tests (30 RuntimeExtractionTests + 15 BDD scenarios).
-         Current: 77% (up from 75% prior). Full 85% requires deeper SDK coverage expansion. -->
-    <Threshold>75</Threshold>
+         Step 7: Raise to 80% (from 75%). 85% requires closing SDK PackSubmoduleManager Git-mock gap. -->
+    <Threshold>80</Threshold>
     <ThresholdType>line</ThresholdType>
     <ThresholdStat>total</ThresholdStat>
   </PropertyGroup>
@@ -29,7 +28,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="6.*" />
-    <PackageReference Include="coverlet.collector" Version="6.*">
+    <PackageReference Include="coverlet.collector" Version="8.*">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -43,7 +42,7 @@
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <!-- Coverage-guided fuzzing targets (SharpFuzz) -->
-    <PackageReference Include="SharpFuzz" Version="2.1.1" />
+    <PackageReference Include="SharpFuzz" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
