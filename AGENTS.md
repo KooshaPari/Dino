@@ -1,5 +1,55 @@
 # DINOForge — Agent Collaboration Guide
 
+## Kilo Gastown Context
+
+| Property | Value |
+|----------|-------|
+| **Kilo Rig ID** | `6c6d4555-91e8-4f06-a974-018cf3e766d2` |
+| **Town** | `78a8d430-a206-4a25-96c0-5cd9f5caf984` |
+| **Convoy** | `c61d464c-2332-489e-becb-ebc5d1efa639` |
+| **This Branch** | `convoy/methodology-dino/c61d464c/head` |
+
+## Stack
+
+- **Game**: Diplomacy is Not an Option (Unity ECS, BepInEx)
+- **Language**: C# (.NET), YAML/JSON schemas
+- **.NET**: 11.0.100-preview.2.26159.112 (preview, pinned in `global.json`)
+- **Tool projects**: `net8.0` / `net11.0`; Core SDK/domain libs: `netstandard2.0`
+- **Build**: `dotnet build src/DINOForge.sln`
+- **Test**: `dotnet test src/DINOForge.sln --verbosity normal`
+- **Lint**: `dotnet format src/DINOForge.sln --verify-no-changes`
+- **Pack validation**: `dotnet run --project src/Tools/PackCompiler -- validate packs/`
+
+## Kilo Integration
+
+### Work Delegation
+
+Use `gt_sling` / `gt_sling_batch` to delegate work to other agents in this rig.
+
+### Agent Communication
+
+- `gt_mail_send(to_agent_id, subject, body)` — typed persistent message
+- `gt_mail_check()` — read undelivered mail
+- `gt_nudge(target_agent_id, message, mode)` — real-time nudge for time-sensitive coordination
+- `gt_status(message)` — dashboard-visible status at meaningful phase transitions
+
+### Pre-Submission Gates
+
+Before calling `gt_done`, run ALL of:
+1. `dotnet build src/DINOForge.sln` — must succeed
+2. `dotnet test src/DINOForge.sln --verbosity normal` — 0 failures
+3. `dotnet format src/DINOForge.sln --verify-no-changes` — no formatting diffs
+
+If any gate fails: fix and re-run. After a few failed attempts with no solution, call `gt_escalate`.
+
+### Escalation
+
+`gt_escalate(title, body, priority, metadata)` — create an escalation bead for blocked issues.
+
+### Checkpointing
+
+`gt_checkpoint(data)` — write crash-recovery JSON to agent record after significant milestones.
+
 ## Quick Start for New Agents
 
 1. Read CLAUDE.md (governance, build commands, architecture)
