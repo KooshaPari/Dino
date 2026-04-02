@@ -148,6 +148,7 @@ Signal completion:
 | `gt_bead_status` | Read full details of any bead by ID |
 | `gt_bead_close` | Mark a bead as completed (used by refinery) |
 | `gt_done` | Push branch + submit bead for review |
+| `gt_list_convoys` | List all convoys with status and progress (cross-convoys tracking) |
 
 ### Work Delegation
 
@@ -229,6 +230,26 @@ These appear on the orchestration dashboard for teammates to follow.
 ```
 
 On container restart, the next agent session reads this data and resumes from the checkpoint.
+
+### Convoy Progress Tracking
+
+`gt_list_convoys` provides cross-convoys visibility:
+
+```
+gt_list_convoys
+```
+
+Returns all active convoys with their status:
+```
+CONVOY                        FEATURE BRANCH                                  STATUS
+methodology-dino              convoy/methodology-dino/c61d464c/head            open (3/5 beads)
+agileplus-kilo-specs-dino    convoy/agileplus-kilo-specs-dino/381d5195/head  open (2/2 beads)
+```
+
+Use `gt_list_convoys` to:
+- Track overall convoy health across the rig
+- Identify stalled convoys needing attention
+- Coordinate cross-team dependencies
 
 ---
 
