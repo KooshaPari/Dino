@@ -30,9 +30,9 @@
       },
       "coverlet.msbuild": {
         "type": "Direct",
-        "requested": "[6.*, )",
-        "resolved": "6.0.4",
-        "contentHash": "Qa7Hg+wrOMDKpXVn2dw4Wlun490bIWsFW0fdNJQFJLZnbU27MCP0HJ2mPgS+3EQBQUb0zKlkwiQzP+j38Hc3Iw=="
+        "requested": "[8.*, )",
+        "resolved": "8.0.1",
+        "contentHash": "YkP5ZQBSwDno2uUdND/x0tmyLOacCxvKwSN2iEvndpw7OzBaH7STi2xeA06KKkyYHN0m76qDK8Pdz1CVdAPoeg=="
       },
       "FluentAssertions": {
         "type": "Direct",
@@ -63,6 +63,12 @@
           "Microsoft.CodeCoverage": "17.14.1",
           "Microsoft.TestPlatform.TestHost": "17.14.1"
         }
+      },
+      "MinVer": {
+        "type": "Direct",
+        "requested": "[7.*, )",
+        "resolved": "7.0.0",
+        "contentHash": "2lMTCQl5bGP4iv0JNkockPnyllC6eHLz+CoK2ICvalvHod+exXSxueu9hq+zNkU7bZBJf8wMfeRC/Edn8AGmEg=="
       },
       "NetArchTest.Rules": {
         "type": "Direct",
