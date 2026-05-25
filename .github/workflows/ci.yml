@@ -1,0 +1,32 @@
+# Bootstrap stub: establishes CI workflow on main so pull_request/push triggers
+# and branch-protection check names can bind. Replace with full ci.yml from
+# safety/iter145-recovery-20260523-0432 in a follow-up PR.
+# See docs/qa/ci-workflow-bootstrap.md
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bootstrap:
+    name: bootstrap
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: CI bootstrap notice
+        run: |
+          echo "CI workflow is present on main (bootstrap stub)."
+          echo "Merge full build/test jobs from docs/qa/ci-workflow-bootstrap.md."
