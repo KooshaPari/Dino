@@ -134,9 +134,11 @@ public sealed class GameLaunchAssetSwapTests(GameLaunchFixture fixture)
         if (cloneArchetypeLive)
         {
             CatalogSnapshot finalCatalog = await fixture.Client!.GetCatalogAsync().ConfigureAwait(false);
-            CatalogEntry trooperEntry = finalCatalog.Units.First(u =>
+            CatalogEntry? trooperEntry = finalCatalog.Units.FirstOrDefault(u =>
                 u.InferredId.Equals(cloneUnitId, StringComparison.OrdinalIgnoreCase));
-            trooperEntry.ComponentCount.Should().BeGreaterThan(0,
+            trooperEntry.Should().NotBeNull(
+                "clone trooper archetype should still be present in catalog after confirmation");
+            trooperEntry!.ComponentCount.Should().BeGreaterThan(0,
                 "phase 2 should expose component metadata when clone trooper archetype is live");
         }
     }
