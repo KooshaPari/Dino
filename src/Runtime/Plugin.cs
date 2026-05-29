@@ -215,27 +215,30 @@ namespace DINOForge.Runtime
 
             StartResurrectionWatcher();
 
-            // P0 fix: start the Win32 GetAsyncKeyState background thread so F9/F10
-            // work at the main menu. Without this, the ECS OnUpdate polling only fires
-            // when SimulationSystemGroup is ticking (during gameplay), leaving the
-            // debug overlay unreachable from the menu.
+            // SPEC-004 Path 2: PlayerLoop.Update injection (preferred F9/F10 path at main menu).
+            bool playerLoopInjected = false;
             try
             {
-                Bridge.KeyInputSystem.StartKeyPollThread();
-            }
-            catch (Exception ex)
-            {
-                Log.LogWarning($"[Plugin] StartKeyPollThread failed: {ex}");
-            }
-
-            // SPEC-004 Path 2: PlayerLoop.Update injection + SetPlayerLoop re-injection postfix.
-            try
-            {
-                InjectPlayerLoopUpdate();
+                playerLoopInjected = InjectPlayerLoopUpdate();
             }
             catch (Exception ex)
             {
                 Log.LogWarning($"[Plugin] InjectPlayerLoopUpdate failed: {ex}");
+            }
+
+            // Win32 background poll only when PlayerLoop injection failed — both paths use
+            // independent edge detection and would double-toggle F9/F10 if both run.
+            if (!playerLoopInjected)
+            {
+                try
+                {
+                    Bridge.KeyInputSystem.StartKeyPollThread();
+                    Log.LogInfo("[Plugin] PlayerLoop injection failed; using background key poll for F9/F10.");
+                }
+                catch (Exception ex)
+                {
+                    Log.LogWarning($"[Plugin] StartKeyPollThread failed: {ex}");
+                }
             }
 
             DebugLog.Write("Plugin", "Awake completed");
@@ -477,6 +480,19 @@ namespace DINOForge.Runtime
                     if (_resurrectionFallbackStopEvent.Wait(PollIntervalMs)) break;
 #pragma warning restore DF0116
                     iterationCount++;
+
+                    // GameLaunch attach-mode: KeyInputSystem may be absent from the ECS world while the
+                    // plugin and PersistentRoot survive scene transitions. Restart the bridge pipe when
+                    // its server thread died (BridgeServerThreadAlive=False after OnDestroy).
+                    try
+                    {
+                        SharedBridgeServer?.EnsureServerAlive();
+                    }
+                    catch (Exception ex)
+                    {
+                        DebugLog.Write("Plugin", $"[Plugin] ResurrectionFallback EnsureServerAlive: {ex.Message}");
+                    }
+
                     // Iter-144 #547 H5: emit periodic heartbeat to prove Mono runtime + this thread are alive.
                     // If the gray-freeze is a native deadlock at runtime level, heartbeats stop appearing
                     // immediately after OnDestroy. If they keep appearing, the hang is elsewhere.
@@ -685,7 +701,7 @@ namespace DINOForge.Runtime
         private static bool _playerLoopHarmonyPatched;
 
         /// <summary>SPEC-004 Path 2: append <see cref="Bridge.PlayerLoopKeyInputInjection.DINOForgeUpdateMarker"/> to PlayerLoop.Update.</summary>
-        private static void InjectPlayerLoopUpdate()
+        private static bool InjectPlayerLoopUpdate()
         {
             bool injected = Bridge.PlayerLoopKeyInputInjection.InjectIntoCurrentPlayerLoop(
                 typeof(Bridge.PlayerLoopKeyInputInjection.DINOForgeUpdateMarker),
@@ -699,30 +715,54 @@ namespace DINOForge.Runtime
             {
                 Log?.LogWarning("[Plugin] PlayerLoop DINOForgeUpdate injection failed (Update subsystem missing?).");
             }
+
+            return injected;
         }
 
         private static int _playerLoopEventSystemTick;
         private static string? _lastEventSystemReconcileKey;
+        private static bool _prevF9;
+        private static bool _prevF10;
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "GetAsyncKeyState")]
+        private static extern short PluginGetAsyncKeyState(int vKey);
 
         private static void DINOForgePlayerLoopUpdate()
         {
-            // iter-145 H1: DFCanvas.Update never runs in DINO; reconcile EventSystem.current
-            // on the PlayerLoop path that actually ticks (same path as F9/F10).
             _playerLoopEventSystemTick++;
             if (_playerLoopEventSystemTick % 60 == 1)
             {
                 EnsureEventSystemAlive();
+                try { SharedBridgeServer?.EnsureServerAlive(); }
+                catch (Exception ex) { DebugLog.Write("Plugin", $"[PlayerLoop] EnsureServerAlive: {ex.Message}"); }
             }
 
-            if (Input.GetKeyDown(KeyCode.F9))
+            if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(
+                    System.Runtime.InteropServices.OSPlatform.Windows))
             {
-                Bridge.KeyInputSystem.OnF9Pressed?.Invoke();
+                return;
             }
 
-            if (Input.GetKeyDown(KeyCode.F10))
+            const int VK_F9 = 0x78;
+            const int VK_F10 = 0x79;
+            const int KEY_PRESSED = unchecked((int)0x8000);
+
+            bool f9Now = (PluginGetAsyncKeyState(VK_F9) & KEY_PRESSED) != 0;
+            bool f10Now = (PluginGetAsyncKeyState(VK_F10) & KEY_PRESSED) != 0;
+
+            if (f9Now && !_prevF9)
             {
-                Bridge.KeyInputSystem.OnF10Pressed?.Invoke();
+                try { Bridge.KeyInputSystem.OnF9Pressed?.Invoke(); }
+                catch (System.Exception ex) { DebugLog.Write("Plugin", $"[PlayerLoop] F9 handler threw: {ex.Message}"); }
             }
+            if (f10Now && !_prevF10)
+            {
+                try { Bridge.KeyInputSystem.OnF10Pressed?.Invoke(); }
+                catch (System.Exception ex) { DebugLog.Write("Plugin", $"[PlayerLoop] F10 handler threw: {ex.Message}"); }
+            }
+
+            _prevF9 = f9Now;
+            _prevF10 = f10Now;
         }
 
         private static void PatchPlayerLoopRejection()
@@ -855,6 +895,7 @@ namespace DINOForge.Runtime
         private DebugOverlayBehaviour? _debugOverlay;
         private HudIndicator? _hudIndicator;
         private NativeMenuInjector? _nativeMenuInjector;
+        private MainMenuThemer? _mainMenuThemer;
 
         // _uguiReady: true once DFCanvas.Start() reports success via IsReady.
         // We check this each Update() because DFCanvas.Start() runs after Initialize().
@@ -909,6 +950,7 @@ namespace DINOForge.Runtime
         private bool _pendingPackToggle;
         private string? _pendingPackToggleId;
         private bool _pendingPackToggleEnabled;
+        private World? _pendingCatalogWorld;
 
         // Iter-144 #543 gray-freeze fix: cross-thread static flag observable by any subsystem
         // (e.g. VanillaCatalog.Build, ContentLoader pack registration) so they can short-circuit
@@ -1196,6 +1238,18 @@ namespace DINOForge.Runtime
                         _log.LogInfo($"[RuntimeDriver] MainMenu-mode pack-load complete: success={result.IsSuccess}, loaded={result.LoadedPacks.Count}, errors={result.Errors.Count}");
                         WireUguiToModPlatform();
                         PushLoadedPacksToUgui("main-menu init");
+
+                        // Apply total_conversion theme to main menu
+                        try
+                        {
+                            _mainMenuThemer = new MainMenuThemer(_log, _modPlatform.PacksDirectory);
+                            var packInfos = _modPlatform.GetLoadedPackDisplayInfos();
+                            _mainMenuThemer.TryApplyTheme(packInfos);
+                        }
+                        catch (Exception themeEx)
+                        {
+                            _log.LogWarning($"[RuntimeDriver] MainMenuThemer failed: {themeEx.Message}");
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -1218,8 +1272,25 @@ namespace DINOForge.Runtime
             _log.LogInfo("[DINOForge] RuntimeDriver.Initialize() EXIT");
 
             // Pump deferred work on the main thread until destruction.
+            int _themeRetryCount = 0;
             while (!_destroyed)
             {
+                // Retry MainMenuThemer if canvas wasn't ready during Step 7
+                if (_mainMenuThemer != null && !_mainMenuThemer.IsApplied && _modPlatform != null && _themeRetryCount < 30)
+                {
+                    _themeRetryCount++;
+                    if (_themeRetryCount % 5 == 0) // every ~5 frames
+                    {
+                        try
+                        {
+                            var packInfos = _modPlatform.GetLoadedPackDisplayInfos();
+                            if (packInfos.Count > 0)
+                                _mainMenuThemer.TryApplyTheme(packInfos);
+                        }
+                        catch { /* safe-swallow: theme retry is best-effort */ }
+                    }
+                }
+
                 if (TryDequeuePendingWorldReady(out World? pendingWorld))
                 {
                     yield return ProcessWorldReadyCoroutine(pendingWorld!);
@@ -1236,6 +1307,29 @@ namespace DINOForge.Runtime
                 {
                     yield return ProcessPackToggleCoroutine(packId!, enabled);
                     continue;
+                }
+
+                // Deferred catalog rebuild (queued from background thread to avoid EntityManager race)
+                World? catalogWorld = null;
+                lock (_deferredWorkLock)
+                {
+                    if (_pendingCatalogWorld != null)
+                    {
+                        catalogWorld = _pendingCatalogWorld;
+                        _pendingCatalogWorld = null;
+                    }
+                }
+                if (catalogWorld != null && catalogWorld.IsCreated)
+                {
+                    try
+                    {
+                        _log?.LogInfo($"[RuntimeDriver] Catalog rebuild executing on main thread for world '{catalogWorld.Name}'");
+                        _modPlatform?.RebuildCatalogAndApplyStats(catalogWorld);
+                    }
+                    catch (Exception ex)
+                    {
+                        _log?.LogWarning($"[RuntimeDriver] Catalog rebuild failed: {ex.Message}");
+                    }
                 }
 
                 yield return null;
@@ -1745,66 +1839,58 @@ namespace DINOForge.Runtime
                                 }
                             }
                         }
-                        // World found — now check if we need to rebuild the catalog
-                        else if (!_catalogRebuilt)
-                        {
-                            if (_destroyed) break;
-                            // Also handle world changes (scene transitions): re-register KeyInputSystem
-                            // in the new DefaultGameObjectInjectionWorld if it changed since last registration.
-                            try
-                            {
-                                World? w = World.DefaultGameObjectInjectionWorld;
-                                if (w != null && w.IsCreated && (_registeredWorldInstance == null || !ReferenceEquals(_registeredWorldInstance, w)))
-                                {
-                                    TryRegisterKeyInputSystem(w);
-                                }
-                            }
-                            catch { } // safe-swallow: ECS world discovery best-effort
-
-                            // Catalog rebuild: only trigger once when enough entities exist
-                            try
-                            {
-                                World? w2 = World.DefaultGameObjectInjectionWorld;
-                                if (w2 != null && w2.IsCreated)
-                                {
-                                    int entityCount = w2.EntityManager.UniversalQuery.CalculateEntityCount();
-                                    if (entityCount > 1000)
-                                    {
-                                        _catalogRebuilt = true;
-                                        _log?.LogInfo($"[RuntimeDriver] Catalog rebuild triggered ({entityCount} entities)");
-                                        _modPlatform?.RebuildCatalogAndApplyStats(w2);
-                                    }
-                                }
-                            }
-                            catch { } // safe-swallow: catalog rebuild best-effort
-                        }
-                        // Stable state: detect world changes (scene transitions) and re-register KeyInputSystem.
-                        // After scene transitions, DINO creates a new ECS world and updates
-                        // DefaultGameObjectInjectionWorld. We detect this and re-register KeyInputSystem
-                        // so DrainQueue keeps pumping — this unblocks the MCP bridge.
+                        // World found — detect world CHANGES and re-trigger OnWorldReady
                         else
                         {
                             if (_destroyed) break;
                             try
                             {
-                                World? current = World.DefaultGameObjectInjectionWorld;
-                                if (current != null && current.IsCreated && !ReferenceEquals(current, _registeredWorldInstance))
+                                World? w = World.DefaultGameObjectInjectionWorld;
+                                if (w != null && w.IsCreated)
                                 {
-                                    _registeredWorldInstance = current;
-                                    _log?.LogInfo($"[RuntimeDriver] ECS world changed to '{current.Name}' — re-registering KeyInputSystem");
-                                    try
+                                    // Detect world change: new world created after scene transition
+                                    if (!ReferenceEquals(_registeredWorldInstance, w))
                                     {
-                                        current.GetOrCreateSystem<Bridge.KeyInputSystem>();
-                                        _log?.LogInfo("[RuntimeDriver] KeyInputSystem re-registered in new world.");
+                                        _log?.LogInfo($"[RuntimeDriver] World changed: '{w.Name}' (was {(_registeredWorldInstance != null ? _registeredWorldInstance.Name : "null")})");
+                                        TryRegisterKeyInputSystem(w);
+
+                                        // Re-trigger OnWorldReady for the new world
+                                        _worldFound = false;
+                                        _catalogRebuilt = false;
+                                        _worldFound = true;
+                                        DebugLog.Write("Plugin", $"[RuntimeDriver] World change detected — queueing OnWorldReady for '{w.Name}'");
+                                        OnWorldReady(w);
                                     }
-                                    catch (Exception ex)
+
+                                    // Deferred catalog rebuild: queue to main thread, don't call from BG thread
+                                    if (!_catalogRebuilt)
                                     {
-                                        _log?.LogWarning($"[RuntimeDriver] KeyInputSystem re-registration failed: {ex}");
+                                        int entityCount = w.EntityManager.UniversalQuery.CalculateEntityCount();
+                                        if (entityCount > 1000)
+                                        {
+                                            _catalogRebuilt = true;
+                                            _log?.LogInfo($"[RuntimeDriver] Catalog rebuild deferred to main thread ({entityCount} entities)");
+                                            lock (_deferredWorkLock)
+                                            {
+                                                _pendingCatalogWorld = w;
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (w == null || !w.IsCreated)
+                                {
+                                    // World was destroyed (scene transition) — reset for next world
+                                    if (_worldFound)
+                                    {
+                                        _worldFound = false;
+                                        _catalogRebuilt = false;
+                                        DebugLog.Write("Plugin", "[RuntimeDriver] World destroyed — reset worldFound, will re-detect");
                                     }
                                 }
                             }
-                            catch { } // safe-swallow: Key system discovery best-effort
+                            catch { } // safe-swallow: ECS world discovery best-effort
                         }
+                        // (World-change detection + KeyInputSystem re-registration merged into the else block above)
                     }
                 }
                 catch (System.Exception ex)
@@ -2007,10 +2093,11 @@ namespace DINOForge.Runtime
             // idempotent and call it from both paths so the native MODS button never fires with
             // _menuHost == null.
             NativeMainMenuModMenu nativeHost = new NativeMainMenuModMenu();
+            if (_log != null) nativeHost.SetLogger(_log);
             ContextualModMenuHost contextualHost = new ContextualModMenuHost(
                 _dfCanvas.ModMenuPanel, nativeHost);
             _nativeMenuInjector.SetModMenuHost(contextualHost);
-            _log?.LogInfo("[RuntimeDriver] NativeMenuInjector wired via ContextualModMenuHost (native stub active, overlay fallback).");
+            _log?.LogInfo("[RuntimeDriver] NativeMenuInjector wired via ContextualModMenuHost (native menu active, overlay fallback).");
         }
 
         /// <summary>
