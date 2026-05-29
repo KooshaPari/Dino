@@ -99,6 +99,12 @@ namespace DINOForge.SDK
         /// </summary>
         [YamlMember(Alias = "overrides")]
         public PackOverrides? Overrides { get; set; }
+
+        /// <summary>
+        /// UI theme for total_conversion packs. Applied to the main menu and loading screens.
+        /// </summary>
+        [YamlMember(Alias = "ui_theme")]
+        public PackUiTheme? UiTheme { get; set; }
     }
 
     /// <summary>
@@ -178,6 +184,66 @@ namespace DINOForge.SDK
         /// </summary>
         [YamlMember(Alias = "faction_patches")]
         public List<string>? FactionPatches { get; set; } // public-mutable-ok: YAML deserializer requires mutable List for YamlDotNet
+
+        /// <summary>Paths to resource definition files.</summary>
+        [YamlMember(Alias = "resources")]
+        public List<string>? Resources { get; set; } // public-mutable-ok: YAML deserializer requires mutable List for YamlDotNet
+
+        /// <summary>Paths to economy profile definition files.</summary>
+        [YamlMember(Alias = "economy_profiles")]
+        public List<string>? EconomyProfiles { get; set; } // public-mutable-ok: YAML deserializer requires mutable List for YamlDotNet
+
+        /// <summary>Paths to trade route definition files.</summary>
+        [YamlMember(Alias = "trade_routes")]
+        public List<string>? TradeRoutes { get; set; } // public-mutable-ok: YAML deserializer requires mutable List for YamlDotNet
+
+        /// <summary>Paths to HUD element definition files.</summary>
+        [YamlMember(Alias = "hud_elements")]
+        public List<string>? HudElements { get; set; } // public-mutable-ok: YAML deserializer requires mutable List for YamlDotNet
+
+        /// <summary>Paths to menu definition files.</summary>
+        [YamlMember(Alias = "menus")]
+        public List<string>? Menus { get; set; } // public-mutable-ok: YAML deserializer requires mutable List for YamlDotNet
+
+        /// <summary>Paths to UI theme definition files.</summary>
+        [YamlMember(Alias = "ui_themes")]
+        public List<string>? UiThemes { get; set; } // public-mutable-ok: YAML deserializer requires mutable List for YamlDotNet
+
+        /// <summary>Paths to wave definition files.</summary>
+        [YamlMember(Alias = "waves")]
+        public List<string>? Waves { get; set; } // public-mutable-ok: YAML deserializer requires mutable List for YamlDotNet
+
+        /// <summary>Paths to stat definition files.</summary>
+        [YamlMember(Alias = "stats")]
+        public List<string>? Stats { get; set; } // public-mutable-ok: YAML deserializer requires mutable List for YamlDotNet
+    }
+
+    /// <summary>
+    /// Visual theming for total_conversion packs. Controls main menu appearance,
+    /// button colors, and title overlay when the pack is active.
+    /// </summary>
+    public sealed class PackUiTheme
+    {
+        [YamlMember(Alias = "title")]
+        public string? Title { get; set; }
+
+        [YamlMember(Alias = "subtitle")]
+        public string? Subtitle { get; set; }
+
+        [YamlMember(Alias = "primary_color")]
+        public string PrimaryColor { get; set; } = "#4ECDC4";
+
+        [YamlMember(Alias = "secondary_color")]
+        public string SecondaryColor { get; set; } = "#2C3E50";
+
+        [YamlMember(Alias = "accent_color")]
+        public string AccentColor { get; set; } = "#E74C3C";
+
+        [YamlMember(Alias = "text_color")]
+        public string TextColor { get; set; } = "#FFFFFF";
+
+        [YamlMember(Alias = "background_tint")]
+        public string? BackgroundTint { get; set; }
     }
 
     /// <summary>
