@@ -1,7 +1,7 @@
 # CI workflow bootstrap on `main`
 
-**Date:** 2026-05-24  
-**Status:** `origin/main` has no `.github/workflows/ci.yml` (only `scorecard.yml` and `trufflehog.yml`).
+**Date:** 2026-05-24 (updated 2026-05-29)  
+**Status:** **Superseded.** `origin/main` @ `125d44ad` now has full `.github/workflows/ci.yml` (build/test/Sonar). This doc remains as historical context for the #163 workflow deletion and bootstrap path. PR #189 no longer adds a stub `ci.yml`; merge with `main` keeps the full workflow.
 
 ## Findings
 
@@ -132,6 +132,10 @@ git log origin/main --oneline --diff-filter=D -- .github/workflows/ci.yml
 | Recovery branch with full CI | `safety/iter145-recovery-20260523-0432` @ `7cc4df4e` |
 | Workflow path audit | `docs/qa/workflow_path_audit_iter142.md` |
 | Bootstrap branch | `docs/ci-workflow-bootstrap` |
+
+## Trufflehog CI failure (PR #189, 2026-05-25)
+
+The failing check was **not** a verified secret hit. The PR branch used `trufflehog/actions/setup@main`, which GitHub Actions cannot resolve (`repository not found`). `origin/main` pins `trufflesecurity/trufflehog@…` in `.github/workflows/trufflehog.yml`. Merging `main` into `docs/ci-workflow-bootstrap` fixes trufflehog for subsequent runs.
 
 ## Do not merge to `main` without explicit owner approval
 
