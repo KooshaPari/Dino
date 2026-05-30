@@ -2,7 +2,7 @@
 
 **Epic**: [EPIC-027](../v0.27.0-full-conversion-epic.md)
 **Target release**: v0.27.0
-**Total points (excl. stretch)**: 131 — **Total (incl. stretch)**: 144
+**Total points (excl. stretch)**: 144 — **Total (incl. stretch)**: 157
 
 ---
 
@@ -15,7 +15,7 @@ judge receipt) before it is considered done.
 
 ---
 
-### Sprint 1 — Foundation (24 points)
+### Sprint 1 — Foundation (37 points)
 
 Goal: unblock every downstream story. No identity or asset work starts until these are green.
 
@@ -24,6 +24,7 @@ Goal: unblock every downstream story. No identity or asset work starts until the
 | [SW-001](native-mods-page-visible.md) | Native Mods Page Visible | 8 | iter-146 button |
 | [SW-002](dinoforge-active-indicator.md) | DINOForge Active Indicator | 3 | Plugin.Awake |
 | [SW-003](real-asset-bundles.md) | Real Asset Bundles (kill #101) | 13 | Unity 2021.3 build |
+| [SW-014](runtime-survival-reconcile.md) | Runtime Survival & v0.27.0 Reconcile | 13 | steam_appid / SW-001/003/011 |
 
 **Sprint 1 exit criteria**:
 - `dinoforge status` shows both packs Active.

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — EPIC-027 Spec & Traceability (v0.27.0)
+- **EPIC-027 FR/NFR catalog reconciled with shipped work** — added `EPIC-027-FR-021` (steam_appid process survival), `FR-022` (native quick MODS panel + Browse-all), `FR-023` (deterministic single-TC selection / `.disabled` roster + `warfare-naval`); added `NFR-023` (Aviation manual `EntityQuery`, no codegen `Entities.ForEach`), `NFR-024` (Newtonsoft static `JsonConvert.SerializeObject`), `NFR-025` (real-mesh bundle conversion gate, ≥14/36 SW bundles) (`docs/specs/v0.27.0/requirements.md`)
+- **Story SW-014 — Runtime Survival & v0.27.0 Reconcile** — new AgilePlus WorkPackage (sequence 14, state `done`) covering steam_appid auto-provision, Aviation codegen fix, Newtonsoft fix, quick MODS panel, pack-cut; full Evidence Requirements table (`docs/specs/v0.27.0/runtime-survival-reconcile.md`)
+- **Traceability matrix: EPIC-027 FR table added + NFR rows extended** — every FR-001..023 and NFR-001..025 maps to an owning story with an AgilePlus `EvidenceType`; 0 orphans, 0 dangling refs verified (`docs/specs/traceability-matrix.md`)
+- **EPIC-027 Mermaid traceability/dependency diagram** — epic → stories → requirements graph with load-bearing story dependencies (`docs/specs/v0.27.0-full-conversion-epic.md`)
+
+### Changed
+- **EPIC-027 epic state → Implementing; `agileplus_spec_hash` recomputed** (SHA256 `18D1CBD2…D8ACFC9`); child-story table + sprint totals updated for SW-014 (144 excl-stretch / 157 incl-stretch points)
+
+### Fixed
+- **AgilePlus conformance: invalid `CodeReview` evidence type → `ReviewApproval`** in 5 EPIC-027 stories (SW-001/004/005/006/007) — `EvidenceType` enum has no `CodeReview` variant
+
+
 ## [0.26.0] - 2026-05-28
 
 ### Added — Major Features (35+ commits)

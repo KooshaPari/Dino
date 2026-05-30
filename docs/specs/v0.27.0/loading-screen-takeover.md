@@ -141,10 +141,10 @@ in the scene hierarchy.
 | EPIC-027-NFR-004 | TestResult | Memory snapshot before/after open/close cycles shows no monotonic growth; recorded in `docs/test-results/SW-004/MemorySnapshot.txt` | Implementing → Validated |
 | EPIC-027-NFR-005 | CiOutput | CI build log (Runtime csproj TFM is `netstandard2.0`; no direct TMP/Addressables compile refs) | Implementing → Validated |
 | EPIC-027-NFR-006 | ManualAttestation | Bundles built with Unity 2021.3.45f2 load without silent failure under BepInEx 5.4.x (log confirmation) | Implementing → Validated |
-| EPIC-027-NFR-008 | CodeReview | All injected GameObjects carry `DINOForge_` prefix (grep of `new GameObject` in LoadingScreenController) | Implementing → Validated |
+| EPIC-027-NFR-008 | ReviewApproval | All injected GameObjects carry `DINOForge_` prefix (grep of `new GameObject` in LoadingScreenController) | Implementing → Validated |
 | EPIC-027-NFR-013 | CiOutput | `LogOutput.log` grep: no `TypeLoadException` after clean launch | Implementing → Validated |
 | EPIC-027-NFR-014 | TestResult | `docs/test-results/SW-004/ThemeScannerTests.xml` — missing-asset test: default background renders, warning logged, no crash | Implementing → Validated |
-| EPIC-027-NFR-015 | CodeReview | `LoadingScreenController` canvas has `raycastTarget = false` on overlaid images; `EventSystem.current != null` guard before `GraphicRaycaster.AddComponent` | Implementing → Validated |
+| EPIC-027-NFR-015 | ReviewApproval | `LoadingScreenController` canvas has `raycastTarget = false` on overlaid images; `EventSystem.current != null` guard before `GraphicRaycaster.AddComponent` | Implementing → Validated |
 | SW-004 | SchemaValidation | `PackCompiler validate` rejects `loading_screen:` on `type: content` pack fixture | Implementing → Validated |
 | SW-004 | TestResult | `docs/test-results/SW-004/LoadingScreenConfigValidationTests.xml` | Implementing → Validated |
 | SW-004 | ManualAttestation | Canvas destroyed after fade-out (no `DINOForge_LoadingScreen` in hierarchy after MainMenu loads — log/screenshot confirmation) | Implementing → Validated |

@@ -35,6 +35,9 @@ description. Evidence tables live in the individual story files.
 | EPIC-027-FR-018 | SW-011 | Aerial units spawn, pathfind over all terrain, attack ground and air targets for both mods. |
 | EPIC-027-FR-019 | SW-012 | Audio takeover: menu music and gameplay ambient music replaced for both mods; crossfade works without hard cut. |
 | EPIC-027-FR-020 | SW-001, SW-008 | Toggling a pack updates its active badge; `dinoforge status` reflects the toggle after relaunch. |
+| EPIC-027-FR-021 | SW-014 | `steam_appid.txt` (=`1272320`) is auto-provisioned beside the game exe on deploy/launch so DINO does not self-relaunch via Steam and kill the injected process; BepInEx/MODS/F9-F10 survive the transition. |
+| EPIC-027-FR-022 | SW-001, SW-014 | Clicking the native Mods button opens a native-styled quick MODS panel (default click) listing installed packs; a "Browse all" affordance escalates to the full mod browser. |
+| EPIC-027-FR-023 | SW-008, SW-014 | Pack roster is cut to a deterministic focus set: exactly one total-conversion pack is selected deterministically at load; non-focus packs are shipped `.disabled`; `warfare-naval` content pack present. |
 
 ---
 
@@ -64,3 +67,6 @@ description. Evidence tables live in the individual story files.
 | EPIC-027-NFR-020 | SW-005, SW-007, SW-008 | Visual | Full play session with TC active shows no vanilla DINO medieval 2D art (judge receipt per mod). |
 | EPIC-027-NFR-021 | SW-005, SW-008 | Visual | Faction emblems (Republic + CIS; Alliance + Enemy) and unit portraits visible in-game for both mods. |
 | EPIC-027-NFR-022 | SW-008, SW-012 | Legal | Asset licensing manifest complete: every shipped audio, image, and 3D asset is documented as original composition or CC0-licensed; `LICENSE-audio.md` / `LICENSE-assets.md` present in each pack root. |
+| EPIC-027-NFR-023 | SW-011, SW-014 | Stability | Aviation/aerial ECS systems use manual `EntityQuery` iteration loops, not codegen-dependent `Entities.ForEach`; no Burst/codegen TypeLoadException under BepInEx Mono at runtime. |
+| EPIC-027-NFR-024 | SW-014 | Stability | Runtime update-check JSON serialization uses the static `JsonConvert.SerializeObject` overload (no instance/MethodNotFound reflection failure) under the BepInEx-bundled Newtonsoft.Json. |
+| EPIC-027-NFR-025 | SW-003, SW-008, SW-014 | Asset Gate | Real-mesh bundle conversion is tracked against the declared roster: at least 14/36 Star Wars bundles wire real meshes (not primitives) and the conversion pipeline (`convert_real_models.py`) is reproducible; remaining stubs are logged, not silently primitive. |

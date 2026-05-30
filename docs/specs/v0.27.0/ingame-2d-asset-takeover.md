@@ -138,11 +138,11 @@ prevents the original from being allocated.
 | EPIC-027-NFR-002 | CiOutput | Profiler log confirms no per-frame canvas walk from `TcUiSpritePass`; all sprite swaps applied in single frame budget at scene load | Implementing → Validated |
 | EPIC-027-NFR-005 | CiOutput | CI build log (Runtime `netstandard2.0`; Strategy A Harmony Prefix uses reflection-resolved type, no compile-time Addressables ref) | Implementing → Validated |
 | EPIC-027-NFR-006 | ManualAttestation | Sprite bundles (if any) built with Unity 2021.3.45f2 load under BepInEx 5.4.x; `Texture2D.LoadImage` for raw PNGs confirmed on main thread (log) | Implementing → Validated |
-| EPIC-027-NFR-008 | CodeReview | All injected cursor/overlay objects carry `DINOForge_` prefix; no unnamed injected objects (grep `new GameObject` in TcCursorApplicator + TcUiSpritePass) | Implementing → Validated |
+| EPIC-027-NFR-008 | ReviewApproval | All injected cursor/overlay objects carry `DINOForge_` prefix; no unnamed injected objects (grep `new GameObject` in TcCursorApplicator + TcUiSpritePass) | Implementing → Validated |
 | EPIC-027-NFR-011 | SchemaValidation | `PackCompiler validate` rejects a manifest with `..` or absolute-path asset references in `asset_replacements.ui` | Implementing → Validated |
 | EPIC-027-NFR-013 | CiOutput | `LogOutput.log` grep: no `TypeLoadException` after clean launch with Strategy A Harmony Prefix active | Implementing → Validated |
 | EPIC-027-NFR-014 | TestResult | `docs/test-results/SW-007/TcSpriteLoaderTests.xml` — missing/failed sprite asset falls back to vanilla, warning logged, no crash | Implementing → Validated |
-| EPIC-027-NFR-015 | CodeReview | Overlay Image components in `TcUiSpritePass` have `raycastTarget = false`; EventSystem guard present before any GraphicRaycaster add | Implementing → Validated |
+| EPIC-027-NFR-015 | ReviewApproval | Overlay Image components in `TcUiSpritePass` have `raycastTarget = false`; EventSystem guard present before any GraphicRaycaster add | Implementing → Validated |
 | EPIC-027-NFR-020 | ManualAttestation | Full play session (cross-reference with FR-013 receipt): no native medieval 2D art visible with TC active (judge receipt per mod) | Implementing → Validated |
 | SW-007 | ManualAttestation | `dino-sprite-key-map.yaml` published in `docs/reference/`; Strategy A intercepts at least one Addressables key (log confirmation + receipt) | Implementing → Validated |
 | SW-007 | ManualAttestation | Sprite cache invalidation verified on HotReload signal (hot-reload + re-scan shows updated sprite, no crash) | Implementing → Validated |

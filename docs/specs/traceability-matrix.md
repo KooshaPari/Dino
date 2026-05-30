@@ -360,6 +360,41 @@ public class PackLoadingTests
 
 ---
 
+## EPIC-027 FR Traceability (v0.27.0)
+
+Every shipped EPIC-027 functional requirement maps to an owning story (AgilePlus WorkPackage)
+and an evidence type. NFRs are carried as FR-NNN IDs (`fr_id` FK) in the table below this one.
+0 orphans: each FR/NFR has at least one owning story; each story declares its requirements in
+its `**Requirements**:` front-matter line.
+
+| FR ID | Owning Stories | Evidence Type | Description |
+|-------|----------------|---------------|-------------|
+| EPIC-027-FR-001 | SW-001 | ManualAttestation | Native Mods button opens `DINOForge_ModsPage`. |
+| EPIC-027-FR-002 | SW-001 | ManualAttestation | Mods page lists packs w/ name+version+status; empty state message. |
+| EPIC-027-FR-003 | SW-001 | ManualAttestation | Page closes cleanly; no duplicate rows on re-scan. |
+| EPIC-027-FR-004 | SW-001 | ManualAttestation | F10 toggles Mods; F9 toggles Debug (Win32 key path). |
+| EPIC-027-FR-005 | SW-002 | ManualAttestation | DINOForge version badge in window title while pack active. |
+| EPIC-027-FR-006 | SW-002 | ManualAttestation | Window icon overridden when TC pack declares `window_icon`. |
+| EPIC-027-FR-007 | SW-003 | TestResult | All 30 SW unit bundles are non-stub Unity 2021.3.45f2 bundles. |
+| EPIC-027-FR-008 | SW-003 | CiOutput | `dinoforge verify-mod` exits 0 with 0 stub-bundle errors. |
+| EPIC-027-FR-009 | SW-004 | ManualAttestation | Loading screen replaced while TC pack active. |
+| EPIC-027-FR-010 | SW-005 | ManualAttestation | Mod brand identity applied to menu; no vanilla art. |
+| EPIC-027-FR-011 | SW-006 | ManualAttestation | ThemeEngine applies faction palette to HUD across 7 phases. |
+| EPIC-027-FR-012 | SW-006 | CiOutput | PackCompiler rejects malformed `ui_theme`; valid passes. |
+| EPIC-027-FR-013 | SW-007 | ManualAttestation | 2D takeover: unit portraits + faction emblems replaced. |
+| EPIC-027-FR-014 | SW-007 | ReviewApproval | Sprite-swap strategy confirmed/activated per discovery pass. |
+| EPIC-027-FR-015 | SW-008 | CiOutput | PackCompiler validate exits 0; 0 dangling refs; coverage met. |
+| EPIC-027-FR-016 | SW-009 | ManualAttestation | Themed projectiles visible during combat for both mods. |
+| EPIC-027-FR-017 | SW-010 | ManualAttestation | Naval units build, traverse water, engage targets. |
+| EPIC-027-FR-018 | SW-011 | ManualAttestation | Aerial units (airports/airplanes) spawn, pathfind, attack. |
+| EPIC-027-FR-019 | SW-012 | ManualAttestation | Audio takeover: menu+ambient music replaced; crossfade. |
+| EPIC-027-FR-020 | SW-001, SW-008 | ManualAttestation | Pack toggle updates badge; `dinoforge status` reflects it. |
+| EPIC-027-FR-021 | SW-014 | ManualAttestation | `steam_appid.txt` auto-provisioned; injected process survives launch. |
+| EPIC-027-FR-022 | SW-001, SW-014 | ManualAttestation | Quick MODS panel = default click; Browse-all escalates. |
+| EPIC-027-FR-023 | SW-008, SW-014 | ReviewApproval | Deterministic single-TC selection; `.disabled` roster; `warfare-naval`. |
+
+---
+
 ## EPIC-027 NFR Traceability (v0.27.0)
 
 | NFR ID | Category | Owning Stories | Description |
@@ -385,6 +420,9 @@ public class PackLoadingTests
 | EPIC-027-NFR-020 | Visual | SW-005, SW-007, SW-008 | No vanilla DINO medieval 2D art visible with TC active (judge receipt) |
 | EPIC-027-NFR-021 | Visual | SW-005, SW-008 | Faction emblems + unit portraits visible in-game for both mods |
 | EPIC-027-NFR-022 | Legal | SW-008, SW-012 | Asset licensing manifest complete; all shipped audio/images/3D documented as original or CC0; `LICENSE-audio.md`/`LICENSE-assets.md` present in each pack |
+| EPIC-027-NFR-023 | Stability | SW-011, SW-014 | Aerial/Aviation ECS uses manual `EntityQuery` loops, not codegen `Entities.ForEach`; no Burst/codegen TypeLoadException under BepInEx Mono |
+| EPIC-027-NFR-024 | Stability | SW-014 | Update-check uses static `JsonConvert.SerializeObject` overload; no MethodNotFound under BepInEx Newtonsoft.Json |
+| EPIC-027-NFR-025 | Asset Gate | SW-003, SW-008, SW-014 | Real-mesh bundle conversion tracked vs roster; >=14/36 SW bundles wire real meshes; `convert_real_models.py` reproducible; remaining stubs logged |
 
 ---
 
@@ -400,6 +438,7 @@ public class PackLoadingTests
 | WP01-006 | US-F6.1 Pack Compiler | `PackCompilerCliTests.*` |
 | WP01-007 | US-F7.1 Entity Inspector | `UnitSpawnerTests.*` |
 | WP01-008 | US-F8.1 Desktop Companion | `CompanionTests.*` |
+| SW-001..SW-014 | EPIC-027 Full-Conversion | per-story Evidence Requirements (see `docs/specs/v0.27.0/`) |
 
 ---
 

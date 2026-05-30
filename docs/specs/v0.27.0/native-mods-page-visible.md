@@ -127,10 +127,10 @@ reports both Active,
 | EPIC-027-FR-020 | ManualAttestation | Toggling a pack updates its active badge; `dinoforge status` reflects the toggle after relaunch (log + status output) | Implementing → Validated |
 | EPIC-027-NFR-001 | ManualAttestation | Timed Mods page open ≤ 500 ms on 60 FPS host (F9 overlay timestamp or log timing) | Implementing → Validated |
 | EPIC-027-NFR-004 | TestResult | Open/close cycles show no monotonic GameObject/memory growth in snapshot (docs/test-results/SW-001/MemorySnapshot.txt) | Implementing → Validated |
-| EPIC-027-NFR-007 | CodeReview | No `[HarmonyPatch` attribute targets DINO UI type in SW-001 scope (grep in NativeMenuInjector + NativeModsPage) | Implementing → Validated |
-| EPIC-027-NFR-008 | CodeReview | Page GameObject named `DINOForge_ModsPage`; no unnamed injected objects (grep `new GameObject` in NativeModsPage.BuildUI) | Implementing → Validated |
-| EPIC-027-NFR-009 | CodeReview | No `Process.Start` / URL-open path consumes unvalidated pack data (grep in NativeModsPage + ContextualModMenuHost) | Implementing → Validated |
-| EPIC-027-NFR-015 | CodeReview | Mods button injection has `raycastTarget = false` on any overlay Image; EventSystem guard present (Pattern #235) | Implementing → Validated |
+| EPIC-027-NFR-007 | ReviewApproval | No `[HarmonyPatch` attribute targets DINO UI type in SW-001 scope (grep in NativeMenuInjector + NativeModsPage) | Implementing → Validated |
+| EPIC-027-NFR-008 | ReviewApproval | Page GameObject named `DINOForge_ModsPage`; no unnamed injected objects (grep `new GameObject` in NativeModsPage.BuildUI) | Implementing → Validated |
+| EPIC-027-NFR-009 | ReviewApproval | No `Process.Start` / URL-open path consumes unvalidated pack data (grep in NativeModsPage + ContextualModMenuHost) | Implementing → Validated |
+| EPIC-027-NFR-015 | ReviewApproval | Mods button injection has `raycastTarget = false` on any overlay Image; EventSystem guard present (Pattern #235) | Implementing → Validated |
 | EPIC-027-NFR-016 | ManualAttestation | Mods page hover/layout matches adjacent native buttons (verified against live `dinoforge ui-tree` dump) | Implementing → Validated |
 | EPIC-027-NFR-017 | ManualAttestation | Escape closes Mods page; keyboard navigation moves focus across entries (in-game confirmation) | Implementing → Validated |
 | EPIC-027-NFR-018 | CiOutput | New UI strings resolve through locale layer; non-English locale shows translated labels (i18n CI check) | Implementing → Validated |

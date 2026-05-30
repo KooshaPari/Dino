@@ -176,10 +176,10 @@ All phases target v0.27.0. Phase 7 (user overrides, BepInEx config) deferred to 
 | EPIC-027-NFR-002 | CiOutput | Profiler trace (or F9 overlay log) shows no per-frame canvas traversal; theme apply completes in ≤ 1 frame per surface | Implementing → Validated |
 | EPIC-027-NFR-005 | CiOutput | CI build log (Runtime csproj `netstandard2.0`; no direct TMPro/Addressables compile refs) | Implementing → Validated |
 | EPIC-027-NFR-006 | ManualAttestation | ThemeEngine Tick drives reskin; bundles built with 2021.3.45f2 load without silent failure under BepInEx 5.4.x | Implementing → Validated |
-| EPIC-027-NFR-007 | CodeReview | No Harmony patch targets DINO ECS/UI type in SW-006 scope (grep `[HarmonyPatch` in Theme/ files) | Implementing → Validated |
-| EPIC-027-NFR-008 | CodeReview | All injected GameObjects in ThemeEngine carry `DINOForge_` prefix (grep `new GameObject` in Theme/ namespace) | Implementing → Validated |
+| EPIC-027-NFR-007 | ReviewApproval | No Harmony patch targets DINO ECS/UI type in SW-006 scope (grep `[HarmonyPatch` in Theme/ files) | Implementing → Validated |
+| EPIC-027-NFR-008 | ReviewApproval | All injected GameObjects in ThemeEngine carry `DINOForge_` prefix (grep `new GameObject` in Theme/ namespace) | Implementing → Validated |
 | EPIC-027-NFR-013 | CiOutput | `LogOutput.log` grep: no `TypeLoadException` after clean launch with ThemeEngine active | Implementing → Validated |
-| EPIC-027-NFR-015 | CodeReview | Every overlaid `Image` in ThemeEngine surfaces has `raycastTarget = false`; EventSystem guard present (Pattern #235) | Implementing → Validated |
+| EPIC-027-NFR-015 | ReviewApproval | Every overlaid `Image` in ThemeEngine surfaces has `raycastTarget = false`; EventSystem guard present (Pattern #235) | Implementing → Validated |
 | EPIC-027-NFR-016 | ManualAttestation | Mods page hover/layout matches adjacent native buttons (verified against live `dinoforge ui-tree` dump) | Implementing → Validated |
 | SW-006 | TestResult | `docs/test-results/SW-006/ThemeResolverTests.xml` (merge associativity + last-writer-wins FsCheck properties; missing-sprite graceful-degrade) | Implementing → Validated |
 | SW-006 | ManualAttestation | `MainMenuThemer.cs` removed; `MainMenuReskinner` passes all old tests (test result + code review) | Implementing → Validated |
