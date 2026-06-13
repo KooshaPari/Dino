@@ -12,7 +12,7 @@
     "build:example": "node ./bin/render.mjs --annotations ./examples/mods-quick-panel/annotations.json --format both"
   },
   "dependencies": {
-    "@remotion/cli": "4.0.467",
+    "@remotion/cli": "4.0.477",
     "@remotion/gif": "4.0.467",
     "remotion": "4.0.467",
     "react": "^18.3.0",
