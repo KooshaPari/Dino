@@ -1,0 +1,69 @@
+id: warfare-starwars
+name: "Star Wars: The Clone Wars"
+version: 0.1.0
+type: total_conversion
+author: DINOForge Agents
+theme: star-wars
+description: "Replaces all factions with Star Wars Clone Wars equivalents. Republic vs CIS vs Separatist forces."
+framework_version: ">=0.5.0"
+singleton: true
+
+replaces_vanilla:
+  player: galactic-republic
+  enemy_classic: confederacy-of-independent-systems
+  enemy_guerrilla: separatist-extremists
+
+factions:
+  - id: galactic-republic
+    replaces: player
+    name: "Galactic Republic"
+    theme: star-wars-republic
+    archetype: order
+    units:
+      - clone-trooper
+      - arc-trooper
+      - at-te
+      - clone-gunship
+    buildings:
+      - republic-command-post
+      - republic-barracks
+      - republic-turret
+
+  - id: confederacy-of-independent-systems
+    replaces: enemy_classic
+    name: "Confederacy of Independent Systems"
+    theme: star-wars-cis
+    archetype: industrial_swarm
+    units:
+      - b1-battle-droid
+      - b2-super-battle-droid
+      - droideka
+      - hailfire-droid
+    buildings:
+      - cis-factory
+      - cis-command-center
+      - droid-dispenser
+
+  - id: separatist-extremists
+    replaces: enemy_guerrilla
+    name: "Separatist Extremists"
+    theme: star-wars-cis-guerrilla
+    archetype: asymmetric
+    units:
+      - commando-droid
+      - magna-guard
+      - infiltration-unit
+    buildings:
+      - hidden-base
+      - separatist-cache
+
+asset_replacements:
+  textures:
+    "textures/ui/faction_icon_player": "assets/textures/republic_icon.png"
+    "textures/ui/faction_icon_enemy": "assets/textures/cis_icon.png"
+  audio:
+    "audio/music/battle_theme": "assets/audio/clone_wars_theme.ogg"
+
+conflicts_with:
+  - warfare-modern
+  - warfare-guerrilla
