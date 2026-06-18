@@ -1,0 +1,399 @@
+{
+  "repo": "Dino",
+  "overall": 61,
+  "grade": "C",
+  "scores": {
+    "L1 Architecture": 40,
+    "L2 Dev Loop": 10,
+    "L3 Agent Loop": 40,
+    "L4 Observability": 85,
+    "L5 Security": 40,
+    "L6 Performance": 50,
+    "L7 Extensibility": 45,
+    "L8 Compliance": 60,
+    "L9 Complexity": 65,
+    "L10 Type Safety": 75,
+    "L11 Dependencies": 40,
+    "L12 Error Handling": 75,
+    "L13 Logging": 85,
+    "L14 Data Layer": 70,
+    "L15 API Surface": 50,
+    "L16 Frontend": 90,
+    "L17 I18n/A11y": 45,
+    "L18 Concurrency": 90,
+    "L19 Memory": 70,
+    "L20 Config": 85,
+    "L21 Testing Depth": 40,
+    "L22 Fuzzing": 35,
+    "L23 Release": 75,
+    "L24 Migration": 50,
+    "L25 Vendor Lockin": 100,
+    "L26 Event Driven": 85,
+    "L27 Infrastructure": 60,
+    "L28 Cost Efficiency": 85,
+    "L29 Monitoring": 60,
+    "L30 Onboarding": 55
+  },
+  "details": {
+    "L1 Architecture": {
+      "details": "43 files, 2 over 500L, 9 over 350L.\nTop oversized:\nsrc/Tools/DinoforgeMcp/dinoforge_mcp/isolation_layer.py:1172\nsrc/Tools/DinoforgeMcp/dinoforge_mcp/server.py:2298\nsrc/Tools/DinoforgeMcp/dinoforge_mcp/vision.py:417\nsrc/Tools/DinoforgeMcp/dinoforge_mcp/external_judge.py:407\nsrc/Tools/DinoforgeMcp/dinoforge_mcp/proof_policy.py:406\nsrc/Tools/DinoforgeMcp/tests/test_game_launch_tools.py:378\nsrc/Tools/DinoforgeMcp/tests/test_asset_pack_tools.py:455\nsrc/Tools/DinoforgeMcp/tests/test_error_handling.py:433\nsrc/Tools/DinoforgeMcp/tests/test_external_judge.py:362\nsrc/Tools/DinoforgeMcp/tests/test_log_analysis_tools.py:370",
+      "raw": {}
+    },
+    "L2 Dev Loop": {
+      "details": "0 test files, 0 collected, 0 errors.",
+      "raw": {}
+    },
+    "L3 Agent Loop": {
+      "details": "CLI: MISSING. CI: 4 workflows.",
+      "raw": {}
+    },
+    "L4 Observability": {
+      "details": "Docs: 7/8 canonical files.",
+      "raw": {}
+    },
+    "L5 Security": {
+      "details": "Secret-like patterns: 10.",
+      "raw": {}
+    },
+    "L6 Performance": {
+      "details": "Async defs: 115, awaits: 66.",
+      "raw": {}
+    },
+    "L7 Extensibility": {
+      "details": "43 source files. Config: 0 features.",
+      "raw": {}
+    },
+    "L8 Compliance": {
+      "details": "Commits: 20. SSOT: False.",
+      "raw": {}
+    },
+    "L9 Complexity": {
+      "details": "Long funcs: 2, nested blocks: 570, branches: 546.",
+      "raw": {}
+    },
+    "L10 Type Safety": {
+      "details": "Type coverage: 150/467 (32%). Dataclasses: 16.",
+      "raw": {}
+    },
+    "L11 Dependencies": {
+      "details": "Lock: False, Requirements: False.",
+      "raw": {}
+    },
+    "L12 Error Handling": {
+      "details": "Try blocks: 133, bare excepts: 0, custom exceptions: 0, retry: 0.",
+      "raw": {}
+    },
+    "L13 Logging": {
+      "details": "Logger imports: 5, structured: 33.",
+      "raw": {}
+    },
+    "L14 Data Layer": {
+      "details": "ORM: 0, Migrations: 0, Redis: 0, SQLite: 0.",
+      "raw": {}
+    },
+    "L15 API Surface": {
+      "details": "FastAPI: 0, Flask: 0, Endpoints: 0, OpenAPI: 0.",
+      "raw": {}
+    },
+    "L16 Frontend": {
+      "details": "HTML: 206, JS: 29, CSS: 1, Templates: 0, React: 14.",
+      "raw": {}
+    },
+    "L17 I18n/A11y": {
+      "details": "Locale files: 0, gettext: 0, aria: 0.",
+      "raw": {}
+    },
+    "L18 Concurrency": {
+      "details": "Threading: 6, MP: 0, Locks: 4, Queue: 0.",
+      "raw": {}
+    },
+    "L19 Memory": {
+      "details": "Context managers: 0, GC: 2, Weakref: 0, Cleanup: 5.",
+      "raw": {}
+    },
+    "L20 Config": {
+      "details": "Env refs: 23, Dotenv: 10, Pydantic: 0, Config files: 173.",
+      "raw": {}
+    },
+    "L21 Testing Depth": {
+      "details": "Parametrize: 0, Fixtures: 0, Mock: 0, Patch: 0.",
+      "raw": {}
+    },
+    "L22 Fuzzing": {
+      "details": "Hypothesis: 0, Fuzzing: 0, Property tests: 1.",
+      "raw": {}
+    },
+    "L23 Release": {
+      "details": "Version file: False, Tags: 21, Semver: 21, Changelog: True.",
+      "raw": {}
+    },
+    "L24 Migration": {
+      "details": "Deprecated: 0, Warnings: 0, Migrations: 0.",
+      "raw": {}
+    },
+    "L25 Vendor Lockin": {
+      "details": "AWS: 0, Azure: 0, GCP: 0, Generic: 13.",
+      "raw": {}
+    },
+    "L26 Event Driven": {
+      "details": "Event bus: 0, Queue: 4, Pubsub: 0, Kafka: 0, Celery: 0.",
+      "raw": {}
+    },
+    "L27 Infrastructure": {
+      "details": "Docker: 1, Compose: 0, K8s: 0, Terraform: 0.",
+      "raw": {}
+    },
+    "L28 Cost Efficiency": {
+      "details": "Batching: 7, N+1: 0, Bulk: 0, Pagination: 26.",
+      "raw": {}
+    },
+    "L29 Monitoring": {
+      "details": "Prometheus: 0, Health: 60, Tracing: 1, Metrics: 2, SLO: 0.",
+      "raw": {}
+    },
+    "L30 Onboarding": {
+      "details": "Makefile: 0, Devcontainer: 0, Setup: 1, README: 1.",
+      "raw": {}
+    }
+  },
+  "raw": {
+    "source": {
+      "total": 43,
+      "over_500": 2,
+      "over_350": 9,
+      "oversized_files": [
+        "src/Tools/DinoforgeMcp/dinoforge_mcp/isolation_layer.py:1172",
+        "src/Tools/DinoforgeMcp/dinoforge_mcp/server.py:2298",
+        "src/Tools/DinoforgeMcp/dinoforge_mcp/vision.py:417",
+        "src/Tools/DinoforgeMcp/dinoforge_mcp/external_judge.py:407",
+        "src/Tools/DinoforgeMcp/dinoforge_mcp/proof_policy.py:406",
+        "src/Tools/DinoforgeMcp/tests/test_game_launch_tools.py:378",
+        "src/Tools/DinoforgeMcp/tests/test_asset_pack_tools.py:455",
+        "src/Tools/DinoforgeMcp/tests/test_error_handling.py:433",
+        "src/Tools/DinoforgeMcp/tests/test_external_judge.py:362",
+        "src/Tools/DinoforgeMcp/tests/test_log_analysis_tools.py:370",
+        "src/Tools/DinoforgeMcp/tests/test_game_bridge_tools.py:429"
+      ]
+    },
+    "tests": {
+      "total": 0,
+      "unit": 0,
+      "integration": 0,
+      "e2e": 0,
+      "files": []
+    },
+    "collection": {
+      "collected": 0,
+      "errors": 0,
+      "timeout": false,
+      "raw_output": ""
+    },
+    "cli": {
+      "exists": false,
+      "cmd": null,
+      "has_subcommands": false,
+      "help_length": 0
+    },
+    "docs": {
+      "has_docs_dir": true,
+      "files": {
+        "README": true,
+        "ARCHITECTURE": true,
+        "SSOT": false,
+        "CLAUDE": true,
+        "AGENTS": true,
+        "CONTRIBUTING": true,
+        "CHANGELOG": true,
+        "LICENSE": true
+      }
+    },
+    "security": {
+      "hardcoded_api_key": 10,
+      "hardcoded_secret": 0,
+      "hardcoded_password": 0,
+      "hardcoded_token": 0
+    },
+    "benchmarks": {
+      "has_benchmarks": false,
+      "has_contract_smoke": false,
+      "has_context7_smoke": false,
+      "has_check_regression": false
+    },
+    "async": {
+      "async_def": 115,
+      "await": 66,
+      "asyncio_import": 4,
+      "httpx_import": 2,
+      "aiohttp_import": 0
+    },
+    "pyproject": {
+      "exists": false
+    },
+    "git": {
+      "has_git": true,
+      "recent_commits": 20,
+      "has_merge_commits": false
+    },
+    "ci": {
+      "has_github_actions": true,
+      "workflow_files": [
+        "release.yml",
+        "audit.yml",
+        "ci.yml",
+        "scorecard.yml"
+      ],
+      "has_precommit": true
+    },
+    "complexity": {
+      "long_functions": 2,
+      "nested_blocks": 570,
+      "branches": 546
+    },
+    "type_safety": {
+      "annotated_funcs": 150,
+      "total_funcs": 467,
+      "dataclasses": 16,
+      "protocols": 0,
+      "typeddicts": 0,
+      "generics": 0
+    },
+    "dependencies": {
+      "has_lock": false,
+      "has_requirements": false,
+      "has_constraints": false,
+      "dep_count": 0
+    },
+    "error_handling": {
+      "try_blocks": 133,
+      "bare_excepts": 0,
+      "custom_exceptions": 0,
+      "retry_decorators": 0
+    },
+    "logging": {
+      "logger_imports": 5,
+      "structured_logging": 33
+    },
+    "data_layer": {
+      "orm_refs": 0,
+      "migration_files": 0,
+      "redis_refs": 0,
+      "sqlite_refs": 0
+    },
+    "api_surface": {
+      "fastapi": 0,
+      "flask": 0,
+      "endpoints": 0,
+      "openapi": 0
+    },
+    "frontend": {
+      "html_files": 206,
+      "js_files": 29,
+      "css_files": 1,
+      "templates": 0,
+      "react_components": 14
+    },
+    "i18n_a11y": {
+      "locale_files": 0,
+      "gettext_refs": 0,
+      "aria_refs": 0
+    },
+    "concurrency": {
+      "threading_refs": 6,
+      "multiprocessing_refs": 0,
+      "lock_refs": 4,
+      "queue_refs": 0
+    },
+    "memory": {
+      "context_managers": 0,
+      "gc_refs": 2,
+      "weakref_refs": 0,
+      "cleanup_refs": 5
+    },
+    "config": {
+      "env_refs": 23,
+      "dotenv_refs": 10,
+      "pydantic_settings": 0,
+      "config_files": 173
+    },
+    "testing_depth": {
+      "parametrize": 0,
+      "fixtures": 0,
+      "mock": 0,
+      "patch": 0
+    },
+    "fuzzing": {
+      "hypothesis": 0,
+      "fuzzing": 0,
+      "property_tests": 1
+    },
+    "release": {
+      "has_version_file": false,
+      "tag_count": 21,
+      "semver_tags": 21,
+      "has_changelog": true
+    },
+    "migration": {
+      "deprecated_decorators": 0,
+      "warning_refs": 0,
+      "migration_scripts": 0
+    },
+    "vendor_lockin": {
+      "aws_refs": 0,
+      "azure_refs": 0,
+      "gcp_refs": 0,
+      "generic_refs": 13
+    },
+    "event_driven": {
+      "event_bus": 0,
+      "queue": 4,
+      "pubsub": 0,
+      "kafka": 0,
+      "celery": 0
+    },
+    "infrastructure": {
+      "dockerfile": 1,
+      "docker_compose": 0,
+      "k8s_manifests": 0,
+      "terraform_files": 0
+    },
+    "cost_efficiency": {
+      "batching_refs": 7,
+      "n_plus_one_refs": 0,
+      "bulk_refs": 0,
+      "pagination_refs": 26
+    },
+    "monitoring": {
+      "prometheus": 0,
+      "health_checks": 60,
+      "tracing": 1,
+      "metrics": 2,
+      "slo": 0
+    },
+    "onboarding": {
+      "makefile": 0,
+      "devcontainer": 0,
+      "setup_scripts": 1,
+      "readme_setup": 1
+    },
+    "all_ast": {
+      "long_functions": 2,
+      "nested_blocks": 570,
+      "branches": 546,
+      "annotated_funcs": 150,
+      "total_funcs": 467,
+      "dataclasses": 16,
+      "protocols": 0,
+      "typeddicts": 0,
+      "generics": 0,
+      "async_def": 115,
+      "await": 66,
+      "asyncio_import": 4,
+      "httpx_import": 2,
+      "aiohttp_import": 0,
+      "try_blocks": 133,
+      "bare_excepts": 0,
+      "custom_exceptions": 0,
+      "retry_decorators": 0
+    }
+  }
+}
