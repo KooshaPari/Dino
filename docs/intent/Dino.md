@@ -27,10 +27,10 @@ device: macbook
 
 | Date | Source | File | Tag |
 | ---- | ------ | ---- | --- |
+| 2026-04-01 | claude-code | `docs/curated-prompts/claude-code/2026-04/fe36c48ef0d4ddc2.md` | bugfix |
 | 2026-02-05 | codex | `docs/curated-prompts/codex/2026-02/343a26e18a7e655f.md` | policy-setting |
 | 2026-02-05 | codex | `docs/curated-prompts/codex/2026-02/5c29e8758d96408f.md` | idea |
 | 2026-02-05 | codex | `docs/curated-prompts/codex/2026-02/ebd8553eaf8b9e2e.md` | idea |
-| 2026-04-01 | claude-code | `docs/curated-prompts/claude-code/2026-04/fe36c48ef0d4ddc2.md` | bugfix |
 | ? | ? | `5fbff88716c8f319.md` (not rendered) | ? |
 | ? | ? | `3a1d51b82df5f927.md` (not rendered) | ? |
 | ? | ? | `8d31711e5405c708.md` (not rendered) | ? |
