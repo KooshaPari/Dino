@@ -1,0 +1,104 @@
+# cargo-deny configuration for DINOForge
+# https://embarkstudios.github.io/cargo-deny/
+#
+# Invariant: deny.toml is the single source of truth for license and supply-chain
+# policy. The `deny.yml` workflow is the gate; this file defines what passes.
+#
+# The DINOForge project is dual-licensed under MIT or Apache-2.0. Any third-party
+# dependency that is *not* in the allow list MUST be reviewed before merging.
+
+[graph]
+all-features = false
+
+[advisories]
+version = 2
+db-path = "~/.cargo/advisory-db"
+db-urls = ["https://github.com/rustsec/advisory-db"]
+yanked = "warn"
+ignore = []
+
+[licenses]
+version = 2
+confidence-threshold = 0.8
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "Unicode-DFS-2016",
+    "Unicode-3.0",
+    "CC0-1.0",
+    "MPL-2.0",
+    "0BSD",
+    "OpenSSL",
+    "Beerware",
+    "BSL-1.0",
+]
+# Private/unknown license detection is a HARD error — block supply-chain drift.
+unlicensed = "deny"
+copyleft = "warn"
+allow-osi-fsf-free = "neither"
+default = "deny"
+confidence-threshold = 0.8
+
+exceptions = [
+    # Add narrow exceptions here with rationale comments.
+    # { name = "crate-name", version = "1.0", allow = ["MIT"], reason = "..." },
+]
+
+[[licenses.clarify]]
+name = "ring"
+expression = "MIT AND ISC AND OpenSSL"
+license-files = [
+    { path = "LICENSE", hash = 0xbd0fd23 },
+]
+
+[[licenses.clarify]]
+name = "rustls"
+expression = "Apache-2.0 OR ISC OR MIT"
+license-files = [
+    { path = "LICENSE", hash = 0xbd0fd23 },
+]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+highlight = "all"
+workspace-defaults = {}
+external-defaults = {}
+
+# Block known-bad or deprecated crates by name. Add entries with rationale.
+deny = []
+skip = []
+skip-tree = []
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "warn"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []
+allowed-org-names = []
+
+[rust]
+# MSRV is enforced at the package level; cargo-deny provides a friendly check
+# surface for the lint surface in CI. This mirrors `[lints.rust]` in Cargo.toml.
+version = "1.85"
+all-features = false
+default-target = ""
+deny = []
+allow = []
+features = []
+
+[features]
+# Empty — features are surfaced from individual crates' Cargo.toml files.
+all-features = false
+
+[imports]
+# Heavy disk-use opt-in; keep off by default for CI.
+unused = false
+
+# Note: `[patch]` and `[replace]` are intentionally omitted. Those are applied
+# per-Cargo.toml in source and audited via PR review. Do not centralize here.

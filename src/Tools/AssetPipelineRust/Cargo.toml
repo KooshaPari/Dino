@@ -3,8 +3,13 @@ name = "dinoforge-asset-pipeline"
 version = "0.1.0"
 edition = "2021"
 authors = ["DINOForge Agents"]
-license = "MIT"
+license = "MIT OR Apache-2.0"
 description = "High-performance asset import and LOD generation for DINOForge mod platform"
+
+# Opt out of any parent workspace discovery. The Dino crate lives under a
+# monorepo path (repos/Dino) and must NOT inherit the parent's
+# [workspace.dependencies] table — see DINO-ADR-008 (wrap-don't-handroll).
+[workspace]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }

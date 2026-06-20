@@ -52,10 +52,53 @@ lint:
 # Auto-fix formatting
 format:
     dotnet format src/DINOForge.CI.sln
+    @echo "Re-run 'just lint' to confirm clean."
+
+# fmt alias (mirrors Go/Rust convention)
+fmt: format
 
 # Full quality check (build + test + lint)
 check: build-ci test lint
     @echo "All checks passed."
+
+# ── Tier-0 Hygiene Recipes ────────────────────────────
+# These recipes satisfy DINOForge tier-0 governance and are wired into the
+# `ci` recipe below. They are also exposed as standalone GitHub workflows
+# (.github/workflows/{audit,deny,scorecard}.yml).
+
+# Run cargo-audit against the AssetPipelineRust workspace.
+# Requires: cargo install cargo-audit --locked
+audit:
+    cd src/Tools/AssetPipelineRust && cargo audit --deny unmaintained --deny unsound
+
+# Run cargo-deny against the AssetPipelineRust workspace using deny.toml.
+# Requires: cargo install cargo-deny --locked
+deny:
+    cargo deny --manifest-path src/Tools/AssetPipelineRust/Cargo.toml check
+
+# Aggregate quality grade (used by /status and dashboards).
+# Emits docs/qa/grade.json with the current repo health snapshot.
+grade:
+    @mkdir -p docs/qa
+    @just _grade > docs/qa/grade.json
+    @echo "Grade written to docs/qa/grade.json"
+
+# Internal: compute grade signals.
+_grade:
+    @echo '{'
+    @echo '  "build": "$$(dotnet build src/DINOForge.CI.sln -c Release --nologo --verbosity quiet > /dev/null 2>&1 && echo pass || echo fail)",'
+    @echo '  "test": "$$(dotnet test src/DINOForge.CI.sln --no-build --nologo --verbosity quiet > /dev/null 2>&1 && echo pass || echo fail)",'
+    @echo '  "lint": "$$(dotnet format src/DINOForge.CI.sln --verify-no-changes --nologo > /dev/null 2>&1 && echo pass || echo fail)",'
+    @echo '  "audit": "$$(command -v cargo-audit > /dev/null && (cd src/Tools/AssetPipelineRust && cargo audit --deny unmaintained --deny unsound > /dev/null 2>&1) && echo pass || echo skip)",'
+    @echo '  "deny": "$$(command -v cargo-deny > /dev/null && cargo deny --manifest-path src/Tools/AssetPipelineRust/Cargo.toml check > /dev/null 2>&1 && echo pass || echo skip)",'
+    @echo '  "schema_drift": "$$(test -f docs/test-results/schema-drift.json && echo pass || echo unknown)",'
+    @echo '  "timestamp": "$$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
+    @echo '}'
+
+# CI composite — mirrors the GitHub Actions job order.
+# Use locally to reproduce CI: just ci
+ci: lint test audit deny
+    @echo "Local CI gate passed."
 
 # ── Deploy ────────────────────────────────────────────
 

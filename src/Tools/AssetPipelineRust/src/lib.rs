@@ -1,11 +1,14 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+// Copyright (c) 2024 DINOForge Authors
+//
 // SAFETY: This module uses unsafe code for:
 // 1. Direct Assimp FFI bindings (null pointer checks, valid UTF-8 assumptions)
 // 2. Mesh data slicing (invariants documented per operation)
 // All unsafe blocks documented with SAFETY: comments and covered by tests.
 
 use pyo3::prelude::*;
+use pyo3::Bound;
 use serde::{Deserialize, Serialize};
-use std::path::Path;
 
 pub mod assimp_bind;
 pub mod mesh;
@@ -120,7 +123,7 @@ fn import_asset(file_path: String, asset_id: String) -> PyResult<String> {
     };
 
     let json = serde_json::to_string(&imported)
-        .map_err(|e| PyErr::new::<pyo3::exceptions::PySerializationError, _>(e.to_string()))?;
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
 
     Ok(json)
 }
@@ -137,22 +140,22 @@ fn import_asset(file_path: String, asset_id: String) -> PyResult<String> {
 #[pyfunction]
 fn optimize_asset(mesh_json: String, targets: Vec<u32>) -> PyResult<String> {
     let mesh: MeshData = serde_json::from_str(&mesh_json)
-        .map_err(|e| PyErr::new::<pyo3::exceptions::PySerializationError, _>(e.to_string()))?;
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
 
     // SAFETY: lod::generate_lods validates mesh data and target percentages
     let lods = lod::generate_lods(&mesh, &targets)
         .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
 
     let json = serde_json::to_string(&lods)
-        .map_err(|e| PyErr::new::<pyo3::exceptions::PySerializationError, _>(e.to_string()))?;
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
 
     Ok(json)
 }
 
 #[pymodule]
-fn dinoforge_asset_pipeline(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(import_asset, m)?)?;
-    m.add_function(wrap_pyfunction!(optimize_asset, m)?)?;
+fn dinoforge_asset_pipeline(_py: Python<'_>, m: Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(import_asset, &m)?)?;
+    m.add_function(wrap_pyfunction!(optimize_asset, &m)?)?;
     Ok(())
 }
 

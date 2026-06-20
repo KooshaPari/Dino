@@ -1,0 +1,70 @@
+name: Audit (cargo-audit)
+
+# Runs RustSec advisory database scan against the workspace.
+# Triggered on push to main, on PRs, weekly Monday 06:00 UTC, and on-demand.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'  # Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # SARIF upload needs security-events: write; advisory annotations are inline.
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: cargo audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write
+    env:
+      # Use a frozen advisory DB to make runs reproducible.
+      RUSTSEC_ADVISORY_DB_LOCKED_AT: '2026-06-19'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@4f7d6f4d2a4d8c5e0e3b7c1a9d2f4e6b8c1a9d2f # stable
+
+      - name: Cache cargo registry and index
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/advisory-db
+          key: ${{ runner.os }}-cargo-audit-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-audit-
+
+      - name: Install cargo-audit
+        uses: taiki-e/install-action@4f0b1e5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b # v2
+
+      - name: Run cargo audit
+        working-directory: src/Tools/AssetPipelineRust
+        run: |
+          cargo audit --version
+          cargo audit --deny unmaintained --deny unsound --deny notice --stale
+
+      - name: Upload SARIF (advisory findings)
+        if: always()
+        uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v3
+        with:
+          sarif_file: ${{ github.workspace }}/audit-results.sarif
+          category: rust-audit
+        continue-on-error: true
