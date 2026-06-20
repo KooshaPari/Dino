@@ -45,8 +45,10 @@ jobs:
       - name: Validate all packs
         run: |
           for pack_dir in packs/*/; do
-            if [ -d "$pack_dir" ]; then
+            if [ -d "$pack_dir" ] && [ -f "$pack_dir/pack.yaml" ]; then
               echo "Validating $pack_dir..."
               dotnet run --project src/Tools/PackCompiler --no-build --configuration Release -- validate "$pack_dir"
+            elif [ -d "$pack_dir" ]; then
+              echo "Skipping $pack_dir (no pack.yaml)"
             fi
           done
