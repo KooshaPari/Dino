@@ -151,3 +151,12 @@ UserskooshDino.*
 
 # Rust build artifacts (added 2026-06-08)
 target/
+
+# Secret-scan report outputs (never commit; regenerate locally via gitleaks/trufflehog)
+# Tier-0 hygiene baseline — orch-v12-s2-020
+gitleaks-report.json
+gitleaks*.json
+trufflehog*.json
+.trufflehog/
+.secrets/
+*.secrets.json

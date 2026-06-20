@@ -28,7 +28,24 @@ namespace DINOForge.SDK.Registry
             _log = log ?? (_ => { });
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Registers an entry with the given ID, source, and load order.
+        /// </summary>
+        /// <example>
+        /// Register and retrieve a content entry:
+        /// <code>
+        /// var registry = new Registry&lt;string&gt;();
+        /// registry.Register("welcome", "Welcome to DINOForge!", RegistrySource.Framework, "core");
+        /// string? msg = registry.Get("welcome");
+        /// Console.WriteLine(msg); // "Welcome to DINOForge!"
+        /// </code>
+        /// </example>
+        /// <param name="id">Unique content identifier.</param>
+        /// <param name="entry">The content data to register.</param>
+        /// <param name="source">Which layer contributed this entry.</param>
+        /// <param name="sourcePackId">The pack that owns this entry.</param>
+        /// <param name="loadOrder">Intra-tier priority value (higher = loaded later).
+        /// Default is 100; combined with source tier for effective priority.</param>
         public void Register(string id, T entry, RegistrySource source, string sourcePackId, int loadOrder = 100)
         {
             RegistryEntry<T> registryEntry = new RegistryEntry<T>(id, entry, source, sourcePackId, loadOrder);
@@ -52,7 +69,22 @@ namespace DINOForge.SDK.Registry
             list.Sort((a, b) => b.Priority.CompareTo(a.Priority));
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Retrieves the highest-priority entry for the given ID, or default if not found.
+        /// </summary>
+        /// <example>
+        /// Look up an existing entry and handle a missing key:
+        /// <code>
+        /// var registry = new Registry&lt;string&gt;();
+        /// registry.Register("key", "value", RegistrySource.BaseGame, "base");
+        /// string? found = registry.Get("key");
+        /// string? missing = registry.Get("nope");
+        /// Console.WriteLine(found);   // "value"
+        /// Console.WriteLine(missing is null); // "True"
+        /// </code>
+        /// </example>
+        /// <param name="id">The content identifier to look up.</param>
+        /// <returns>The content data, or default if no entry exists.</returns>
         public T? Get(string id)
         {
             if (_entries.TryGetValue(id, out List<RegistryEntry<T>>? list) && list.Count > 0)

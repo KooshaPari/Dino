@@ -12,6 +12,15 @@ namespace DINOForge.SDK.Registry
         /// <summary>
         /// Registers an entry with the given ID, source, and load order.
         /// </summary>
+        /// <example>
+        /// Register a unit definition from a content pack:
+        /// <code>
+        /// var registry = new Registry&lt;string&gt;();
+        /// registry.Register("raptor", "Velociraptor", RegistrySource.BaseGame, "base-game");
+        /// string? value = registry.Get("raptor");
+        /// Console.WriteLine(value); // "Velociraptor"
+        /// </code>
+        /// </example>
         /// <param name="id">Unique content identifier.</param>
         /// <param name="entry">The content data to register.</param>
         /// <param name="source">Which layer contributed this entry.</param>
@@ -22,6 +31,21 @@ namespace DINOForge.SDK.Registry
         /// <summary>
         /// Retrieves the highest-priority entry for the given ID, or default if not found.
         /// </summary>
+        /// <example>
+        /// Retrieve a previously registered entry:
+        /// <code>
+        /// var registry = new Registry&lt;string&gt;();
+        /// registry.Register("greeting", "Hello DINO!", RegistrySource.BaseGame, "base");
+        /// string? value = registry.Get("greeting");
+        /// Console.WriteLine(value); // "Hello DINO!"
+        /// </code>
+        /// Getting a missing ID returns <c>default</c>:
+        /// <code>
+        /// var registry = new Registry&lt;string&gt;();
+        /// string? missing = registry.Get("does-not-exist");
+        /// Console.WriteLine(missing is null); // "True"
+        /// </code>
+        /// </example>
         /// <param name="id">The content identifier to look up.</param>
         /// <returns>The content data, or default if no entry exists.</returns>
         T? Get(string id);
