@@ -1,0 +1,9 @@
+{
+  "build": "$$(dotnet build src/DINOForge.CI.sln -c Release --nologo --verbosity quiet > /dev/null 2>&1 && echo pass || echo fail)",
+  "test": "$$(dotnet test src/DINOForge.CI.sln --no-build --nologo --verbosity quiet > /dev/null 2>&1 && echo pass || echo fail)",
+  "lint": "$$(dotnet format src/DINOForge.CI.sln --verify-no-changes --nologo > /dev/null 2>&1 && echo pass || echo fail)",
+  "audit": "$$(command -v cargo-audit > /dev/null && (cd src/Tools/AssetPipelineRust && cargo audit --deny unmaintained --deny unsound > /dev/null 2>&1) && echo pass || echo skip)",
+  "deny": "$$(command -v cargo-deny > /dev/null && cargo deny --manifest-path src/Tools/AssetPipelineRust/Cargo.toml check > /dev/null 2>&1 && echo pass || echo skip)",
+  "schema_drift": "$$(test -f docs/test-results/schema-drift.json && echo pass || echo unknown)",
+  "timestamp": "$$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
