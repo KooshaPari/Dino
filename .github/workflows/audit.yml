@@ -1,7 +1,8 @@
-name: Audit (cargo-audit)
+name: Audit (multi-ecosystem)
 
-# Runs RustSec advisory database scan against the workspace.
-# Triggered on push to main, on PRs, weekly Monday 06:00 UTC, and on-demand.
+# Runs RustSec (cargo-audit), npm audit, and pip-audit against all relevant
+# workspaces. Triggered on push to main, on PRs, weekly Monday 06:00 UTC, and
+# on-demand. Mirrors the polyglot matrix in .github/dependabot.yml.
 
 on:
   push:
@@ -21,7 +22,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  audit:
+  cargo-audit:
     name: cargo audit
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -67,4 +68,212 @@ jobs:
         with:
           sarif_file: ${{ github.workspace }}/audit-results.sarif
           category: rust-audit
+        continue-on-error: true
+
+  npm-audit:
+    name: npm audit (${{ matrix.working-directory }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - working-directory: ""
+            name: root
+          - working-directory: scripts/companion-playwright
+            name: companion-playwright
+          - working-directory: scripts/video
+            name: video
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.working-directory }}
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund --package-lock-only
+          fi
+
+      - name: Run npm audit (prod only)
+        working-directory: ${{ matrix.working-directory }}
+        run: |
+          npm audit --omit=dev --audit-level=high
+        continue-on-error: false
+
+      - name: Convert npm audit to SARIF
+        if: always()
+        working-directory: ${{ matrix.working-directory }}
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/npm-audit-sarif/${{ matrix.name }}"
+          npm audit --omit=dev --json > audit.json 2>/dev/null || true
+          # Best-effort conversion to SARIF using a tiny inline script so the
+          # finding surfaces in the GitHub Security tab even when the JSON
+          # contains zero advisories.
+          cat > convert.js <<'JS'
+          const fs = require('fs');
+          const path = require('path');
+          const src = path.join(process.cwd(), 'audit.json');
+          const dst = path.join(process.env.GITHUB_WORKSPACE, 'npm-audit-sarif/${{ matrix.name }}', 'audit.sarif');
+          let raw = '';
+          try { raw = fs.readFileSync(src, 'utf8'); } catch (_) { raw = '{}'; }
+          let parsed = {};
+          try { parsed = JSON.parse(raw || '{}'); } catch (_) { parsed = {}; }
+          const vulns = (parsed.vulnerabilities && typeof parsed.vulnerabilities === 'object') ? parsed.vulnerabilities : {};
+          const results = [];
+          let id = 0;
+          for (const [pkg, info] of Object.entries(vulns)) {
+            const sev = (info.severity || 'moderate').toLowerCase();
+            const viaList = Array.isArray(info.via) ? info.via : [info.via];
+            for (const via of viaList) {
+              if (typeof via !== 'object' || !via) continue;
+              id += 1;
+              results.push({
+                ruleId: `npm-${pkg}-${via.title || via.name || id}`,
+                level: sev === 'critical' || sev === 'high' ? 'error' : 'warning',
+                message: { text: via.title || `npm advisory affecting ${pkg}` },
+                locations: [{
+                  physicalLocation: { artifactLocation: { uri: 'package.json' } }
+                }]
+              });
+            }
+          }
+          const sarif = {
+            $schema: 'https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json',
+            version: '2.1.0',
+            runs: [{
+              tool: { driver: { name: 'npm-audit', version: 'sarif-bridge', informationUri: 'https://docs.npmjs.com/cli/commands/npm-audit' } },
+              results
+            }]
+          };
+          fs.writeFileSync(dst, JSON.stringify(sarif, null, 2));
+          JS
+          node convert.js
+
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v3
+        with:
+          sarif_file: ${{ github.workspace }}/npm-audit-sarif/${{ matrix.name }}/audit.sarif
+          category: npm-audit-${{ matrix.name }}
+        continue-on-error: true
+
+  pip-audit:
+    name: pip audit (${{ matrix.working-directory }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - working-directory: src/Tools/DinoforgeMcp
+            name: dinoforge-mcp
+          - working-directory: src/Tests/e2e
+            name: e2e
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-audit-${{ hashFiles(matrix.working-directory + '/**/requirements*.txt', matrix.working-directory + '/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-audit-
+
+      - name: Install pip-audit
+        run: python -m pip install --upgrade pip pip-audit
+
+      - name: Resolve dependency manifest
+        id: manifest
+        working-directory: ${{ matrix.working-directory }}
+        run: |
+          if [ -f pyproject.toml ]; then
+            echo "manifest=pyproject.toml" >> "$GITHUB_OUTPUT"
+          elif [ -f requirements.txt ]; then
+            echo "manifest=requirements.txt" >> "$GITHUB_OUTPUT"
+          elif [ -f requirements-dev.txt ]; then
+            echo "manifest=requirements-dev.txt" >> "$GITHUB_OUTPUT"
+          else
+            echo "No supported manifest (pyproject.toml / requirements*.txt) found in ${{ matrix.working-directory }} — skipping." >&2
+            echo "manifest=SKIP" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run pip-audit
+        if: steps.manifest.outputs.manifest != 'SKIP'
+        working-directory: ${{ matrix.working-directory }}
+        run: |
+          set +e
+          pip-audit \
+            --strict \
+            --progress-spinner off \
+            --disable-pip \
+            -r <(python -m piptools compile --quiet --generate-hashes --upgrade -o - "${{ steps.manifest.outputs.manifest }}" 2>/dev/null || true) \
+            --format json \
+            > pip-audit.json 2> pip-audit.stderr || true
+          # Always emit SARIF (possibly empty) so the upload step has a file.
+          cat > sarif.py <<'PY'
+          import json, os, pathlib, sys
+          src = pathlib.Path("pip-audit.json")
+          dst = pathlib.Path(os.environ["GITHUB_WORKSPACE"]) / "pip-audit-sarif" / "${{ matrix.name }}" / "audit.sarif"
+          dst.parent.mkdir(parents=True, exist_ok=True)
+          findings = []
+          if src.exists():
+              try:
+                  data = json.loads(src.read_text() or "[]")
+              except Exception:
+                  data = []
+              if isinstance(data, dict):
+                  data = data.get("dependencies", [])
+              for dep in data:
+                  name = dep.get("name", "unknown")
+                  version = dep.get("version", "")
+                  for vuln in dep.get("vulns", []) or []:
+                      sev = (vuln.get("fix_versions") and "error") or "warning"
+                      findings.append({
+                          "ruleId": f"pip-{name}-{vuln.get('id', 'unknown')}",
+                          "level": sev,
+                          "message": {"text": f"{name} {version}: {vuln.get('description', vuln.get('id', 'pip advisory'))[:200]}"},
+                          "locations": [{"physicalLocation": {"artifactLocation": {"uri": "${{ matrix.working-directory }}/${{ steps.manifest.outputs.manifest }}"}}}]
+                      })
+          sarif = {
+              "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
+              "version": "2.1.0",
+              "runs": [{"tool": {"driver": {"name": "pip-audit", "version": "sarif-bridge", "informationUri": "https://pypi.org/project/pip-audit/"}}, "results": findings}]
+          }
+          dst.write_text(json.dumps(sarif, indent=2))
+          PY
+          python sarif.py
+
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v3
+        with:
+          sarif_file: ${{ github.workspace }}/pip-audit-sarif/${{ matrix.name }}/audit.sarif
+          category: pip-audit-${{ matrix.name }}
         continue-on-error: true
