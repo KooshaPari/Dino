@@ -13,7 +13,7 @@ author: DINOForge
 description: |
   Naval warfare expansion adding seafaring vessels to vanilla DINO factions.
 
-  Compatible with vanilla DINO — adds content without replacing base game factions.
+  Compatible with vanilla DINO â€” adds content without replacing base game factions.
   Pairs with the warfare-aerial expansion: together they provide the base aerial
   and naval mechanics that themed total conversions (e.g. warfare-starwars) can
   optionally build on.
@@ -35,6 +35,23 @@ tags:
 
 depends_on: []
 conflicts_with: []
+
+# Menu art generated via the headless asset pipeline (packs-art-gen/warfare-naval/).
+# Theme: deep ocean / fleet-at-dusk, steel-grey + naval-blue. Pack-relative PNGs.
+# NOTE: type stays "content" (NOT total_conversion) to avoid the theme-race; this
+# only supplies menu art when the pack is active.
+ui_theme:
+  title: "NAVAL WARFARE"
+  subtitle: "Seafaring Vessels Expansion"
+  primary_color: "#8e98a6"
+  secondary_color: "#0c1d31"
+  accent_color: "#e8c489"
+  text_color: "#cdd6e0"
+  background_tint: "#0a141f"
+  logo: "assets/ui/menu_logo.png"
+  background_image: "assets/ui/menu_bg.png"
+  button_frame: "assets/ui/btn_normal.png"
+  button_frame_hover: "assets/ui/btn_hover.png"
 
 loads:
   units:
