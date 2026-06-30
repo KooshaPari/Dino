@@ -1,6 +1,6 @@
 [package]
 name = "dinoforge-asset-pipeline"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["DINOForge Agents"]
 license = "MIT"
@@ -9,30 +9,25 @@ description = "High-performance asset import and LOD generation for DINOForge mo
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-pyo3 = { version = "0.28", features = ["extension-module"] }
-nalgebra = "0.35"  # Linear algebra (mesh transforms, bounds)
-rayon = "1.12"  # Parallelism for LOD generation
-ndarray = "0.17"  # Array operations (SIMD-compatible)
-# assimp removed: requires C++ build tools and CMake. Will be wrapped in future via AssetPipeline DLL
+# Mesh I/O + scene-graph (Rust tier: correctness, CPU). Wrap, don't handroll.
+gltf = { version = "1.4", features = ["import", "utils"] }
+# Industry-standard meshoptimizer bindings: SIMD CPU decimation (LOD). CPU path; Mojo-GPU is the upgrade.
+meshopt = "0.4"
 
 [dev-dependencies]
-criterion = "0.8"  # Benchmarking
-tempfile = "3"  # Test fixtures
+tempfile = "3"
 
 [lib]
-crate-type = ["cdylib", "rlib"]  # cdylib for PyO3, rlib for testing
+# cdylib: C-ABI surface consumed by C# Runtime via P/Invoke (RustImportAsset/RustOptimizeAsset/...).
+# rlib: in-crate unit tests.
+crate-type = ["cdylib", "rlib"]
 
 [profile.release]
 opt-level = 3
 lto = true
 codegen-units = 1
 strip = true
-panic = "abort"
+# NOTE: no panic="abort" — FFI boundary uses catch_unwind and returns error codes.
 
-[profile.bench]
-opt-level = 3
-lto = true
-
-# Allow unsafe code (documented with SAFETY: comments)
 [lints.rust]
-unsafe_code = "warn"
+unsafe_code = "allow"
