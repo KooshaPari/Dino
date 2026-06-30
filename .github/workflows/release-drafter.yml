@@ -6,17 +6,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-
 on:
   push:
     branches: [main]
 jobs:
   release-drafter:
-    # SHA-pinned per #805; flat workflows path (subdirs not supported for reusable workflows)
-    uses: KooshaPari/phenoShared/.github/workflows/reusable-release-drafter.yml@438e2e71e448c9f1f47f184d3ca4acbb28928677
-    with:
-      config-name: release-drafter.yml
-    secrets: inherit
-    permissions:
-      contents: write
-      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Create draft release
+        run: |
+          # TODO: replace with custom release logic when phenoShared is restored
+          echo "Draft release creation deferred"
