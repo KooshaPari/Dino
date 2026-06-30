@@ -10,13 +10,11 @@ concurrency:
 on:
   push:
     branches: [main]
-jobs:
   release-drafter:
-    # SHA-pinned per #805; flat workflows path (subdirs not supported for reusable workflows)
-    uses: KooshaPari/phenoShared/.github/workflows/reusable-release-drafter.yml@438e2e71e448c9f1f47f184d3ca4acbb28928677
-    with:
-      config-name: release-drafter.yml
-    secrets: inherit
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
+    steps:
+      - name: Placeholder for custom release drafting logic
+        run: echo "TODO: implement custom release drafting logic (phenoShared reusable workflow removed)"
