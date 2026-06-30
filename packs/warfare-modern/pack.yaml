@@ -1,0 +1,76 @@
+# Modern Warfare Pack
+# Western Coalition vs Eastern Bloc - Contemporary military total conversion
+#
+# This pack transforms DINO into a modern-era military strategy game, replacing
+# vanilla factions with historically-grounded Western Coalition and Eastern Bloc forces.
+#
+# AERIAL UNITS: Modern aerial units are defined in the warfare-airforce expansion pack,
+# which extends this base pack with air combat capabilities.
+# NAVAL UNITS: Naval warfare can be added via the warfare-naval expansion pack.
+
+id: warfare-modern
+name: Modern Warfare
+version: 0.1.0
+framework_version: ">=0.5.0 <1.0.0"
+author: DINOForge
+description: |
+  A total conversion transporting DINO into modern military doctrine. Command the disciplined Western Coalition against the mechanized Eastern Bloc in tactical engagements ranging from regional conflicts to full-scale warfare.
+
+  Factions included:
+  - Western Coalition: air superiority doctrine, technological edge, expeditionary capabilities
+  - Eastern Bloc: mass armor doctrine, artillery dominance, cost-effective unit production
+
+  Content features:
+  - 24+ units per side: infantry, armor, artillery, air defense, reconnaissance, special forces
+  - 15+ buildings: barracks, armor factories, ammunition depots, radar stations, command centers, fortifications
+  - 6+ doctrines: rapid deployment, air defense suppression, combined arms, attrition warfare
+  - 1 weapon set: modern small arms, vehicle weapons, and air defense systems
+
+  Visual assets: SVG base + community contributions welcome. See assets/ASSET_PIPELINE.md for
+  the TABS-style art guide, free CC0/CC-BY source list (Kenney.nl, PolyPizza, Sketchfab), and
+  Unity 2021.3 + Addressables import workflow.
+
+  Experience cold war tactical doctrine in a galaxy far, far away.
+
+type: total_conversion
+
+depends_on: []
+conflicts_with: []
+
+ui_theme:
+  title: "MODERN WARFARE"
+  subtitle: "Western Coalition vs Eastern Bloc"
+  primary_color: "#2C3E50"
+  secondary_color: "#E74C3C"
+  accent_color: "#3498DB"
+  text_color: "#ECF0F1"
+  background_tint: "#0A0A0F"
+  logo: "assets/ui/logo.png"
+  background_image: "assets/ui/menu-bg.png"
+  button_frame: "assets/ui/button-normal.png"
+  button_frame_hover: "assets/ui/button-hover.png"
+  loading_screen:
+    background: assets/ui/loading-bg-clean.svg
+    logo: assets/svg/logo-title.svg
+    accent_color: "#3498DB"
+    overlay_opacity: 0.95
+    tip_rotation_seconds: 7
+    tips:
+      - "Western Coalition air superiority is built on technological edge."
+      - "Eastern Bloc mass armor doctrine relies on concentrated firepower."
+      - "Modern warfare requires coordinated combined arms operations."
+      - "Strategic positioning trumps raw unit count in tactical engagements."
+
+loads:
+  factions:
+    - factions
+  units:
+    - units
+  weapons:
+    - weapons
+  buildings:
+    - buildings
+  doctrines:
+    - doctrines
+  stats:
+    - stats
