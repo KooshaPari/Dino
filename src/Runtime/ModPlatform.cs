@@ -222,6 +222,23 @@ namespace DINOForge.Runtime
                     Path.Combine(Paths.BepInExRootPath, "dinoforge_packs"),
                     "Directory containing DINOForge content packs");
 
+                // Re-anchor: a persisted config value can pin an absolute path from a
+                // DIFFERENT install (e.g. MAIN game dir copied into a _TEST variant),
+                // causing DirectoryNotFound -> packs=0. If the bound dir isn't under the
+                // RUNNING install root, or doesn't exist, force it to the running-relative
+                // default so packs always resolve against the actually-running game.
+                {
+                    string runningDefault = Path.Combine(Paths.BepInExRootPath, "dinoforge_packs");
+                    string current = _packsDirectory.Value ?? string.Empty;
+                    bool underRunningRoot = !string.IsNullOrEmpty(current)
+                        && current.StartsWith(Paths.BepInExRootPath, StringComparison.OrdinalIgnoreCase);
+                    if (!underRunningRoot || !Directory.Exists(current))
+                    {
+                        _log.LogWarning($"[ModPlatform] PacksDirectory '{current}' is not under the running install root or does not exist; re-anchoring to '{runningDefault}'.");
+                        _packsDirectory.Value = runningDefault;
+                    }
+                }
+
                 _autoLoadOnStartup = _config.Bind(
                     "Packs", "AutoLoadOnStartup",
                     true,
