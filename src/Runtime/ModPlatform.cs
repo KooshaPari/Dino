@@ -217,10 +217,34 @@ namespace DINOForge.Runtime
             // Bind config entries
             try
             {
+                // Default + canonical packs directory is ALWAYS derived from the
+                // running plugin's BepInEx root (Paths.BepInExRootPath = the actually
+                // running game install), never a hardcoded/MAIN install path.
+                string runningPacksDir = Path.Combine(Paths.BepInExRootPath, "dinoforge_packs");
+
                 _packsDirectory = _config.Bind(
                     "Packs", "PacksDirectory",
-                    Path.Combine(Paths.BepInExRootPath, "dinoforge_packs"),
+                    runningPacksDir,
                     "Directory containing DINOForge content packs");
+
+                // A previously-persisted config (e.g. copied/deployed from the MAIN
+                // install) can pin PacksDirectory to a path that does NOT belong to the
+                // running install. That yields DirectoryNotFoundException -> packs=0 ->
+                // "asset swaps 0 changes". If the configured value isn't the running
+                // install's packs dir AND doesn't exist on disk, re-anchor it to the
+                // running BepInEx root so packs load relative to the launched exe.
+                string configuredPacksDir = _packsDirectory.Value;
+                bool isRunningRoot = string.Equals(
+                    Path.GetFullPath(configuredPacksDir).TrimEnd(Path.DirectorySeparatorChar),
+                    Path.GetFullPath(runningPacksDir).TrimEnd(Path.DirectorySeparatorChar),
+                    StringComparison.OrdinalIgnoreCase);
+                if (!isRunningRoot && !Directory.Exists(configuredPacksDir))
+                {
+                    _log.LogWarning(
+                        $"[ModPlatform] Configured PacksDirectory '{configuredPacksDir}' does not exist and is not the running install's packs dir; " +
+                        $"re-anchoring to running BepInEx root '{runningPacksDir}'.");
+                    _packsDirectory.Value = runningPacksDir;
+                }
 
                 _autoLoadOnStartup = _config.Bind(
                     "Packs", "AutoLoadOnStartup",
