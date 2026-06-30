@@ -296,9 +296,20 @@ namespace DINOForge.Runtime
                 int fontHits = ApplyFont(canvas, theme, pack);
                 bool fontLoaded = fontHits > 0;
 
+                // SKELETON CLEANUP (#329 follow-up): DINO's native main menu ships decorative
+                // UGUI elements that the takeover only PARTIALLY reskins — most visibly the
+                // center radial "gauge/wheel" (notched ring + jagged arc) and a near-empty
+                // upper-right preview panel. They live ON the menu canvas (above the injected
+                // ScreenSpaceOverlay background) and the color/frame passes only touch their
+                // rim, leaving a half-rendered "skeleton" look. A clean themed menu (logo +
+                // buttons over the full-cover background) beats a half-styled native wheel, so
+                // when a full visual takeover is active we HIDE these pure-decoration Images
+                // (no text, not interactive, not the injected logo/background).
+                int decoHidden = (bgSwapped || logoInjected) ? HideNativeDecorations(canvas) : 0;
+
                 bool takeover = bgSwapped || logoInjected || frameHits > 0;
                 _applied = true;
-                _log?.LogInfo($"[MainMenuThemer] TAKEOVER applied: '{theme.Title}' from '{pack.Id}': takeover={takeover} bgSwap={bgSwapped} logo={logoInjected} frames={frameHits} font={fontLoaded} (fontHits={fontHits} tint-bg={bgTintHits} title={titleHits} btn={btnHits} label={labelHits})");
+                _log?.LogInfo($"[MainMenuThemer] TAKEOVER applied: '{theme.Title}' from '{pack.Id}': takeover={takeover} bgSwap={bgSwapped} logo={logoInjected} frames={frameHits} font={fontLoaded} (fontHits={fontHits} tint-bg={bgTintHits} title={titleHits} btn={btnHits} label={labelHits} decoHidden={decoHidden})");
                 DebugLog.Write("MainMenuThemer", $"{(takeover ? "TAKEOVER" : "Tint")} applied: '{theme.Title}' canvas='{canvas.name}' bgSwap={bgSwapped} logo={logoInjected} frames={frameHits} font={fontLoaded}");
                 return true;
             }
@@ -622,6 +633,78 @@ namespace DINOForge.Runtime
                 if (area > largestArea) { largestArea = area; largest = img; }
             }
             return largest;
+        }
+
+        /// <summary>
+        /// Hides DINO's native main-menu DECORATION Images that the takeover only partially
+        /// reskins, leaving a half-rendered "skeleton" look (the center radial gauge/wheel +
+        /// notched ring, and the near-empty upper-right preview panel). Targets only pure
+        /// decoration — an Image is hidden when ALL of:
+        ///   • not DINOForge-owned (never touch our injected bg/logo),
+        ///   • not the largest background Image (already sprite-swapped / covered),
+        ///   • not part of a Selectable (buttons keep their themed frames),
+        ///   • carries no legacy Text / TMP_Text in its subtree (so we never hide a label or
+        ///     a button caption — text-free = decorative),
+        ///   • is reasonably sized (skips tiny cursor/bullet sprites).
+        /// This is the menu-canvas analogue of the backdrop-camera suppression: a clean themed
+        /// menu with the wheel/panel gone beats a half-styled native wheel. Idempotent — already
+        /// disabled GameObjects are skipped; logs each hidden object's name + size so the exact
+        /// native element is visible in the live log.
+        /// </summary>
+        private int HideNativeDecorations(Canvas canvas)
+        {
+            int hits = 0;
+            try
+            {
+                Image? bg = FindLargestImage(canvas);
+                foreach (var img in canvas.GetComponentsInChildren<Image>(true))
+                {
+                    if (img == null) continue;
+                    var go = img.gameObject;
+                    if (!go.activeSelf) continue;                                  // already hidden
+                    string gn = go.name ?? string.Empty;
+                    if (gn.IndexOf("DINOForge", StringComparison.Ordinal) >= 0) continue; // our art
+                    if (img == bg) continue;                                       // the covered background
+
+                    // Keep anything interactive (buttons + their frame/icon art).
+                    if (img.GetComponent<Selectable>() != null) continue;
+                    if (img.GetComponentInParent<Selectable>() != null) continue;
+
+                    // Keep anything that carries text in its subtree (labels / captions / titles).
+                    if (HasTextInSubtree(go)) continue;
+
+                    var rt = img.rectTransform;
+                    if (rt == null) continue;
+                    float w = Mathf.Abs(rt.rect.width), h = Mathf.Abs(rt.rect.height);
+                    // Skip tiny sprites (cursors, bullets, separators) — only hide real decoration.
+                    if (w < 64f || h < 64f) continue;
+
+                    go.SetActive(false);
+                    hits++;
+                    _log?.LogInfo($"[MainMenuThemer] DECO-HIDE native menu decoration '{gn}' ({w:0}x{h:0}) — skeleton cleanup"); // pattern-96-ok: diagnostic
+                    DebugLog.Write("MainMenuThemer", $"DECO-HIDE '{gn}' {w:0}x{h:0}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _log?.LogWarning($"[MainMenuThemer] HideNativeDecorations failed: {ex.Message}"); // pattern-96-ok: diagnostic
+            }
+            return hits;
+        }
+
+        /// <summary>True if the GameObject's subtree contains any non-empty legacy Text or TMP_Text.</summary>
+        private static bool HasTextInSubtree(GameObject go)
+        {
+            foreach (var t in go.GetComponentsInChildren<Text>(true))
+                if (t != null && !string.IsNullOrEmpty(t.text)) return true;
+            foreach (var c in go.GetComponentsInChildren<Component>(true))
+            {
+                if (c == null) continue;
+                if (!(c.GetType().FullName ?? "").StartsWith("TMPro.", StringComparison.Ordinal)) continue;
+                var txt = c.GetType().GetProperty("text")?.GetValue(c) as string;
+                if (!string.IsNullOrEmpty(txt)) return true;
+            }
+            return false;
         }
 
         /// <summary>
