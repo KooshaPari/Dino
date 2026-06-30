@@ -14,9 +14,9 @@ namespace DINOForge.Tools.McpServer.Tools;
 /// 1. PlayCUA (playcua-native) — GPU-accelerated, if available
 /// 2. bare-cua-native — fast native capture via JSON-RPC
 /// 3. Unity ScreenCapture.CaptureScreenshot() via file-signal — works on Parsec/virtual displays
-/// 4. ScreenCapture.NET DXGI Desktop Duplication — works for exclusive DX11 fullscreen on physical displays
-/// 5. ScreenRecorderLib (Windows.Graphics.Capture) — per-window capture fallback
-/// 6. ffmpeg gdigrab — GDI desktop capture (last resort, fails on Parsec)
+/// 4. ScreenRecorderLib (Windows.Graphics.Capture) — WINDOW-TARGETED per-window capture (game window only)
+/// 5. ScreenCapture.NET DXGI Desktop Duplication — whole-desktop fallback (only if no game window found)
+/// 6. ffmpeg gdigrab — whole-desktop GDI capture (last resort, fails on Parsec)
 /// </summary>
 internal static class GameCaptureHelper
 {
@@ -32,7 +32,7 @@ internal static class GameCaptureHelper
 
     /// <summary>
     /// Captures the game window to a PNG file. Returns the output path on success, null on failure.
-    /// Cascade: PlayCUA → bare-cua → Unity ScreenCapture → DXGI → ScreenRecorderLib → ffmpeg gdigrab.
+    /// Cascade: PlayCUA → bare-cua → Unity ScreenCapture → ScreenRecorderLib (window-targeted) → DXGI → ffmpeg gdigrab (desktop fallbacks).
     /// </summary>
     internal static async Task<string?> CaptureAsync(string outputPath, CancellationToken ct = default)
     {
@@ -55,15 +55,20 @@ internal static class GameCaptureHelper
         if (await TryUnityScreenCaptureAsync(safeOutputPath, ct).ConfigureAwait(false))
             return safeOutputPath;
 
-        // Quaternary: DXGI Desktop Duplication (works for exclusive DX11 on physical displays)
-        if (OperatingSystem.IsWindows() && await TryDxgiCaptureAsync(safeOutputPath, ct).ConfigureAwait(false))
-            return safeOutputPath;
-
-        // Quinary: Windows.Graphics.Capture via ScreenRecorderLib
+        // Quaternary: Windows.Graphics.Capture via ScreenRecorderLib — WINDOW-TARGETED.
+        // Tried BEFORE any whole-desktop tier so we grab the game window, not the user's
+        // desktop / Parsec VDD. Returns false (falls through) if the game window isn't found.
         if (await TryScreenRecorderLibAsync(safeOutputPath, ct).ConfigureAwait(false))
             return safeOutputPath;
 
-        // Last resort: ffmpeg gdigrab
+        // Whole-desktop fallbacks below — only reached when no game window could be located
+        // for window-targeted capture (e.g. exclusive DX11 fullscreen with no Win32 window).
+
+        // Quinary: DXGI Desktop Duplication (works for exclusive DX11 on physical displays)
+        if (OperatingSystem.IsWindows() && await TryDxgiCaptureAsync(safeOutputPath, ct).ConfigureAwait(false))
+            return safeOutputPath;
+
+        // Last resort: ffmpeg gdigrab (whole desktop)
         if (await TryFfmpegGdigrabAsync(safeOutputPath, ct).ConfigureAwait(false))
             return safeOutputPath;
 
