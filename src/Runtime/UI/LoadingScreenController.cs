@@ -364,6 +364,20 @@ namespace DINOForge.Runtime.UI
                 float dt = Time.unscaledDeltaTime;
                 _elapsed += dt;
 
+                // As soon as the real interactive main menu is present, dismiss the splash.
+                // This prevents any loading-screen logo/spinner art from persisting into the
+                // settled menu once Play/Settings are actually available.
+                if (!_fadeRequested && HasInteractiveMainMenu())
+                {
+                    _fadeRequested = true;
+                    _targetProgress = 1f;
+                    if (_elapsed >= MinVisibleSeconds)
+                    {
+                        StartFadeNow();
+                        break;
+                    }
+                }
+
                 // Honour a deferred fade-out request once the minimum visible time elapses.
                 if (_fadeRequested && _elapsed >= MinVisibleSeconds)
                 {
@@ -421,6 +435,48 @@ namespace DINOForge.Runtime.UI
                 yield return wait;
             }
             _animating = false;
+        }
+
+        /// <summary>
+        /// Detects whether the game's settled main menu is visible enough for the loading
+        /// splash to get out of the way. This is intentionally conservative: it looks for an
+        /// active main-menu canvas plus at least one interactive button-like control.
+        /// </summary>
+        private static bool HasInteractiveMainMenu()
+        {
+            Canvas[] canvases = Resources.FindObjectsOfTypeAll<Canvas>();
+            foreach (Canvas canvas in canvases)
+            {
+                if (canvas == null || !canvas.gameObject.activeInHierarchy) continue;
+                string name = canvas.name ?? string.Empty;
+                if (name.IndexOf("MainMenu", StringComparison.OrdinalIgnoreCase) < 0) continue;
+                if (name.IndexOf("PrimeCanvas", StringComparison.OrdinalIgnoreCase) >= 0) continue;
+
+                Selectable[] selectables = canvas.GetComponentsInChildren<Selectable>(includeInactive: false);
+                foreach (Selectable selectable in selectables)
+                {
+                    if (selectable == null || !selectable.gameObject.activeInHierarchy) continue;
+                    string label = selectable.gameObject.name;
+                    if (label.IndexOf("Play", StringComparison.OrdinalIgnoreCase) >= 0
+                        || label.IndexOf("Settings", StringComparison.OrdinalIgnoreCase) >= 0
+                        || label.IndexOf("Options", StringComparison.OrdinalIgnoreCase) >= 0
+                        || label.IndexOf("Mods", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        return true;
+                    }
+
+                    foreach (Text text in selectable.GetComponentsInChildren<Text>(true))
+                    {
+                        if (text != null && !string.IsNullOrEmpty(text.text))
+                        {
+                            string lower = text.text.ToLowerInvariant();
+                            if (lower.Contains("play") || lower.Contains("settings") || lower.Contains("options") || lower.Contains("mods"))
+                                return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         private void StartSafetyTimer()
