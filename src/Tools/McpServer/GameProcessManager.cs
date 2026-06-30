@@ -51,6 +51,8 @@ public sealed class GameProcessManager : IDisposable
         if (!File.Exists(exePath))
             return false;
 
+        EnsureSteamRunning();
+
         var psi = new ProcessStartInfo(exePath)
         {
             WorkingDirectory = _testInstancePath,
@@ -102,6 +104,8 @@ public sealed class GameProcessManager : IDisposable
 
         if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
             return false;
+
+        EnsureSteamRunning();
 
         var psi = new ProcessStartInfo(exePath)
         {
@@ -181,6 +185,55 @@ public sealed class GameProcessManager : IDisposable
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Ensures the Steam client is running before launching the game.
+    /// DINO's main-menu news/profile/leaderboard panels depend on a successful
+    /// SteamAPI_Init; if the Steam client is not running those panels hang as
+    /// loading skeletons. Launching the Steam client first (steam_appid.txt still
+    /// keeps DINO from self-relaunching) lets SteamAPI_Init succeed so the panels
+    /// populate. Windows-only; a no-op on other platforms.
+    /// </summary>
+    public static void EnsureSteamRunning()
+    {
+        if (!OperatingSystem.IsWindows())
+            return;
+
+        try
+        {
+            if (Process.GetProcessesByName("steam").Length > 0)
+                return; // already running
+
+            string[] steamExeCandidates =
+            [
+                @"C:\Program Files (x86)\Steam\steam.exe",
+                @"C:\Program Files\Steam\steam.exe",
+            ];
+
+            string? steamExe = Array.Find(steamExeCandidates, File.Exists);
+            if (steamExe is null)
+                return; // Steam not installed where we expect; let launch proceed
+
+            var steamPsi = new ProcessStartInfo(steamExe)
+            {
+                Arguments = "-silent",
+                UseShellExecute = true,
+            };
+            using Process? steam = Process.Start(steamPsi);
+
+            // Give the Steam client time to come up so SteamAPI_Init can connect.
+            for (int i = 0; i < 30; i++)
+            {
+                if (Process.GetProcessesByName("steam").Length > 0)
+                    break;
+                Thread.Sleep(1000);
+            }
+        }
+        catch
+        {
+            // safe-swallow: best-effort Steam launch; still attempt the game launch.
+        }
     }
 
     public void Dispose()
