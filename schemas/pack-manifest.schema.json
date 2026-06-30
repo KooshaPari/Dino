@@ -124,6 +124,8 @@
         "background_image": { "type": "string", "description": "Pack-relative path to a full-bleed PNG that replaces the native main-menu background (e.g. 'assets/ui/menu_bg.png'). EPIC-027 visual takeover." },
         "button_frame": { "type": "string", "description": "Pack-relative path to a 9-slice PNG used as the normal-state frame sprite for native menu buttons (e.g. 'assets/ui/btn_normal.png'). EPIC-027 visual takeover." },
         "button_frame_hover": { "type": "string", "description": "Pack-relative path to a 9-slice PNG used as the highlighted-state frame sprite for native menu buttons (e.g. 'assets/ui/btn_hover.png'). EPIC-027 visual takeover." },
+        "font": { "type": "string", "description": "Pack-relative path (no extension) to a prebuilt TMP SDF font AssetBundle for the menu takeover (e.g. 'assets/ui/menu_font'). EPIC-027." },
+        "font_asset_name": { "type": "string", "description": "TMP_FontAsset name inside the font bundle (e.g. 'SW_MenuFont SDF')." },
         "loading_background": {
           "type": "string",
           "description": "EPIC-027 shorthand: path (relative to pack root) to a 1920x1080 PNG/JPEG loading-screen background. Equivalent to loading_screen.background. total_conversion packs only."
