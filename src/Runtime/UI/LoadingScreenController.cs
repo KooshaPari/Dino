@@ -367,15 +367,14 @@ namespace DINOForge.Runtime.UI
                 // As soon as the real interactive main menu is present, dismiss the splash.
                 // This prevents any loading-screen logo/spinner art from persisting into the
                 // settled menu once Play/Settings are actually available.
-                if (!_fadeRequested && HasInteractiveMainMenu())
+                if (HasInteractiveMainMenu())
                 {
+                    _log?.LogInfo("[Verify] interactive main menu ready");
+                    DebugLog.Write("LoadingScreen", "[Verify] interactive main menu ready");
                     _fadeRequested = true;
                     _targetProgress = 1f;
-                    if (_elapsed >= MinVisibleSeconds)
-                    {
-                        StartFadeNow();
-                        break;
-                    }
+                    StartFadeNow();
+                    break;
                 }
 
                 // Honour a deferred fade-out request once the minimum visible time elapses.

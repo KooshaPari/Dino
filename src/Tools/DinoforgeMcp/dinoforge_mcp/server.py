@@ -31,6 +31,7 @@ import re
 import subprocess
 import tempfile
 import threading
+import time
 from pathlib import Path
 from typing import Any
 
@@ -212,6 +213,63 @@ def _run_pack_compiler(*args: str, timeout: int = 60) -> dict[str, Any]:
         return {"success": False, "error": f"PackCompiler timed out after {timeout}s"}
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+def _wait_for_log_match(pattern: str, timeout_seconds: float, tail: int = 2000) -> dict[str, Any]:
+    """Poll the debug log until a regex match appears or timeout expires."""
+    if not DEBUG_LOG.exists():
+        return {"success": False, "error": f"Debug log not found: {DEBUG_LOG}"}
+
+    try:
+        regex = re.compile(pattern, re.IGNORECASE)
+    except re.error as e:
+        return {"success": False, "error": f"Invalid regex pattern: {e}"}
+
+    deadline = time.time() + timeout_seconds
+    last_size = 0
+    matched_line: str | None = None
+    matched_line_number = 0
+    total_lines = 0
+
+    while time.time() < deadline:
+        try:
+            with open(DEBUG_LOG, encoding="utf-8", errors="replace") as f:
+                lines = f.readlines()
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+        total_lines = len(lines)
+        start = max(0, total_lines - tail)
+        for idx, line in enumerate(lines[start:], start=start + 1):
+            if regex.search(line):
+                matched_line = line.rstrip()
+                matched_line_number = idx
+                break
+
+        if matched_line is not None:
+            return {
+                "success": True,
+                "pattern": pattern,
+                "matched": matched_line,
+                "line_number": matched_line_number,
+                "lines_searched": total_lines - start,
+                "total_lines": total_lines,
+            }
+
+        try:
+            last_size = DEBUG_LOG.stat().st_size
+        except Exception:
+            pass
+        time.sleep(0.25)
+
+    return {
+        "success": False,
+        "error": f"Timed out after {timeout_seconds}s waiting for pattern: {pattern}",
+        "pattern": pattern,
+        "lines_searched": max(0, total_lines - max(0, total_lines - tail)),
+        "total_lines": total_lines,
+        "last_size": last_size,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -681,6 +739,66 @@ async def game_launch_test(ctx: Context, hidden: bool = True) -> dict:
             f"If the path is wrong, update {_TEST_INSTANCE_PATH_FILE} or reinstall the test instance."
         )
         return {"success": False, "error": error_msg}
+
+
+@mcp.tool()
+async def game_verify_menu(
+    ctx: Context,
+    output_path: str = r"scratchpad\dino_harness_settled.png",
+    timeout_seconds: int = 180,
+    pipe_name: str | None = None,
+    dismiss_key: str = "Escape",
+) -> dict:
+    """
+    Launch the TEST instance hidden, wait for the interactive main-menu settle log,
+    optionally dismiss the splash with SendInput, then capture a settled menu screenshot.
+
+    Args:
+        output_path: PNG path for the settled capture.
+        timeout_seconds: Overall timeout for launch + settle + capture.
+        pipe_name: Optional named pipe name for game-control commands.
+        dismiss_key: Optional key to send once after launch to dismiss splash overlays.
+    """
+    start_time = time.time()
+    result: dict[str, Any] = {
+        "success": False,
+        "output_path": output_path,
+        "signals": [],
+    }
+
+    launch_result = await game_launch_test(ctx, hidden=True)
+    result["launch"] = launch_result
+    if not launch_result.get("success"):
+        result["error"] = launch_result.get("error", "Failed to launch test instance.")
+        return result
+
+    if dismiss_key:
+        input_result = await game_input(ctx, key=dismiss_key)
+        result["dismiss_input"] = input_result
+
+    settle_pattern = r"\[Verify\]\s+interactive main menu ready"
+    settle_timeout = max(5.0, float(timeout_seconds) - (time.time() - start_time))
+    settle_result = await asyncio.to_thread(_wait_for_log_match, settle_pattern, settle_timeout)
+    result["settle"] = settle_result
+    if not settle_result.get("success"):
+        result["error"] = settle_result.get("error", "Timed out waiting for settled main menu.")
+        return result
+
+    capture_result = await game_screenshot(ctx, output_path=output_path, pipe_name=pipe_name)
+    result["capture"] = capture_result
+    if not capture_result.get("success"):
+        result["error"] = capture_result.get("error", "Screenshot capture failed.")
+        return result
+
+    if output_path:
+        out_path = Path(output_path)
+        result["capture_exists"] = out_path.exists()
+        if out_path.exists():
+            result["capture_size"] = out_path.stat().st_size
+
+    result["success"] = True
+    result["elapsed_ms"] = int((time.time() - start_time) * 1000)
+    return result
 
 
 @mcp.tool()
