@@ -29,6 +29,23 @@ type: content
 
 depends_on: []
 
+# Menu art generated via the headless asset pipeline (packs-art-gen/warfare-aerial/).
+# Theme: sunrise-storm sky / fighter-jet formation, steel + sky-blue. Pack-relative PNGs.
+# NOTE: type stays "content" (NOT total_conversion) to avoid the theme-race; this
+# only supplies menu art when the pack is active.
+ui_theme:
+  title: "AERIAL WARFARE"
+  subtitle: "Sky Dominance Expansion"
+  primary_color: "#9aa9bd"
+  secondary_color: "#13314e"
+  accent_color: "#f0b878"
+  text_color: "#dbe6f2"
+  background_tint: "#0c1622"
+  logo: "assets/ui/menu_logo.png"
+  background_image: "assets/ui/menu_bg.png"
+  button_frame: "assets/ui/btn_normal.png"
+  button_frame_hover: "assets/ui/btn_hover.png"
+
 loads:
   units:
     - units/aerial_units.yaml
