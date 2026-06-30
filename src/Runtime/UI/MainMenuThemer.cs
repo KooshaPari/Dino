@@ -322,6 +322,28 @@ namespace DINOForge.Runtime
             return null;
         }
 
+        /// <summary>
+        /// Resolves a sortingOrder that beats DINO's camera-rendered 3D backdrop while staying
+        /// just under the menu's own UI canvas. We take the max sortingOrder across all active
+        /// Overlay/Camera canvases (the menu buttons canvas is the highest UI layer) and return
+        /// a value at least that high; the caller subtracts 1 so buttons keep drawing on top.
+        /// Falls back to a high constant (32760) so the overlay always beats world geometry.
+        /// </summary>
+        private static int ResolveMenuCanvasSortingOrder(Canvas menuCanvas)
+        {
+            int best = menuCanvas != null ? menuCanvas.sortingOrder : 0;
+            foreach (var c in UnityEngine.Object.FindObjectsOfType<Canvas>())
+            {
+                if (c == null) continue;
+                if (c.name.IndexOf("DINOForge_ModBackground", StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                if (c.sortingOrder > best) best = c.sortingOrder;
+            }
+            // Ensure we clear any world-space backdrop camera (depth-based) — Overlay always wins,
+            // but keep a sane floor so the bg is unambiguously above everything but the menu UI.
+            if (best < 100) best = 100;
+            return best;
+        }
+
         private int ReplaceTitle(Canvas canvas, string? newTitle, Color color)
         {
             if (string.IsNullOrEmpty(newTitle)) return 0;
@@ -397,23 +419,51 @@ namespace DINOForge.Runtime
             Sprite? bgSprite = LoadSpriteFromPack(packId, theme.BackgroundImage!);
             if (bgSprite == null) return false;
 
-            // 1) Inject a full-canvas overlay (idempotent per scene).
-            var existing = canvas.transform.Find("DINOForge_ModBackground");
-            if (existing == null)
+            // 1) FULLSCREEN COVER via a dedicated ScreenSpaceOverlay canvas.
+            //    DINO's menu backdrop is a CAMERA-RENDERED 3D scene (medieval scribe), NOT a
+            //    UGUI Image. A child Image of the menu canvas — even SetAsFirstSibling /
+            //    overrideSorting — renders BEHIND that camera-rendered scene, so the native
+            //    backdrop bleeds top + bottom. The fix: a separate Canvas with
+            //    renderMode = ScreenSpaceOverlay ALWAYS draws on top of camera-rendered 3D
+            //    geometry. We sort it just BELOW the menu UI canvas so buttons/logo stay on top.
+            //    (Idempotent: reuse an existing overlay GameObject if already created.)
+            const string OverlayName = "DINOForge_ModBackgroundOverlay";
+            var existingOverlay = GameObject.Find(OverlayName);
+            if (existingOverlay == null)
             {
+                // Determine the menu UI canvas sort order so we sit just under it but above
+                // every other (camera/3D) layer. ScreenSpaceOverlay canvases all share screen
+                // space; a high sortingOrder beats the world-space backdrop camera.
+                int menuOrder = ResolveMenuCanvasSortingOrder(canvas);
+                int bgOrder = menuOrder - 1;
+
+                var overlayGo = new GameObject(OverlayName,
+                    typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+                UnityEngine.Object.DontDestroyOnLoad(overlayGo);
+                var overlayCanvas = overlayGo.GetComponent<Canvas>();
+                overlayCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                overlayCanvas.overrideSorting = true;
+                overlayCanvas.sortingOrder = bgOrder;
+
                 var bgGo = new GameObject("DINOForge_ModBackground", typeof(RectTransform));
-                bgGo.transform.SetParent(canvas.transform, false);
+                bgGo.transform.SetParent(overlayGo.transform, false);
                 var bgImg = bgGo.AddComponent<Image>();
                 bgImg.sprite = bgSprite;
                 bgImg.type = Image.Type.Simple;
-                bgImg.preserveAspect = false;       // fill the whole canvas
+                bgImg.preserveAspect = false;       // fill the whole screen
                 bgImg.raycastTarget = false;        // never block button clicks (Pattern #235)
                 var rt = bgGo.GetComponent<RectTransform>();
                 rt.anchorMin = Vector2.zero;
                 rt.anchorMax = Vector2.one;
                 rt.offsetMin = Vector2.zero;
                 rt.offsetMax = Vector2.zero;
-                rt.SetAsFirstSibling();             // behind buttons/logo, above 3D scene
+
+                _log?.LogInfo($"[MainMenuThemer] ScreenSpaceOverlay bg created: sortingOrder={bgOrder} (menu={menuOrder})");
+            }
+            else
+            {
+                var img = existingOverlay.GetComponentInChildren<Image>(true);
+                if (img != null) img.sprite = bgSprite;
             }
 
             // 2) Belt-and-braces: also swap an existing large background Image if present.
