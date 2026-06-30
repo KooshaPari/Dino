@@ -49,6 +49,8 @@ ui_theme:
   background_image: "assets/ui/menu_bg.png"
   button_frame: "assets/ui/btn_normal.png"
   button_frame_hover: "assets/ui/btn_hover.png"
+  font: "assets/ui/menu_font"
+  font_asset_name: "SW_MenuFont SDF"
   # EPIC-027 themed loading-screen takeover (total_conversion only).
   # Paths are relative to the pack root; PNGs are rasterized from assets/svg/ui/.
   # NOTE: Prebuilt TMP SDF font AssetBundle (Unity 2021.3.45f1, version-locked #965)
