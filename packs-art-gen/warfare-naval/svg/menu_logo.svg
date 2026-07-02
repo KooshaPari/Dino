@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="600" viewBox="0 0 1600 600">
+  <defs>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cdd6e0"/>
+      <stop offset="0.5" stop-color="#9aa6b4"/>
+      <stop offset="1" stop-color="#5d6878"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0c1d31" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#e8c489"/>
+      <stop offset="1" stop-color="#0c1d31" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- anchor emblem (compact, above the wordmark) -->
+  <g transform="translate(800,128)" fill="#aab4c2" stroke="#5d6878" stroke-width="3" stroke-linejoin="round">
+    <!-- ring -->
+    <path d="M 0 -94 a 22 22 0 1 0 0.1 0 Z M 0 -82 a 10 10 0 1 1 -0.1 0 Z" fill-rule="evenodd"/>
+    <!-- shank -->
+    <rect x="-7" y="-58" width="14" height="134" rx="6"/>
+    <!-- stock (crossbar) -->
+    <rect x="-46" y="-30" width="92" height="13" rx="6"/>
+    <!-- flukes: crescent under the shank -->
+    <path d="M -78 6 L -64 26
+             A 66 66 0 0 0 64 26 L 78 6
+             A 84 84 0 0 1 0 60
+             A 84 84 0 0 1 -78 6 Z"/>
+  </g>
+  <text x="800" y="400" text-anchor="middle" font-family="Arial Black, Arial"
+        font-size="180" font-weight="900" letter-spacing="10"
+        fill="url(#steel)" stroke="#0a141f" stroke-width="3">NAVAL</text>
+  <text x="800" y="500" text-anchor="middle" font-family="Arial, sans-serif"
+        font-size="66" font-weight="700" letter-spacing="34"
+        fill="#e8c489">W A R F A R E</text>
+  <rect x="300" y="528" width="1000" height="6" fill="url(#bar)"/>
+</svg>
