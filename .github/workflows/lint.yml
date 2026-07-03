@@ -62,7 +62,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: SonarSource/sonarcloud-github-action@e44258b109568baa0df60ed515909fc6c72cba92 # v3.1.0
+      - uses: SonarSource/sonarcloud-github-action@ffc3010689be73b8e5ae0c57ce35968afd7909e8 # v3.1.0
         with:
           projectBaseDir: .
         env:
