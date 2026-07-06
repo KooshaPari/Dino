@@ -31,7 +31,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup .NET 11 (preview)
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5.4.0
         with:
           dotnet-version: "11.0.100-preview.2.26159.112"
           include-prerelease: true
