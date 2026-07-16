@@ -1,399 +1,1169 @@
 {
-  "repo": "Dino",
-  "overall": 61,
-  "grade": "C",
-  "scores": {
-    "L1 Architecture": 40,
-    "L2 Dev Loop": 10,
-    "L3 Agent Loop": 40,
-    "L4 Observability": 85,
-    "L5 Security": 40,
-    "L6 Performance": 50,
-    "L7 Extensibility": 45,
-    "L8 Compliance": 60,
-    "L9 Complexity": 65,
-    "L10 Type Safety": 75,
-    "L11 Dependencies": 40,
-    "L12 Error Handling": 75,
-    "L13 Logging": 85,
-    "L14 Data Layer": 70,
-    "L15 API Surface": 50,
-    "L16 Frontend": 90,
-    "L17 I18n/A11y": 45,
-    "L18 Concurrency": 90,
-    "L19 Memory": 70,
-    "L20 Config": 85,
-    "L21 Testing Depth": 40,
-    "L22 Fuzzing": 35,
-    "L23 Release": 75,
-    "L24 Migration": 50,
-    "L25 Vendor Lockin": 100,
-    "L26 Event Driven": 85,
-    "L27 Infrastructure": 60,
-    "L28 Cost Efficiency": 85,
-    "L29 Monitoring": 60,
-    "L30 Onboarding": 55
+  "meta": {
+    "repo": "Dino",
+    "generated": "2026-07-09",
+    "framework": "140-pillar C#/.NET-adapted substrate audit",
+    "version": "2.0",
+    "overall_score": 87,
+    "overall_grade": "A-",
+    "domains": 10,
+    "pillars_per_domain": 14,
+    "total_pillars": 140,
+    "previous_score": 61,
+    "previous_grade": "C"
   },
-  "details": {
-    "L1 Architecture": {
-      "details": "43 files, 2 over 500L, 9 over 350L.\nTop oversized:\nsrc/Tools/DinoforgeMcp/dinoforge_mcp/isolation_layer.py:1172\nsrc/Tools/DinoforgeMcp/dinoforge_mcp/server.py:2298\nsrc/Tools/DinoforgeMcp/dinoforge_mcp/vision.py:417\nsrc/Tools/DinoforgeMcp/dinoforge_mcp/external_judge.py:407\nsrc/Tools/DinoforgeMcp/dinoforge_mcp/proof_policy.py:406\nsrc/Tools/DinoforgeMcp/tests/test_game_launch_tools.py:378\nsrc/Tools/DinoforgeMcp/tests/test_asset_pack_tools.py:455\nsrc/Tools/DinoforgeMcp/tests/test_error_handling.py:433\nsrc/Tools/DinoforgeMcp/tests/test_external_judge.py:362\nsrc/Tools/DinoforgeMcp/tests/test_log_analysis_tools.py:370",
-      "raw": {}
-    },
-    "L2 Dev Loop": {
-      "details": "0 test files, 0 collected, 0 errors.",
-      "raw": {}
-    },
-    "L3 Agent Loop": {
-      "details": "CLI: MISSING. CI: 4 workflows.",
-      "raw": {}
-    },
-    "L4 Observability": {
-      "details": "Docs: 7/8 canonical files.",
-      "raw": {}
-    },
-    "L5 Security": {
-      "details": "Secret-like patterns: 10.",
-      "raw": {}
-    },
-    "L6 Performance": {
-      "details": "Async defs: 115, awaits: 66.",
-      "raw": {}
-    },
-    "L7 Extensibility": {
-      "details": "43 source files. Config: 0 features.",
-      "raw": {}
-    },
-    "L8 Compliance": {
-      "details": "Commits: 20. SSOT: False.",
-      "raw": {}
-    },
-    "L9 Complexity": {
-      "details": "Long funcs: 2, nested blocks: 570, branches: 546.",
-      "raw": {}
-    },
-    "L10 Type Safety": {
-      "details": "Type coverage: 150/467 (32%). Dataclasses: 16.",
-      "raw": {}
-    },
-    "L11 Dependencies": {
-      "details": "Lock: False, Requirements: False.",
-      "raw": {}
-    },
-    "L12 Error Handling": {
-      "details": "Try blocks: 133, bare excepts: 0, custom exceptions: 0, retry: 0.",
-      "raw": {}
-    },
-    "L13 Logging": {
-      "details": "Logger imports: 5, structured: 33.",
-      "raw": {}
-    },
-    "L14 Data Layer": {
-      "details": "ORM: 0, Migrations: 0, Redis: 0, SQLite: 0.",
-      "raw": {}
-    },
-    "L15 API Surface": {
-      "details": "FastAPI: 0, Flask: 0, Endpoints: 0, OpenAPI: 0.",
-      "raw": {}
-    },
-    "L16 Frontend": {
-      "details": "HTML: 206, JS: 29, CSS: 1, Templates: 0, React: 14.",
-      "raw": {}
-    },
-    "L17 I18n/A11y": {
-      "details": "Locale files: 0, gettext: 0, aria: 0.",
-      "raw": {}
-    },
-    "L18 Concurrency": {
-      "details": "Threading: 6, MP: 0, Locks: 4, Queue: 0.",
-      "raw": {}
-    },
-    "L19 Memory": {
-      "details": "Context managers: 0, GC: 2, Weakref: 0, Cleanup: 5.",
-      "raw": {}
-    },
-    "L20 Config": {
-      "details": "Env refs: 23, Dotenv: 10, Pydantic: 0, Config files: 173.",
-      "raw": {}
-    },
-    "L21 Testing Depth": {
-      "details": "Parametrize: 0, Fixtures: 0, Mock: 0, Patch: 0.",
-      "raw": {}
-    },
-    "L22 Fuzzing": {
-      "details": "Hypothesis: 0, Fuzzing: 0, Property tests: 1.",
-      "raw": {}
-    },
-    "L23 Release": {
-      "details": "Version file: False, Tags: 21, Semver: 21, Changelog: True.",
-      "raw": {}
-    },
-    "L24 Migration": {
-      "details": "Deprecated: 0, Warnings: 0, Migrations: 0.",
-      "raw": {}
-    },
-    "L25 Vendor Lockin": {
-      "details": "AWS: 0, Azure: 0, GCP: 0, Generic: 13.",
-      "raw": {}
-    },
-    "L26 Event Driven": {
-      "details": "Event bus: 0, Queue: 4, Pubsub: 0, Kafka: 0, Celery: 0.",
-      "raw": {}
-    },
-    "L27 Infrastructure": {
-      "details": "Docker: 1, Compose: 0, K8s: 0, Terraform: 0.",
-      "raw": {}
-    },
-    "L28 Cost Efficiency": {
-      "details": "Batching: 7, N+1: 0, Bulk: 0, Pagination: 26.",
-      "raw": {}
-    },
-    "L29 Monitoring": {
-      "details": "Prometheus: 0, Health: 60, Tracing: 1, Metrics: 2, SLO: 0.",
-      "raw": {}
-    },
-    "L30 Onboarding": {
-      "details": "Makefile: 0, Devcontainer: 0, Setup: 1, README: 1.",
-      "raw": {}
-    }
+  "domain_scores": {
+    "D1 Repository & Governance": 96,
+    "D2 Build & Project Configuration": 93,
+    "D3 Code Quality & Style": 89,
+    "D4 Testing & Quality Assurance": 91,
+    "D5 Security": 86,
+    "D6 CI/CD & DevOps": 95,
+    "D7 Observability & Monitoring": 71,
+    "D8 Developer Experience": 79,
+    "D9 Architecture & Design": 82,
+    "D10 Production Readiness & Release": 88
   },
-  "raw": {
-    "source": {
-      "total": 43,
-      "over_500": 2,
-      "over_350": 9,
-      "oversized_files": [
-        "src/Tools/DinoforgeMcp/dinoforge_mcp/isolation_layer.py:1172",
-        "src/Tools/DinoforgeMcp/dinoforge_mcp/server.py:2298",
-        "src/Tools/DinoforgeMcp/dinoforge_mcp/vision.py:417",
-        "src/Tools/DinoforgeMcp/dinoforge_mcp/external_judge.py:407",
-        "src/Tools/DinoforgeMcp/dinoforge_mcp/proof_policy.py:406",
-        "src/Tools/DinoforgeMcp/tests/test_game_launch_tools.py:378",
-        "src/Tools/DinoforgeMcp/tests/test_asset_pack_tools.py:455",
-        "src/Tools/DinoforgeMcp/tests/test_error_handling.py:433",
-        "src/Tools/DinoforgeMcp/tests/test_external_judge.py:362",
-        "src/Tools/DinoforgeMcp/tests/test_log_analysis_tools.py:370",
-        "src/Tools/DinoforgeMcp/tests/test_game_bridge_tools.py:429"
-      ]
-    },
-    "tests": {
-      "total": 0,
-      "unit": 0,
-      "integration": 0,
-      "e2e": 0,
-      "files": []
-    },
-    "collection": {
-      "collected": 0,
-      "errors": 0,
-      "timeout": false,
-      "raw_output": ""
-    },
-    "cli": {
-      "exists": false,
-      "cmd": null,
-      "has_subcommands": false,
-      "help_length": 0
-    },
-    "docs": {
-      "has_docs_dir": true,
-      "files": {
-        "README": true,
-        "ARCHITECTURE": true,
-        "SSOT": false,
-        "CLAUDE": true,
-        "AGENTS": true,
-        "CONTRIBUTING": true,
-        "CHANGELOG": true,
-        "LICENSE": true
+  "pillars": {
+    "D1 Repository & Governance": [
+      {
+        "id": "D1-01",
+        "name": "README presence & quality",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "README.md \u2014 456 lines, comprehensive: badges, install, quick start, architecture, testing, CI/CD, contributing links, pack system docs",
+        "remediation": null
+      },
+      {
+        "id": "D1-02",
+        "name": "License file",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "LICENSE (MIT), LICENSE-APACHE, LICENSE-MIT \u2014 triple-licensed per polyrepo standard",
+        "remediation": null
+      },
+      {
+        "id": "D1-03",
+        "name": "Contributing guide",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "CONTRIBUTING.md \u2014 733 lines, covers TOC, test authoring, mutation testing, coverage, Git workflow, code review, nuget publishing, CI/CD",
+        "remediation": null
+      },
+      {
+        "id": "D1-04",
+        "name": "Code of Conduct",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "CODE_OF_CONDUCT.md \u2014 106 lines, standard Contributor Covenant",
+        "remediation": null
+      },
+      {
+        "id": "D1-05",
+        "name": "Security policy",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "SECURITY.md \u2014 83 lines, reporting process, supported versions, encryption details",
+        "remediation": null
+      },
+      {
+        "id": "D1-06",
+        "name": "Support documentation",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "SUPPORT.md \u2014 30+ lines, community links, issue tracker, discussion pointers",
+        "remediation": null
+      },
+      {
+        "id": "D1-07",
+        "name": "Changelog (Keep a Changelog)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "CHANGELOG.md \u2014 3,244 lines, Keep a Changelog format, per-release entries from v0.1.0 through v0.26.x",
+        "remediation": null
+      },
+      {
+        "id": "D1-08",
+        "name": "Agent documentation (CLAUDE.md / AGENTS.md / GEMINI.md)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "CLAUDE.md (245 lines) + AGENTS.md (450 lines) + GEMINI.md (6,756 lines) + .claude/ + .serena/ \u2014 multi-agent orchestration docs",
+        "remediation": null
+      },
+      {
+        "id": "D1-09",
+        "name": "Project specification (SPEC.md)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "spec.md \u2014 present with project scope and architecture overview",
+        "remediation": null
+      },
+      {
+        "id": "D1-10",
+        "name": "ADR register (architecture decisions)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "19 ADRs (18 Accepted, 1 Proposed) in docs/adr/ with index.md \u2014 covers ECS, plugin architecture, pack system, observability, fuzzing, runtime, etc.",
+        "remediation": null
+      },
+      {
+        "id": "D1-11",
+        "name": "CODEOWNERS file",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "CODEOWNERS \u2014 2 lines, assigns @KooshaPari as default owner",
+        "remediation": "Expand with per-area owners (SDK/Runtime/Tests/Tools/Bridge/Analyzers/Domains)"
+      },
+      {
+        "id": "D1-12",
+        "name": "Single Source of Truth (SSOT)",
+        "status": "partial",
+        "score": 50,
+        "evidence": "SSOT.md \u2014 20 lines but references 'Built with: Cargo' (incorrect for C#-dominant repo) and stale scope table",
+        "remediation": "Update SSOT.md to reflect C#/.NET identity, correct 'Built with: Cargo' to 'Built with: dotnet', enumerate all 10+ project types, list NuGet packages"
+      },
+      {
+        "id": "D1-13",
+        "name": "Repository structure documentation",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "docs/architecture/ + docs/reference/ + docs/guides/ + AGENTS.md \u00a7Repo Layout \u2014 well-documented src/ layout with SDK/Runtime/Bridge/Tools/Analyzers/Domains",
+        "remediation": null
+      },
+      {
+        "id": "D1-14",
+        "name": "Polyglot strategy documentation",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "docs/POLYGLOT_BUILD.md + POLYGLOT_INTEGRATION.md + POLYGLOT_STRATEGY.md \u2014 dedicated polyglot docs for Go/Rust/Zig/Python interop",
+        "remediation": null
       }
-    },
-    "security": {
-      "hardcoded_api_key": 10,
-      "hardcoded_secret": 0,
-      "hardcoded_password": 0,
-      "hardcoded_token": 0
-    },
-    "benchmarks": {
-      "has_benchmarks": false,
-      "has_contract_smoke": false,
-      "has_context7_smoke": false,
-      "has_check_regression": false
-    },
-    "async": {
-      "async_def": 115,
-      "await": 66,
-      "asyncio_import": 4,
-      "httpx_import": 2,
-      "aiohttp_import": 0
-    },
-    "pyproject": {
-      "exists": false
-    },
-    "git": {
-      "has_git": true,
-      "recent_commits": 20,
-      "has_merge_commits": false
-    },
-    "ci": {
-      "has_github_actions": true,
-      "workflow_files": [
-        "release.yml",
-        "audit.yml",
-        "ci.yml",
-        "scorecard.yml"
-      ],
-      "has_precommit": true
-    },
-    "complexity": {
-      "long_functions": 2,
-      "nested_blocks": 570,
-      "branches": 546
-    },
-    "type_safety": {
-      "annotated_funcs": 150,
-      "total_funcs": 467,
-      "dataclasses": 16,
-      "protocols": 0,
-      "typeddicts": 0,
-      "generics": 0
-    },
-    "dependencies": {
-      "has_lock": false,
-      "has_requirements": false,
-      "has_constraints": false,
-      "dep_count": 0
-    },
-    "error_handling": {
-      "try_blocks": 133,
-      "bare_excepts": 0,
-      "custom_exceptions": 0,
-      "retry_decorators": 0
-    },
-    "logging": {
-      "logger_imports": 5,
-      "structured_logging": 33
-    },
-    "data_layer": {
-      "orm_refs": 0,
-      "migration_files": 0,
-      "redis_refs": 0,
-      "sqlite_refs": 0
-    },
-    "api_surface": {
-      "fastapi": 0,
-      "flask": 0,
-      "endpoints": 0,
-      "openapi": 0
-    },
-    "frontend": {
-      "html_files": 206,
-      "js_files": 29,
-      "css_files": 1,
-      "templates": 0,
-      "react_components": 14
-    },
-    "i18n_a11y": {
-      "locale_files": 0,
-      "gettext_refs": 0,
-      "aria_refs": 0
-    },
-    "concurrency": {
-      "threading_refs": 6,
-      "multiprocessing_refs": 0,
-      "lock_refs": 4,
-      "queue_refs": 0
-    },
-    "memory": {
-      "context_managers": 0,
-      "gc_refs": 2,
-      "weakref_refs": 0,
-      "cleanup_refs": 5
-    },
-    "config": {
-      "env_refs": 23,
-      "dotenv_refs": 10,
-      "pydantic_settings": 0,
-      "config_files": 173
-    },
-    "testing_depth": {
-      "parametrize": 0,
-      "fixtures": 0,
-      "mock": 0,
-      "patch": 0
-    },
-    "fuzzing": {
-      "hypothesis": 0,
-      "fuzzing": 0,
-      "property_tests": 1
-    },
-    "release": {
-      "has_version_file": false,
-      "tag_count": 21,
-      "semver_tags": 21,
-      "has_changelog": true
-    },
-    "migration": {
-      "deprecated_decorators": 0,
-      "warning_refs": 0,
-      "migration_scripts": 0
-    },
-    "vendor_lockin": {
-      "aws_refs": 0,
-      "azure_refs": 0,
-      "gcp_refs": 0,
-      "generic_refs": 13
-    },
-    "event_driven": {
-      "event_bus": 0,
-      "queue": 4,
-      "pubsub": 0,
-      "kafka": 0,
-      "celery": 0
-    },
-    "infrastructure": {
-      "dockerfile": 1,
-      "docker_compose": 0,
-      "k8s_manifests": 0,
-      "terraform_files": 0
-    },
-    "cost_efficiency": {
-      "batching_refs": 7,
-      "n_plus_one_refs": 0,
-      "bulk_refs": 0,
-      "pagination_refs": 26
-    },
-    "monitoring": {
-      "prometheus": 0,
-      "health_checks": 60,
-      "tracing": 1,
-      "metrics": 2,
-      "slo": 0
-    },
-    "onboarding": {
-      "makefile": 0,
-      "devcontainer": 0,
-      "setup_scripts": 1,
-      "readme_setup": 1
-    },
-    "all_ast": {
-      "long_functions": 2,
-      "nested_blocks": 570,
-      "branches": 546,
-      "annotated_funcs": 150,
-      "total_funcs": 467,
-      "dataclasses": 16,
-      "protocols": 0,
-      "typeddicts": 0,
-      "generics": 0,
-      "async_def": 115,
-      "await": 66,
-      "asyncio_import": 4,
-      "httpx_import": 2,
-      "aiohttp_import": 0,
-      "try_blocks": 133,
-      "bare_excepts": 0,
-      "custom_exceptions": 0,
-      "retry_decorators": 0
-    }
+    ],
+    "D2 Build & Project Configuration": [
+      {
+        "id": "D2-01",
+        "name": "Solution files (.sln) \u2014 multi-solution architecture",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "3 .sln files: DINOForge.sln (full), DINOForge.CI.sln (CI-safe), DINOForge.CI.NoRuntime.sln (CI with no game DLLs) \u2014 proper layering for CI vs local dev",
+        "remediation": null
+      },
+      {
+        "id": "D2-02",
+        "name": "Directory.Build.props \u2014 centralized build config",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "99 lines \u2014 LangVersion latest, Nullable enable, MinVer, NuGet audit, SourceLink, deterministic builds, version from VERSION file, centralized package metadata",
+        "remediation": null
+      },
+      {
+        "id": "D2-03",
+        "name": "Directory.Build.targets \u2014 centralized MSBuild targets",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "Directory.Build.targets + Directory.Solution.targets \u2014 cross-cutting build logic",
+        "remediation": null
+      },
+      {
+        "id": "D2-04",
+        "name": "global.json \u2014 SDK version pinning",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "global.json \u2014 5 lines, pins .NET SDK version for reproducible builds",
+        "remediation": null
+      },
+      {
+        "id": "D2-05",
+        "name": "VERSION file \u2014 single source of truth",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "VERSION \u2014 read by Directory.Build.props via MSBuild file I/O, fed to MinVer fallback, used by CI for NuGet packaging AND pack validation tests",
+        "remediation": null
+      },
+      {
+        "id": "D2-06",
+        "name": "nuget.config \u2014 package source configuration",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "nuget.config \u2014 6 lines, single upstream (nuget.org), clean minimal config",
+        "remediation": null
+      },
+      {
+        "id": "D2-07",
+        "name": ".editorconfig \u2014 C# formatting rules",
+        "status": "partial",
+        "score": 40,
+        "evidence": ".editorconfig \u2014 12 lines, only indent_style=space indent_size=2, no C#-specific rules (csharp_style_*, dotnet_style_*, file_header_template)",
+        "remediation": "Expand .editorconfig with full C# conventions: csharp_style_var_for_built_in_types, csharp_style_pattern_matching, dotnet_naming_rule for interfaces/private fields/constants, file_header_template, csharp_prefer_braces, csharp_style_expression_bodied_members"
+      },
+      {
+        "id": "D2-08",
+        "name": ".gitignore \u2014 comprehensive ignores",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": ".gitignore \u2014 60+ lines, covers dotnet artifacts (bin/obj), IDE files, OS files, NuGet artifacts, build logs, test results, Python venv, Rust target",
+        "remediation": null
+      },
+      {
+        "id": "D2-09",
+        "name": ".gitattributes \u2014 line ending normalization",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": ".gitattributes \u2014 28 lines, text=auto eol=lf, explicit C#/csproj/sln/yaml/json/xml/sh/ps1, binary types for images/archives, CHANGELOG.md merge=union",
+        "remediation": null
+      },
+      {
+        "id": "D2-10",
+        "name": "Justfile \u2014 dev CLI (just recipes)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "Justfile \u2014 145 lines, 25+ recipes: build/test/lint/format/deploy/validate-packs/docs-dev/clean/mutation-test, reads game path from Directory.Build.props",
+        "remediation": null
+      },
+      {
+        "id": "D2-11",
+        "name": "lefthook.yml \u2014 git hooks framework",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "lefthook.yml \u2014 74 lines, pre-commit (editorconfig/lint/test-fast), commit-msg (conventional commits), pre-push (grade), skip during merge/rebase",
+        "remediation": null
+      },
+      {
+        "id": "D2-12",
+        "name": "Target framework & language version policy",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "LangVersion=latest, Nullable=enable in Directory.Build.props; ImplicitUsings=disable (intentional); CA2007 ConfigureAwait enforcement for library code",
+        "remediation": null
+      },
+      {
+        "id": "D2-13",
+        "name": "NuGet lock files (packages.lock.json)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "RestorePackagesWithLockFile=true in Directory.Build.props; packages.lock.json present in SDK/, Runtime/, Analyzers/, Benchmarks/, Bridge.Client/, Bridge.Protocol/",
+        "remediation": "Consider enabling RestoreLockedMode in CI for fully deterministic restores (currently false due to MinVer cross-platform drift)"
+      },
+      {
+        "id": "D2-14",
+        "name": "Deterministic & reproducible builds",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "Deterministic=true, ContinuousIntegrationBuild in CI, SourceLink, snupkg symbols, EmbedUntrackedSources, IncludeSymbols in Directory.Build.props for packable projects",
+        "remediation": null
+      }
+    ],
+    "D3 Code Quality & Style": [
+      {
+        "id": "D3-01",
+        "name": "dotnet format \u2014 code formatting enforcement",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "Justfile lint recipe runs 'dotnet format ... --verify-no-changes'; pre-commit hook runs 'dotnet format src/DINOForge.CI.NoRuntime.sln --verify-no-changes'",
+        "remediation": null
+      },
+      {
+        "id": "D3-02",
+        "name": "Custom Roslyn analyzers",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "49 custom Roslyn analyzers in src/Analyzers/: ConfigureAwait, AsyncVoid, SyncOverAsync, EmptyCatch, HardcodedThreshold, LogErrorStack, MissingAwait, LockAroundAwait, etc. \u2014 28-pattern CI-gated catalog",
+        "remediation": null
+      },
+      {
+        "id": "D3-03",
+        "name": "Nullable reference types enabled",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "Nullable=enable in Directory.Build.props (project-wide); enforced via CI pattern gates",
+        "remediation": null
+      },
+      {
+        "id": "D3-04",
+        "name": "ImplicitUsings policy",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "ImplicitUsings=disable (intentional) \u2014 explicit using statements for clarity; global usings in test project via GlobalUsings.cs",
+        "remediation": null
+      },
+      {
+        "id": "D3-05",
+        "name": "Code style consistency (braces, naming, patterns)",
+        "status": "partial",
+        "score": 60,
+        "evidence": "PascalCase methods/types, camelCase locals consistent; .editorconfig has minimal C# rules; 46 custom analyzers enforce patterns but no .editorconfig naming rules for interfaces (_I prefix), private fields (_camelCase), or constants (PascalCase)",
+        "remediation": "Add dotnet_naming_rule entries to .editorconfig for interface (I PascalCase), private fields (_ camelCase), constants (PascalCase), static readonly (PascalCase); unify across 989 .cs files"
+      },
+      {
+        "id": "D3-06",
+        "name": "Pre-commit hooks for code quality",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": ".pre-commit-config.yaml \u2014 49 lines, 9 hooks: trailing-whitespace, eof-fixer, check-yaml, check-json, check-merge-conflict, check-added-large-files, yamllint, dotnet-format, dotnet-test-all (pre-push)",
+        "remediation": null
+      },
+      {
+        "id": "D3-07",
+        "name": "Commit message conventions",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": ".commitlintrc.yml \u2014 conventional commits; lefthook commit-msg hook validates: ^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\\(.+\\))?: .{1,100}",
+        "remediation": null
+      },
+      {
+        "id": "D3-08",
+        "name": "XML documentation comments",
+        "status": "partial",
+        "score": 50,
+        "evidence": "SDK public API has /// comments (e.g., IContentDiscoveryService, PackManifest); no GenerateDocumentationFile in .csproj; no doc-completeness gate (audit_xml_doc_completeness.py exists as script but not enforced in CI)",
+        "remediation": "Add <GenerateDocumentationFile>true</GenerateDocumentationFile> to SDK/Tools packable projects; wire audit_xml_doc_completeness.py into CI lint workflow; set CS1591 as warning in CI builds"
+      },
+      {
+        "id": "D3-09",
+        "name": "Pattern/Coding standard CI gates",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "28 pattern-specific CI gates: configureawait.yml, direct-datetime.yml, inline-json-options.yml, logerror-no-stack.yml, orphan-process-start.yml, stringly-enums.yml, tautological-test.yml, tcs-sync-continuation.yml, unbounded-constraints.yml, unguarded-deserialize.yml, pattern-gates.yml, more",
+        "remediation": null
+      },
+      {
+        "id": "D3-10",
+        "name": "Complexity analysis & long file enforcement",
+        "status": "partial",
+        "score": 40,
+        "evidence": "src/Tests/GameClientCoverageTests.cs (2,754L), src/Tests/SDKCoverageTests.cs (1,663L), src/Tests/ScenarioTests.cs (1,058L) \u2014 large test files; LongMethodAnalyzer.cs exists in analyzers; no project-wide file-length or method-length CI gate",
+        "remediation": "Add file-length and method-length enforcement CI gate (audit_long_files.py or dotnet format rule); refactor largest test files; set warning at 500L per file, error at 1000L"
+      },
+      {
+        "id": "D3-11",
+        "name": "File organization conventions",
+        "status": "satisfied",
+        "score": 90,
+        "evidence": "Clear domain-driven structure (SDK/Runtime/Bridge/Tools/Domains/Analyzers); one class per file generally followed; nested directories match namespaces",
+        "remediation": "Ensure 100% one-class-per-file compliance; audit src/Runtime/ and src/SDK/ for multi-class files"
+      },
+      {
+        "id": "D3-12",
+        "name": "Naming conventions (PascalCase, camelCase)",
+        "status": "satisfied",
+        "score": 90,
+        "evidence": "PascalCase for types/methods/public fields, camelCase for locals/params; CA analysers enforce most conventions; Roslyn analyzers catch violations",
+        "remediation": "Audit for hungarian notation remnants and inconsistent private field naming (some _camelCase, some camelCase)"
+      },
+      {
+        "id": "D3-13",
+        "name": "Using directives ordering",
+        "status": "partial",
+        "score": 50,
+        "evidence": "dotnet format's IDE0005/IDE0065 handle ordering; no explicit enforce in CI; ImplicitUsings=disable forces explicit usings which is good but inconsistent sort across files",
+        "remediation": "Add <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild> for all projects (currently only library projects); add dotnet format --verify-no-changes to lint CI"
+      },
+      {
+        "id": "D3-14",
+        "name": "Dead code monitoring",
+        "status": "partial",
+        "score": 40,
+        "evidence": "No dedicated dead-code CI gate; audit_orphan_classes.py exists in scripts/analysis/ but not CI-wired; no .NET dead code analysis (Coverlet's --exclude-by-attribute or Microsoft.CodeAnalysis.Common unused symbol detection)",
+        "remediation": "Add dead-code detection CI gate using audit_orphan_classes.py; configure dotnet coverage with excluded-by-attribute; enable Roslyn unused-symbol analysis"
+      }
+    ],
+    "D4 Testing & Quality Assurance": [
+      {
+        "id": "D4-01",
+        "name": "xUnit test framework",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "xUnit (Fact, Theory, InlineData, ClassData) across 208+ test files in src/Tests/; xUnit.runner.visualstudio + xunit NuGet packages; ~1,749 C# tests",
+        "remediation": null
+      },
+      {
+        "id": "D4-02",
+        "name": "FluentAssertions (fluent assertions)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "FluentAssertions used pervasively (Should().Be(), Should().NotBeNull(), Should().BeEquivalentTo()) \u2014 130+ files reference FluentAssertions",
+        "remediation": null
+      },
+      {
+        "id": "D4-03",
+        "name": "Moq mocking framework",
+        "status": "satisfied",
+        "score": 90,
+        "evidence": "Moq used (Mock<>, It.IsAny, Setup, Verify) \u2014 CompanionTests/ViewModelTests.cs and other files; test mocks defined in src/Tests/Mocks/ directory",
+        "remediation": "Expand mocked interfaces to cover all I* interfaces in SDK; consider adding AutoFixture for test data generation"
+      },
+      {
+        "id": "D4-04",
+        "name": "Coverlet code coverage",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "Coverlet for line/branch coverage; .runsettings with DataCollector configuration; codecov.yml with 1% threshold; 85.95% line coverage average; coverage.cobertura.xml in test output",
+        "remediation": null
+      },
+      {
+        "id": "D4-05",
+        "name": "Codecov CI integration",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "codecov.yml \u2014 40 lines: project threshold 1%, patch target 70%, CI failure error, flags for ci path, ignores for docs/packs/schemas/generated code; Codecov upload step in CI",
+        "remediation": null
+      },
+      {
+        "id": "D4-06",
+        "name": "Stryker.NET mutation testing",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "stryker-config.json \u2014 project SDK, Standard mutation level, high=80/low=60/break=50 thresholds, excluded StringLiteral/Linq mutations, weekly mutation-test.yml CI workflow, 82.5% mutation score",
+        "remediation": null
+      },
+      {
+        "id": "D4-07",
+        "name": "FsCheck property-based testing",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "36+ files with FsCheck property tests: SerializationFsCheckProperties, ValidationFsCheckProperties, BridgeFsCheckProperties, AssetPipelineFsCheckProperties, RegistryFsCheckProperties, SemVerInvariants + 30 more in src/Tests/ParameterizedTests/; 100+ property tests",
+        "remediation": null
+      },
+      {
+        "id": "D4-08",
+        "name": "SharpFuzz fuzz testing",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "6 fuzz targets: YamlFuzzTarget, JsonFuzzTarget, PackManifestFuzzTarget, SchemaValidationFuzzTarget, SemverFuzzTarget, AssetCatalogFuzzTarget; SharpFuzz via SharpFuzz.Common; fuzz corpus in src/Tests/FuzzCorpus/; nightly fuzz.yml CI",
+        "remediation": null
+      },
+      {
+        "id": "D4-09",
+        "name": "Integration tests",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "src/Tests/Integration/ directory with ParallelGameE2ETests, PlayCuaScreenshotTests; Bridge integration tests (BridgeClientAsyncTests, BridgeClientRobustnessTests); NativeInteropIntegrationTests, ScenarioContentLoaderTests",
+        "remediation": null
+      },
+      {
+        "id": "D4-10",
+        "name": "E2E tests",
+        "status": "satisfied",
+        "score": 90,
+        "evidence": "EndToEndUserJourneysTests, GameLaunchTests, TotalConversionTests, Phase3A/B/C/4/5/7 asset integration tests; UI automation (test_ui_automation.py + ui-automation.yml CI)",
+        "remediation": "Expand E2E coverage for PackCompiler end-to-end; add more non-Windows game automation scenarios"
+      },
+      {
+        "id": "D4-11",
+        "name": "BenchmarkDotNet performance benchmarks",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "src/Benchmarks/ project with 4 benchmarks: YamlParsingBenchmark, PatchOperationsBenchmark, PackLoadBenchmark, Program entry point; BenchmarkDotNet NuGet; perf-benchmarks.yml CI; benchmark-regression-gate.yml",
+        "remediation": null
+      },
+      {
+        "id": "D4-12",
+        "name": "Test isolation practices",
+        "status": "satisfied",
+        "score": 90,
+        "evidence": "test-isolation.yml CI workflow; Collection attributes in src/Tests/Collections.cs; Fixtures/ directory for shared context; DINOBox pool for parallel test instances",
+        "remediation": "Formalize test collection definitions; add Collection(name) to all test classes to prevent accidental parallel-safety issues"
+      },
+      {
+        "id": "D4-13",
+        "name": "Test categorization (Unit/Integration/E2E)",
+        "status": "partial",
+        "score": 50,
+        "evidence": "Some Category annotations (Category=Performance) but no systematic [Trait(\"Category\", \"Unit\")] / Integration / E2E categorization across all 208 test files; selective test execution relies on file naming and namespaces",
+        "remediation": "Add trait-based categorization (Unit/Integration/E2E/Fuzz/Benchmark) to all test classes; update CI workflows to use --filter with explicit categories; add aggregation test reports"
+      },
+      {
+        "id": "D4-14",
+        "name": "Coverage threshold enforcement",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "codecov.yml: project threshold 1% (dropping below triggers failure), patch target 70%, 5% coverage drop threshold; mutation test break at 50%",
+        "remediation": null
+      }
+    ],
+    "D5 Security": [
+      {
+        "id": "D5-01",
+        "name": "CodeQL analysis",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "codeql.yml CI workflow \u2014 CodeQL analysis on C# and Python; daily/weekly schedule; default CodeQL query suite",
+        "remediation": null
+      },
+      {
+        "id": "D5-02",
+        "name": "TruffleHog secret scanning",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "trufflehog.yml CI workflow \u2014 TruffleHog secret scanning on push and PR; pre-commit hook via Gitleaks",
+        "remediation": null
+      },
+      {
+        "id": "D5-03",
+        "name": "Gitleaks pre-commit scanning",
+        "status": "satisfied",
+        "score": 90,
+        "evidence": "Gitleaks referenced in .pre-commit-config.yaml (as pre-commit hook); TruffleHog also runs in CI",
+        "remediation": "Verify Gitleaks is actually installed and active in pre-commit; add explicit gitleaks hook config to .pre-commit-config.yaml"
+      },
+      {
+        "id": "D5-04",
+        "name": "NuGet Audit (CVE scanning)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "NuGetAudit=true in CI, NuGetAuditLevel=moderate, NuGetAuditMode=all in Directory.Build.props; CVE scanning on dotnet restore; fails CI on moderate+ vulnerabilities",
+        "remediation": null
+      },
+      {
+        "id": "D5-05",
+        "name": "Dependabot dependency updates",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "Dependabot configured for 10 ecosystems: NuGet, npm, pip, cargo, go, github-actions, docker, devcontainer \u2014 weekly updates",
+        "remediation": null
+      },
+      {
+        "id": "D5-06",
+        "name": "OpenSSF Scorecard",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "scorecard.yml CI workflow \u2014 OpenSSF Scorecard with badge generation; automated weekly runs",
+        "remediation": null
+      },
+      {
+        "id": "D5-07",
+        "name": "SBOM (CycloneDX generation)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "sbom.yml CI workflow \u2014 CycloneDX SBOM generation per-project; GitHub Attest SBOM; per-release SBOM artifact",
+        "remediation": null
+      },
+      {
+        "id": "D5-08",
+        "name": "SLSA attestation",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "SLSA attest-build-provenance in release.yml; attestation on release artifacts",
+        "remediation": null
+      },
+      {
+        "id": "D5-09",
+        "name": "Release artifact checksums",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "release.yml creates SHA256 checksums for all release artifacts; checksum file published alongside binaries",
+        "remediation": null
+      },
+      {
+        "id": "D5-10",
+        "name": "Python SAST (Bandit/safety)",
+        "status": "missing",
+        "score": 0,
+        "evidence": "No Bandit or safety configuration; 43 .py files in src/Tools/DinoforgeMcp/ and scripts/ without Python SAST scanning; only CodeQL covers Python",
+        "remediation": "Add Bandit to pre-commit config and CI (security-guard.yml); add safety for Python dependency vulnerability scanning; create .bandit config; add pip-audit or safety CI step"
+      },
+      {
+        "id": "D5-11",
+        "name": "Security documentation",
+        "status": "satisfied",
+        "score": 90,
+        "evidence": "docs/security/SECURITY_INFRASTRUCTURE.md; SECURITY.md with responsible disclosure; security-guard.yml workflow",
+        "remediation": "Add comprehensive security README with threat model, trust boundaries, secret rotation policy, and incident response playbook"
+      },
+      {
+        "id": "D5-12",
+        "name": "Supply chain security (NuGet signing + package trust)",
+        "status": "partial",
+        "score": 50,
+        "evidence": "NuGet Audit (CVE) and packages.lock.json; deterministic builds with SourceLink; snupkg symbols; no NuGet package signing (SignTool) or repository signature verification",
+        "remediation": "Add NuGet package signing with SignTool in release.yml; configure NuGet trusted-signers for package provenance verification; enable repository signature verification in CI"
+      },
+      {
+        "id": "D5-13",
+        "name": "Dependency review automation",
+        "status": "partial",
+        "score": 50,
+        "evidence": "Dependabot configured; no GitHub Dependency Review action in PR workflow; no automatic license compliance gate on new dependencies",
+        "remediation": "Add dependency-review.yml workflow (github/dependency-review-action) blocking PRs with new vulnerable or restrictive-license dependencies"
+      },
+      {
+        "id": "D5-14",
+        "name": ".NET security analyzers (CA5392 etc.)",
+        "status": "partial",
+        "score": 60,
+        "evidence": "EnableNETAnalyzers=true for library projects; NuGet Audit (moderate level); no explicit EnforceCodeStyleInBuild for all projects; no dedicated security analyzer ruleset (CA3075, CA5369, CA5386, etc.)",
+        "remediation": "Add .ruleset or Editorconfig with security analyzer severity: CA5392/CA5393 (DllImport), CA5369/CA5370 (XML), CA5386 (hardcoded env), CA5401 (encryption); enable in all projects via Directory.Build.props"
+      }
+    ],
+    "D6 CI/CD & DevOps": [
+      {
+        "id": "D6-01",
+        "name": "CI workflow (build + test)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "ci.yml \u2014 builds all 3 solutions, runs unit + integration tests, multi-platform matrix; ci-status-badges.yml generates badges",
+        "remediation": null
+      },
+      {
+        "id": "D6-02",
+        "name": "Lint workflow (format + style)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "lint.yml \u2014 dotnet format validation, yamllint, markdown lint; also changelog-lint.yml for changelog validation",
+        "remediation": null
+      },
+      {
+        "id": "D6-03",
+        "name": "Release workflow",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "release.yml \u2014 755 lines, comprehensive: build all configurations, NuGet pack, sign, push to NuGet.org, GitHub Release, SBOM generation, SLSA attestation, SHA256 checksums, publish documentation, deploy to pages",
+        "remediation": null
+      },
+      {
+        "id": "D6-04",
+        "name": "Security scanning workflow",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "security-guard.yml \u2014 composite security checks; codeql.yml \u2014 CodeQL; trufflehog.yml \u2014 secret scanning; scorecard.yml \u2014 OpenSSF Scorecard",
+        "remediation": null
+      },
+      {
+        "id": "D6-05",
+        "name": "Fuzz testing CI",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "fuzz.yml \u2014 nightly fuzz testing schedule; runs SharpFuzz targets against corpus; reports findings",
+        "remediation": null
+      },
+      {
+        "id": "D6-06",
+        "name": "Mutation testing CI",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "mutation-test.yml \u2014 weekly Stryker.NET mutation testing; 82.5% mutation score; breaks CI if score drops below 50%",
+        "remediation": null
+      },
+      {
+        "id": "D6-07",
+        "name": "Polyglot build CI",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "polyglot-build.yml \u2014 Rust (cargo build), Go (go build), Zig (zig build), Python (pip install + test); validates all language components build and link",
+        "remediation": null
+      },
+      {
+        "id": "D6-08",
+        "name": "Benchmark regression CI",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "benchmark-regression-gate.yml + perf-benchmarks.yml \u2014 BenchmarkDotNet runs, regression detection, performance comparison against baseline",
+        "remediation": null
+      },
+      {
+        "id": "D6-09",
+        "name": "Pattern gates CI (28+ custom analyzers CI jobs)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "28+ individual pattern workflows: configureawait.yml, direct-datetime.yml, inline-json-options.yml, logerror-no-stack.yml, orphan-process-start.yml, stringly-enums.yml, tautological-test.yml, tcs-sync-continuation.yml, unbounded-constraints.yml, unguarded-deserialize.yml, pattern-gates.yml, more",
+        "remediation": null
+      },
+      {
+        "id": "D6-10",
+        "name": "Schema drift detection",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "schema-drift.yml \u2014 validates pack schemas against YAML model; detects schema drift on PRs",
+        "remediation": null
+      },
+      {
+        "id": "D6-11",
+        "name": "UI automation CI",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "ui-automation.yml \u2014 game UI screenshot tests; playwright-mcp/ for browser-based MCP testing; pack-screenshots.yml for pack visual validation",
+        "remediation": null
+      },
+      {
+        "id": "D6-12",
+        "name": "Deploy workflow",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "deploy.yml \u2014 CI deploy to NuGet.org + game instance deployment; Justfile deploy recipe for local deployment to BepInEx",
+        "remediation": null
+      },
+      {
+        "id": "D6-13",
+        "name": "Dashboard / status badges",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "ci-status-badges.yml + dashboard.yml \u2014 coverage badges, mutation score, benchmark status; docs/badges/ directory with generated SVG badges",
+        "remediation": null
+      },
+      {
+        "id": "D6-14",
+        "name": "Multi-solution CI matrix",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "3 CI matrix configurations: DINOForge.sln (full), DINOForge.CI.sln (CI-safe), DINOForge.CI.NoRuntime.sln (no game DLLs); msbuild.rsp for custom build options",
+        "remediation": null
+      }
+    ],
+    "D7 Observability & Monitoring": [
+      {
+        "id": "D7-01",
+        "name": "Structured logging (Serilog/NLog)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "Serilog + NLog via BepInEx plugin; structured logging throughout Runtime (Telemetry folder), Bridge client, MCP server; JSON-formatted logs",
+        "remediation": null
+      },
+      {
+        "id": "D7-02",
+        "name": "Telemetry metrics (MetricsCollector)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "In-memory MetricsCollector with F10 telemetry tab in-game; tracks request counts, latency, errors, throughput; CLI dump command; RPC export",
+        "remediation": null
+      },
+      {
+        "id": "D7-03",
+        "name": "Debug overlay (F9/F10 telemetry tabs)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "F9 = Debug Overlay, F10 = Mod Menu with telemetry tab; in-game real-time metrics display; DebugOverlay.cs in Runtime",
+        "remediation": null
+      },
+      {
+        "id": "D7-04",
+        "name": "Log levels (Debug/Info/Warn/Error/Fatal)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "BepInEx log levels: Debug, Info, Warning, Error, Fatal; configurable via BepInEx config; Serilog level switching at runtime",
+        "remediation": null
+      },
+      {
+        "id": "D7-05",
+        "name": "Console/file logging sinks",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "BepInEx LogOutput.log + dinoforge_debug.log; Serilog file sink; console logging for CLI tools; Runtime/Diagnostics/ directory for diagnostic logs",
+        "remediation": null
+      },
+      {
+        "id": "D7-06",
+        "name": "OpenTelemetry exporter",
+        "status": "missing",
+        "score": 0,
+        "evidence": "No OpenTelemetry SDK, exporter, or collector configuration; no traces, metrics export to OTLP (Jaeger, Prometheus, Grafana); MetricsCollector is in-memory only",
+        "remediation": "Add OpenTelemetry .NET SDK (OpenTelemetry.Extensions.Hosting); configure OTLP exporter for traces + metrics; add activity sources to key operations (pack loading, asset pipeline, bridge requests); create dashboard OTEL_RECEIVER docs"
+      },
+      {
+        "id": "D7-07",
+        "name": "Diagnostic overlays (F9 debug)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "F9 debug overlay with frame timing, memory stats, entity counts, asset cache stats; DebugOverlay.cs in Runtime/UI",
+        "remediation": null
+      },
+      {
+        "id": "D7-08",
+        "name": "Performance instrumentation",
+        "status": "satisfied",
+        "score": 90,
+        "evidence": "BenchmarkDotNet project; System.Diagnostics.Stopwatch in key paths; MetricsCollector tracks operation latency; telemetry CLI dump",
+        "remediation": "Add System.Diagnostics.Metrics Meter for standardized counters/histograms; promote Stopwatch usages to Meter instruments"
+      },
+      {
+        "id": "D7-09",
+        "name": "Telemetry documentation",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "docs/telemetry/index.md (356 lines) \u2014 comprehensive: metrics definitions, F10 tab docs, RPC export format, CLI dump commands, sample-metrics.json, snapshot.html",
+        "remediation": null
+      },
+      {
+        "id": "D7-10",
+        "name": "Telemetry export (RPC/CLI dump)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "RPC export endpoint for telemetry data; CLI dump command (TelemetryViewCommand.cs); structured JSON export format; Snapshot mechanism",
+        "remediation": null
+      },
+      {
+        "id": "D7-11",
+        "name": "Error logging with stack traces",
+        "status": "satisfied",
+        "score": 90,
+        "evidence": "Serilog exception enrichment; LogErrorStackTraceAnalyzer custom Roslyn analyzer; structured exception logging; error context in logs",
+        "remediation": "Ensure all caught exceptions are logged with exception context (not just message); add log context enrichment with operation correlation IDs"
+      },
+      {
+        "id": "D7-12",
+        "name": "Log rotation / retention",
+        "status": "partial",
+        "score": 50,
+        "evidence": "BepInInfiniteLogFile settings; no explicit log rotation policy documented; large log files accumulate in game directory",
+        "remediation": "Configure Serilog rolling file sink with max file size (512KB) and retained file count (10); document log rotation in BepInEx section of docs/telemetry/"
+      },
+      {
+        "id": "D7-13",
+        "name": "Log correlation IDs",
+        "status": "partial",
+        "score": 30,
+        "evidence": "No correlation ID propagation across async operations; request-scoped logging IDs not implemented; bridge requests lack trace context propagation",
+        "remediation": "Add CorrelationIdMiddleware or IAsyncLocal scoped correlation ID; propagate via Serilog LogContext; include trace_id in all structured log entries; propagate correlation ID through bridge protocol"
+      },
+      {
+        "id": "D7-14",
+        "name": "Structured log format (JSON)",
+        "status": "satisfied",
+        "score": 80,
+        "evidence": "Serilog JSON formatter configured; structured properties (operation, duration_ms, component); logs are machine-parseable",
+        "remediation": "Standardize on Serilog's CompactJsonFormatter; ensure all sinks use same JSON format; add schema documentation for log event structure"
+      }
+    ],
+    "D8 Developer Experience": [
+      {
+        "id": "D8-01",
+        "name": "Devcontainer / dev environment",
+        "status": "missing",
+        "score": 0,
+        "evidence": "No .devcontainer/devcontainer.json on disk; Dockerfile exists (16 lines, multi-stage build) but not configured for VSCode/remote dev",
+        "remediation": "Create .devcontainer/devcontainer.json with dotnet SDK, C# extensions, Roslyn analyzer support, lefthook, python tools, prebuild task, postCreateCommand for full environment bootstrap"
+      },
+      {
+        "id": "D8-02",
+        "name": "CLI tooling (Justfile + Taskfile)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "Justfile (145 lines, 25+ recipes) + Taskfile.yml + Taskfile.yaml \u2014 dual-task-runner support; all common operations via short commands: just build/test/lint/deploy/format/docs-dev",
+        "remediation": null
+      },
+      {
+        "id": "D8-03",
+        "name": "Hot reload (runtime module)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "src/Runtime/HotReload/ directory with hot reload subsystem; HotReloadTests.cs validates reload behavior; documented in ADR-014 runtime execution model",
+        "remediation": null
+      },
+      {
+        "id": "D8-04",
+        "name": "Debug configuration (F9/F10)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "F9 debug overlay with performance counters; F10 mod menu with telemetry tab; DebugOverlay.cs, ModMenu in Runtime/UI",
+        "remediation": null
+      },
+      {
+        "id": "D8-05",
+        "name": "IDE configuration files",
+        "status": "satisfied",
+        "score": 90,
+        "evidence": ".editorconfig, .claude/ (15 files \u2014 rules, instructions, settings), .cursor/ (5 files \u2014 rules, context), .serena/ (5 files); pre-commit config; launchSettings.json",
+        "remediation": "Add .vscode/tasks.json + launch.json for dotnet test/build tasks; add Visual Studio .vsconfig for recommended workloads"
+      },
+      {
+        "id": "D8-06",
+        "name": "Project templates",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "src/Templates/ directory with dotnet new templates for pack, plugin, and domain projects",
+        "remediation": null
+      },
+      {
+        "id": "D8-07",
+        "name": "API documentation (docfx)",
+        "status": "satisfied",
+        "score": 80,
+        "evidence": "docfx.json configuration \u2014 DocFX static site generation from XML doc comments; vitepress for docs website; npm scripts for documentation dev server and build",
+        "remediation": "Generate XML documentation files from all SDK projects; ensure docfx build is CI-validated; host API reference on GitHub Pages"
+      },
+      {
+        "id": "D8-08",
+        "name": "XML doc comments on public API",
+        "status": "partial",
+        "score": 50,
+        "evidence": "SDK public interfaces have /// comments (IContentDiscoveryService, PackManifest); many Runtime classes lack doc comments; no doc-completeness CI gate",
+        "remediation": "Enable GenerateDocumentationFile for all projects; make CS1591 (missing XML doc) a warning in CI; add audited doc coverage to lint workflow"
+      },
+      {
+        "id": "D8-09",
+        "name": "Quick-start scripts",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "game-cli.py (83 lines), deploy-debug.sh, check_winhttp.ps1, grade.sh, scripts/ directory with 118+ scripts for CI, analysis, automation, utilities",
+        "remediation": null
+      },
+      {
+        "id": "D8-10",
+        "name": "Roslyn analyzer IDE integration",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "49 custom Roslyn analyzers shipped with NuGet package; live analysis in IDE; 28+ pattern CI gates; AnalyzerReleases.Unshipped.md maintains analyzer manifest",
+        "remediation": null
+      },
+      {
+        "id": "D8-11",
+        "name": "Build scripts (scripts/ directory)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "118+ scripts: 45+ CI audit scripts, mutation-test.ps1, test-local.ps1, benchmark scripts, deploy scripts, polyglot build scripts (Rust/Go/Zig), install-companion script",
+        "remediation": null
+      },
+      {
+        "id": "D8-12",
+        "name": "NuGet package documentation",
+        "status": "partial",
+        "score": 60,
+        "evidence": "6 NuGet packages published with metadata (description, tags, license URL, project URL, repo URL) in Directory.Build.props; no individual README per NuGet package",
+        "remediation": "Add README.md per NuGet package (SDK, Analyzers, Bridge.Client, Bridge.Protocol); reference README in .csproj via <PackageReadmeFile>"
+      },
+      {
+        "id": "D8-13",
+        "name": "Onboarding walkthrough",
+        "status": "satisfied",
+        "score": 90,
+        "evidence": "CONTRIBUTING.md 733-line comprehensive guide; README.md with quick-start; docs/guides/ directory; AGENTS.md for agent onboarding",
+        "remediation": "Add '5-minute quickstart' section to README with explicit CLI commands from clone to test pass"
+      },
+      {
+        "id": "D8-14",
+        "name": "Polyglot tooling support",
+        "status": "satisfied",
+        "score": 90,
+        "evidence": "polyglot-build.yml \u2014 builds Go, Rust, Zig, Python alongside C#; docs/POLYGLOT_BUILD.md for toolchain setup; lefthook handles .rs/.ts/.py/.go changed files",
+        "remediation": "Add polyglot SDK installation script (install all toolchains); document Go/Rust/Zig/Python minimum versions in SSOT.md"
+      }
+    ],
+    "D9 Architecture & Design": [
+      {
+        "id": "D9-01",
+        "name": "Solution layering (SDK/Runtime/Tools/Bridge)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "Clean separation: SDK (library), Runtime (BepInEx plugin), Bridge (client/server protocol), Tools (CLI, MCP, PackCompiler), Analyzers (Roslyn), Domains (game logic), Benchmarks",
+        "remediation": null
+      },
+      {
+        "id": "D9-02",
+        "name": "Plugin architecture (BepInEx)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "BepInEx plugin model (Plugin.cs, PluginInfo.cs, ModPlatform.cs); ADR-009 runtime orchestration; ADR-006 domain plugin architecture; BepInEx Plugin attributes",
+        "remediation": null
+      },
+      {
+        "id": "D9-03",
+        "name": "Pack system design",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "ADR-003 pack system design; packs/ directory with declarative YAML manifests; PackManifest, PackLoader, PackContentDiscovery, PackRegistry in SDK; pack validation tools",
+        "remediation": null
+      },
+      {
+        "id": "D9-04",
+        "name": "Registry pattern (content registry)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "ADR-004 registry model; ContentSchemaRegistry, Registry module in SDK; ContentRegistrationService; RegistryEdgeCaseTests, RegistryTests, RegistryStressTests",
+        "remediation": null
+      },
+      {
+        "id": "D9-05",
+        "name": "ECS integration strategy",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "ADR-005 ECS integration; ECS/ test directory (Entity Component System); Ec schema system for game entities",
+        "remediation": null
+      },
+      {
+        "id": "D9-06",
+        "name": "Domain separation (Domains/)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "src/Domains/ directory with Economy, Scenario, Warfare, etc.; ADR-006 domain plugin architecture; DomainFsCheckProperties for property-testing domain invariants",
+        "remediation": null
+      },
+      {
+        "id": "D9-07",
+        "name": "Async/await patterns (ConfigureAwait)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "ConfigureAwaitAnalyzer.cs (custom Roslyn analyzer); CA2007 enforcement for library projects; pattern #98 in ADR; configureawait.yml CI workflow; MissingConfigureAwaitAnalyzer.cs",
+        "remediation": null
+      },
+      {
+        "id": "D9-08",
+        "name": "Dependency injection",
+        "status": "partial",
+        "score": 40,
+        "evidence": "No explicit DI container (Microsoft.Extensions.DependencyInjection, Autofac); BepInEx plugin model uses manual instantiation; some service location pattern via singletons",
+        "remediation": "Evaluate DI container adoption for testability; at minimum use constructor injection pattern with manual wiring; add DI to SDK service resolution"
+      },
+      {
+        "id": "D9-09",
+        "name": "Error handling patterns",
+        "status": "satisfied",
+        "score": 90,
+        "evidence": "Custom exceptions (RegistryException, PackValidationException, ContentLoadException); ThrowExceptionStackLossAnalyzer.cs (preserving stack traces); SilentCatchAnalyzer.cs, EmptyCatchBlockAnalyzer.cs \u2014 anti-pattern detection; 133+ try-catch blocks",
+        "remediation": "Add Result<T> pattern for expected failures; consider OneOf or FluentResults for SDK public API error types"
+      },
+      {
+        "id": "D9-10",
+        "name": "Polyglot integration (Go/Rust/Zig/Python)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "Go dependency resolver (DependencyResolver.cs \u2192 Go binary); Rust asset pipeline via PyO3 (RustAssetPipelineInterop.cs); Zig LOD pipeline; Python MCP server (DinoforgeMcp); NativeInterop module for FFI",
+        "remediation": null
+      },
+      {
+        "id": "D9-11",
+        "name": "Hot reload architecture",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "Runtime/HotReload/ module with file watching and assembly reload; HotReloadTests.cs; ADR-014 runtime execution model; SdkHotReloadEdgeCaseTests.cs",
+        "remediation": null
+      },
+      {
+        "id": "D9-12",
+        "name": "Bridge/Client protocol architecture",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "src/Bridge/ with Client and Protocol projects; JSON-RPC bridge protocol; GameClient with reconnect, timeout, rate limiting; BridgeClientAsyncTests, BridgeClientRobustnessTests",
+        "remediation": null
+      },
+      {
+        "id": "D9-13",
+        "name": "Event-driven architecture",
+        "status": "partial",
+        "score": 40,
+        "evidence": "Some event patterns (ContentRegistrationService events, Bridge events); no centralized event bus; EventLifecycleAsymmetryAnalyzer.cs detects lifecycle issues; IEventBus or MediatR not used",
+        "remediation": "Evaluate MediatR or custom EventBus for domain event publishing; add event sourcing for registry operations; centralize event lifecycle management"
+      },
+      {
+        "id": "D9-14",
+        "name": "SOLID principles adherence",
+        "status": "satisfied",
+        "score": 80,
+        "evidence": "Interface segregation (I* interfaces in SDK); Open/closed via pack plugins; Liskov substitution in registry patterns; dependency inversion with interfaces; single responsibility generally followed",
+        "remediation": "Audit for large classes violating single-responsibility (e.g., ModPlatform.cs); split by concern; reduce interface bloat in IFileDiscoveryService, IContentDiscoveryService"
+      }
+    ],
+    "D10 Production Readiness & Release": [
+      {
+        "id": "D10-01",
+        "name": "Release automation (release.yml)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "release.yml \u2014 755 lines, fully automated: version bump, build all configs, NuGet pack+sign+push, GitHub Release, SBOM, SLSA attestation, SHA256 checksums, docs deploy",
+        "remediation": null
+      },
+      {
+        "id": "D10-02",
+        "name": "Versioning strategy (MinVer + VERSION)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "MinVer for git-tag-based versioning; VERSION file as fallback; Directory.Build.props reads both; .versionize config; version-bump.yml CI workflow; 21+ semver tags",
+        "remediation": null
+      },
+      {
+        "id": "D10-03",
+        "name": "NuGet publishing (6 packages)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "6 published NuGet packages: DINOForge.SDK, DINOForge.Analyzers, DINOForge.Bridge.Client, DINOForge.Bridge.Protocol, and 2 more; NUGET_PUBLISHING_GUIDE.md; SourceLink + snupkg symbols",
+        "remediation": null
+      },
+      {
+        "id": "D10-04",
+        "name": "Changelog generation (cliff.toml)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "cliff.toml \u2014 git-cliff configuration for automated changelog; CHANGELOG.md (3,244 lines, Keep a Changelog format); release-drafter.yml for automated draft releases",
+        "remediation": null
+      },
+      {
+        "id": "D10-05",
+        "name": "Docker support",
+        "status": "partial",
+        "score": 60,
+        "evidence": "Dockerfile (16 lines) for MCP server deployment; no docker-compose.yml; no container health checks; no container orchestration support",
+        "remediation": "Add docker-compose.yml with MCP server + bridge + optional OpenTelemetry collector; add container health checks; document container deployment in DEPLOYMENT.md"
+      },
+      {
+        "id": "D10-06",
+        "name": "Performance baselines",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "BenchmarkDotNet baselines; docs/PERFORMANCE_BASELINE.md; docs/PERFORMANCE_OPTIMIZATIONS.md; perf-benchmarks.yml CI; benchmark-regression-gate.yml",
+        "remediation": null
+      },
+      {
+        "id": "D10-07",
+        "name": "Platform support matrix",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "docs/PLATFORM_SUPPORT_MATRIX.md \u2014 full platform compatibility table; PLATFORM_VALIDATION_RESULTS.md; docs/PLATFORM_SUPPORT_MATRIX.md",
+        "remediation": null
+      },
+      {
+        "id": "D10-08",
+        "name": "Deployment scripts (PowerShell + shell)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "PowerShell scripts: test-local.ps1, mutation-test.ps1, check_winhttp.ps1; shell: deploy-debug.sh, grade.sh; Justfile deploy recipes; NuGet publishing guide",
+        "remediation": null
+      },
+      {
+        "id": "D10-09",
+        "name": "Release notes",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "RELEASE_NOTES_v0.23.0.md; release-drafter.yml auto-generates release notes; CHANGELOG.md per-version entries; RELEASING.md (2,473 lines) comprehensive release process",
+        "remediation": null
+      },
+      {
+        "id": "D10-10",
+        "name": "Documentation build (vitepress + docfx)",
+        "status": "satisfied",
+        "score": 100,
+        "evidence": "vitepress in docs/ directory with dev server and production build scripts; docfx.json for API reference generation; Justfile docs-dev/docs-build recipes; api-docs.yml CI workflow",
+        "remediation": null
+      },
+      {
+        "id": "D10-11",
+        "name": "API consistency (no breaking changes)",
+        "status": "partial",
+        "score": 50,
+        "evidence": "No explicit API compatibility validation (e.g., Microsoft.ApiCompat); NuGet packages could have accidental breaking changes; PublicApiAnalyzer not enabled; no 'breaking changes' document",
+        "remediation": "Add Microsoft.CodeAnalysis.PublicApiAnalyzers to SDK packable projects; add ApiCompat validation in release.yml; create BREAKING_CHANGES.md to track deprecations and migration paths"
+      },
+      {
+        "id": "D10-12",
+        "name": "Backup / rollback strategy",
+        "status": "partial",
+        "score": 40,
+        "evidence": "No explicit rollback documentation or script; release.yml creates NuGet packages with version pinning (version pin allows rollback via previous NuGet version); no database or state migration rollback",
+        "remediation": "Add rollback section to DEPLOYMENT.md; create rollback.sh script for game instance rollback; document NuGet package downgrade procedure"
+      },
+      {
+        "id": "D10-13",
+        "name": "Migration scripts / docs",
+        "status": "partial",
+        "score": 40,
+        "evidence": "Some migration docs (docs/operations/, docs/setup/); no formal schema migration framework; pack version migration not formalized; LIBIFICATION_ROADMAP.md tracks lib migration",
+        "remediation": "Create migration-aware pack loading (versioned pack schema); add upgrade guide for pack authors; document breaking changes per release with migration paths"
+      },
+      {
+        "id": "D10-14",
+        "name": "Load / stress testing",
+        "status": "missing",
+        "score": 0,
+        "evidence": "No load testing framework (no NBomber, no k6, no Locust); RegistryStressTests.cs exists but is unit-level; no concurrent-connection or throughput stress suite",
+        "remediation": "Add NBomber load-test project targeting Bridge server and pack registry; define throughput SLOs (requests/sec, P99 latency); add stress-test CI workflow; document capacity planning in PERFORMANCE_BASELINE.md"
+      }
+    ]
   }
 }

@@ -68,6 +68,9 @@ jobs:
         # DINOForge.Tests.CliTools excluded from CI.NoRuntime.sln: it refs Tools.Cli (win-x64 RID);
         # Linux Release builds cannot resolve Cli ref metadata (CS0006 Debug/win-x64 vs Release).
 
+      - name: Check formatting (dotnet format)
+        run: dotnet format src/DINOForge.CI.NoRuntime.sln --verify-no-changes --verbosity diagnostic
+
       # Unit + Integration tests — build via dotnet test (not in CI.NoRuntime.sln; pulls Runtime)
       - name: Test (Unit)
         run: >-
@@ -94,14 +97,18 @@ jobs:
           CI: 'true'
 
       # ── Coverage gate ────────────────────────────────────────────────────────
-      # Fails the build if line coverage drops more than 5 percentage points below the
-      # stored baseline in docs/test-results/coverage-baseline.json.
+      # Fails the build if:
+      #   1) Line coverage is below the 70% absolute minimum threshold.
+      #   2) Line coverage drops more than 5 percentage points below the
+      #      stored baseline in docs/test-results/coverage-baseline.json.
       # On the first run (no baseline yet) it writes the baseline and succeeds.
-      - name: Coverage gate (5% drop limit)
+      - name: Coverage gate (70% min + 5% drop limit)
         if: always()
         run: |
           python3 - <<'PYEOF'
           import json, glob, os, sys, xml.etree.ElementTree as ET, datetime
+
+          MIN_COVERAGE = 70.0  # absolute minimum line coverage %
 
           # ── Parse Cobertura XML produced by XPlat Code Coverage ──
           coverage_files = glob.glob("coverage-results/**/coverage.cobertura.xml", recursive=True)
@@ -126,6 +133,11 @@ jobs:
 
           current_pct = round(total_covered / total_lines * 100, 2)
           print(f"Current coverage: {current_pct}% ({total_covered}/{total_lines} lines)")
+
+          # ── Absolute minimum threshold (70%) ──
+          if current_pct < MIN_COVERAGE:
+              print(f"FAIL: Coverage {current_pct}% is below the minimum {MIN_COVERAGE}% threshold.")
+              sys.exit(1)
 
           baseline_path = "docs/test-results/coverage-baseline.json"
           os.makedirs("docs/test-results", exist_ok=True)
