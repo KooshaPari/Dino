@@ -5,10 +5,10 @@
       "Microsoft.Data.Sqlite": {
         "type": "Direct",
         "requested": "[8.*, )",
-        "resolved": "8.0.27",
-        "contentHash": "qlS+YrntAGokJdNNU9iEbf1cjhUw82xspqWq1J4haGrUk800HqHid5q9/dfkLGxNGYubT/MysPoIbo364et20Q==",
+        "resolved": "8.0.29",
+        "contentHash": "UT01MJBITsT5CFLK9bhYWjz847BHlC2em7nhBNCCSYsI72mIzrXHfrQT8R+huQKJGZo94/a9GWGzKPn7mmlMyw==",
         "dependencies": {
-          "Microsoft.Data.Sqlite.Core": "8.0.27",
+          "Microsoft.Data.Sqlite.Core": "8.0.29",
           "SQLitePCLRaw.bundle_e_sqlite3": "2.1.6"
         }
       },
@@ -115,9 +115,9 @@
       },
       "Sentry": {
         "type": "Direct",
-        "requested": "[6.6.0, )",
-        "resolved": "6.6.0",
-        "contentHash": "1D3xo3P9Y94VQN3RoV/86XqgtylHp1pdeEml3/UB649BrzJeZ/pqO/o8YgJ5g+GqpMQiGI09yjAI7s5ff2A1IA=="
+        "requested": "[6.8.0, )",
+        "resolved": "6.8.0",
+        "contentHash": "amUjwslDtdx1p8r6z4APCxM8vHCKG4CBamPpSTwxmTMoBQ2CLwx2m3CaIttJXRT/hw9S5rNfXgjol2OqADytLQ=="
       },
       "SketchFabApi.Net": {
         "type": "Direct",
@@ -133,23 +133,23 @@
       "Spectre.Console": {
         "type": "Direct",
         "requested": "[0.*, )",
-        "resolved": "0.56.0",
-        "contentHash": "ail4U9yR02kKtaOQl0k/bMid/UkujehsYLa8DsYpsmioYkJYmHIWh5us5HTskP74yYcBLcmdTcxBUpNgg2EwZg==",
+        "resolved": "0.57.2",
+        "contentHash": "wzsB+P9i6F9G+cFOJxRotCiQWNSzZVAMxi8YMiHlGXXU1JLMXGp7zSSqBMmROZS2bzpK5jk+Saa7Evp8HwqhKg==",
         "dependencies": {
-          "Spectre.Console.Ansi": "0.56.0"
+          "Spectre.Console.Ansi": "0.57.2"
         }
       },
       "System.CommandLine": {
         "type": "Direct",
         "requested": "[2.*, )",
-        "resolved": "2.0.8",
-        "contentHash": "FbpgF8p/ClXnoXEWLjQB34kNh5rsLewEgIgLyVzLDucAOQ4cNs7ec9Cam7gdKPruSb6zp4Mx8htZGTL4/5PJPg=="
+        "resolved": "2.0.10",
+        "contentHash": "6i1D6/U3i1f/PiXTt9pDvbJwdXEe0F2DZPup6BHzeIu5yPk/lkFzgtrJnPbj54JWUh8Y9vJeKG/TZIT6MkF8TA=="
       },
       "System.Drawing.Common": {
         "type": "Direct",
         "requested": "[8.*, )",
-        "resolved": "8.0.27",
-        "contentHash": "G/4T2mE+RElzXxHO+PdCngA2lEjGbZvEMyfsFjZHZXROdbI6n5AQC3LHcTKJ2wTHILf4U5eA5zF/ili0YAj+BQ==",
+        "resolved": "8.0.29",
+        "contentHash": "sJZ5BBGGRU8rnVYeaeolaaYQg9grIixN/lZvr3mzJAygZKFiW/v8qdD28EO+ZccWLl2yjLQSz3jgeApJLnhoEA==",
         "dependencies": {
           "Microsoft.Win32.SystemEvents": "8.0.0"
         }
@@ -184,8 +184,8 @@
       },
       "Microsoft.Data.Sqlite.Core": {
         "type": "Transitive",
-        "resolved": "8.0.27",
-        "contentHash": "xdTCV/0Mmx1TV9O7gyvRtyQFBtoMVwVWUn6p4W++u2AENEOugIApAaCY6wYr894UPJBwIv3ChyVVOJ9joo9dXw==",
+        "resolved": "8.0.29",
+        "contentHash": "B/7Z0la03kNVdmZtgSN/PocA2nsPiVUq56iCh25oW8W31Yzg1ofrMWy79i0DcDOXuHjy7+jlsUlSNytwe9Et5A==",
         "dependencies": {
           "SQLitePCLRaw.core": "2.1.6"
         }
@@ -355,8 +355,8 @@
       },
       "Serilog": {
         "type": "Transitive",
-        "resolved": "4.3.1",
-        "contentHash": "savYe7h5yRlkqBVOwP8cIRDOdqKiPmYCU4W87JH38sBmcKD5EBoXvQIw6bNEvZ/pTe1gsiye3VFCzBsoppGkXQ=="
+        "resolved": "4.4.0",
+        "contentHash": "ZC6Le3rr4TVJJjS4KsQAesxeF1EhW9qcZmmG7eP5Y2G3+gTGkJEUXkq4+tZNPtyp05I0wWOxnIjwtxFweJsObw=="
       },
       "Serilog.Sinks.Console": {
         "type": "Transitive",
@@ -368,16 +368,16 @@
       },
       "Serilog.Sinks.File": {
         "type": "Transitive",
-        "resolved": "6.0.0",
-        "contentHash": "lxjg89Y8gJMmFxVkbZ+qDgjl+T4yC5F7WSLTvA+5q0R04tfKVLRL/EHpYoJ/MEQd2EeCKDuylBIVnAYMotmh2A==",
+        "resolved": "7.0.0",
+        "contentHash": "fKL7mXv7qaiNBUC71ssvn/dU0k9t0o45+qm2XgKAlSt19xF+ijjxyA3R6HmCgfKEKwfcfkwWjayuQtRueZFkYw==",
         "dependencies": {
-          "Serilog": "4.0.0"
+          "Serilog": "4.2.0"
         }
       },
       "Spectre.Console.Ansi": {
         "type": "Transitive",
-        "resolved": "0.56.0",
-        "contentHash": "AAvLsqrwOrKQQ2mKQ02VUN2s90C758ZlDHVjHZ1MfGgd7+vELPayS/j8nTppEAXd1+JHQQjpey/bMGjbmpMmNg=="
+        "resolved": "0.57.2",
+        "contentHash": "Y1+u73shwP+JYHmrkdN6bSt2kaGBEAafhi2nrecczbXdFRey+k7J/WF9YPfcB0rqivv2S8fmif6FSBq9m/AFvw=="
       },
       "SQLitePCLRaw.bundle_e_sqlite3": {
         "type": "Transitive",
@@ -419,7 +419,7 @@
           "Newtonsoft.Json": "[13.*, )",
           "Serilog": "[4.*, )",
           "Serilog.Sinks.Console": "[6.*, )",
-          "Serilog.Sinks.File": "[6.*, )"
+          "Serilog.Sinks.File": "[7.*, )"
         }
       },
       "dinoforge.bridge.protocol": {
