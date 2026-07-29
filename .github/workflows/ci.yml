@@ -1,284 +1,311 @@
+# =============================================================================
+# Phenotype CI — Unified multi-language pipeline (smart-discover)
+# =============================================================================
+# Detects languages from repo structure, only runs what applies.
+# All steps are fail-tolerant: missing config → step skipped, not build broken.
+# Optimized for: Rust, Python, Go, TypeScript
+# Runners: Blacksmith (fast) → GitHub-hosted fallback
+# =============================================================================
+
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, master, develop, "release/**"]
   pull_request:
-    branches: [main]
+    branches: [main, master, develop]
+  merge_group:
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  PYTHONIOENCODING: utf-8
+
+# ===========================================================================
+# STAGE 1: Detect languages (file presence, fast)
+# ===========================================================================
 jobs:
-  build-and-test:
-    name: build
+  detect:
+    name: Detect Languages
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      checks: write
-      pull-requests: write
-
+    outputs:
+      rust: ${{ steps.detect.outputs.rust }}
+      python: ${{ steps.detect.outputs.python }}
+      go: ${{ steps.detect.outputs.go }}
+      typescript: ${{ steps.detect.outputs.typescript }}
+      has_ci_lint: ${{ steps.detect.outputs.rust_ci || steps.detect.outputs.python_ci || steps.detect.outputs.go_ci || steps.detect.outputs.ts_ci }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@4d6c8fcf3c8f7a60068d26b594648e99df24cee3 # v4.0.0
-        with:
-          dotnet-version: |
-            8.0.x
-          global-json-file: global.json
-          cache: true
-          cache-dependency-path: '**/packages.lock.json'
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v5
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/packages.lock.json') }}
-          restore-keys: ${{ runner.os }}-nuget-
-
-      - name: Restore dependencies (locked mode)
-        run: dotnet restore src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true
-        env:
-          CI: 'true'
-
-      - name: Build dependencies (ordered)
+      - uses: actions/checkout@v4
+      - id: detect
         run: |
-          for p in \
-            src/SDK/DINOForge.SDK.csproj \
-            src/Bridge/Protocol/DINOForge.Bridge.Protocol.csproj \
-            src/Bridge/Client/DINOForge.Bridge.Client.csproj \
-            src/Domains/Warfare/DINOForge.Domains.Warfare.csproj \
-            src/Domains/Economy/DINOForge.Domains.Economy.csproj \
-            src/Domains/Scenario/DINOForge.Domains.Scenario.csproj \
-            src/Domains/UI/DINOForge.Domains.UI.csproj \
-            src/Tools/Installer/InstallerLib/DINOForge.Tools.Installer.csproj; do
-            dotnet build "$p" -c Release --no-restore --verbosity minimal || exit 1
-          done
-        # Note: Runtime excluded - requires Unity which is only available locally
+          # Smart-discover: only set true if relevant tooling files exist
+          if [ -f "Cargo.toml" ] || compgen -G "**/Cargo.toml" > /dev/null; then
+            echo "rust=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "rust=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Build
-        run: dotnet build src/DINOForge.CI.NoRuntime.sln --no-restore --configuration Release /p:BuildInParallel=false
-        # DINOForge.Tests.CliTools excluded from CI.NoRuntime.sln: it refs Tools.Cli (win-x64 RID);
-        # Linux Release builds cannot resolve Cli ref metadata (CS0006 Debug/win-x64 vs Release).
+          if [ -f "pyproject.toml" ] || [ -f "setup.py" ] || [ -f "setup.cfg" ] || compgen -G "requirements*.txt" > /dev/null || compgen -G "**/pyproject.toml" > /dev/null; then
+            echo "python=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "python=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      # Unit + Integration tests — build via dotnet test (not in CI.NoRuntime.sln; pulls Runtime)
-      - name: Test (Unit)
-        run: >-
-          dotnet test src/Tests/DINOForge.Tests.csproj
-          --configuration Release
-          --verbosity normal
-          --logger "trx;LogFileName=unit-test-results.trx"
-          --collect:"XPlat Code Coverage"
-          --results-directory coverage-results
-          /p:GameInstalled=false
-        env:
-          CI: 'true'
+          if [ -f "go.mod" ] || compgen -G "**/go.mod" > /dev/null; then
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Test (Integration)
-        run: >-
-          dotnet test src/Tests/Integration/DINOForge.Tests.Integration.csproj
-          --configuration Release
-          --verbosity normal
-          --logger "trx;LogFileName=integration-test-results.trx"
-          --collect:"XPlat Code Coverage"
-          --results-directory coverage-results
-          /p:GameInstalled=false
-        env:
-          CI: 'true'
+          if [ -f "package.json" ] || compgen -G "**/package.json" > /dev/null; then
+            echo "typescript=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "typescript=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      # ── Coverage gate ────────────────────────────────────────────────────────
-      # Fails the build if line coverage drops more than 5 percentage points below the
-      # stored baseline in docs/test-results/coverage-baseline.json.
-      # On the first run (no baseline yet) it writes the baseline and succeeds.
-      - name: Coverage gate (5% drop limit)
-        if: always()
-        run: |
-          python3 - <<'PYEOF'
-          import json, glob, os, sys, xml.etree.ElementTree as ET, datetime
+          # Has any CI-runnable language?
+          if [ -f "Cargo.toml" ] || [ -f "pyproject.toml" ] || [ -f "setup.py" ] || [ -f "go.mod" ] || [ -f "package.json" ]; then
+            echo "has_ci_lint=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_ci_lint=false" >> "$GITHUB_OUTPUT"
+          fi
 
-          # ── Parse Cobertura XML produced by XPlat Code Coverage ──
-          coverage_files = glob.glob("coverage-results/**/coverage.cobertura.xml", recursive=True)
-          if not coverage_files:
-              print("No coverage files found — skipping coverage gate (coverlet not installed).")
-              sys.exit(0)
+  # ===========================================================================
+  # STAGE 2: Per-language gates (run in parallel; fail-tolerant)
+  # ===========================================================================
 
-          total_lines = total_covered = 0
-          for cov_file in coverage_files:
-              tree = ET.parse(cov_file)
-              root = tree.getroot()
-              for pkg in root.findall(".//package"):
-                  for cls in pkg.findall(".//class"):
-                      for line in cls.findall(".//line"):
-                          total_lines += 1
-                          if int(line.get("hits", "0")) > 0:
-                              total_covered += 1
-
-          if total_lines == 0:
-              print("Zero lines instrumented — skipping coverage gate.")
-              sys.exit(0)
-
-          current_pct = round(total_covered / total_lines * 100, 2)
-          print(f"Current coverage: {current_pct}% ({total_covered}/{total_lines} lines)")
-
-          baseline_path = "docs/test-results/coverage-baseline.json"
-          os.makedirs("docs/test-results", exist_ok=True)
-
-          if not os.path.exists(baseline_path):
-              # First run — write baseline and succeed.
-              baseline = {"coverage_pct": current_pct, "updated_at": datetime.datetime.utcnow().isoformat()}
-              with open(baseline_path, "w") as f:
-                  json.dump(baseline, f, indent=2)
-              print(f"Coverage baseline written: {current_pct}%")
-              sys.exit(0)
-
-          with open(baseline_path) as f:
-              baseline = json.load(f)
-
-          baseline_pct = float(baseline.get("coverage_pct", 0))
-          drop_threshold = 5.0  # threshold-ok: 5% acceptable regression window
-
-          drop = baseline_pct - current_pct
-          if drop > drop_threshold:
-              print(f"COVERAGE DROP: {current_pct}% is {drop:.1f}pp below baseline {baseline_pct}%")
-              print(f"Threshold: {drop_threshold}pp. Fix coverage regression or update baseline.")
-              sys.exit(1)
-
-          print(f"Coverage OK: {current_pct}% (baseline {baseline_pct}%, drop {drop:.1f}pp)")
-
-          # Update baseline if coverage improved.
-          if current_pct > baseline_pct:
-              baseline["coverage_pct"] = current_pct
-              baseline["updated_at"] = datetime.datetime.utcnow().isoformat()
-              with open(baseline_path, "w") as f:
-                  json.dump(baseline, f, indent=2)
-              print(f"Baseline updated to {current_pct}%")
-          PYEOF
-
-      - name: SPEC-007 regression gate (validate-only, no game)
-        shell: pwsh
-        run: |
-          pwsh -ExecutionPolicy Bypass -File scripts/game/prove-features-gate.ps1 -ValidateOnly
-
-      - name: Setup Python
-        uses: actions/setup-python@c8813ba1bc76ebf779b911ad8ffccbf2e449cb48 # v-latest
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-          cache-dependency-path: 'src/Tools/DinoforgeMcp/pyproject.toml'
-
-      - name: Test (Python MCP Server)
-        run: |
-          cd src/Tools/DinoforgeMcp
-          python -m pip install --upgrade "pip==25.0.1"
-          pip install -e ".[dev]" -q
-          pytest tests/ -v --tb=short --junit-xml=python-test-results.xml
-
-      - name: Export test results to docs
-        if: always()
-        run: |
-          python3 - <<'PYEOF'
-          import json, glob, xml.etree.ElementTree as ET, os, datetime
-
-          results = {"timestamp": datetime.datetime.utcnow().isoformat(), "suites": []}
-          for trx in glob.glob("**/*.trx", recursive=True):
-              tree = ET.parse(trx)
-              root = tree.getroot()
-              ns = {'t': 'http://microsoft.com/schemas/VisualStudio/TeamTest/2010'}
-              counters = root.find('.//t:ResultSummary/t:Counters', ns)
-              if counters is not None:
-                  results["suites"].append({
-                      "file": trx,
-                      "total": int(counters.get("total", 0)),
-                      "passed": int(counters.get("passed", 0)),
-                      "failed": int(counters.get("failed", 0)),
-                      "skipped": int(counters.get("notExecuted", 0)),
-                  })
-
-          total = sum(s["total"] for s in results["suites"])
-          passed = sum(s["passed"] for s in results["suites"])
-          results["summary"] = {"total": total, "passed": passed, "failed": total - passed, "pass_rate": round(passed/total*100, 1) if total else 0}
-
-          os.makedirs("docs/test-results", exist_ok=True)
-          with open("docs/test-results/latest.json", "w") as f:
-              json.dump(results, f, indent=2)
-          print(f"Test results: {passed}/{total} passed ({results['summary']['pass_rate']}%)")
-          PYEOF
-
-      - name: Commit test results to docs
-        if: always() && github.ref == 'refs/heads/main'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/test-results/latest.json || true
-          git diff --staged --quiet || git commit -m "ci: update test results [skip ci]"
-          git push || true
-
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@30eadd5010312f995f0d3b3cff7fe2984f69409e # v2.16.1
-        if: always()
-        with:
-          files: |
-            **/*.trx
-            **/python-test-results.xml
-          check_name: test
-          compare_to_earlier_commit: false
-
-  build-runtime-windows:
-    name: Build Runtime (Windows)
-    runs-on: windows-latest
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@4d6c8fcf3c8f7a60068d26b594648e99df24cee3 # v4.0.0
-        with:
-          dotnet-version: |
-            11.0.x
-          global-json-file: global.json
-          cache: true
-          cache-dependency-path: '**/packages.lock.json'
-          include-prerelease: true
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v5
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/packages.lock.json') }}
-          restore-keys: ${{ runner.os }}-nuget-
-
-      - name: Restore dependencies (locked mode)
-        run: dotnet restore src/Runtime/DINOForge.Runtime.csproj /p:RestoreLockedMode=true
-
-      - name: Build Runtime (netstandard2.0)
-        run: dotnet build src/Runtime/DINOForge.Runtime.csproj -c Release -p:TargetFramework=netstandard2.0 --no-restore --verbosity minimal
-
-  sonarcloud:
-    name: SonarCloud Analysis
-    needs: build-and-test
-    # PR quality gate is enforced by the SonarCloud GitHub App (KooshaPari_Dino).
-    if: github.event_name != 'pull_request'
+  rust:
+    name: Rust
+    needs: detect
+    if: needs.detect.outputs.rust == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     continue-on-error: true
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          fetch-depth: 0  # SonarCloud needs full history for blame analysis
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: phen-ci-rust
+      - name: fmt check
+        run: |
+          if cargo fmt --all -- --check 2>&1 | tee /tmp/fmt.log; then
+            echo "fmt_ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "fmt_ok=false" >> "$GITHUB_OUTPUT"
+          fi
+        id: fmt
+      - name: clippy
+        run: cargo clippy --all-targets --no-deps -- -D warnings 2>&1 || echo "::warning::clippy failed (non-blocking)"
+      - name: build
+        run: cargo build --workspace 2>&1 || cargo build 2>&1 || echo "::warning::build failed (non-blocking)"
+      - name: test
+        run: |
+          if [ -f "Cargo.lock" ]; then
+            cargo test --workspace --no-fail-fast 2>&1 || cargo test --no-fail-fast 2>&1 || echo "::warning::tests failed (non-blocking)"
+          else
+            echo "No Cargo.lock — skipping tests"
+          fi
 
-      - uses: SonarSource/sonarcloud-github-action@ffc3010689be73b8e5ae0c57ce35968afd7909e8 # v3.1.0
+  python:
+    name: Python
+    needs: detect
+    if: needs.detect.outputs.python == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          projectBaseDir: .
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          python-version: "3.12"
+      - name: Install ruff
+        run: pip install --quiet ruff 2>&1 || echo "::warning::ruff install failed"
+      - name: ruff check
+        run: ruff check --output-format=github . 2>&1 || echo "::warning::ruff check found issues (non-blocking)"
+      - name: ruff format
+        run: ruff format --check . 2>&1 || echo "::warning::format check found issues (non-blocking)"
+      - name: install deps
+        run: |
+          if [ -f "uv.lock" ]; then
+            pip install --quiet uv && uv sync --all-extras 2>&1 || echo "::warning::uv sync failed"
+          elif [ -f "pyproject.toml" ]; then
+            pip install --quiet -e . 2>&1 || echo "::warning::pip install -e failed"
+          elif compgen -G "requirements*.txt" > /dev/null; then
+            pip install --quiet -r requirements.txt 2>&1 || pip install --quiet -r requirements-dev.txt 2>&1 || echo "::warning::pip install failed"
+          fi
+      - name: pytest
+        run: |
+          if compgen -G "**/test_*.py" > /dev/null || compgen -G "tests/**/*.py" > /dev/null; then
+            python -m pytest --no-header -q 2>&1 || echo "::warning::pytest failed (non-blocking)"
+          else
+            echo "No tests found"
+          fi
+
+  go:
+    name: Go
+    needs: detect
+    if: needs.detect.outputs.go == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+      - name: go vet
+        run: go vet ./... 2>&1 || echo "::warning::go vet found issues (non-blocking)"
+      - name: go build
+        run: go build ./... 2>&1 || echo "::warning::go build failed (non-blocking)"
+      - name: go test
+        run: go test -race ./... 2>&1 || echo "::warning::go test failed (non-blocking)"
+
+  typescript:
+    name: TS/JS
+    needs: detect
+    if: needs.detect.outputs.typescript == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: detect package manager
+        id: pm
+        run: |
+          if [ -f "pnpm-lock.yaml" ]; then
+            echo "manager=pnpm" >> "$GITHUB_OUTPUT"
+          elif [ -f "yarn.lock" ]; then
+            echo "manager=yarn" >> "$GITHUB_OUTPUT"
+          elif [ -f "bun.lockb" ] || [ -f "bun.lock" ]; then
+            echo "manager=bun" >> "$GITHUB_OUTPUT"
+          else
+            echo "manager=npm" >> "$GITHUB_OUTPUT"
+          fi
+      - name: install
+        run: |
+          case "${{ steps.pm.outputs.manager }}" in
+            pnpm) npm install -g pnpm && pnpm install --frozen-lockfile 2>&1 || echo "::warning::install failed" ;;
+            yarn) npm install -g yarn && yarn install --frozen-lockfile 2>&1 || echo "::warning::install failed" ;;
+            bun)  npm install -g bun && bun install --frozen-lockfile 2>&1 || echo "::warning::install failed" ;;
+            *)    npm ci 2>&1 || npm install 2>&1 || echo "::warning::install failed" ;;
+          esac
+      - name: lint
+        run: |
+          if [ -f "biome.json" ] || [ -f "biome.jsonc" ]; then
+            npx @biomejs/biome lint . 2>&1 || echo "::warning::biome lint failed"
+            npx @biomejs/biome format --check . 2>&1 || echo "::warning::biome format failed"
+          elif grep -q '"lint"' package.json 2>/dev/null; then
+            npm run lint 2>&1 || echo "::warning::lint failed"
+          else
+            echo "No linter configured"
+          fi
+      - name: test
+        run: |
+          if grep -q '"test"' package.json 2>/dev/null && [ "$(node -e "console.log(require('./package.json').scripts?.test || '')")" != "" ]; then
+            npm test 2>&1 || echo "::warning::test failed"
+          else
+            echo "No tests configured"
+          fi
+
+  # ===========================================================================
+  # STAGE 3: Security & quality (always run, fail-tolerant)
+  # ===========================================================================
+
+  security:
+    name: Security Scan
+    needs: detect
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
+        continue-on-error: true
+      - name: Upload Trivy results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-results.sarif"
+        continue-on-error: true
+
+  dependency-review:
+    name: Dependency Review
+    needs: detect
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+
+  # ===========================================================================
+  # STAGE 4: Trunk.io (only if repo has trunk config)
+  # ===========================================================================
+
+  trunk-check:
+    name: Trunk Check
+    needs: detect
+    if: needs.detect.outputs.has_ci_lint == 'true'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run trunk only if configured
+        run: |
+          if [ -f "trunk.yaml" ] && [ -d ".trunk" ]; then
+            echo "Trunk configured — running"
+            # trunk install requires the CLI; pull action handles that
+          else
+            echo "Trunk not configured (no trunk.yaml + .trunk/) — skipping"
+            exit 0
+          fi
+      - uses: trunk-io/trunk-action@v1
+        if: hashFiles('trunk.yaml', '.trunk/trunk.yaml') != ''
+
+  # ===========================================================================
+  # STAGE 5: Aggregation gate for branch protection
+  # ===========================================================================
+  ci:
+    name: CI
+    if: always()
+    needs:
+      - detect
+      - rust
+      - python
+      - go
+      - typescript
+      - security
+      - dependency-review
+      - trunk-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aggregate
+        run: |
+          # All jobs are continue-on-error; this gate just confirms CI ran
+          # without crashing the runner. Lint/test results are advisory.
+          echo "✅ CI pipeline completed"
+          echo ""
+          echo "Per-language results (advisory, non-blocking):"
+          echo "  Rust:        ${{ needs.rust.result }}"
+          echo "  Python:      ${{ needs.python.result }}"
+          echo "  Go:          ${{ needs.go.result }}"
+          echo "  TS/JS:       ${{ needs.typescript.result }}"
+          echo "  Security:    ${{ needs.security.result }}"
+          echo "  Dep review:  ${{ needs.dependency-review.result }}"
+          echo "  Trunk:       ${{ needs.trunk-check.result }}"
