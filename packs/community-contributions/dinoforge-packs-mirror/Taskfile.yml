@@ -1,0 +1,179 @@
+version: "3"
+
+vars:
+  GO_CACHE_DIR: "{{.ROOT_DIR}}/.task/go-build-cache"
+  GO_TMP_DIR: "{{.ROOT_DIR}}/.task/go-tmp"
+  YAML_LINT_CONFIG: "{extends: relaxed, rules: {line-length: {max: 240}, document-start: disable, truthy: disable}}"
+  DETECTED_LANGUAGE:
+    sh: |
+      if rg --files -g 'go.mod' -g '*.go' -g '!tests/**' | grep -q .; then
+        printf 'go'
+      elif rg --files -g 'Cargo.toml' -g '*.rs' | grep -q .; then
+        printf 'rust'
+      elif rg --files -g 'package.json' -g 'bun.lockb' -g 'package-lock.json' -g 'pnpm-lock.yaml' -g 'yarn.lock' | grep -q .; then
+        printf 'node'
+      elif rg --files -g 'pyproject.toml' -g 'requirements.txt' -g '*.py' | grep -q .; then
+        printf 'python'
+      elif rg --files -g 'pack.yaml' -g 'manifest.yaml' -g '*.yml' -g '*.yaml' | grep -q .; then
+        printf 'yaml'
+      elif rg --files -g 'go.mod' -g '*.go' | grep -q .; then
+        printf 'go'
+      else
+        printf 'yaml'
+      fi
+  GO_TEST_PACKAGES:
+    sh: |
+      if rg --files -g 'go.mod' -g '*.go' | grep -q .; then
+        go list ./... 2>/dev/null || printf './...'
+      fi
+
+tasks:
+  default:
+    desc: List available repository tasks
+    cmds:
+      - task --list
+
+  detect-language:
+    desc: Detect the primary language or toolchain in this repository
+    cmds:
+      - echo "{{.DETECTED_LANGUAGE}}"
+
+  validate-yaml:
+    desc: Validate YAML and YML files in the repository
+    silent: true
+    cmds:
+      - |
+        rg --files -g '*.yml' -g '*.yaml' -g '!node_modules/**' | while IFS= read -r file; do
+          yq '.' "$file" >/dev/null
+        done
+
+  check-gofmt:
+    desc: Verify Go sources are formatted
+    silent: true
+    cmds:
+      - |
+        go_files="$(rg --files -g '*.go' || true)"
+        if [ -n "$go_files" ]; then
+          unformatted="$(printf '%s\n' "$go_files" | xargs gofmt -l)"
+          if [ -n "$unformatted" ]; then
+            printf '%s\n' "$unformatted"
+            exit 1
+          fi
+        fi
+
+  build:
+    desc: Compile or validate the repository
+    deps: [validate-yaml]
+    cmds:
+      - |
+        case "{{.DETECTED_LANGUAGE}}" in
+          go)
+            mkdir -p "{{.GO_CACHE_DIR}}" "{{.GO_TMP_DIR}}"
+            GOCACHE="{{.GO_CACHE_DIR}}" GOTMPDIR="{{.GO_TMP_DIR}}" GO111MODULE=off go test -run '^$' ./...
+            ;;
+          rust)
+            cargo build --workspace
+            ;;
+          node)
+            npm run build
+            ;;
+          python)
+            python -m compileall .
+            ;;
+          yaml)
+            if [ -n "{{.GO_TEST_PACKAGES}}" ]; then
+              mkdir -p "{{.GO_CACHE_DIR}}" "{{.GO_TMP_DIR}}"
+              GOCACHE="{{.GO_CACHE_DIR}}" GOTMPDIR="{{.GO_TMP_DIR}}" GO111MODULE=off go test -run '^$' {{.GO_TEST_PACKAGES}}
+            fi
+            ;;
+          *)
+            echo "Unsupported repository language: {{.DETECTED_LANGUAGE}}"
+            exit 1
+            ;;
+        esac
+
+  test:
+    desc: Run the repository test suite
+    deps: [validate-yaml]
+    cmds:
+      - |
+        case "{{.DETECTED_LANGUAGE}}" in
+          go)
+            mkdir -p "{{.GO_CACHE_DIR}}" "{{.GO_TMP_DIR}}"
+            GOCACHE="{{.GO_CACHE_DIR}}" GOTMPDIR="{{.GO_TMP_DIR}}" GO111MODULE=off go test ./...
+            ;;
+          rust)
+            cargo test --workspace
+            ;;
+          node)
+            npm test
+            ;;
+          python)
+            python -m pytest
+            ;;
+          yaml)
+            if [ -n "{{.GO_TEST_PACKAGES}}" ]; then
+              mkdir -p "{{.GO_CACHE_DIR}}" "{{.GO_TMP_DIR}}"
+              GOCACHE="{{.GO_CACHE_DIR}}" GOTMPDIR="{{.GO_TMP_DIR}}" GO111MODULE=off go test {{.GO_TEST_PACKAGES}}
+            fi
+            ;;
+          *)
+            echo "Unsupported repository language: {{.DETECTED_LANGUAGE}}"
+            exit 1
+            ;;
+        esac
+
+  lint:
+    desc: Run formatting and lint checks
+    deps: [validate-yaml, check-gofmt]
+    cmds:
+      - |
+        case "{{.DETECTED_LANGUAGE}}" in
+          go)
+            yamllint -d '{{.YAML_LINT_CONFIG}}' .
+            ;;
+          rust)
+            cargo fmt --check
+            cargo clippy --workspace -- -D warnings
+            ;;
+          node)
+            npm run lint
+            ;;
+          python)
+            python -m ruff check .
+            ;;
+          yaml)
+            yamllint -d '{{.YAML_LINT_CONFIG}}' .
+            ;;
+          *)
+            echo "Unsupported repository language: {{.DETECTED_LANGUAGE}}"
+            exit 1
+            ;;
+        esac
+
+  clean:
+    desc: Remove generated caches and build artifacts
+    cmds:
+      - |
+        case "{{.DETECTED_LANGUAGE}}" in
+          go)
+            GOCACHE="{{.GO_CACHE_DIR}}" GOTMPDIR="{{.GO_TMP_DIR}}" GO111MODULE=off go clean -testcache
+            ;;
+          rust)
+            cargo clean
+            ;;
+          node)
+            rm -rf node_modules dist build
+            ;;
+          python)
+            find . -type d -name '__pycache__' -prune -exec rm -rf '{}' +
+            ;;
+          yaml)
+            ;;
+          *)
+            echo "Unsupported repository language: {{.DETECTED_LANGUAGE}}"
+            exit 1
+            ;;
+        esac
+      - rm -rf .task .pytest_cache .mypy_cache .ruff_cache .coverage coverage.out
+      - find . -name '*.test' -type f -delete
