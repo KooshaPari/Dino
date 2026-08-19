@@ -24,7 +24,6 @@ jobs:
           dotnet-version: |
             8.0.x
           global-json-file: global.json
-          include-prerelease: true
 
       - name: Restore dependencies
         run: dotnet restore src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true
