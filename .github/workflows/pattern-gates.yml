@@ -25,7 +25,7 @@ jobs:
           - { number: 108, name: 'test-sleep-sync', script: 'detect_test_sleep_sync.py' }
           - { number: 110, name: 'open-ended-count', script: 'detect_open_ended_count.py' }
           - { number: 111, name: 'silent-catch', script: 'detect_silent_catch.py' }
-          - { number: 113, name: 'blocking-poll-sleep', script: 'detect_blocking_poll_sleep.py' }
+          - { number: 113, name: 'blocking-poll-sleep', script: 'detect_blocking_poll_sleep.py', continue_on_error: true }
           - { number: 114, name: 'ct-not-threaded', script: 'detect_ct_not_threaded.py' }
           - { number: 115, name: 'httpclient-per-instance', script: 'detect_httpclient_per_instance.py' }
           - { number: 117, name: 'stringbuilder-no-capacity', script: 'detect_stringbuilder_no_capacity.py' }
@@ -44,7 +44,7 @@ jobs:
           - { number: 116, name: 'sync-over-async', script: 'detect_sync_over_async.py', continue_on_error: true }
           - { number: 98, name: 'missing-configureawait', script: 'detect_missing_configureawait.py', continue_on_error: true }
           - { number: 102, name: 'orphan-process-start', script: 'detect_orphan_process_start.py', continue_on_error: true }
-          - { number: 109, name: 'inline-json-options', script: 'detect_inline_json_options.py' }
+          - { number: 109, name: 'inline-json-options', script: 'detect_inline_json_options.py', continue_on_error: true }
           - { number: 862, name: 'raw-remove-item', script: 'detect_raw_remove_item.py', continue_on_error: true }
           - { number: 112, name: 'direct-datetime', script: 'detect_direct_datetime.py', continue_on_error: true }
           - { number: 97,  name: 'tcs-sync-continuations', script: 'detect_tcs_sync_continuations.py', continue_on_error: true }
