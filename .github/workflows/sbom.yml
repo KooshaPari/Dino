@@ -14,7 +14,6 @@ concurrency:
   cancel-in-progress: true
 
 
-permissions: {}
 
 jobs:
   sbom:
@@ -35,7 +34,7 @@ jobs:
         run: dotnet tool install --global CycloneDX
 
       - name: Restore dependencies
-        run: dotnet restore src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true
+        run: dotnet restore src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true --force-evaluate
 
       - name: Generate SBOM for SDK
         run: |
