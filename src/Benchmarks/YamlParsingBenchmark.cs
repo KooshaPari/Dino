@@ -13,7 +13,7 @@ namespace DINOForge.Benchmarks;
 /// Measures the performance of deserializing unit, faction, and pack manifest YAML files.
 /// </summary>
 [MemoryDiagnoser]
-[SimpleJob(warmupCount: 3, targetCount: 5)]
+[SimpleJob(warmupCount: 3, runCount: 5)]
 public class YamlParsingBenchmark
 {
     private string _unitYamlPath = null!;
