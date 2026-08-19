@@ -12,7 +12,7 @@ serde_json = "1.0"
 # Mesh I/O + scene-graph (Rust tier: correctness, CPU). Wrap, don't handroll.
 gltf = { version = "1.4", features = ["import", "utils"] }
 # Industry-standard meshoptimizer bindings: SIMD CPU decimation (LOD). CPU path; Mojo-GPU is the upgrade.
-meshopt = "0.4"
+meshopt = "0.6"
 
 [dev-dependencies]
 tempfile = "3"
