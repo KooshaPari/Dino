@@ -42,7 +42,7 @@
 
   <!-- Steamworks.NET NuGet package -->
   <ItemGroup>
-    <PackageReference Include="Steamworks.NET" Version="15.0.*" />
+    <PackageReference Include="Steamworks.NET" Version="2024.8.*" />
   </ItemGroup>
 
   <!-- MockSteamworks deployment target -->
