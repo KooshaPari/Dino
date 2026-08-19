@@ -55,7 +55,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '11.0.x'
-          include-prerelease: true
 
       - name: Build PackCompiler
         run: dotnet build src/Tools/PackCompiler/ -c Release --verbosity minimal
