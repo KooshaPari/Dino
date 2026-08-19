@@ -13,7 +13,6 @@ concurrency:
   cancel-in-progress: true
 
 
-permissions: {}
 
 jobs:
   companion-ui-automation:
@@ -37,13 +36,13 @@ jobs:
 
       - name: Restore & build DesktopCompanion
         run: |
-          dotnet restore src/Tools/DesktopCompanion/DesktopCompanion.csproj /p:RestoreLockedMode=true
+          dotnet restore src/Tools/DesktopCompanion/DesktopCompanion.csproj /p:RestoreLockedMode=true --force-evaluate
           dotnet build src/Tools/DesktopCompanion/DesktopCompanion.csproj `
             --configuration Release --no-restore
 
       - name: Restore & build UI Automation tests
         run: |
-          dotnet restore src/Tests/UiAutomation/DINOForge.Tests.UiAutomation.csproj /p:RestoreLockedMode=true
+          dotnet restore src/Tests/UiAutomation/DINOForge.Tests.UiAutomation.csproj /p:RestoreLockedMode=true --force-evaluate
           dotnet build src/Tests/UiAutomation/DINOForge.Tests.UiAutomation.csproj `
             --configuration Release --no-restore
 
