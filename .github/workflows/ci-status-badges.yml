@@ -10,7 +10,6 @@ on:
       - '.github/workflows/*.yml'
       - 'scripts/ci/generate-badges.py'
   workflow_dispatch:
-  actions: read
 
 jobs:
   update-badges:
