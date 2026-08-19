@@ -13,7 +13,6 @@ concurrency:
   cancel-in-progress: true
 
 
-permissions: {}
 
 # Requires a self-hosted runner tagged: [self-hosted, windows, dino-installed]
 # The runner must have:
