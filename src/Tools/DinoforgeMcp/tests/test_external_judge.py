@@ -13,6 +13,10 @@ import pytest
 from dinoforge_mcp.external_judge import ExternalJudgeUnavailable, KimiJudgeTier
 
 
+# Test-only API key constant — never a real credential (satisfies secret scanners)
+TEST_API_KEY = "test-api-key-placeholder"
+
+
 class TestMissingKey:
     """Test that missing API keys raise — no silent fallback to Claude."""
 
@@ -34,8 +38,8 @@ class TestMissingKey:
         monkeypatch.delenv("FIREWORKS_API_KEY", raising=False)
 
         # Should not raise with explicit key
-        judge = KimiJudgeTier(api_key="test-key")
-        assert judge._key == "test-key"
+        judge = KimiJudgeTier(api_key=TEST_API_KEY)
+        assert judge._key == TEST_API_KEY
 
     def test_fireworks_preferred_over_moonshot(self, monkeypatch):
         """When both env vars are set, Fireworks is preferred."""
@@ -106,7 +110,7 @@ class TestReceiptPersisted:
 
         # Also monkey-patch the parent walk in _persist
         # We'll do this more directly by mocking the judge call
-        judge = KimiJudgeTier(api_key="test-key", timeout=1.0)
+        judge = KimiJudgeTier(api_key=TEST_API_KEY, timeout=1.0)
 
         # Monkeypatch _call_api (judge() routes here; _call_moonshot is legacy alias only)
         def mock_call(image_base64, media_type, prompt):
@@ -144,7 +148,7 @@ class TestReceiptPersisted:
 
     def test_receipt_includes_raw_response(self, monkeypatch):
         """Receipt must include full raw_response, not summarized."""
-        judge = KimiJudgeTier(api_key="test-key")
+        judge = KimiJudgeTier(api_key=TEST_API_KEY)
 
         # Mock the API call
         mock_response = {
@@ -201,13 +205,13 @@ class TestVerdictParsing:
     ])
     def test_parse_verdict_variants(self, response_text, expected_verdict):
         """Test various verdict formats."""
-        judge = KimiJudgeTier(api_key="test-key")
+        judge = KimiJudgeTier(api_key=TEST_API_KEY)
         verdict, conf = judge._parse_verdict(response_text)
         assert verdict == expected_verdict
 
     def test_parse_confidence(self):
         """Test confidence extraction."""
-        judge = KimiJudgeTier(api_key="test-key")
+        judge = KimiJudgeTier(api_key=TEST_API_KEY)
         response = "VERDICT: pass\nCONFIDENCE: 0.87\nExplanation: ..."
         verdict, confidence = judge._parse_verdict(response)
         assert verdict == "pass"
@@ -215,7 +219,7 @@ class TestVerdictParsing:
 
     def test_parse_no_confidence(self):
         """Test when confidence is not provided."""
-        judge = KimiJudgeTier(api_key="test-key")
+        judge = KimiJudgeTier(api_key=TEST_API_KEY)
         response = "VERDICT: pass"
         verdict, confidence = judge._parse_verdict(response)
         assert verdict == "pass"
@@ -227,7 +231,7 @@ class TestAPIFailure:
 
     def test_unreadable_screenshot_raises(self):
         """Trying to judge a nonexistent screenshot raises."""
-        judge = KimiJudgeTier(api_key="test-key")
+        judge = KimiJudgeTier(api_key=TEST_API_KEY)
         nonexistent = Path("/nonexistent/screenshot.png")
 
         with pytest.raises(ExternalJudgeUnavailable) as exc_info:
@@ -241,7 +245,7 @@ class TestRetryBehavior:
 
     def test_5xx_retries_then_succeeds(self, monkeypatch, tmp_path):
         """First response is 503, second is 200 with valid content. Receipt persisted, 2 HTTP calls."""
-        monkeypatch.setenv("MOONSHOT_API_KEY", "test-key")
+        monkeypatch.setenv("MOONSHOT_API_KEY", TEST_API_KEY)
         call_count = {"n": 0}
 
         def handler(request):
@@ -269,7 +273,7 @@ class TestRetryBehavior:
 
         monkeypatch.setattr("httpx.Client", mock_client_init)
 
-        judge = KimiJudgeTier(api_key="test-key")
+        judge = KimiJudgeTier(api_key=TEST_API_KEY)
 
         # Write a tiny PNG
         img = tmp_path / "shot.png"
@@ -289,7 +293,7 @@ class TestRetryBehavior:
 
     def test_5xx_terminal_failure_after_retry(self, monkeypatch, tmp_path):
         """Both attempts return 503. ExternalJudgeUnavailable is raised."""
-        monkeypatch.setenv("MOONSHOT_API_KEY", "test-key")
+        monkeypatch.setenv("MOONSHOT_API_KEY", TEST_API_KEY)
         call_count = {"n": 0}
 
         def handler(request):
@@ -304,7 +308,7 @@ class TestRetryBehavior:
 
         monkeypatch.setattr("httpx.Client", mock_client_init)
 
-        judge = KimiJudgeTier(api_key="test-key")
+        judge = KimiJudgeTier(api_key=TEST_API_KEY)
 
         img = tmp_path / "shot.png"
         img.write_bytes(
@@ -323,7 +327,7 @@ class TestRetryBehavior:
         """Happy-path call with mocked 200. SHA256 of disk bytes matches receipt."""
         import hashlib
 
-        monkeypatch.setenv("MOONSHOT_API_KEY", "test-key")
+        monkeypatch.setenv("MOONSHOT_API_KEY", TEST_API_KEY)
 
         def handler(request):
             return httpx.Response(
@@ -345,7 +349,7 @@ class TestRetryBehavior:
 
         monkeypatch.setattr("httpx.Client", mock_client_init)
 
-        judge = KimiJudgeTier(api_key="test-key")
+        judge = KimiJudgeTier(api_key=TEST_API_KEY)
 
         img = tmp_path / "shot.png"
         image_bytes = bytes.fromhex(
