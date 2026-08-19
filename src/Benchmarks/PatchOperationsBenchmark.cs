@@ -13,7 +13,7 @@ namespace DINOForge.Benchmarks;
 /// that modify unit definitions, stat overrides, and content modifications.
 /// </summary>
 [MemoryDiagnoser]
-[SimpleJob(warmupCount: 3, targetCount: 5)]
+[SimpleJob(warmupCount: 3, runCount: 5)]
 public class PatchOperationsBenchmark
 {
     private Dictionary<string, object> _baseUnitDefinition = null!;

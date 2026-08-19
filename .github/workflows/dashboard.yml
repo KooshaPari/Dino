@@ -46,7 +46,7 @@ jobs:
         run: |
           echo "Dashboard is up to date, no changes to commit."
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
