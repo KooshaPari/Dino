@@ -17,13 +17,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4
+        with:
+          submodules: recursive
 
       - uses: actions/setup-dotnet@4d6c8fcf3c8f7a60068d26b594648e99df24cee3 # v4.0.0
         with:
           dotnet-version: |
             8.0.x
           global-json-file: global.json
-          include-prerelease: true
 
       - name: Restore dependencies
         run: dotnet restore src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true
@@ -65,13 +66,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4
+        with:
+          submodules: recursive
 
       - uses: actions/setup-dotnet@4d6c8fcf3c8f7a60068d26b594648e99df24cee3 # v4.0.0
         with:
           dotnet-version: |
             8.0.x
           global-json-file: global.json
-          include-prerelease: true
 
       - name: Restore dependencies
         run: dotnet restore src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true
