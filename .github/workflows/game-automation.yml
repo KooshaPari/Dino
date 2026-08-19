@@ -25,7 +25,6 @@ on:
         description: 'Test duration in seconds'
         required: false
         default: '60'
-  checks: write
 
 jobs:
   parallel-automation:
