@@ -13,7 +13,6 @@ concurrency:
   cancel-in-progress: true
 
 
-permissions: {}
 
 jobs:
   codeql:
@@ -37,7 +36,7 @@ jobs:
           global-json-file: global.json
 
       - name: Restore dependencies
-        run: dotnet restore src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true
+        run: dotnet restore src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true --force-evaluate
 
       - name: Build
         run: dotnet build src/DINOForge.CI.NoRuntime.sln --configuration Release --no-restore /p:BuildProjectReferences=true
@@ -74,7 +73,7 @@ jobs:
           global-json-file: global.json
 
       - name: Restore dependencies
-        run: dotnet restore src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true
+        run: dotnet restore src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true --force-evaluate
 
       - name: Run vulnerability scan
         run: |
