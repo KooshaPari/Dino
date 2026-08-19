@@ -14,7 +14,7 @@ namespace DINOForge.Benchmarks;
 /// Measures the performance of loading pack.yaml files and computing content summaries.
 /// </summary>
 [MemoryDiagnoser]
-[SimpleJob(warmupCount: 3, targetCount: 5)]
+[SimpleJob(warmupCount: 3, runCount: 5)]
 public class PackLoadBenchmark
 {
     private string _testPackDir = null!;
