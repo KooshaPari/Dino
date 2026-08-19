@@ -3,7 +3,6 @@ name: Policy Gate
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  pull-requests: read
 
 jobs:
   governance:
