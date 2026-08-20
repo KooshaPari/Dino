@@ -1,0 +1,13 @@
+{
+  "pack_validate_success": "تایید بسته‌سازی با موفقیت بود",
+  "pack_validate_failed": "تایید بسته‌سازی با موفقیت نبود: {errors}",
+  "game_launch_success": "بازی با موفقیت راه اندازی شد",
+  "game_launch_failed": "راه اندازی بازی ناموفق بود: {error}",
+  "asset_import_started": "دریافت آست برای {count} فایل شروع شد",
+  "asset_import_complete": "دریافت آست تکمیل شد",
+  "catalog_loaded": "کاتالوگ با {count} ردیف بارگزاری شد",
+  "log_analysis_found": "{count} مشکل در لاگ در مشخص شد",
+  "mcp_tool_registered": "ابزار {name} ثبت شد",
+  "mcp_server_started": "سرور MCP در {host}:{port} راه اندازی شد",
+  "slo_budget_low": "بدهی از SLO پایین تر از {threshold}% است"
+}
