@@ -1,0 +1,13 @@
+{
+  "pack_validate_success": "Pack validation passed",
+  "pack_validate_failed": "Pack validation failed: {errors}",
+ "'game_launch_success": "Game launched successfully",
+  "game_launch_failed": "Game launch failed: {error}",
+  "asset_import_started": "Asset import started for {count} files",
+  "asset_import_complete": "Asset import complete",
+  "catalog_loaded": "Catalog loaded with {count} entries",
+  "log_analysis_found": "Found {count} issues in log",
+  "mcp_tool_registered": "Tool {name} registered",
+  "mcp_server_started": "MCP server started on {host}:{port}",
+  "slo_budget_low": "SLO error budget below {threshold}%"
+}
