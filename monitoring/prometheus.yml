@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s
+
+generation_interval: 15s
+
+scrape_configs:
+  - job_name: dinoforge-mcp
+    static_configs:
+      - targets: ["localhost:8080"]
+    metrics_path: /metrics
