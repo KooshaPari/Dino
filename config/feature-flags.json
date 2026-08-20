@@ -1,0 +1,51 @@
+{
+  "$schema": "feature-flags-v1",
+  "version": "1.0.0",
+  "flags": {
+    "asset_pipeline_v2": {
+      "description": "New Rust-based asset pipeline",
+      "enabled": true,
+      "percentage": 100,
+      "environments": [
+        "development",
+        "staging",
+        "production"
+      ]
+    },
+    "mcp_rest_api": {
+      "description": "REST API for MCP tools",
+      "enabled": true,
+      "percentage": 100,
+      "environments": [
+        "development"
+      ]
+    },
+    "voice_commands_v2": {
+      "description": "Enhanced voice intent recognition",
+      "enabled": false,
+      "percentage": 0,
+      "environments": [
+        "development"
+      ]
+    },
+    "game_automation_headless": {
+      "description": "Headless game automation mode",
+      "enabled": true,
+      "percentage": 50,
+      "environments": [
+        "development",
+        "staging"
+      ]
+    },
+    "i18n_fallback_chain": {
+      "description": "Enable locale fallback chain (fa_latn -> fa -> en)",
+      "enabled": true,
+      "percentage": 100,
+      "environments": [
+        "development",
+        "staging",
+        "production"
+      ]
+    }
+  }
+}
