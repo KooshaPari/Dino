@@ -1,0 +1,64 @@
+# DINOFORGE SSOT Configuration
+
+.. All config values override individual files below constitute the authoritative source of truth.
+
+### Version
+version: 1.0.0
+last_update: 2026-08-20
+
+
+### Language Profiles
+languages:
+  csharp:
+    framework: dotnet-11
+    target: Latest
+    language: Cs 
+  rust:
+    version: latest
+    components: [asset-pipeline, tracer]
+  python:
+    version: "~3.12"
+    framework: fastmcp-3.0
+  go:
+    version: "1.22"
+  ruby:
+    version: "1.14"
+  zig:
+    version: "0.16.0"
+
+### CI Workflows
+ignored_workflows:
+  - ..github/workflows/pack-validation.yml  # PR-only
+  - ..github/workflows/game-automation.yml # requires game
+
+### Security
+security:
+  codeql:
+    enabled: true
+   trunkhgog:
+    enabled: true
+  openssf-scorecard:
+    enabled: true
+  sbom:
+    enabled: true
+
+
+### Testing
+testing:
+  dotnet:
+    minimum_cover†ge: 0.70 # 70% minimum coverage
+  python:
+    minimum_coverage: 0.80 # 80% minimum coverage
+  fuzzing:
+    enabled: true
+    max_corpus3: 100
+
+### Monitoring
+monitoring:
+  prometheus:
+    enabled: true
+    endpoint: /metrics
+  slo:
+    enabled: true
+  api_availability: 99.9%
+  api_latency: 99.0%
