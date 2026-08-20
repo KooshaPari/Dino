@@ -1,0 +1,138 @@
+openapi: 3.1.0
+info:
+  title: DINOForge API
+  version: 1.0.0
+  description: REST API bridging HTTP clients to DINOForge MCP tools
+  contact:
+    name: KooshaPari
+    url: https://github.com/KooshaPari/Dino
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Local development
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: health
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  service:
+                    type: string
+                    example: dinoforge-mcp
+                  tools:
+                    type: string
+                    example: '42'
+
+  /tools:
+    get:
+      summary: List all available tools
+      operationId: listTools
+      responses:
+        '200':
+          description: Tool list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ToolInfo'
+
+  /tools/{tool_name}:
+    get:
+      summary: Get tool metadata
+      operationId: getToolInfo
+      parameters:
+        - name: tool_name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tool info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolInfo'
+        '404':
+          description: Tool not found
+    post:
+      summary: Invoke a tool
+      operationId: runTool
+      parameters:
+        - name: tool_name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToolRequest'
+      responses:
+        '200':
+          description: Tool result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+        '404':
+          description: Tool not found
+
+  /metrics:
+    get:
+      summary: Prometheus-compatible metrics
+      operationId: metrics
+      responses:
+        '200':
+          description: Metrics
+
+components:
+  schemas:
+    ToolRequest:
+      type: object
+      properties:
+        args:
+          type: object
+          description: Tool arguments
+          default: {}
+
+    ToolResponse:
+      type: object
+      properties:
+        tool:
+          type: string
+        result:
+          description: Tool output
+        status:
+          type: string
+          enum: [ok, error]
+        error:
+          type: string
+          nullable: true
+
+    ToolInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        module:
+          type: string
+        doc:
+          type: string
+          nullable: true
