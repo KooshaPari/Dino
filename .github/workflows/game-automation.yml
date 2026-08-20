@@ -47,7 +47,6 @@ jobs:
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '11.0.x'
-          include-prerelease: true
 
       - name: Verify .NET installation
         run: |
@@ -59,12 +58,12 @@ jobs:
           Write-Host "Setting up game paths..." -ForegroundColor Cyan
           $gamePath = "G:\SteamLibrary\steamapps\common\Diplomacy is Not an Option"
           if (Test-Path $gamePath) {
-            Write-Host "✓ Game found at: $gamePath" -ForegroundColor Green
+            Write-Host "Game found at: $gamePath" -ForegroundColor Green
           } else {
-            Write-Host "⚠ Game not found at expected path" -ForegroundColor Yellow
+            Write-Host "Game not found at expected path" -ForegroundColor Yellow
             Write-Host "Creating mock environment for testing..." -ForegroundColor Yellow
             New-Item -ItemType Directory -Path $gamePath -Force | Out-Null
-            New-Item -ItemType File -Path "$gamePath\Diplomacy is Not an Option.exe" -Force | Out-Null
+            New-Item -ItemType File -Path (Join-Path $gamePath 'Diplomacy is Not an Option.exe') -Force | Out-Null
           }
         shell: powershell
 
@@ -91,7 +90,7 @@ jobs:
               $health = Invoke-WebRequest -Uri "http://127.0.0.1:8765/health" `
                 -TimeoutSec 2 -ErrorAction Stop
               if ($health.StatusCode -eq 200) {
-                Write-Host "✓ MCP server is running" -ForegroundColor Green
+                Write-Host "MCP server is running" -ForegroundColor Green
                 break
               }
             } catch {
@@ -101,7 +100,7 @@ jobs:
           }
 
           if ($retryCount -ge $maxRetries) {
-            Write-Host "✗ MCP server failed to start" -ForegroundColor Red
+            Write-Host "MCP server failed to start" -ForegroundColor Red
             exit 1
           }
 
@@ -179,9 +178,9 @@ jobs:
           Write-Host "Instance count: ${{ matrix.instances }}"
           Write-Host "Status: ${{ job.status }}"
           if ('${{ job.status }}' -eq 'success') {
-            Write-Host "✓ All tests passed" -ForegroundColor Green
+            Write-Host "All tests passed" -ForegroundColor Green
           } else {
-            Write-Host "✗ Some tests failed" -ForegroundColor Red
+            Write-Host "Some tests failed" -ForegroundColor Red
           }
         shell: powershell
 
