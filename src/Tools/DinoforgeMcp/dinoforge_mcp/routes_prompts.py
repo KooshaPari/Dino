@@ -65,12 +65,12 @@ def register(mcp: FastMCP):
     # ===========================================================================
 
     @mcp.custom_route("/health", methods=["GET"])
-    async def health_check(request: Request):
+    async def health_check(request: Request) -> JSONResponse:
         """Health check endpoint for service monitoring and startup verification."""
         return JSONResponse({"status": "ok", "server": "dinoforge-mcp", "version": "0.13.0"})
 
     @mcp.custom_route("/game/navigate", methods=["POST"])
-    async def game_navigate_route(request: Request):
+    async def game_navigate_route(request: Request) -> JSONResponse:
         """REST shim: POST /game/navigate  body: {"state":"gameplay"}"""
         body = await request.json()
         state = body.get("state", "gameplay")
@@ -99,12 +99,12 @@ def register(mcp: FastMCP):
         return JSONResponse({"success": False, "error": f"Unsupported state: {state}"})
 
     @mcp.custom_route("/game/status", methods=["GET"])
-    async def game_status_route(request: Request):
+    async def game_status_route(request: Request) -> JSONResponse:
         """REST shim: GET /game/status"""
         return JSONResponse(_run_game_cli("status"))
 
     @mcp.custom_route("/game/screenshot", methods=["POST"])
-    async def game_screenshot_route(request: Request):
+    async def game_screenshot_route(request: Request) -> JSONResponse:
         """REST shim: POST /game/screenshot"""
         result = _run_game_cli("screenshot")
         return JSONResponse(result)
@@ -114,7 +114,7 @@ def register(mcp: FastMCP):
     # ===========================================================================
 
     @mcp.custom_route("/hmr", methods=["POST"])
-    async def hmr_route(request: Request):
+    async def hmr_route(request: Request) -> JSONResponse:
         """
         HTTP endpoint for hot-module-reload notifications.
         Called by scripts/game/hot-reload.ps1 after deploying a new Runtime DLL.
@@ -141,7 +141,7 @@ def register(mcp: FastMCP):
 
     @mcp.custom_route("/ai/v1/stack/preferences", methods=["GET"])
     @mcp.custom_route("/preferences/stack", methods=["GET"])
-    async def ai_stack_preferences_route(_: Request):
+    async def ai_stack_preferences_route(_: Request) -> JSONResponse:
         preference = get_provider_status()
         return JSONResponse(
             {
@@ -153,7 +153,7 @@ def register(mcp: FastMCP):
 
     @mcp.custom_route("/ai/v1/router", methods=["POST"])
     @mcp.custom_route("/ai/v1/adapter", methods=["POST"])
-    async def ai_stack_route(request: Request):
+    async def ai_stack_route(request: Request) -> JSONResponse:
         """Preference-aware shim routes for future Vercel AI SDK / Bifrost backends."""
         try:
             payload = await request.json()
