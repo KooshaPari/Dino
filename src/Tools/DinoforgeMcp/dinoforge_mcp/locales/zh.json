@@ -1,0 +1,13 @@
+{
+  "pack_validate_success": "包验证通过",
+  "pack_validate_failed": "包验证失败: {errors}",
+  "game_launch_success": "游戏启动成功",
+  "game_launch_failed": "游戏启动失败: {error}",
+  "asset_import_started": "已开始导入 {count} 个文件",
+  "asset_import_complete": "资产导入完成",
+  "catalog_loaded": "已加载 {count} 个目录",
+  "log_analysis_found": "在日志中发现 {count} 个问题",
+  "mcp_tool_registered": "已注册工具 {name}",
+  "mcp_server_started": "MCP服务已在 {host}:{port} 启动",
+  "slo_budget_low": "SLO错误预算低于 {threshold}%"
+}
