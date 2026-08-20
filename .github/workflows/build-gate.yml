@@ -40,7 +40,7 @@ jobs:
           restore-keys: ${{ runner.os }}-nuget-
       - name: Restore and Build SDK
         run: |
-          dotnet restore src/SDK/DINOForge.SDK.csproj /p:RestoreLockedMode=true
+          dotnet restore src/SDK/DINOForge.SDK.csproj /p:RestoreLockedMode=true --force-evaluate
           dotnet build src/SDK/DINOForge.SDK.csproj -c Release --no-restore --verbosity normal
 
   build-runtime:
@@ -61,7 +61,7 @@ jobs:
           restore-keys: ${{ runner.os }}-nuget-
       - name: Restore and Build Runtime
         run: |
-          dotnet restore src/Runtime/DINOForge.Runtime.csproj /p:RestoreLockedMode=true
+          dotnet restore src/Runtime/DINOForge.Runtime.csproj /p:RestoreLockedMode=true --force-evaluate
           dotnet build src/Runtime/DINOForge.Runtime.csproj -c Release -p:TargetFramework=netstandard2.0 --no-restore --verbosity normal
 
   build-runtime-windows:
@@ -82,7 +82,7 @@ jobs:
           restore-keys: ${{ runner.os }}-nuget-
       - name: Restore and Build Runtime (Windows)
         run: |
-          dotnet restore src/Runtime/DINOForge.Runtime.csproj /p:RestoreLockedMode=true
+          dotnet restore src/Runtime/DINOForge.Runtime.csproj /p:RestoreLockedMode=true --force-evaluate
           dotnet build src/Runtime/DINOForge.Runtime.csproj -c Release -p:TargetFramework=netstandard2.0 --no-restore --verbosity minimal
 
   build-cli:
@@ -103,7 +103,7 @@ jobs:
           restore-keys: ${{ runner.os }}-nuget-
       - name: Restore and Build CLI
         run: |
-          dotnet restore src/Tools/Cli/DINOForge.Tools.Cli.csproj /p:RestoreLockedMode=true
+          dotnet restore src/Tools/Cli/DINOForge.Tools.Cli.csproj /p:RestoreLockedMode=true --force-evaluate
           dotnet build src/Tools/Cli/DINOForge.Tools.Cli.csproj -c Release --no-restore --verbosity normal
 
   build-packcompiler:
@@ -124,5 +124,5 @@ jobs:
           restore-keys: ${{ runner.os }}-nuget-
       - name: Restore and Build PackCompiler
         run: |
-          dotnet restore src/Tools/PackCompiler/ /p:RestoreLockedMode=true
+          dotnet restore src/Tools/PackCompiler/ /p:RestoreLockedMode=true --force-evaluate
           dotnet build src/Tools/PackCompiler/ -c Release --no-restore --verbosity normal
