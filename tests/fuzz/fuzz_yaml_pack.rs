@@ -7,7 +7,7 @@ use libfuzzer_sys::fuzz_target;
 
 fuzz_target!(|data: &[u8]| {
     if let Ok(text) = std::str::from_utf8(data) {
-        // Test serde_yaml deserialization doesnt panic on arbitrary input
+        // Test serde_yaml deserialization doesn't panic on arbitrary input
         let _ = serde_yaml::from_str::<serde_json::Value>(text);
 
         // Test that repeated parsing is idempotent
