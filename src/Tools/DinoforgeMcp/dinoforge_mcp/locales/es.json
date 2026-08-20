@@ -1,0 +1,13 @@
+{
+  "pack_validate_success": "Validacion de paquete aprobada",
+  "pack_validate_failed": "Validacion de paquete fallida: {errors}",
+  "game_launch_success": "Juego iniciado exitosamente",
+  "game_launch_failed": "Fallo al iniciar juego: {error}",
+  "asset_import_started": "Importacion de assets iniciada para {count} archivos",
+  "asset_import_complete": "Importacion de assets completad",
+  "catalog_loaded": "Catalogo cargado con {count} entredas",
+  "log_analysis_found": "Found {count} problemas en el registro",
+  "mcp_tool_registered": "Heramienta {name} registrada",
+  "mcp_server_started": "Servidor MCP iniciado en {host}:{port}",
+  "slo_budget_low": "Presupuesto SLO por delabos de {threshold}%"
+}
