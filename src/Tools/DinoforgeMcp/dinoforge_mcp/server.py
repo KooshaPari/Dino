@@ -77,5 +77,32 @@ def main() -> None:
         logger.info("Starting DINOForge MCP in stdio mode (for MCP client)")
         mcp.run()
 
+
+# Backward-compatible re-exports (moved from monolithic server.py)
+# Tests and external code may import these from dinoforge_mcp.server
+import pathlib as _pathlib
+import os as _os
+
+DEFAULT_GAME_PIPE_NAME = r"\\.\pipe\DINoF_Pipe"
+
+def _pipe_exists(pipe_name: str) -> bool:
+    """Check if a named pipe exists on the filesystem."""
+    if _os.name == 'nt':
+        return True
+    return _pathlib.Path(pipe_name).exists()
+
+def _select_pipe_name(explicit: str | None = None) -> tuple[str, bool]:
+    """Select the MCP bridge pipe name.
+
+    Priority: explicit arg > DINOFORGE_PIPE_NAME env > DEFAULT_GAME_PIPE_NAME
+    Returns (pipe_name, used_fallback).
+    """
+    env_name = _os.environ.get("DINOFORGE_PIPE_NAME", "")
+    if env_name and _pipe_exists(env_name):
+        return env_name, False
+    if explicit and _pipe_exists(explicit):
+        return explicit, False
+    return DEFAULT_GAME_PIPE_NAME, True
+
 if __name__ == "__main__":
     main()
