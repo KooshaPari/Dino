@@ -1,0 +1,48 @@
+# Cost Monitoring Configuration for DINOForge
+# Tracks infrastructure costs across AWS services
+
+# AWS Cost Explorer config
+cost_explorer:
+  enabled: true
+  refresh_interval: 24h
+  dimensions:
+    - SERVICE
+    - USAGE_TYPE
+    - REGION
+
+# Budget alerts
+budgets:
+  - name: dinoforge-monthly
+    type: monthly
+    budget_amount: 500
+    currency: USD
+    threshold_alerts:
+      - percentage: 80
+        channels: [slack]
+      - percentage: 100
+        channels: [slack, email]
+      - percentage: 120
+        channels: [slack, email, pager]
+
+  - name: dinoforge-ecr-storage
+    type: monthly
+    budget_amount: 50
+    currency: USD
+    service: ECR
+    threshold_alerts:
+      - percentage: 90
+        channels: [slack]
+
+# Cost allocation tags
+tagging:
+  required_tags:
+    - team: dinoforge
+    - service: mcp-server
+    - environment: staging
+
+# Savings recommendations
+recommendations:
+  reserved_instances: true
+  savings_plans: true
+  spot_instances: true
+  cost_anomaly_detection: true
