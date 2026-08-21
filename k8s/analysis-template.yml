@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: health-check
+  namespace: dinoforge
+spec:
+  args:
+    - name: service-name
+      value: dinoforge-mcp-canary
+  metrics:
+    - name: health-check
+      count: 5
+      interval: 30s
+      successCondition: result == 200
+      provider:
+        http:
+          url: http://{{args.service-name}}:8080/health
+          method:
+            get: {}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: latency-check
+  namespace: dinoforge
+spec:
+  args:
+    - name: service-name
+      value: dinoforge-mcp-canary
+  metrics:
+    - name: latency-p95
+      count: 3
+      interval: 60s
+      successCondition: result[0] < 2000
+      provider:
+        http:
+          url: http://{{args.service-name}}:8080/health
+          method:
+            get: {}
