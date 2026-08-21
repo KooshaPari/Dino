@@ -1,0 +1,64 @@
+# External Uptime Monitoring Configuration
+# Compatible with UptimeRobot, Checkly, or similar services
+
+# Checkly Configuration
+checks:
+  - name: DINOForge MCP Health
+    type: api
+    url: https://dinoforge.example.com/health
+    method: GET
+    interval: 60
+    regions:
+      - us-east-1
+      - eu-west-1
+      - ap-southeast-1
+    assertions:
+      - type: statusCode
+        target: 200
+      - type: jsonBody
+        property: $.status
+        target: healthy
+    alert:
+      channels:
+        - email
+        - slack
+      escalation:
+        - after: 3
+          channels: [pager]
+
+  - name: DINOForge MCP Tools List
+    type: api
+    url: https://dinoforge.example.com/tools
+    method: GET
+    interval: 300
+    assertions:
+      - type: statusCode
+        target: 200
+      - type: jsonBody
+        property: $.length
+        operator: greaterThan
+        target: 0
+
+  - name: DINOForge REST API Response Time
+    type: api
+    url: https://dinoforge.example.com/tools/game_screenshot
+    method: POST
+    body:
+      args: {}
+    headers:
+      Content-Type: application/json
+    interval: 300
+    assertions:
+      - type: statusCode
+        target: 200
+      - type: responseTime
+        target: 3000
+    alert:
+      channels:
+        - slack
+
+# Alerting thresholds
+alerting:
+  availability_target: 99.9
+  latency_p95_target: 2000
+  latency_p99_target: 5000
