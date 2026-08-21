@@ -1,0 +1,79 @@
+# Loki Log Aggregation Configuration for DINOForge
+# Add to monitoring stack in docker-compose.yml
+
+# Loki config (loki-config.yml)
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+ingester:
+  lifecycler:
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+  chunk_idle_period: 5m
+  chunk_retain_period: 30s
+
+distributor:
+  ring:
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2024-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  filesystem:
+    directory: /loki/chunks
+
+limits_config:
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
+  max_query_length: 721h
+
+compactor:
+  working_directory: /loki/compactor
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
+
+# Promtail config (promtail-config.yml)
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: dinoforge-mcp
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: dinoforge-mcp
+          host: "${HOSTNAME}"
+          __path__: /var/log/dinoforge/*.log
+    pipeline_stages:
+      - json:
+          expressions:
+            level: level
+            msg: message
+      - labels:
+          level:
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
