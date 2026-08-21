@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: dinoforge-mcp
+  namespace: dinoforge
+spec:
+  replicas: 4
+  strategy:
+    canary:
+      canaryService: dinoforge-mcp-canary
+      stableService: dinoforge-mcp-stable
+      trafficRouting:
+        nginx:
+          stableIngress: dinoforge-mcp-ingress
+          additionalIngressAnnotations:
+            canary-by-header: X-Canary
+      steps:
+        - setWeight: 10
+        - pause: { duration: 60s }
+        - analysis:
+            templates:
+              - templateName: health-check
+        - setWeight: 25
+        - pause: { duration: 120s }
+        - analysis:
+            templates:
+              - templateName: latency-check
+        - setWeight: 50
+        - pause: { duration: 120s }
+        - setWeight: 75
+        - pause: { duration: 60s }
+      canaryMetadata:
+        labels:
+          role: canary
+      stableMetadata:
+        labels:
+          role: stable
+  selector:
+    matchLabels:
+      app: dinoforge-mcp
+  template:
+    metadata:
+      labels:
+        app: dinoforge-mcp
+    spec:
+      containers:
+        - name: mcp-server
+          image: ghcr.io/kooshapari/dinoforge-mcp:latest
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
