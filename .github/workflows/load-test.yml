@@ -1,0 +1,63 @@
+name: Load Testing
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'API base URL'
+        required: false
+        default: 'http://localhost:8080'
+  schedule:
+    - cron: '0 4 * * 1'  # Weekly Monday 4am
+
+permissions:
+  contents: read
+
+jobs:
+  k6-load-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Start services
+        run: |
+          docker compose -f docker-compose.yml up -d --build
+          sleep 10
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D68
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Run k6 load test
+        run: |
+          k6 run tests/load/k6_mcp_tools.js \
+            --out json=tests/load/k6_results.json \
+            --summary-export=tests/load/k6_summary.json
+        env:
+          BASE_URL: ${{ github.event.inputs.base_url || 'http://localhost:8080' }}
+
+      - name: Check thresholds
+        run: |
+          python -c "
+          import json
+          data = json.load(open('tests/load/k6_summary.json'))
+          p95 = data.get('http_req_duration', {}).get('p(95)', 0)
+          errors = data.get('http_req_failed', 0)
+          print(f'P95 latency: {p95:.0f}ms')
+          print(f'Error rate: {errors:.1%}')
+          assert p95 < 2000, f'P95 {p95}ms > 2000ms threshold'
+          assert errors < 0.1, f'Error rate {errors:.1%} > 10% threshold'
+          print('All thresholds passed!')
+          "
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.5.0
+        with:
+          name: k6-load-test-results
+          path: tests/load/k6_*.json
+          retention-days: 30
