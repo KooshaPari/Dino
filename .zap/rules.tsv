@@ -1,0 +1,17 @@
+# ZAP Baseline Scan Rules
+# Format: rule_id\taction
+# https://www.zproxy.org/docs/docker/baseline-scan/
+10010\tWARN\tCookie without SameSite
+10011\tWARN\tCookie without Secure flag
+10015\tWARN_Re-examine cache-control
+10017\tWARN\tCross-domain JS source
+10020\tWARN\tAnti-clickjucking header
+10021\tWARN_X-Content-Type-Options missing
+10036\tWARN\tServer Leaks Version
+10038\tWARN\tContent Security Policy missing
+10098\tWARN\tCross-domain misconfiguration
+10105\tWARN_Weak authentication method
+40012\tASS_X=forgers\tCross Site Scripting (Reflected)
+40014\tPASS\tCross Site Scripting (DOM Based)
+40016\tASS_^&forgers\tCross Site Scripting (Persistent)
+90033\tSPARHw\tLoosely scoped cookie
