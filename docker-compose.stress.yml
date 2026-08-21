@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  k6-stress:
+    image: grafana/k6:latest
+    volumes:
+      - ./tests/load:/scripts
+    command: run --vus 50 --duration 5m /scripts/k6_stress.js
+    environment:
+      - BASE_URL=http://host.docker.internal:8080
