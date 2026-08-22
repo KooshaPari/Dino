@@ -263,7 +263,7 @@ namespace DINOForge.Runtime.UI
 #pragma warning restore DF0105
 
         /// <summary>
-        /// Destroys lingering InitialGameLoader canvases (vanilla splash/ad banner) that persist
+        /// Destroys lingering InitialGameLoader canvases (vanilla splash/ad banner), Loader (chicken skeleton), and other orphaned loading canvases that persist
         /// after the scene transitions to MainMenu.
         /// </summary>
         private void CleanupLingeringSplashCanvases()
@@ -279,7 +279,10 @@ namespace DINOForge.Runtime.UI
                     if (string.IsNullOrEmpty(name)) continue;
                     bool isSplash = name.IndexOf("InitialGameLoader", StringComparison.OrdinalIgnoreCase) >= 0
                                  || (name.IndexOf("PrimeCanvas", StringComparison.OrdinalIgnoreCase) >= 0
-                                     && name.IndexOf("Splash", StringComparison.OrdinalIgnoreCase) >= 0);
+                                     && name.IndexOf("Splash", StringComparison.OrdinalIgnoreCase) >= 0)
+                                 || name.Equals("Loader", StringComparison.OrdinalIgnoreCase)
+                                 || name.IndexOf("chicken", StringComparison.OrdinalIgnoreCase) >= 0
+                                 || name.IndexOf("skeleton", StringComparison.OrdinalIgnoreCase) >= 0;
                     if (isSplash && c.gameObject.activeInHierarchy)
                     {
                         DebugLog.Write("NativeMenuInjector", $"[SplashCleanup] Destroying lingering canvas '{name}'");
