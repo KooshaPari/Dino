@@ -485,6 +485,22 @@ namespace DINOForge.Runtime.UI
             }
             DebugLog.Write("LoadingScreen", "[LoadingScreenController] Fade-out complete; destroying.");
             if (Instance == this) Instance = null;
+            // Also hide the game's own PrimeCanvas InitialGameLoader (ad banner skeleton)
+            try
+            {
+                Canvas[] allCanvases = Resources.FindObjectsOfTypeAll<Canvas>();
+                foreach (Canvas c in allCanvases)
+                {
+                    if (c != null && c.name != null
+                        && c.name.IndexOf("InitialGameLoader", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        DebugLog.Write("LoadingScreen", $"[LoadingScreenController] Hiding game's own '{c.name}' canvas");
+                        c.gameObject.SetActive(false);
+                    }
+                }
+            }
+            catch { /* best-effort cleanup */ }
+
             Destroy(gameObject);
         }
 
