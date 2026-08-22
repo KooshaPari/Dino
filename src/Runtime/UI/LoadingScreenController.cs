@@ -130,6 +130,8 @@ namespace DINOForge.Runtime.UI
                 Destroy(Instance.gameObject);
                 Instance = null;
             }
+            if (Instance != null && !Instance._dismissed) { DebugLog.Write("LoadingScreen","Reusing"); return Instance; }
+            if (Instance != null) { Destroy(Instance.gameObject); Instance = null; }
             try
             {
                 var controller = parent.AddComponent<LoadingScreenController>();
@@ -504,9 +506,10 @@ namespace DINOForge.Runtime.UI
                 foreach (Canvas c in allCanvases)
                 {
                     if (c != null && c.name != null
-                        && c.name.IndexOf("InitialGameLoader", StringComparison.OrdinalIgnoreCase) >= 0)
+                        && (c.name.IndexOf("InitialGameLoader", StringComparison.OrdinalIgnoreCase) >= 0
+                         || c.name.IndexOf("DINOForge_LoadingScreen", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
-                        DebugLog.Write("LoadingScreen", $"[LoadingScreenController] Hiding game's own '{c.name}' canvas");
+                        DebugLog.Write("LoadingScreen", $"[LoadingScreenController] Hiding canvas '{c.name}'");
                         c.gameObject.SetActive(false);
                     }
                 }
