@@ -118,6 +118,18 @@ namespace DINOForge.Runtime.UI
         /// <summary>Creates the themed loading screen on the given parent (DINOForge_Root).</summary>
         public static LoadingScreenController? Create(GameObject parent, string packsDir, ManualLogSource? log)
         {
+            // Singleton guard: reuse if active, destroy if stale
+            if (Instance != null && !Instance._dismissed)
+            {
+                DebugLog.Write("LoadingScreen", "[LoadingScreenController] Reusing existing instance.");
+                return Instance;
+            }
+            if (Instance != null)
+            {
+                DebugLog.Write("LoadingScreen", "[LoadingScreenController] Destroying stale instance.");
+                Destroy(Instance.gameObject);
+                Instance = null;
+            }
             try
             {
                 var controller = parent.AddComponent<LoadingScreenController>();
