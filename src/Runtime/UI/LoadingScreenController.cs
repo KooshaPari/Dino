@@ -295,7 +295,7 @@ namespace DINOForge.Runtime.UI
         /// <summary>Re-shows the loading screen (e.g. on the InitialGameLoader scene change).</summary>
         public void EnsureVisible()
         {
-            if (this == null || _canvasGroup == null) return;
+            if (this == null || _canvasGroup == null || _dismissed) return;
             // A new load window has begun (e.g. InitialGameLoader re-entered): clear any pending
             // fade and resume the indeterminate animation so we cover this load fully with a LIVE
             // overlay — preventing the native DINO loader from flashing through (BUG B).
@@ -336,7 +336,8 @@ namespace DINOForge.Runtime.UI
         /// </summary>
         public void BeginFadeOut()
         {
-            if (_fadingOut || this == null) return;
+            if (_fadingOut || _dismissed || this == null) return;
+            _dismissed = true;
             _fadeRequested = true;
             _targetProgress = 1f;
             CancelSafetyTimer();
