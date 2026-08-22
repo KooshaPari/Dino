@@ -262,6 +262,41 @@ namespace DINOForge.Runtime.UI
         }
 #pragma warning restore DF0105
 
+        /// <summary>
+        /// Destroys lingering InitialGameLoader canvases (vanilla splash/ad banner) that persist
+        /// after the scene transitions to MainMenu.
+        /// </summary>
+        private void CleanupLingeringSplashCanvases()
+        {
+            try
+            {
+                Canvas[] allCanvases = Resources.FindObjectsOfTypeAll<Canvas>();
+                int destroyed = 0;
+                foreach (Canvas c in allCanvases)
+                {
+                    if (c == null || c.gameObject == null) continue;
+                    string name = c.name;
+                    if (string.IsNullOrEmpty(name)) continue;
+                    bool isSplash = name.IndexOf("InitialGameLoader", StringComparison.OrdinalIgnoreCase) >= 0
+                                 || (name.IndexOf("PrimeCanvas", StringComparison.OrdinalIgnoreCase) >= 0
+                                     && name.IndexOf("Splash", StringComparison.OrdinalIgnoreCase) >= 0);
+                    if (isSplash && c.gameObject.activeInHierarchy)
+                    {
+                        DebugLog.Write("NativeMenuInjector", $"[SplashCleanup] Destroying lingering canvas '{name}'");
+                        LogInfo($"[NativeMenuInjector] CleanupLingeringSplashCanvases: destroying '{name}'");
+                        UnityEngine.Object.Destroy(c.gameObject);
+                        destroyed++;
+                    }
+                }
+                if (destroyed > 0)
+                    DebugLog.Write("NativeMenuInjector", $"[SplashCleanup] Destroyed {destroyed} lingering splash canvas(es)");
+            }
+            catch (Exception ex)
+            {
+                LogWarning($"[NativeMenuInjector] CleanupLingeringSplashCanvases EXCEPTION: {ex}");
+            }
+        }
+
         // ------------------------------------------------------------------ //
         // Text re-enforcement
         // ------------------------------------------------------------------ //
@@ -317,6 +352,11 @@ namespace DINOForge.Runtime.UI
             // Reset the guard so TryInjectMenuButton can run for the new scene.
             // The guard was set true during the LoadScene(1) call that triggered this scene change.
             _s_sceneTransitionGuard = false;
+
+            // Destroy lingering InitialGameLoader canvases (vanilla splash/ad banner)
+            // that persist after scene transition to MainMenu.
+            CleanupLingeringSplashCanvases();
+
             TryInjectMenuButton();
         }
 
