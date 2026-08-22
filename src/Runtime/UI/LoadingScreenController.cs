@@ -85,6 +85,7 @@ namespace DINOForge.Runtime.UI
         private bool _fadingOut;
         private bool _fadeRequested;
         private bool _animating;
+        private bool _dismissed;
         private float _elapsed;
         private ManualLogSource? _log;
         private Timer? _safetyTimer;
@@ -112,7 +113,7 @@ namespace DINOForge.Runtime.UI
         // Safety-net timeout: if no BeginFadeOut() call arrives within this many seconds, force
         // a fade anyway. This prevents orphaned loading screens from blocking UI clicks if any
         // caller path is missed (e.g. OnActiveSceneChanged race, _modPlatform null at RunMainMenuInit).
-        private const float MaxVisibleSeconds = 8f;
+        private const float MaxVisibleSeconds = 5f;
 
         /// <summary>Creates the themed loading screen on the given parent (DINOForge_Root).</summary>
         public static LoadingScreenController? Create(GameObject parent, string packsDir, ManualLogSource? log)
@@ -443,7 +444,8 @@ namespace DINOForge.Runtime.UI
 
         private void OnSafetyTimerElapsed(object? state)
         {
-            if (_fadingOut || this == null) return;
+            if (_fadingOut || _dismissed || this == null) return;
+                _dismissed = true;
 
             DebugLog.Write("LoadingScreen", $"[LoadingScreenController] Safety-net timeout ({MaxVisibleSeconds}s) — forcing fade.");
             _log?.LogWarning($"[LoadingScreenController] Safety-net timeout ({MaxVisibleSeconds}s) — forcing fade (wall-clock timer).");
@@ -465,7 +467,8 @@ namespace DINOForge.Runtime.UI
                 Debug.LogError($"[LoadingScreenController] Failed to marshal fade timeout to main thread: {ex}");
             }
 
-            Debug.LogWarning("[LoadingScreenController] Main-thread dispatcher unavailable; safety-net fade could not be marshaled.");
+            Debug.LogWarning("[LoadingScreenController] Dispatcher unavailable; destroying loading screen directly.");
+            try { if (_canvasGroup != null) _canvasGroup.alpha = 0f; if (Instance == this) Instance = null; Destroy(gameObject); } catch { }
         }
 
         private IEnumerator FadeOutRoutine()
