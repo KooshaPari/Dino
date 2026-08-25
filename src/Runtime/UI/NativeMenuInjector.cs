@@ -360,6 +360,32 @@ namespace DINOForge.Runtime.UI
             // that persist after scene transition to MainMenu.
             CleanupLingeringSplashCanvases();
 
+            // Periodic cleanup: game recreates Loader canvas ~12ms after destroy.
+            // Poll every 500ms for 30 seconds to kill any that keep reappearing.
+            var cleanupTimer = new System.Threading.Timer(_ =>
+            {
+                try
+                {
+                    int cleaned = 0;
+                    foreach (var c in Object.FindObjectsOfType<Canvas>())
+                    {
+                        if (c == null) continue;
+                        var name = c.name ?? "";
+                        bool isLoader = name.Equals("Loader", StringComparison.OrdinalIgnoreCase)
+                                         || name.IndexOf("chicken", StringComparison.OrdinalIgnoreCase) >= 0
+                                         || name.IndexOf("skeleton", StringComparison.OrdinalIgnoreCase) >= 0;
+                        if (isLoader && c.gameObject.activeSelf)
+                        {
+                            Object.Destroy(c.gameObject);
+                            cleaned++;
+                        }
+                    }
+                }
+                catch { /* best-effort */ }
+            }, null, 500, 500);
+            
+            var stopTimer = new System.Threading.Timer(_ => { cleanupTimer.Dispose(); }, null, 30000, System.Threading.Timeout.Infinite);
+
             TryInjectMenuButton();
         }
 
