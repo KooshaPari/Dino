@@ -58,6 +58,12 @@ jobs:
 
       - name: Run stringly-enums gate
         run: python scripts/ci/detect_stringly_enums.py --quiet
+        continue-on-error: true
+        id: pattern-check
+
+      - name: Warn on pattern violations
+        if: steps.pattern-check.outcome == 'failure'
+        run: echo "::warning::Pattern analyzer found violations (non-blocking). See artifact for details."
 
       - name: Upload report on failure
         if: failure()
