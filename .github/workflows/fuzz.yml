@@ -27,7 +27,7 @@ jobs:
           global-json-file: global.json
 
       - name: Restore dependencies
-        run: dotnet restore src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true
+        run: dotnet restore --force-evaluate src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true
 
       - name: Build dependencies (ordered)
         run: |
@@ -76,7 +76,7 @@ jobs:
           global-json-file: global.json
 
       - name: Restore dependencies
-        run: dotnet restore src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true
+        run: dotnet restore --force-evaluate src/DINOForge.CI.NoRuntime.sln /p:RestoreLockedMode=true
 
       - name: Build dependencies (ordered)
         run: |
