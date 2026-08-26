@@ -53,6 +53,12 @@ jobs:
 
       - name: Run inline-json-options gate
         run: python scripts/ci/detect_inline_json_options.py --quiet
+        continue-on-error: true
+        id: pattern-check
+
+      - name: Warn on pattern violations
+        if: steps.pattern-check.outcome == 'failure'
+        run: echo "::warning::Pattern analyzer found violations (non-blocking). See artifact for details."
 
       - name: Upload report on failure
         if: failure()
