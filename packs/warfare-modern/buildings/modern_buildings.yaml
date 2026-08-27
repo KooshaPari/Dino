@@ -1,0 +1,11 @@
+buildings:
+  - { id: command_post, name: "Forward Command Post", type: hq, cost: 3000, hp: 800, defense: 50, radius: 4, provides: [command_burst, radar_sweep] }
+  - { id: armory, name: "Field Armory", type: production, cost: 2500, hp: 600, defense: 30, build_slots: 2, produces: [repair, rearment] }
+  - { id: radar_station, name: "AN/TPQ Radar Station", type: radar, cost: 2000, hp: 400, defense: 20, detection_range: 8, tracks: 12 }
+  - { id: sam_site, name: "SAM Engagement Zone", type: air_defense, cost: 3500, hp: 500, defense: 40, coverage: 6, fires: [patriot, thaad] }
+  - { id: fuel_depot, name: "Bulk Fuel Depot", type: logistics, cost: 1500, hp: 350, defense: 15, capacity: 5000, replenish_rate: 200 }
+  - { id: field_hospital, name: "Role 2 Field Hospital", type: medical, cost: 1800, hp: 300, defense: 10, healing_rate: 50, beds: 100 }
+  - { id: ammo_dump, name: "Ammunition Supply Point", type: logistics, cost: 1600, hp: 300, defense: 10, capacity: 8000, replenish_rate: 300 }
+  - { id: helipad, name: "Expeditionary Helipad", type: aviation, cost: 2200, hp: 400, defense: 20, slots: 2, repairs: true }
+  - { id: comms_relay, name: "Tactical Comms Relay", type: comms, cost: 1200, hp: 250, defense: 10, range: 6, bandwidth: high }
+  - { id: electronic_warfare, name: "EW Jamming Station", type: ew, cost: 2800, hp: 350, defense: 25, jamming_range: 5, affects: [radar, comms, guidance] }
