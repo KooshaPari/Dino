@@ -1,0 +1,17 @@
+faction:
+  id: western_coalition
+  name: Western Coalition
+  color: blue
+  style: tech-focused
+  description: "Advanced technology, precision strikes, and combined arms doctrine"
+  emblem: western_coalition_emblem
+  tech_tree: modern_western
+  starting_resources: { credits: 15000, materials: 8000, fuel: 6000 }
+  bonuses:
+    - { type: research_speed, value: 0.15, description: "+15% research speed" }
+    - { type: air_accuracy, value: 0.10, description: "+10% air unit accuracy" }
+    - { type: radar_range, value: 0.20, description: "+20% radar detection range" }
+  special_rules:
+    - "Can deploy forward air bases within 2 hexes of frontline"
+    - "All units gain +1 initiative in defensive posture"
+    - "Naval units have +15% torpedo accuracy"
