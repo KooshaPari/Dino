@@ -1,0 +1,39 @@
+stat_modifiers:
+  combat:
+    base_accuracy: 0.75
+    accuracy_per_level: 0.03
+    base_evasion: 0.10
+    evasion_per_level: 0.02
+    base_crit_chance: 0.05
+    crit_damage_multiplier: 1.5
+    suppression_threshold: 50
+    suppression_recovery_rate: 10
+  armor:
+    base_armor_value: 50
+    armor_per_tier: 25
+    spaced_armor_multiplier: 1.2
+    explosive_resistance: 0.3
+    kinetic_resistance_per_cm: 2.0
+  mobility:
+    road_speed_multiplier: 1.5
+    off_road_penalty: 0.2
+    river_crossing_penalty: 0.4
+    urban_movement_penalty: 0.3
+    encumbrance_threshold: 0.8
+  detection:
+    base_visual_range: 4
+    base_radar_range: 6
+    stealth_reduction: 0.4
+    night_vision_bonus: 0.2
+    smoke_screen_reduction: 0.6
+  morale:
+    base_morale: 100
+    morale_loss_on_hit: 5
+    morale_loss_on_ally_destroyed: 10
+    morale_recovery_per_turn: 8
+    rout_threshold: 20
+  supply:
+    base_supply_days: 5
+    supply_consumption_per_combat: 20
+    resupply_rate_per_depot: 100
+    fuel_consumption_per_move: 15
