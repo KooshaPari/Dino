@@ -1,0 +1,12 @@
+units:
+  - { id: m1a2_abrams, name: "M1A2 Abrams MBT", type: tank, faction: western_coalition, cost: 2800, hp: 1200, attack: 95, defense: 110, speed: 6, range: 2, weapon_slots: [main_gun, coaxial_mg, turret_mg] }
+  - { id: bradley_ifv, name: "M2 Bradley IFV", type: ifv, faction: western_coalition, cost: 1600, hp: 700, attack: 60, defense: 75, speed: 7, range: 2, weapon_slots: [autocannon, tow_missile, coaxial_mg] }
+  - { id: mlrs_himars, name: "HIMARS MLRS", type: artillery, faction: western_coalition, cost: 2200, hp: 500, attack: 110, defense: 30, speed: 5, range: 8, weapon_slots: [rocket_pod] }
+  - { id: patriot_battery, name: "Patriot SAM Battery", type: anti_air, faction: western_coalition, cost: 3000, hp: 400, attack: 85, defense: 45, speed: 0, range: 6, weapon_slots: [sam_launcher] }
+  - { id: apache_ah64, name: "AH-64 Apache", type: helicopter, faction: western_coalition, cost: 2000, hp: 600, attack: 80, defense: 40, speed: 10, range: 4, weapon_slots: [chain_gun, hellfire, rockets] }
+  - { id: stryker_acav, name: "Stryker ACAV", type: apc, faction: western_coalition, cost: 1200, hp: 500, attack: 40, defense: 55, speed: 8, range: 1, weapon_slots: [hmg, grenade_launcher] }
+  - { id: abrams_x, name: "M1A2 SEPv3", type: tank, faction: western_coalition, cost: 3400, hp: 1400, attack: 105, defense: 120, speed: 6, range: 2, weapon_slots: [main_gun, atgm, coaxial_mg] }
+  - { id: paladin_sp, name: "M109A7 Paladin", type: artillery, faction: western_coalition, cost: 1800, hp: 450, attack: 80, defense: 35, speed: 4, range: 6, weapon_slots: [howitzer] }
+  - { id: cbrn_team, name: "CBRN Recon Team", type: support, faction: western_coalition, cost: 600, hp: 200, attack: 10, defense: 20, speed: 6, range: 3, weapon_slots: [rifle] }
+  - { id: global_hawk, name: "RQ-4 Global Hawk", type: recon, faction: western_coalition, cost: 1500, hp: 300, attack: 0, defense: 15, speed: 12, range: 10, weapon_slots: [sensors] }
+  - { id: leopard_2a7, name: "Leopard 2A7", type: tank, faction: western_coalition, cost: 3000, hp: 1300, attack: 90, defense: 115, speed: 7, range: 2, weapon_slots: [main_gun, coaxial_mg] }
