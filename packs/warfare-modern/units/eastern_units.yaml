@@ -1,0 +1,12 @@
+units:
+  - { id: t90m, name: "T-90M Proryv", type: tank, faction: eastern_bloc, cost: 2200, hp: 1100, attack: 90, defense: 100, speed: 7, range: 2, weapon_slots: [main_gun, atgm, coaxial_mg] }
+  - { id: bmp3, name: "BMP-3M", type: ifv, faction: eastern_bloc, cost: 1400, hp: 650, attack: 55, defense: 65, speed: 8, range: 2, weapon_slots: [autocannon, atgm, coaxial_mg] }
+  - { id: smerch_mlrs, name: "BM-30 Smerch", type: artillery, faction: eastern_bloc, cost: 1800, hp: 450, attack: 120, defense: 25, speed: 5, range: 9, weapon_slots: [rocket_pod] }
+  - { id: s400_triumf, name: "S-400 Triumf", type: anti_air, faction: eastern_bloc, cost: 3200, hp: 500, attack: 95, defense: 50, speed: 0, range: 8, weapon_slots: [sam_launcher] }
+  - { id: mi28_havoc, name: "Mi-28N Havoc", type: helicopter, faction: eastern_bloc, cost: 1800, hp: 550, attack: 75, defense: 45, speed: 9, range: 4, weapon_slots: [chain_gun, atgm, rockets] }
+  - { id: bmp2, name: "BMP-2", type: ifv, faction: eastern_bloc, cost: 1000, hp: 500, attack: 45, defense: 55, speed: 8, range: 2, weapon_slots: [autocannon, coaxial_mg] }
+  - { id: t14_armata, name: "T-14 Armata", type: tank, faction: eastern_bloc, cost: 3000, hp: 1300, attack: 100, defense: 110, speed: 7, range: 2, weapon_slots: [main_gun, atgm, coaxial_mg] }
+  - { id: 2s19_msta, name: "2S19 Msta-S", type: artillery, faction: eastern_bloc, cost: 1500, hp: 400, attack: 75, defense: 30, speed: 4, range: 6, weapon_slots: [howitzer] }
+  - { id: zsu234, name: "ZSU-23-4 Shilka", type: anti_air, faction: eastern_bloc, cost: 800, hp: 350, attack: 40, defense: 35, speed: 7, range: 2, weapon_slots: [quad_autocannon] }
+  - { id: btr82a, name: "BTR-82A", type: apc, faction: eastern_bloc, cost: 900, hp: 450, attack: 35, defense: 50, speed: 9, range: 1, weapon_slots: [autocannon, coaxial_mg] }
+  - { id: ka52_alligator, name: "Ka-52 Alligator", type: helicopter, faction: eastern_bloc, cost: 2000, hp: 580, attack: 80, defense: 40, speed: 10, range: 4, weapon_slots: [chain_gun, atgm, rockets] }
