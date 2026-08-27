@@ -1,0 +1,10 @@
+units:
+  - { id: arleigh_burke, name: "Arleigh Burke DDG", type: destroyer, faction: western_coalition, cost: 5000, hp: 2000, attack: 90, defense: 95, speed: 8, weapons: [mk45_5inch, sm2_block, harpoon_block, mark48_adcap, phalanx_ciws], role: multi_mission }
+  - { id: ticonderoga, name: "Ticonderoga CG", type: cruiser, faction: western_coalition, cost: 6000, hp: 2400, attack: 95, defense: 100, speed: 7, weapons: [mk45_5inch, sm2_block, harpoon_block, asroc, phalanx_ciws], role: air_defense }
+  - { id: freedom_lcs, name: "Freedom-class LCS", type: corvette, faction: western_coalition, cost: 2500, hp: 800, attack: 40, defense: 50, speed: 12, weapons: [mk110_57mm, hellfire_naval, seaRAM], role: littoral }
+  - { id: virginia_ssn, name: "Virginia SSN", type: submarine, faction: western_coalition, cost: 7000, hp: 1800, attack: 85, defense: 70, speed: 6, weapons: [mark48_adcap, tomahawk, harpoon_sub], role: attack_submarine }
+  - { id: admiral_gorshkov, name: "Admiral Gorshkov FFG", type: frigate, faction: eastern_bloc, cost: 4000, hp: 1600, attack: 75, defense: 80, speed: 8, weapons: [ak130, s300f_fort, p800_oniks, type53_torpedo, kashtan_ciws], role: multi_mission }
+  - { id: sovremenny, name: "Sovremenny DDG", type: destroyer, faction: eastern_bloc, cost: 4500, hp: 1800, attack: 85, defense: 85, speed: 8, weapons: [ak130, s300f_fort, p800_oniks, type53_torpedo, kashtan_ciws], role: anti_surface }
+  - { id: kilo_636, name: "Kilo 636.3 SSK", type: submarine, faction: eastern_bloc, cost: 5000, hp: 1500, attack: 80, defense: 65, speed: 5, weapons: [type53_torpedo, klub_missile], role: diesel_electric_sub }
+  - { id: grisha_corvette, name: "Grisha III Corvette", type: corvette, faction: eastern_bloc, cost: 2000, hp: 700, attack: 35, defense: 45, speed: 10, weapons: [ak76_76mm, ss_n14, depth_charges], role: anti_submarine }
+  - { id: supply_taker, name: "T-AOE Fast Combat Support", type: auxiliary, faction: shared, cost: 3000, hp: 1200, attack: 0, defense: 20, speed: 6, weapons: [], role: replenishment }
