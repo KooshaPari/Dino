@@ -1,0 +1,11 @@
+weapons:
+  - { id: mk45_5inch, name: "Mk 45 5-inch Gun", type: naval_gun, faction: western_coalition, damage: 70, accuracy: 0.85, range: 4, rate_of_fire: 20, caliber: 127mm }
+  - { id: sm2_block, name: "RIM-66 SM-2 Block IIIA", type: naval_missile, faction: western_coalition, damage: 100, accuracy: 0.88, range: 8, guidance: semi_active_radar, range_type: anti_air }
+  - { id: harpoon_block, name: "RGM-84 Harpoon Block II", type: naval_missile, faction: western_coalition, damage: 120, accuracy: 0.85, range: 6, guidance: active_radar_terrain, range_type: anti_surface }
+  - { id: mark48_adcap, name: "Mk 48 ADCAP Torpedo", type: torpedo, faction: western_coalition, damage: 150, accuracy: 0.82, range: 3, guidance: wire_active_sonar, speed: 55kts }
+  - { id: phalanx_ciws, name: "Phalanx CIWS", type: ciws, faction: western_coalition, damage: 25, accuracy: 0.95, range: 1, rate_of_fire: 4500, caliber: 20mm }
+  - { id: ak130, name: "AK-130 130mm", type: naval_gun, faction: eastern_bloc, damage: 75, accuracy: 0.80, range: 4, rate_of_fire: 35, caliber: 130mm }
+  - { id: s300f_fort, name: "S-300F Fort M", type: naval_missile, faction: eastern_bloc, damage: 110, accuracy: 0.85, range: 9, guidance: semi_active_radar, range_type: anti_air }
+  - { id: p800_oniks, name: "P-800 Oniks", type: naval_missile, faction: eastern_bloc, damage: 130, accuracy: 0.82, range: 7, guidance: active_radar_supersonic, range_type: anti_surface }
+  - { id: type53_torpedo, name: "53-65K Torpedo", type: torpedo, faction: eastern_bloc, damage: 130, accuracy: 0.78, range: 2.5, guidance: wake_homing, speed: 45kts }
+  - { id: kashtan_ciws, name: "Kashtan CIWS", type: ciws, faction: eastern_bloc, damage: 30, accuracy: 0.90, range: 1, rate_of_fire: 5000, caliber: 30mm }
