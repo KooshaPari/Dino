@@ -1,0 +1,11 @@
+weapons:
+  - { id: aim120_amraam, name: "AIM-120 AMRAAM", type: aam, faction: western_coalition, damage: 85, accuracy: 0.88, range: 5, guidance: radar_active, speed: mach_4 }
+  - { id: aim9x_sidewinder, name: "AIM-9X Sidewinder", type: aam, faction: western_coalition, damage: 65, accuracy: 0.92, range: 2, guidance: ir_lock_on, speed: mach_2.5 }
+  - { id: agm88_harm, name: "AGM-88 HARM", type: agm, faction: western_coalition, damage: 90, accuracy: 0.85, range: 4, guidance: radar_homing, speed: mach_2 }
+  - { id: gbu31_jdam, name: "GBU-31 JDAM", type: bomb, faction: western_coalition, damage: 150, accuracy: 0.90, range: 3, guidance: gps_inertial, blast_radius: 8 }
+  - { id: m61_vulcan, name: "M61A2 Vulcan 20mm", type: cannon, faction: western_coalition, damage: 30, accuracy: 0.75, range: 1, rate_of_fire: 6000, ammo: 500 }
+  - { id: r77_rod, name: "R-77M RD", type: aam, faction: eastern_bloc, damage: 80, accuracy: 0.85, range: 5, guidance: radar_active, speed: mach_4 }
+  - { id: r73_merializer, name: "R-73M Archer", type: aam, faction: eastern_bloc, damage: 60, accuracy: 0.90, range: 2, guidance: ir_helmet_mounted, speed: mach_2.5 }
+  - { id: kh31p, name: "Kh-31P", type: agm, faction: eastern_bloc, damage: 95, accuracy: 0.82, range: 4, guidance: radar_homing, speed: mach_3 }
+  - { id: fab500_m62, name: "FAB-500 M62", type: bomb, faction: eastern_bloc, damage: 140, accuracy: 0.80, range: 3, guidance: freefall_optical, blast_radius: 10 }
+  - { id: gsh301, name: "GSh-30-1 30mm", type: cannon, faction: eastern_bloc, damage: 40, accuracy: 0.72, range: 1, rate_of_fire: 1800, ammo: 150 }
