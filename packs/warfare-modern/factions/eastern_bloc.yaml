@@ -1,0 +1,17 @@
+faction:
+  id: eastern_bloc
+  name: Eastern Bloc
+  color: red
+  style: mass armor
+  description: "Overwhelming armor, artillery barrages, and attrition warfare"
+  emblem: eastern_bloc_emblem
+  tech_tree: modern_eastern
+  starting_resources: { credits: 12000, materials: 12000, fuel: 5000 }
+  bonuses:
+    - { type: armor_value, value: 0.15, description: "+15% armor thickness" }
+    - { type: production_speed, value: 0.20, description: "+20% unit production speed" }
+    - { type: artillery_range, value: 0.10, description: "+10% artillery range" }
+  special_rules:
+    - "Can reinforce units from reserves without activation cost"
+    - "All ground units gain +1 attack when in stacked groups of 3+"
+    - "Tank units cost 10% less to produce"
