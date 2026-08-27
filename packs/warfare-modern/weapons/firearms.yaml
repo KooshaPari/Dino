@@ -1,0 +1,13 @@
+weapons:
+  - { id: m256_120mm, name: "M256 120mm Smoothbore", type: main_gun, faction: western_coalition, damage: 95, accuracy: 0.85, range: 2, ap: 120, penetration: 680mm_rha }
+  - { id: m240_cox, name: "M240C Coaxial MG", type: coaxial_mg, faction: western_coalition, damage: 15, accuracy: 0.70, range: 1, rate_of_fire: 650 }
+  - { id: hellfire_agm, name: "AGM-114 Hellfire", type: atgm, faction: western_coalition, damage: 120, accuracy: 0.90, range: 4, ap: 800mm_rha, guidance: laser }
+  - { id: stinger_manpad, name: "FIM-92 Stinger", type: sam, faction: western_coalition, damage: 70, accuracy: 0.80, range: 3, guidance: ir_lock }
+  - { id: m230_chain, name: "M230 Chain Gun", type: autocannon, faction: western_coalition, damage: 25, accuracy: 0.75, range: 2, rate_of_fire: 625 }
+  - { id: zbm42_apfsds, name: "ZBM42 APFSDS", type: main_gun, faction: eastern_bloc, damage: 90, accuracy: 0.82, range: 2, ap: 650mm_rha }
+  - { id: kornet_atgm, name: "9M133 Kornet", type: atgm, faction: eastern_bloc, damage: 130, accuracy: 0.88, range: 5, ap: 850mm_rha, guidance: laser }
+  - { id: igla_manpad, name: "9K38 Igla-S", type: sam, faction: eastern_bloc, damage: 65, accuracy: 0.78, range: 3, guidance: ir_lock }
+  - { id: 2a42_autocannon, name: "2A42 30mm", type: autocannon, faction: eastern_bloc, damage: 28, accuracy: 0.72, range: 2, rate_of_fire: 550 }
+  - { id: dshk_hmg, name: "DShK 12.7mm", type: hmg, faction: eastern_bloc, damage: 18, accuracy: 0.65, range: 1, rate_of_fire: 600 }
+  - { id: m134_minigun, name: "M134 Minigun", type: hmg, faction: western_coalition, damage: 12, accuracy: 0.70, range: 1, rate_of_fire: 3000 }
+  - { id: 3bm60_apfsds, name: "3BM60 Svinets", type: main_gun, faction: eastern_bloc, damage: 95, accuracy: 0.84, range: 2, ap: 700mm_rha }
