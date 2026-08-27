@@ -1,0 +1,9 @@
+buildings:
+  - { id: naval_hq, name: "Naval Operations Center", type: hq, cost: 4000, hp: 1000, defense: 50, radius: 5, provides: [fleet_command, sonar_net] }
+  - { id: drydock, name: "Expeditionary Drydock", type: production, cost: 5000, hp: 800, defense: 30, build_slots: 1, repairs: true, produces: [ship_repair, refit] }
+  - { id: sonar_array, name: "SOSUS Sonar Array", type: sensor, cost: 3500, hp: 500, defense: 15, detection_range: 8, detects: [submarine, torpedo], medium: passive_acoustic }
+  - { id: port_facility, name: "Forward Operating Port", type: logistics, cost: 6000, hp: 1500, defense: 40, berths: 4, stores: { fuel: 20000, ammo: 15000 } }
+  - { id: coastal_battery, name: "Coastal Defense Battery", type: air_defense, cost: 3000, hp: 600, defense: 35, coverage: 5, fires: [harpoon_coastal, ns_m_coastal] }
+  - { id: naval_radar, name: "Sea-based X-band Radar", type: radar, cost: 3000, hp: 450, defense: 20, detection_range: 10, tracks: 20, altitude: high }
+  - { id: sub_pen, name: "Hardened Submarine Pen", type: shelter, cost: 5500, hp: 2500, defense: 80, capacity: 2, repairs: true, stealth: 0.5 }
+  - { id: navcomms, name: "Naval Comms Platform", type: comms, cost: 2000, hp: 300, defense: 10, range: 8, bandwidth: high, satellite_link: true }
