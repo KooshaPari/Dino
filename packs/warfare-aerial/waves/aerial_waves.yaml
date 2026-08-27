@@ -1,0 +1,4 @@
+waves:
+  - { id: wave_1_recon, name: "Recon Sweep", description: "Initial reconnaissance flight to identify targets", aircraft: [global_hawk x2, mq9_reaper x1], faction: western_coalition, priority: 1, spawn_delay: 0 }
+  - { id: wave_2_sead, name: "SEAD Package", description: "Suppression of enemy air defenses ahead of strike", aircraft: [f16_cj_sead x2, ea18g_growler x2], faction: western_coalition, priority: 2, spawn_delay: 2, requires: wave_1_recon }
+  - { id: wave_3_strike, name: "Strike Package", description: "Main strike force with fighter escort", aircraft: [f15e_strike_eagle x4, f16c x2, f35a x2], faction: western_coalition, priority: 3, spawn_delay: 4, requires: wave_2_sead }
