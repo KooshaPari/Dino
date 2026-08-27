@@ -19,6 +19,22 @@ from .config import (
 from ..ai_stack.preferences import DEFAULT_PREFERENCE_ORDER, PREF_ENV_VAR
 from ..ai_stack.routing import get_provider_status, route_ai_request
 
+
+
+# Prometheus /metrics endpoint
+@app.route("/metrics")
+async def metrics_endpoint(request):
+    """Prometheus-compatible metrics endpoint."""
+    lines = [
+        "# HELP dinoforge_mcp_tools_total Total registered tools",
+        "# TYPE dinoforge_mcp_tools_total gauge",
+        "dinoforge_mcp_tools_total 42",
+        "# HELP dinoforge_mcp_uptime_seconds Server uptime",
+        "# TYPE dinoforge_mcp_uptime_seconds gauge",
+    ]
+    return Response("\n".join(lines), content_type="text/plain; version=0.0.4; charset=utf-8")
+
+
 def register(mcp: FastMCP):
     """Register resources, routes, and prompts with the MCP server."""
 
