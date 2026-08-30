@@ -57,6 +57,7 @@ namespace DINOForge.Runtime
         private DebugOverlayBehaviour? _debugOverlay;
         private HudIndicator? _hudIndicator;
         private NativeMenuInjector? _nativeMenuInjector;
+        private int _loaderCleanupFrames;
         private MainMenuThemer? _mainMenuThemer;
         private UI.CanvasReskinner? _canvasReskinner;
         private int _reskinRetryCount;
@@ -620,6 +621,37 @@ namespace DINOForge.Runtime
                         {
                             LogEngineUiHeartbeat("self-heal retry");
                         }
+                    }
+                }
+
+                // ── Periodic loader cleanup (iter-150): destroy stale Loader/chicken/skeleton ──
+                // Unity Canvas objects. Runs every 30 frames for 30 seconds after boot.
+                _loaderCleanupFrames++;
+                if (_loaderCleanupFrames <= NativeMenuInjector.LOADER_CLEANUP_INTERVAL * 60
+                    && _loaderCleanupFrames % NativeMenuInjector.LOADER_CLEANUP_INTERVAL == 0)
+                {
+                    try
+                    {
+                        foreach (var go in Resources.FindObjectsOfTypeAll<UnityEngine.GameObject>())
+                        {
+                            if (go == null) continue;
+                            string goName = go.name;
+                            if (goName.IndexOf("Loader", StringComparison.OrdinalIgnoreCase) >= 0
+                                || goName.IndexOf("chicken", StringComparison.OrdinalIgnoreCase) >= 0
+                                || goName.IndexOf("skeleton", StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                var canvas = go.GetComponent<Canvas>();
+                                if (canvas != null)
+                                {
+                                    DebugLog.Write("Plugin", $"[RuntimeDriver] Loader cleanup: destroying '{goName}' canvas.");
+                                    Destroy(go);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception lcEx)
+                    {
+                        _log?.LogWarning($"[RuntimeDriver] Loader cleanup scan failed: {lcEx.Message}");
                     }
                 }
 
