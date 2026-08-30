@@ -72,6 +72,7 @@ namespace DINOForge.Runtime.UI
         /// <summary>Interval in seconds between injection re-scan attempts.</summary>
         private const float RescanInterval = 2f;
         private const float ClickDebounceSeconds = 0.2f;
+        internal const int LOADER_CLEANUP_INTERVAL = 30;
 
         private ManualLogSource? _log;
         private IModMenuHost? _menuHost;
