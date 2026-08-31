@@ -79,7 +79,7 @@ jobs:
             src/Tools/DinoforgeMcp/htmlcov/
 
       - name: Publish test report
-        uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
         if: always() && hashFiles('src/Tools/DinoforgeMcp/test-results.xml') != ''
         with:
           name: Pytest Results (Python ${{ matrix.python-version }})
