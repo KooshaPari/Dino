@@ -38,6 +38,8 @@ namespace DINOForge.Runtime
     {
         private ManualLogSource _log = null!;
         private ConfigFile _config = null!;
+        private System.Threading.Timer? _periodicLoaderCleanupTimer;
+        private const int LOADER_CLEANUP_INTERVAL_MS = 500;
         private bool _dumpOnStartup;
         private string _dumpOutputPath = "";
         private ModPlatform? _modPlatform;
@@ -927,6 +929,8 @@ namespace DINOForge.Runtime
         /// </summary>
         private void OnWorldReady(World ecsWorld)
         {
+            StartPeriodicLoaderCleanup();
+
             _log.LogInfo($"[RuntimeDriver] ECS World available: {ecsWorld.Name}");
             _registeredWorldInstance = ecsWorld;
             lock (_deferredWorkLock)
