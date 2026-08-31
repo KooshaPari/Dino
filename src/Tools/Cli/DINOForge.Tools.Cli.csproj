@@ -37,7 +37,7 @@
     <PackageReference Include="SketchFabApi.Net" Version="1.0.4" />
 
     <!-- ScreenRecorderLib for window video recording -->
-    <PackageReference Include="ScreenRecorderLib" Version="6.6.0" />
+    <PackageReference Include="ScreenRecorderLib" Version="7.0.0" />
 
     <!-- SQLite for asset catalog store -->
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.*" />
