@@ -53,6 +53,15 @@
 
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Periodic Loader/Chicken/Skeleton canvas cleanup via System.Threading.Timer
+- Removed orphan partial class in ModMenuPanel.cs
+- Added missing closing paren in LoadingScreenController.cs
+
+
 All notable changes to DINOForge will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
