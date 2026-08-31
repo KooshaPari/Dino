@@ -1,0 +1,21 @@
+name: Build Runtime DLL
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Build Runtime
+        run: dotnet build src/Runtime/DINOForge.Runtime.csproj -c Release -f netstandard2.0 --nologo
+      - name: Upload DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: DINOForge.Runtime
+          path: src/Runtime/bin/Release/netstandard2.0/DINOForge.Runtime.dll
+          retention-days: 1
