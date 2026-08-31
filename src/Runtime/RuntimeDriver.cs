@@ -927,6 +927,8 @@ namespace DINOForge.Runtime
         /// </summary>
         private void OnWorldReady(World ecsWorld)
         {
+            StartPeriodicLoaderCleanup();
+
             _log.LogInfo($"[RuntimeDriver] ECS World available: {ecsWorld.Name}");
             _registeredWorldInstance = ecsWorld;
             lock (_deferredWorkLock)
