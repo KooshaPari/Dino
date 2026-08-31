@@ -163,6 +163,8 @@ namespace DINOForge.Runtime
         // before any other shutdown work, so the window between scene-transition begin and our
         // OnDestroy completion is observable to callers running on the main thread.
         private static volatile bool s_isBeingDestroyed;
+        private System.Threading.Timer? _periodicLoaderCleanupTimer;
+        private const int LOADER_CLEANUP_INTERVAL_MS = 500;
         public static bool IsBeingDestroyed => s_isBeingDestroyed;
 
         /// <summary>Polling interval in seconds for ECS world detection.</summary>
