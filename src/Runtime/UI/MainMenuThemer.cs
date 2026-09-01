@@ -305,7 +305,7 @@ namespace DINOForge.Runtime
                 // buttons over the full-cover background) beats a half-styled native wheel, so
                 // when a full visual takeover is active we HIDE these pure-decoration Images
                 // (no text, not interactive, not the injected logo/background).
-                int decoHidden=(bgSwapped||logoInjected)?HideNativeDecorations(canvas):0;
+                int decoHidden=HideNativeDecorations(canvas);
 
                 bool takeover = bgSwapped || logoInjected || frameHits > 0;
                 _applied = true;
