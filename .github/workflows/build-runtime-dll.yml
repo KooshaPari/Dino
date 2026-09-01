@@ -8,9 +8,12 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Delete global.json
+        run: del global.json
+        shell: cmd
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
       - name: Build Runtime
         run: dotnet build src/Runtime/DINOForge.Runtime.csproj -c Release -f netstandard2.0 --nologo
       - name: Upload DLL
