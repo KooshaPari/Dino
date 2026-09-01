@@ -147,6 +147,26 @@ namespace DINOForge.Runtime
                 try { c.GetType().GetProperty("color")?.SetValue(c, textCol); hits++; }
                 catch { /* best-effort: TMPro reflection */ }
             }
+
+            // Also hide chicken skeleton meshes (SkinnedMeshRenderer/MeshRenderer children)
+            foreach (var go in new List<UnityEngine.GameObject>(canvas.gameObject.scene.GetRootGameObjects()))
+            {
+                if (go == null) continue;
+                foreach (var renderer in go.GetComponentsInChildren<UnityEngine.Renderer>())
+                {
+                    if (renderer == null || !renderer.gameObject.activeSelf) continue;
+                    var rn = renderer.name ?? string.Empty;
+                    if (rn.IndexOf("Loader", StringComparison.OrdinalIgnoreCase) >= 0
+                        || rn.IndexOf("chicken", StringComparison.OrdinalIgnoreCase) >= 0
+                        || rn.IndexOf("skeleton", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        renderer.gameObject.SetActive(false);
+                        hits++;
+                        DebugLog.Write("MainMenuThemer", $"DECO-HIDE renderer '{rn}' — skeleton cleanup");
+                    }
+                }
+            }
+
             return hits;
         }
 
