@@ -589,6 +589,53 @@ namespace DINOForge.Runtime
             }
 
             _log.LogInfo("[RuntimeDriver] Waiting for ECS World (Update polling)...");
+            
+            // Periodic Loader/Chicken canvas cleanup: game recreates these ~12ms after destroy.
+            // Uses System.Threading.Timer because MonoBehaviour.Update() never fires in DINO's custom PlayerLoop.
+            _periodicCleanupTimer = new System.Threading.Timer(_ =>
+            {
+                try
+                {
+                    if (MainThreadDispatcher.IsPumpAlive)
+                    {
+                        MainThreadDispatcher.RunOnMainThread(() =>
+                        {
+                            try
+                            {
+                                _loaderCleanupFrames++;
+                                if (_loaderCleanupFrames <= LOADER_CLEANUP_MAX_FRAMES && _loaderCleanupFrames % LOADER_CLEANUP_INTERVAL == 0)
+                                {
+                                    int cleaned = 0;
+                                    foreach (var c in UnityEngine.Object.FindObjectsOfType<UnityEngine.Canvas>())
+                                    {
+                                        if (c == null) continue;
+                                        var name = c.name ?? string.Empty;
+                                        if ((name.Equals("Loader", System.StringComparison.OrdinalIgnoreCase)
+                                            || name.IndexOf("chicken", System.StringComparison.OrdinalIgnoreCase) >= 0
+                                            || name.IndexOf("skeleton", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                                            && c.gameObject.activeSelf)
+                                        {
+                                            UnityEngine.Object.Destroy(c.gameObject);
+                                            cleaned++;
+                                        }
+                                    }
+                                    if (cleaned > 0)
+                                        _log.LogInfo($"[PeriodicCleanup] Destroyed {cleaned} recreating Loader/Chicken canvas(es)");
+                                }
+                                else if (_loaderCleanupFrames > LOADER_CLEANUP_MAX_FRAMES && _periodicCleanupTimer != null)
+                                {
+                                    _periodicCleanupTimer.Dispose();
+                                    _periodicCleanupTimer = null;
+                                }
+                            }
+                            catch (System.Exception ex) { _log.LogWarning($"[PeriodicCleanup] Error: {ex.Message}"); }
+                        });
+                    }
+                }
+                catch { /* best-effort */ }
+            }, null, 5000, 500);
+
+
             _log.LogInfo("[DINOForge] RuntimeDriver.Initialize() EXIT");
 
             // Pump deferred work on the main thread until destruction.
