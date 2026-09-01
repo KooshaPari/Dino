@@ -256,6 +256,35 @@ namespace DINOForge.Runtime.UI
             catch { /* safe-swallow: Update polling loop must never throw from main thread (screenshot/scene-init best-effort) */ }
         }
 
+        private void StartPeriodicLoaderCleanup()
+        {
+            _periodicCleanupTimer = new System.Threading.Timer(_ =>
+            {
+                try
+                {
+                    if (!Bridge.MainThreadDispatcher.IsPumpAlive) return;
+                    int cleaned = 0;
+                    foreach (var c in UnityEngine.Object.FindObjectsOfType<UnityEngine.Canvas>())
+                    {
+                        if (c == null) continue;
+                        var cn = c.name ?? string.Empty;
+                        if ((cn.Equals("Loader", StringComparison.OrdinalIgnoreCase)
+                            || cn.IndexOf("chicken", StringComparison.OrdinalIgnoreCase) >= 0
+                            || cn.IndexOf("skeleton", StringComparison.OrdinalIgnoreCase) >= 0)
+                            && c.gameObject.activeSelf)
+                        {
+                            UnityEngine.Object.Destroy(c.gameObject);
+                            cleaned++;
+                        }
+                    }
+                    if (cleaned > 0) DebugLog.Write("NativeMenuInjector", $"[PeriodicCleanup] Destroyed {cleaned} recreating canvas(es)");
+                }
+                catch { }
+            }, null, CLEANUP_INTERVAL_MS, CLEANUP_INTERVAL_MS);
+            new System.Threading.Timer(_ => { _periodicCleanupTimer?.Dispose(); _periodicCleanupTimer = null; }, null, 120000, System.Threading.Timeout.Infinite);
+            DebugLog.Write("NativeMenuInjector", "[PeriodicCleanup] Timer started (500ms interval, 120s duration)");
+        }
+
         private void OnDestroy()
         {
             SceneManager.activeSceneChanged -= OnActiveSceneChanged;
@@ -294,6 +323,8 @@ namespace DINOForge.Runtime.UI
                 }
                 if (destroyed > 0)
                     DebugLog.Write("NativeMenuInjector", $"[SplashCleanup] Destroyed {destroyed} lingering splash canvas(es)");
+                _loaderDestroyed = true;
+                StartPeriodicLoaderCleanup();
             }
             catch (Exception ex)
             {
