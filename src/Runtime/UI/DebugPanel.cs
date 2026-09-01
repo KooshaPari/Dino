@@ -94,6 +94,8 @@ namespace DINOForge.Runtime.UI
         /// <summary>Shows the panel immediately (no animation).</summary>
         public void Show()
         {
+            if (Time.realtimeSinceStartup - _lastToggleTime < 0.3f) return; // debounce
+            _lastToggleTime = Time.realtimeSinceStartup;
             _targetVisible = true;
             if (_canvasGroup != null)
             {
@@ -423,6 +425,8 @@ namespace DINOForge.Runtime.UI
                 ToggleSection(title);
             });
         }
+
+        private float _lastToggleTime = 0f;
 
         private void ToggleSection(string title)
         {
