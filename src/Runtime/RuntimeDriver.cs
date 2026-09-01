@@ -132,6 +132,10 @@ namespace DINOForge.Runtime
         // checks this to avoid calling OnWorldReady after the RuntimeDriver is destroyed.
         private volatile bool _destroyed;
         private readonly ManualResetEventSlim _backgroundPollStopEvent = new(false);
+
+        // Periodic Loader/Chicken canvas cleanup (MonoBehaviour.Update() never fires in DINO)
+        private System.Threading.Timer? _loaderCleanupTimer;
+        private int _loaderCleanupCount = 0;
         private readonly object _deferredWorkLock = new();
         private bool _bootSequenceStarted;
         private bool _worldReadyProcessing;
@@ -973,6 +977,41 @@ namespace DINOForge.Runtime
         /// via <see cref="TryRegisterKeyInputSystem"/> so it survives scene transitions.
         /// </summary>
         private void OnWorldReady(World ecsWorld)
+        {
+            // MonoBehaviour.Update() never fires in DINO (custom PlayerLoop)
+            // Use System.Threading.Timer + MainThreadDispatcher for periodic cleanup
+            _loaderCleanupTimer = new System.Threading.Timer(_ =>
+            {
+                try
+                {
+                    if (!MainThreadDispatcher.IsPumpAlive) return;
+                    MainThreadDispatcher.RunOnMainThread(() =>
+                    {
+                        try
+                        {
+                            int cleaned = 0;
+                            foreach (var c in UnityEngine.Object.FindObjectsOfType<UnityEngine.Canvas>())
+                            {
+                                if (c == null) continue;
+                                var n = c.name ?? string.Empty;
+                                if ((n.Equals("Loader", System.StringComparison.OrdinalIgnoreCase)
+                                    || n.IndexOf("chicken", System.StringComparison.OrdinalIgnoreCase) >= 0
+                                    || n.IndexOf("skeleton", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                                    && c.gameObject.activeSelf)
+                                {
+                                    UnityEngine.Object.Destroy(c.gameObject);
+                                    cleaned++;
+                                }
+                            }
+                            if (cleaned > 0)
+                                _log.LogInfo($"[PeriodicCleanup] Destroyed {cleaned} recreating Loader/Chicken canvas(es)");
+                        }
+                        catch { }
+                    });
+                }
+                catch { }
+            }, null, 500, 500);
+            new System.Threading.Timer(_ => { _loaderCleanupTimer?.Dispose(); _loaderCleanupTimer = null; }, null, 30000, System.Threading.Timeout.Infinite);
         {
             _log.LogInfo($"[RuntimeDriver] ECS World available: {ecsWorld.Name}");
             _registeredWorldInstance = ecsWorld;
