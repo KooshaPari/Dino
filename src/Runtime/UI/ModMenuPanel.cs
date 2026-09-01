@@ -32,7 +32,7 @@ namespace DINOForge.Runtime.UI
     /// native menu (main menu / pause menu). Both paths call <see cref="Toggle"/> on this
     /// panel's <see cref="IModMenuHost"/> implementation.
     /// </summary>
-    public class ModMenuPanel : MonoBehaviour, IModMenuHost
+    public partial class ModMenuPanel : MonoBehaviour, IModMenuHost
     {
         // ── Public API surface (mirrors ModMenuOverlay) ──────────────────────────
         /// <summary>Callback invoked when the user clicks Reload Packs.</summary>
