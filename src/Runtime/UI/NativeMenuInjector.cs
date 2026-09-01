@@ -368,7 +368,7 @@ namespace DINOForge.Runtime.UI
                 try
                 {
                     int cleaned = 0;
-                    foreach (var c in Object.FindObjectsOfType<Canvas>())
+                    foreach (var c in Object.FindObjectsOfType<GameObject>())
                     {
                         if (c == null) continue;
                         var name = c.name ?? "";
