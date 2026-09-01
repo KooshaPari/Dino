@@ -507,7 +507,7 @@ namespace DINOForge.Runtime.UI
                 {
                     if (c != null && c.name != null
                         && (c.name.IndexOf("InitialGameLoader", StringComparison.OrdinalIgnoreCase) >= 0
-                         || c.name.IndexOf("DINOForge_LoadingScreen", StringComparison.OrdinalIgnoreCase) >= 0)
+                         || c.name.IndexOf("DINOForge_LoadingScreen", StringComparison.OrdinalIgnoreCase) >= 0))
                     {
                         DebugLog.Write("LoadingScreen", $"[LoadingScreenController] Hiding canvas '{c.name}'");
                         c.gameObject.SetActive(false);
