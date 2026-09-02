@@ -11,7 +11,7 @@
     "studio":       "remotion studio src/index.ts"
   },
   "dependencies": {
-    "@remotion/cli": "4.0.512",
+    "@remotion/cli": "4.0.518",
     "remotion": "4.0.515",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
