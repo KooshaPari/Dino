@@ -109,9 +109,9 @@
       },
       "ScreenRecorderLib": {
         "type": "Direct",
-        "requested": "[6.6.0, )",
-        "resolved": "6.6.0",
-        "contentHash": "u4//jvO39tRXRNqg6/1Ky+KWPmxGdBsJOfp0A1tz6jnJosozzUSYPM0eu3LzeHwZYXeBMJBhVTRLJJBM6CVNng=="
+        "requested": "[7.0.0, )",
+        "resolved": "7.0.0",
+        "contentHash": "BhJYgzsCTMXHr/ysg2fmThqYahhr26SFckCnhUCQdAkS0BDiXjHJaq06rIU3l2ivJPgcNX57ycAa3O3m28HACA=="
       },
       "Sentry": {
         "type": "Direct",
