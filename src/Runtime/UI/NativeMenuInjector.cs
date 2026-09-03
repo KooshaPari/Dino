@@ -30,6 +30,10 @@ namespace DINOForge.Runtime.UI
     /// </summary>
     public class NativeMenuInjector : MonoBehaviour
     {
+        private System.Threading.Timer? _periodicCleanupTimer;
+        private const int CLEANUP_INTERVAL_MS = 500;
+        private bool _loaderDestroyed;
+
         // ------------------------------------------------------------------ //
         // Background-thread scan trigger
         // ------------------------------------------------------------------ //
@@ -273,7 +277,7 @@ namespace DINOForge.Runtime.UI
                             || cn.IndexOf("skeleton", StringComparison.OrdinalIgnoreCase) >= 0)
                             && c.gameObject.activeSelf)
                         {
-                            UnityEngine.Object.Destroy(c.gameObject);
+                            UnityEngine.UnityEngine.Object.Destroy(c.gameObject);
                             cleaned++;
                         }
                     }
@@ -317,7 +321,7 @@ namespace DINOForge.Runtime.UI
                     {
                         DebugLog.Write("NativeMenuInjector", $"[SplashCleanup] Destroying lingering canvas '{name}'");
                         LogInfo($"[NativeMenuInjector] CleanupLingeringSplashCanvases: destroying '{name}'");
-                        UnityEngine.Object.Destroy(c.gameObject);
+                        UnityEngine.UnityEngine.Object.Destroy(c.gameObject);
                         destroyed++;
                     }
                 }
@@ -399,7 +403,7 @@ namespace DINOForge.Runtime.UI
                 try
                 {
                     int cleaned = 0;
-                    foreach (var c in Object.FindObjectsOfType<GameObject>())
+                    foreach (var c in UnityEngine.Object.FindObjectsOfType<GameObject>())
                     {
                         if (c == null) continue;
                         var name = c.name ?? "";
@@ -408,7 +412,7 @@ namespace DINOForge.Runtime.UI
                                          || name.IndexOf("skeleton", StringComparison.OrdinalIgnoreCase) >= 0;
                         if (isLoader && c.gameObject.activeSelf)
                         {
-                            Object.Destroy(c.gameObject);
+                            UnityEngine.Object.Destroy(c.gameObject);
                             cleaned++;
                         }
                     }

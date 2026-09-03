@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,9 +19,6 @@ using UnityEngine.UI;
 
 namespace DINOForge.Runtime.UI
 {
-    public partial class ModMenuPanel : MonoBehaviour, IModMenuHost
-    {
-
     /// <summary>
     /// UGUI mod menu panel. Replaces the legacy IMGUI ModMenuOverlay.
     /// Layout: header bar | split (pack list / detail pane) | footer.
@@ -552,5 +549,7 @@ namespace DINOForge.Runtime.UI
         /// Displays an "Updates Available" banner showing each pending update with a
         /// "View on GitHub" button. Hides the banner when the list is empty or null.
         /// Must be called on the Unity main thread.
+        /// </summary>
+        /// </summary>
     }
 }
