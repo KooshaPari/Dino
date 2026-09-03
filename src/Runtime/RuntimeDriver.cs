@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,6 +19,7 @@ using UnityEngine;
 using UnityEngine.LowLevel;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using DINOForge.Runtime.Bridge;
 
 namespace DINOForge.Runtime
 {
@@ -118,6 +119,11 @@ namespace DINOForge.Runtime
 
         private bool _worldFound;
         private bool _initialized;
+        private const int LOADER_CLEANUP_INTERVAL = 30;
+        private const int LOADER_CLEANUP_MAX_FRAMES = 1800;
+
+        private System.Threading.Timer? _periodicCleanupTimer;
+        private const int LOADER_CLEANUP_INTERVAL_MS = 500;
 
         /// <summary>Public accessor for TryResurrect to check if RuntimeDriver is initialized.</summary>
         internal bool IsInitialized => _initialized;
@@ -976,7 +982,7 @@ namespace DINOForge.Runtime
         /// Loads packs, starts hot reload. KeyInputSystem is registered every poll cycle
         /// via <see cref="TryRegisterKeyInputSystem"/> so it survives scene transitions.
         /// </summary>
-        private void OnWorldReady(World ecsWorld)
+        private void StartPeriodicLoaderCleanup()
         {
             // MonoBehaviour.Update() never fires in DINO (custom PlayerLoop)
             // Use System.Threading.Timer + MainThreadDispatcher for periodic cleanup
@@ -1012,8 +1018,10 @@ namespace DINOForge.Runtime
                 catch { }
             }, null, 500, 500);
             new System.Threading.Timer(_ => { _loaderCleanupTimer?.Dispose(); _loaderCleanupTimer = null; }, null, 30000, System.Threading.Timeout.Infinite);
+        }
+        public void OnWorldReady(World ecsWorld)
         {
-            _log.LogInfo($"[RuntimeDriver] ECS World available: {ecsWorld.Name}");
+            StartPeriodicLoaderCleanup();
             _registeredWorldInstance = ecsWorld;
             lock (_deferredWorkLock)
             {
