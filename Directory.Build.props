@@ -70,7 +70,7 @@
 
   <!-- MinVer: git-tag-based versioning for all projects -->
   <ItemGroup>
-    <PackageReference Include="MinVer" Version="7.*" PrivateAssets="All" Condition="'$(DisableMinVer)' != 'true'" />
+    <PackageReference Include="MinVer" Version="8.*" PrivateAssets="All" Condition="'$(DisableMinVer)' != 'true'" />
   </ItemGroup>
 
   <!-- #864: SourceLink + Deterministic build flags for NuGet packages -->
