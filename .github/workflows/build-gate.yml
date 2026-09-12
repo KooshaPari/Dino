@@ -33,7 +33,7 @@ jobs:
           cache: true
           cache-dependency-path: 'src/SDK/**/packages.lock.json'
       - name: Cache NuGet packages
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-sdk-${{ hashFiles('src/SDK/**/*.csproj', 'src/SDK/**/packages.lock.json') }}
@@ -54,7 +54,7 @@ jobs:
           cache: true
           cache-dependency-path: 'src/Runtime/**/packages.lock.json'
       - name: Cache NuGet packages
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-runtime-${{ hashFiles('src/Runtime/**/*.csproj', 'src/Runtime/**/packages.lock.json') }}
@@ -75,7 +75,7 @@ jobs:
           cache: true
           cache-dependency-path: 'src/Runtime/**/packages.lock.json'
       - name: Cache NuGet packages
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-runtime-${{ hashFiles('src/Runtime/**/*.csproj', 'src/Runtime/**/packages.lock.json') }}
@@ -96,7 +96,7 @@ jobs:
           cache: true
           cache-dependency-path: 'src/Tools/Cli/**/packages.lock.json'
       - name: Cache NuGet packages
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-cli-${{ hashFiles('src/Tools/Cli/**/*.csproj', 'src/Tools/Cli/**/packages.lock.json') }}
@@ -117,7 +117,7 @@ jobs:
           cache: true
           cache-dependency-path: 'src/Tools/PackCompiler/**/packages.lock.json'
       - name: Cache NuGet packages
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-packcompiler-${{ hashFiles('src/Tools/PackCompiler/**/*.csproj', 'src/Tools/PackCompiler/**/packages.lock.json') }}
