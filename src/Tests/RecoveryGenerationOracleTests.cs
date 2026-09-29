@@ -72,6 +72,59 @@ namespace DINOForge.Tests
                 "reloading identical candidate bytes must converge rather than manufacture same-pack generation conflicts");
         }
 
+        [Fact]
+        public void ReloadPacks_RemovingPatch_DoesNotReuseStalePatchedYaml()
+        {
+            string target = Path.Combine(_root, "pack-b");
+            Directory.CreateDirectory(Path.Combine(target, "units"));
+            File.WriteAllText(Path.Combine(target, "pack.yaml"),
+@"id: pack-b
+name: Pack B
+version: 1.0.0
+framework_version: '>=0.1.0 <99.0.0'
+type: content
+");
+            string unitPath = Path.Combine(target, "units", "warrior.yaml");
+            File.WriteAllText(unitPath, Unit("warrior", "Warrior", 100));
+
+            string patcher = Path.Combine(_root, "pack-a");
+            Directory.CreateDirectory(patcher);
+            File.WriteAllText(Path.Combine(patcher, "pack.yaml"),
+@"id: pack-a
+name: Pack A
+version: 1.0.0
+framework_version: '>=0.1.0 <99.0.0'
+type: content
+patches:
+  - target_pack: pack-b
+    operations:
+      - op: replace
+        path: /units/warrior/stats/hp
+        value: 150
+");
+
+            _loader.LoadPacks(_root).Errors.Should().BeEmpty();
+            _registry.Units.Get("warrior")!.Stats.Hp.Should().BeApproximately(150f, 0.01f);
+
+            // New generation: patch removed and target bytes changed at the same path.
+            File.WriteAllText(Path.Combine(patcher, "pack.yaml"),
+@"id: pack-a
+name: Pack A
+version: 2.0.0
+framework_version: '>=0.1.0 <99.0.0'
+type: content
+");
+            File.WriteAllText(unitPath, Unit("warrior", "Warrior v2", 200));
+
+            ContentLoadResult reload = _loader.LoadPacks(_root);
+            reload.Errors.Should().BeEmpty(
+                "a successful new generation must not silently consume patched bytes cached from the prior patch set");
+
+            _registry.Units.Get("warrior")!.Stats.Hp.Should().BeApproximately(
+                200f, 0.01f,
+                "removing the patch must expose the current on-disk target bytes rather than stale patched YAML");
+        }
+
         private string CreatePack(string id, string version)
         {
             string pack = Path.Combine(_root, id);
