@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "program_id": "gaming-pair-20260929",
+  "product": "DINOForge",
+  "repository": "KooshaPari/Dino",
+  "repository_id": 1177712269,
+  "observed_date": "2026-09-29",
+  "source_snapshot": {
+    "branch": "main",
+    "commit": "17119051e782b32615413049c1c3cd207f0b540e",
+    "tree": "d158e1904a128f3e80f26606e639a8011cadf7a1"
+  },
+  "registry_snapshot": {
+    "repository": "KooshaPari/PhenoRegistry",
+    "repository_id": 1201113097,
+    "commit": "85d7cd00cf59c379c05b740e8130a85b0d5bd31b",
+    "tree": "e1fdef39df291c5aab7532cda0e8ca43d50d7dbf",
+    "branch": "research/gaming-pair-20260929"
+  },
+  "specification_branch": "spec/mature-recovery-20260929",
+  "implementation_candidate": null,
+  "active_product_repositories": ["KooshaPari/Dino", "KooshaPari/Civis"],
+  "registry_role": "evidence index, lineage and research only; not a third product program",
+  "scope_authority": "User assignment on 2026-09-29: execute exactly two mature-first recovery programs; no third product until both design gates pass.",
+  "artifact_authority": "RECOVERY_DRAFT; does not supersede accepted product contracts",
+  "completion": "INCOMPLETE",
+  "architecture_freeze": "BLOCKED",
+  "native_validation": "NOT_RUN",
+  "environment_limits": [
+    "This execution environment has no dotnet or cargo executable.",
+    "Read-only git clone attempted; container cannot resolve github.com. Source inspection uses the authorized GitHub connector.",
+    "No licensed host-game installation or interactive game session was observed."
+  ],
+  "snapshot_policy": "Evidence at another revision is historical or candidate-specific, never silently rebound to this snapshot. Specification commits are not implementation candidates."
+}
