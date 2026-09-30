@@ -22,7 +22,7 @@
   "dimensions": {
     "functional_realization": "PARTIALLY_MAPPED_NOT_MEASURED",
     "traceability": "PARTIAL_NOT_VALIDATED",
-    "current_product_evidence": "SDK_RECOVERY_ORACLES_EXECUTED_3_CONFIRMED_BEHAVIORAL_FAILURES_NATIVE_GAME_NOT_RUN",
+    "current_product_evidence": "SDK_BEHAVIORAL_REDS_REPRODUCED_NATIVE_HOST_NOT_RUN",
     "journey_closure": "NOT_DEMONSTRATED_IN_THIS_PROGRAM",
     "performance": "UNQUALIFIED",
     "reliability": "UNQUALIFIED",
@@ -48,7 +48,7 @@
     "journeys_represented": "PARTIAL",
     "stage_projections_justified": "PROVISIONAL",
     "oracle_design_complete": "PARTIAL",
-    "high_risk_architecture_experimentally_closed": "OPEN_GENERATION_PROTOTYPE_PARTIAL_2_OF_3_PASSED_FIRST_RUN",
+    "high_risk_architecture_experimentally_closed": "PARTIAL_ISOLATED_GENERATION_ARCHITECTURE_SUPPORTED_RUNTIME_INTEGRATION_OPEN",
     "implementation_mapping_complete": "OPEN",
     "traceability_structurally_valid": "NOT_VALIDATED",
     "registry_repo_truth_agree": "OPEN_HISTORICAL_CONTRADICTIONS",
@@ -67,7 +67,9 @@
     "D-F01 validation parity by content type/ingress remains incomplete",
     "D-F02 install/profile/world identity and scene lifecycle not qualified",
     "Full source/history/SOTA/license denominator and independent fresh review remain open",
-    "Licensed DINO host journey not executed"
+    "Licensed DINO host journey not executed",
+    "Production reload path has three candidate-bound reproduced generation failures",
+    "Runtime consumer rebind/materialization and licensed-host journey remain unqualified"
   ],
   "next_bounded_work": [
     "Rerun corrected fresh-generation patch prototype and require all architecture-prototype cases green while production red controls remain red",
@@ -77,5 +79,40 @@
     "Execute D-J01/D-J02/D-J03 on licensed host after SDK generation semantics are accepted"
   ],
   "no_third_product_program": true,
-  "merge_authorized": false
+  "merge_authorized": false,
+  "prototype_architecture_evidence": {
+    "production_reproduced_failures": [
+      "removed content remains effective after successful same-pack reload",
+      "repeated identical reload accumulates equal-priority conflict",
+      "removed patch continues to serve stale patched YAML"
+    ],
+    "production_control_run": {
+      "run_id": 36687869773,
+      "candidate": "a4409d25f71b23d92d51a55c5925bb9e48df1a84",
+      "result": "3 production controls failed",
+      "artifact_id": 11084821466,
+      "artifact_sha256": "4f278d7cb617a30e64716a5c9b385d59d9bfb65f1f88a5bd69dd8ffe7d215126"
+    },
+    "latest_discrimination_run": {
+      "run_id": 36700623226,
+      "candidate": "31d0ab8a6d673a57d45baac5bcaff2440e8df3e3",
+      "result": "7 prototype/architecture tests passed; 3 unchanged production controls failed",
+      "artifact_id": 11089727636,
+      "artifact_sha256": "8f62449d0e2a8c59fb05952de36f7353e9a9c48964c94296e50526eb5357806d"
+    },
+    "validated_in_isolation": [
+      "fresh isolated generation removes historical registrations",
+      "fresh isolated generation does not reuse stale patched YAML",
+      "failed candidate preserves prior published generation",
+      "candidate bytes derive stable/change-sensitive generation identity",
+      "consumer ACK/NACK distinguishes desired from fully active",
+      "machine receipt cannot claim fully active while required consumer NACKs"
+    ],
+    "still_unqualified": [
+      "real Runtime static consumer rebinding run queued",
+      "derived ECS/UI/cache materialization across generation change",
+      "licensed host gameplay journey",
+      "complete runtime consumer denominator"
+    ]
+  }
 }
