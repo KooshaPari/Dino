@@ -87,6 +87,15 @@ namespace DINOForge.Tests
         public void FreshGeneration_RemovingPatchUsesCurrentDiskBytes()
         {
             string target = CreatePack("pack-b", "1.0.0");
+            File.WriteAllText(Path.Combine(target, "pack.yaml"),
+@"id: pack-b
+name: Pack B
+version: 1.0.0
+framework_version: '>=0.1.0 <99.0.0'
+author: recovery
+type: content
+load_order: 100
+");
             Directory.CreateDirectory(Path.Combine(target, "units"));
             File.WriteAllText(Path.Combine(target, "units", "warrior.yaml"), Unit("warrior", "Warrior", 100));
 
@@ -109,7 +118,9 @@ patches:
 
             var publisher = new RecoveryGenerationPrototype();
             var g1 = publisher.Build(_root, "g1");
-            publisher.TryPublish(g1).Should().BeTrue();
+            publisher.TryPublish(g1).Should().BeTrue(
+                "fresh generation should accept the repository-standard patch fixture; errors: {0}",
+                string.Join(" | ", g1.Result.Errors));
             publisher.Published!.Registries.Units.Get("warrior")!.Stats.Hp.Should().BeApproximately(150f, 0.01f);
 
             File.WriteAllText(Path.Combine(patcher, "pack.yaml"), Manifest("pack-a", "2.0.0"));
