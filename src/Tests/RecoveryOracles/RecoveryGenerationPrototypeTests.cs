@@ -90,8 +90,16 @@ namespace DINOForge.Tests
             Directory.CreateDirectory(Path.Combine(target, "units"));
             File.WriteAllText(Path.Combine(target, "units", "warrior.yaml"), Unit("warrior", "Warrior", 100));
 
-            string patcher = CreatePack("pack-a", "1.0.0",
-@"patches:
+            string patcher = CreatePack("pack-a", "1.0.0");
+            File.WriteAllText(Path.Combine(patcher, "pack.yaml"),
+@"id: pack-a
+name: Pack A
+version: 1.0.0
+framework_version: '>=0.1.0 <99.0.0'
+author: recovery
+type: content
+load_order: 100
+patches:
   - target_pack: pack-b
     operations:
       - op: replace
