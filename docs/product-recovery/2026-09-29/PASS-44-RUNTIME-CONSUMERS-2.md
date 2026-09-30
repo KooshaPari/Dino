@@ -98,3 +98,25 @@ If those cannot be found, README/typed-registry support claims overstate realize
 ## Next execution
 
 Trace mounted constructors/callers for WarfareContentLoader, WarfarePlugin, DoctrineEngine, BalanceCalculator and any skill bridge. Then add generation consumer dispositions to the machine receipt contract. No domain gets a green merely because its DTO/schema/registry tests pass.
+
+
+## Pass-44 correction — mountedness after caller search
+
+Deeper caller search changes the interpretation of WarfareContentLoader/WarfarePlugin:
+
+- `new WarfareContentLoader` is found only in WarfareCoverageTests plus the class itself.
+- repository orphan analysis records `WarfarePlugin` with `prod_refs: 0`.
+- no production constructor/mount for WarfareContentLoader was established.
+
+Therefore these are **implemented domain machinery / currently unmounted in the recovered production graph**, not live runtime consumers.
+
+Consequences:
+- Weapons/Squads/Doctrines do not receive runtime-generation credit from WarfareContentLoader.
+- DoctrineEngine/BalanceCalculator functionality is not a gameplay consumer unless a mounted production caller is established.
+- The existence of substantial tested domain code can coexist with a product husk: implementation breadth without a closed author-to-host journey.
+
+Projectiles remain different: ModPlatform directly enumerates RegistryManager.Projectiles and materializes bolt color into runtime config, so that path is production-mounted subject to host evidence.
+
+Skills remain a stronger realization gap: advertised typed registry + ECS mapping claim, but no mounted ingestion/materializer was found in this pass.
+
+This correction supersedes any wording above that called WarfareContentLoader a runtime-retained consumer.
