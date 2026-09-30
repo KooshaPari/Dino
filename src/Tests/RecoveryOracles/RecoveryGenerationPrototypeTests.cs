@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using DINOForge.SDK;
 using DINOForge.SDK.Registry;
 using FluentAssertions;
@@ -31,12 +33,31 @@ namespace DINOForge.Tests
 
         public Generation? Published { get; private set; }
 
-        public Generation Build(string packsRoot, string generationId)
+        public Generation Build(string packsRoot, string? generationId = null)
         {
             var registries = new RegistryManager();
             var loader = new ContentLoader(registries);
             ContentLoadResult result = loader.LoadPacks(packsRoot);
-            return new Generation(generationId, registries, result);
+            return new Generation(generationId ?? ComputeGenerationId(packsRoot), registries, result);
+        }
+
+        public static string ComputeGenerationId(string packsRoot)
+        {
+            using var sha = SHA256.Create();
+            using var stream = new MemoryStream();
+            foreach (string file in Directory.EnumerateFiles(packsRoot, "*", SearchOption.AllDirectories)
+                         .OrderBy(p => Path.GetRelativePath(packsRoot, p), StringComparer.Ordinal))
+            {
+                string relative = Path.GetRelativePath(packsRoot, file).Replace('\\', '/');
+                byte[] name = Encoding.UTF8.GetBytes(relative);
+                stream.Write(BitConverter.GetBytes(name.Length));
+                stream.Write(name);
+                byte[] bytes = File.ReadAllBytes(file);
+                stream.Write(BitConverter.GetBytes(bytes.Length));
+                stream.Write(bytes);
+            }
+            stream.Position = 0;
+            return Convert.ToHexString(sha.ComputeHash(stream)).ToLowerInvariant();
         }
 
         public bool TryPublish(Generation candidate)
@@ -170,6 +191,21 @@ patches:
             publisher.TryPublish(bad).Should().BeFalse();
             publisher.Published.Should().BeSameAs(accepted);
             publisher.Published!.Registries.Units.Get("safe-x").Should().NotBeNull();
+        }
+
+        [Fact]
+        public void GenerationId_IsStableForIdenticalBytes_AndChangesWithCandidateBytes()
+        {
+            string pack = CreatePack("identity-pack", "1.0.0");
+            WriteUnits(pack, Unit("id-x", "Identity", 10));
+
+            string a = RecoveryGenerationPrototype.ComputeGenerationId(_root);
+            string b = RecoveryGenerationPrototype.ComputeGenerationId(_root);
+            b.Should().Be(a, "identical candidate bytes must produce the same generation identity");
+
+            WriteUnits(pack, Unit("id-x", "Identity v2", 11));
+            string changed = RecoveryGenerationPrototype.ComputeGenerationId(_root);
+            changed.Should().NotBe(a, "candidate identity must change when effective input bytes change");
         }
 
         [Fact]
