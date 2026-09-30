@@ -45,3 +45,5 @@ jobs:
 # PASS-25 execution marker: actual PackUnitSpawner/WaveInjector adapters require a fresh candidate-bound run.
 
 # PASS-27 pure-core rerun marker: Runtime CI allowlist now includes GenerationStore.cs.
+
+# PASS-28 comparer/materialized marker: rerun pure core after quality cleanup; game-only materialized adapters remain source-only until host qualification.
