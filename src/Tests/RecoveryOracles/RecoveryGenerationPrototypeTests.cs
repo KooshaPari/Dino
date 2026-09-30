@@ -171,6 +171,64 @@ namespace DINOForge.Tests
         public bool IsFullyObserved => _required.SetEquals(_observed);
     }
 
+
+    internal enum RecoveryConsumerDisposition
+    {
+        LookupOnDemand,
+        MaterializedReconciled,
+        RestartRequired
+    }
+
+    internal sealed class RecoveryConsumerAdapter
+    {
+        public string Id { get; }
+        public RecoveryConsumerDisposition Disposition { get; private set; }
+        public string? ObservedGeneration { get; private set; }
+        public string? MaterializedGeneration { get; private set; }
+
+        public RecoveryConsumerAdapter(string id, RecoveryConsumerDisposition disposition, string? materializedGeneration = null)
+        {
+            Id = id;
+            Disposition = disposition;
+            MaterializedGeneration = materializedGeneration;
+        }
+
+        public bool ApplyLookupGeneration(string generation)
+        {
+            if (Disposition != RecoveryConsumerDisposition.LookupOnDemand)
+                return false;
+            ObservedGeneration = generation;
+            return true;
+        }
+
+        public bool ReconcileMaterialized(string generation)
+        {
+            if (Disposition != RecoveryConsumerDisposition.MaterializedReconciled)
+                return false;
+            ObservedGeneration = generation;
+            MaterializedGeneration = generation;
+            return true;
+        }
+
+        public void RequireRestart(string desiredGeneration)
+        {
+            Disposition = RecoveryConsumerDisposition.RestartRequired;
+            ObservedGeneration = desiredGeneration;
+        }
+
+        public bool Qualifies(string desiredGeneration) =>
+            Disposition switch
+            {
+                RecoveryConsumerDisposition.LookupOnDemand =>
+                    string.Equals(ObservedGeneration, desiredGeneration, StringComparison.Ordinal),
+                RecoveryConsumerDisposition.MaterializedReconciled =>
+                    string.Equals(ObservedGeneration, desiredGeneration, StringComparison.Ordinal) &&
+                    string.Equals(MaterializedGeneration, desiredGeneration, StringComparison.Ordinal),
+                RecoveryConsumerDisposition.RestartRequired => false,
+                _ => false
+            };
+    }
+
     public sealed class RecoveryGenerationPrototypeTests : IDisposable
     {
         private readonly string _root = Path.Combine(
@@ -359,6 +417,42 @@ patches:
             observations.Acknowledge("build-menu", g1.Id).Should().BeTrue();
             observations.Acknowledge("wave-injector", g1.Id).Should().BeTrue();
             observations.IsFullyObserved.Should().BeTrue();
+        }
+
+
+        [Fact]
+        public void RealConsumerClasses_PointerRebindCannotQualifyOneShotMaterialization()
+        {
+            var spawner = new RecoveryConsumerAdapter("pack-unit-spawner", RecoveryConsumerDisposition.LookupOnDemand);
+            var buildMenu = new RecoveryConsumerAdapter(
+                "build-menu",
+                RecoveryConsumerDisposition.MaterializedReconciled,
+                materializedGeneration: "g1");
+
+            spawner.ApplyLookupGeneration("g2").Should().BeTrue();
+            spawner.Qualifies("g2").Should().BeTrue(
+                "future PackUnitSpawner-style lookups can qualify after rebinding");
+
+            buildMenu.Qualifies("g2").Should().BeFalse(
+                "BuildMenuInjector-style cached/live materialization remains on g1 until explicit reconciliation");
+            buildMenu.ReconcileMaterialized("g2").Should().BeTrue();
+            buildMenu.Qualifies("g2").Should().BeTrue();
+        }
+
+        [Fact]
+        public void RestartRequiredConsumer_CannotAckDesiredGenerationAsFullyApplied()
+        {
+            var aerialSweep = new RecoveryConsumerAdapter(
+                "aerial-building-sweep",
+                RecoveryConsumerDisposition.MaterializedReconciled,
+                materializedGeneration: "g1");
+
+            aerialSweep.RequireRestart("g2");
+            aerialSweep.ObservedGeneration.Should().Be("g2",
+                "the consumer can observe the desired generation without having materialized it");
+            aerialSweep.MaterializedGeneration.Should().Be("g1");
+            aerialSweep.Qualifies("g2").Should().BeFalse(
+                "restart-required is a first-class non-ACK state, not a green");
         }
 
         private string CreatePack(string id, string version, string extra = "")
