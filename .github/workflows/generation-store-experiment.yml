@@ -43,3 +43,5 @@ jobs:
           retention-days: 30
 
 # PASS-25 execution marker: actual PackUnitSpawner/WaveInjector adapters require a fresh candidate-bound run.
+
+# PASS-27 pure-core rerun marker: Runtime CI allowlist now includes GenerationStore.cs.
