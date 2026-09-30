@@ -70,6 +70,20 @@ namespace DINOForge.Runtime.Bridge
 
         /// <summary>Supplies the registry. Call from ModPlatform after packs load.</summary>
         /// <param name="registry">Loaded pack registry.</param>
+        internal static Generation.GenerationConsumerResult AssessGeneration(Generation.RuntimeGeneration generation)
+        {
+            // Live menu entries are materialized/cached and the current injector has
+            // no proven reversible delta path. Observing G2 is not equivalent to
+            // applying it to the live menu.
+            return new Generation.GenerationConsumerResult(
+                "build-menu",
+                generation.Id,
+                Generation.GenerationConsumerDisposition.RestartRequired,
+                Generation.GenerationConsumerStatus.RestartRequired,
+                observedGeneration: generation.Id,
+                detail: "live build-menu materialization requires restart or a separately proven reconciliation path");
+        }
+
         public static void Initialize(RegistryManager? registry)
         {
             _registry = registry;
