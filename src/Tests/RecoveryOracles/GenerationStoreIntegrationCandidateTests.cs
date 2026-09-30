@@ -20,6 +20,27 @@ namespace DINOForge.Tests
         }
 
         [Fact]
+        public void PackRootPolicy_RejectsOutsideConfiguredRootByDefault()
+        {
+            string configured = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "configured-packs");
+            string outside = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "other-packs");
+            var policy = new PackRootPolicy(configured);
+
+            System.Action act = () => policy.ResolveAuthorized(outside);
+            act.Should().Throw<System.UnauthorizedAccessException>();
+        }
+
+        [Fact]
+        public void PackRootPolicy_AllowsDescendantOverrideAndReturnsCanonicalSubject()
+        {
+            string configured = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "configured-packs");
+            string child = System.IO.Path.Combine(configured, "profile-a");
+            var policy = new PackRootPolicy(configured);
+
+            policy.ResolveAuthorized(child).Should().Be(System.IO.Path.GetFullPath(child));
+        }
+
+        [Fact]
         public void PackRootResolver_MissingRequestUsesConfiguredRoot()
         {
             string configured = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "configured-packs");
