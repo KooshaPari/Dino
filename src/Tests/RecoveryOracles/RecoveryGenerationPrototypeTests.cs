@@ -72,6 +72,26 @@ namespace DINOForge.Tests
         }
     }
 
+    internal sealed class RecoveryGenerationReceipt
+    {
+        public string DesiredGeneration { get; }
+        public string? ActiveGeneration { get; }
+        public bool FullyActive { get; }
+        public System.Collections.Generic.IReadOnlyDictionary<string, string> Nacks { get; }
+
+        public RecoveryGenerationReceipt(
+            string desiredGeneration,
+            string? activeGeneration,
+            bool fullyActive,
+            System.Collections.Generic.IReadOnlyDictionary<string, string> nacks)
+        {
+            DesiredGeneration = desiredGeneration;
+            ActiveGeneration = activeGeneration;
+            FullyActive = fullyActive;
+            Nacks = nacks;
+        }
+    }
+
     internal sealed class RecoveryActivationCoordinator
     {
         private readonly System.Collections.Generic.HashSet<string> _required;
@@ -119,6 +139,13 @@ namespace DINOForge.Tests
             string.Equals(Desired.Id, Active.Id, StringComparison.Ordinal) && _required.SetEquals(_acks);
 
         public System.Collections.Generic.IReadOnlyDictionary<string, string> Nacks => _nacks;
+
+        public RecoveryGenerationReceipt Receipt() =>
+            new RecoveryGenerationReceipt(
+                Desired?.Id ?? "",
+                Active?.Id,
+                IsFullyActive,
+                new System.Collections.Generic.Dictionary<string, string>(_nacks, StringComparer.Ordinal));
     }
 
     internal sealed class RecoveryGenerationObservations
@@ -255,6 +282,27 @@ patches:
             WriteUnits(pack, Unit("id-x", "Identity v2", 11));
             string changed = RecoveryGenerationPrototype.ComputeGenerationId(_root);
             changed.Should().NotBe(a, "candidate identity must change when effective input bytes change");
+        }
+
+        [Fact]
+        public void GenerationReceipt_CannotReportFullyActiveWhileRequiredConsumerNacks()
+        {
+            string pack = CreatePack("receipt-pack", "1.0.0");
+            WriteUnits(pack, Unit("receipt-x", "Receipt", 10));
+
+            var builder = new RecoveryGenerationPrototype();
+            var g1 = builder.Build(_root);
+            var coordinator = new RecoveryActivationCoordinator(new[] { "spawner", "menu" });
+            coordinator.Propose(g1);
+            coordinator.Ack("spawner", g1.Id).Should().BeTrue();
+            coordinator.Nack("menu", g1.Id, "apply failed").Should().BeTrue();
+
+            RecoveryGenerationReceipt receipt = coordinator.Receipt();
+            receipt.DesiredGeneration.Should().Be(g1.Id);
+            receipt.FullyActive.Should().BeFalse();
+            receipt.Nacks.Should().ContainKey("menu");
+            receipt.ActiveGeneration.Should().BeNull(
+                "no prior fully active generation exists and a required consumer rejected this one");
         }
 
         [Fact]
