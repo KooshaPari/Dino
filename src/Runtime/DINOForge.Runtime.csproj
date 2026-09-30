@@ -217,6 +217,7 @@
     <Compile Include="Bridge\BlasterBoltConfig.cs" />
     <Compile Include="Bridge\BuildAliasMapper.cs" />
     <Compile Include="Bridge\BridgeReceiptBuilder.cs" />
+    <Compile Include="Generation\GenerationStore.cs" />
     <Compile Include="Bridge\SessionHmac.cs" />
   </ItemGroup>
 
