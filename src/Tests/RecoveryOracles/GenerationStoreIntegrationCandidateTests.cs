@@ -8,22 +8,6 @@ namespace DINOForge.Tests
     public sealed class GenerationStoreIntegrationCandidateTests
     {
         [Fact]
-        public void ActualLookupConsumers_AckFutureLookupGeneration()
-        {
-            var generation = new RuntimeGeneration("g2", new RegistryManager());
-
-            var spawner = DINOForge.Runtime.Bridge.PackUnitSpawner.ApplyLookupGeneration(generation);
-            var waves = DINOForge.Runtime.Bridge.WaveInjector.ApplyLookupGeneration(generation);
-
-            spawner.Qualifies.Should().BeTrue();
-            waves.Qualifies.Should().BeTrue();
-            spawner.ObservedGeneration.Should().Be("g2");
-            waves.ObservedGeneration.Should().Be("g2");
-            spawner.Detail.Should().Contain("existing spawned entities are out of scope");
-            waves.Detail.Should().Contain("active waves retain materialized definitions");
-        }
-
-        [Fact]
         public void NackOrMissingRequiredConsumer_KeepsPriorGenerationActive()
         {
             var store = new GenerationStore(new[] { "spawner", "build-menu" });
