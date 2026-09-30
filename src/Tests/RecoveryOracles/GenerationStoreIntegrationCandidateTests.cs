@@ -8,6 +8,27 @@ namespace DINOForge.Tests
     public sealed class GenerationStoreIntegrationCandidateTests
     {
         [Fact]
+        public void ReloadResult_CanBindRequestedAndResolvedPathAndGenerationTruth()
+        {
+            var result = new DINOForge.Bridge.Protocol.ReloadResult
+            {
+                Success = false,
+                RequestedPath = @"C:\packs\candidate",
+                ResolvedPath = @"C:\packs\candidate",
+                DesiredGeneration = "g2",
+                ActiveGeneration = "g1",
+                FullyObserved = false,
+                ActivationDisposition = "restart-required"
+            };
+
+            result.RequestedPath.Should().Be(result.ResolvedPath);
+            result.DesiredGeneration.Should().Be("g2");
+            result.ActiveGeneration.Should().Be("g1");
+            result.FullyObserved.Should().BeFalse();
+            result.ActivationDisposition.Should().Be("restart-required");
+        }
+
+        [Fact]
         public void NackOrMissingRequiredConsumer_KeepsPriorGenerationActive()
         {
             var store = new GenerationStore(new[] { "spawner", "build-menu" });
