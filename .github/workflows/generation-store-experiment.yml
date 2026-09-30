@@ -49,3 +49,5 @@ jobs:
 # PASS-28 comparer/materialized marker: rerun pure core after quality cleanup; game-only materialized adapters remain source-only until host qualification.
 
 # PASS-30 receipt marker: requalify pure GenerationStore after protocol receipt extension; host-only consumers remain separately gated.
+
+# PASS-31 receipt test marker: qualify protocol path/generation identity fields with pure GenerationStore core.
