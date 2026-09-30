@@ -134,6 +134,7 @@ namespace DINOForge.Tests
             string pack = Path.Combine(_root, id);
             Directory.CreateDirectory(pack);
             File.WriteAllText(Path.Combine(pack, "pack.yaml"), Manifest(id, version, extra));
+            File.WriteAllText(Path.Combine(pack, "units.yaml"), string.Empty);
             return pack;
         }
 
