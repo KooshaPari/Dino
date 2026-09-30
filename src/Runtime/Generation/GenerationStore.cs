@@ -165,7 +165,7 @@ namespace DINOForge.Runtime.Generation
             Proposed = null;
             return new GenerationActivationReceipt(
                 desired, prior, Active?.Id,
-                new Dictionary<string, GenerationConsumerResult>(_results),
+                new Dictionary<string, GenerationConsumerResult>(_results, StringComparer.Ordinal),
                 committed: false);
         }
     }
