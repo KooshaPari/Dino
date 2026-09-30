@@ -8,7 +8,7 @@
   "registry_source_snapshot": "85d7cd00cf59c379c05b740e8130a85b0d5bd31b",
   "registry_research_commit": "7c7c724ebcfd0fa353da6b090c36e66ddb474b03",
   "specification_branch": "spec/mature-recovery-20260929",
-  "implementation_candidate": "5727cae4367b805ca813d534324d80a2f9751e48",
+  "implementation_candidate": "000db7b1dcd15573bf81321efb69187a5c0a72b5",
   "contract_authority": "RECOVERY_DRAFT_NOT_ACCEPTED",
   "candidate_obligations_eligible_for_grading": false,
   "invalid_or_unreviewed_catalogs_eligible_for_grading": false,
@@ -48,7 +48,7 @@
     "journeys_represented": "PARTIAL",
     "stage_projections_justified": "PROVISIONAL",
     "oracle_design_complete": "PARTIAL",
-    "high_risk_architecture_experimentally_closed": "PARTIAL_SDK_GENERATION_ARCHITECTURE_SUPPORTED_GAME_RUNTIME_AND_CONSUMER_MATERIALIZATION_OPEN",
+    "high_risk_architecture_experimentally_closed": "PARTIAL_SDK_GENERATION_AND_CONSUMER_ACK_ARCHITECTURE_SUPPORTED_GAME_RUNTIME_MATERIALIZATION_OPEN",
     "implementation_mapping_complete": "OPEN",
     "traceability_structurally_valid": "NOT_VALIDATED",
     "registry_repo_truth_agree": "OPEN_HISTORICAL_CONTRADICTIONS",
@@ -62,7 +62,6 @@
     "D-BEH-01 confirmed: removed content remains effective after successful same-pack reload",
     "D-BEH-02 confirmed: identical reload accumulates a registry conflict",
     "D-BEH-03 confirmed: removing a patch can reuse stale patched YAML across LoadPacks on persistent loader",
-    "Effective-generation prototype patch fixture needs rerun; 2/3 prototype cases passed first combined run",
     "Runtime consumer generation publication/acknowledgement not implemented or host-qualified",
     "D-F01 validation parity by content type/ingress remains incomplete",
     "D-F02 install/profile/world identity and scene lifecycle not qualified",
@@ -75,11 +74,11 @@
     "Game Automation Tests explicitly creates a mock executable when game is absent and is not native-product evidence"
   ],
   "next_bounded_work": [
-    "Rerun corrected fresh-generation patch prototype and require all architecture-prototype cases green while production red controls remain red",
-    "Prototype stable RegistryManager facade/generation handle so retained runtime consumers do not split truth",
-    "Map lookup-on-demand vs materialized runtime consumers and define observed_generation acknowledgements",
-    "Fix reloadPacks target-path/receipt subject identity in design before autonomous grading",
-    "Execute D-J01/D-J02/D-J03 on licensed host after SDK generation semantics are accepted"
+    "Prototype/adapt real retained runtime consumers to generation-store ApplyGeneration/observed_generation semantics without changing licensed-host behavior yet",
+    "Map lookup-on-demand vs materialized runtime consumers and define existing-entity vs new-entity update semantics",
+    "Fix reloadPacks target-path and versioned receipt subject identity before autonomous grading",
+    "Trace asset/domain registries outside core RegistryManager into the same generation boundary",
+    "Execute D-J01/D-J02/D-J03 on licensed host after consumer-generation integration is accepted"
   ],
   "no_third_product_program": true,
   "merge_authorized": false,
@@ -97,11 +96,11 @@
       "artifact_sha256": "4f278d7cb617a30e64716a5c9b385d59d9bfb65f1f88a5bd69dd8ffe7d215126"
     },
     "latest_discrimination_run": {
-      "run_id": 36700623226,
-      "candidate": "31d0ab8a6d673a57d45baac5bcaff2440e8df3e3",
-      "result": "7 prototype/architecture tests passed; 3 unchanged production controls failed",
-      "artifact_id": 11089727636,
-      "artifact_sha256": "8f62449d0e2a8c59fb05952de36f7353e9a9c48964c94296e50526eb5357806d"
+      "run_id": 36703814791,
+      "candidate": "000db7b1dcd15573bf81321efb69187a5c0a72b5",
+      "result": "7 generation/coordination prototype tests passed; 3 unchanged production reload controls failed",
+      "artifact_id": 11091451179,
+      "artifact_sha256": "6468ec9ca805606628d191140baf1c8f2e9cf372a6962604f342423ce1293f87"
     },
     "validated_in_isolation": [
       "fresh isolated generation removes historical registrations",
@@ -109,7 +108,8 @@
       "failed candidate preserves prior published generation",
       "candidate bytes derive stable/change-sensitive generation identity",
       "consumer ACK/NACK distinguishes desired from fully active",
-      "machine receipt cannot claim fully active while required consumer NACKs"
+      "two-phase activation retains prior active generation until all required consumers ACK",
+      "stale/wrong-generation acknowledgement cannot qualify current generation"
     ],
     "still_unqualified": [
       "real Runtime static consumer rebinding run queued",
