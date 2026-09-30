@@ -19,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../SDK/DINOForge.SDK.csproj" />
+    <ProjectReference Include="../../Runtime/DINOForge.Runtime.csproj" />
     <Compile Include="../RecoveryGenerationOracleTests.cs" Link="RecoveryGenerationOracleTests.cs" />
   </ItemGroup>
 </Project>
