@@ -152,7 +152,7 @@ namespace DINOForge.Runtime.Generation
                 desiredGeneration: allQualified ? Active!.Id : Proposed.Id,
                 priorActiveGeneration: prior,
                 activeGeneration: Active?.Id,
-                consumers: new Dictionary<string, GenerationConsumerResult>(_results),
+                consumers: new Dictionary<string, GenerationConsumerResult>(_results, StringComparer.Ordinal),
                 committed: allQualified);
         }
 
