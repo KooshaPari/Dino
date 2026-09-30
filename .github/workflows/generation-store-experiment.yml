@@ -53,3 +53,5 @@ jobs:
 # PASS-31 receipt test marker: qualify protocol path/generation identity fields with pure GenerationStore core.
 
 # PASS-33 root resolver marker: qualify canonical requested/default root selection before ModPlatform integration.
+
+# PASS-34 root policy marker
