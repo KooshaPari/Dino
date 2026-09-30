@@ -22,7 +22,7 @@
   "dimensions": {
     "functional_realization": "PARTIALLY_MAPPED_NOT_MEASURED",
     "traceability": "PARTIAL_NOT_VALIDATED",
-    "current_product_evidence": "SDK_BEHAVIORAL_REDS_REPRODUCED_NATIVE_HOST_NOT_RUN",
+    "current_product_evidence": "SDK_BEHAVIORAL_REDS_AND_ARCHITECTURE_GREENS; NATIVE_GAME_NOT_QUALIFIED",
     "journey_closure": "NOT_DEMONSTRATED_IN_THIS_PROGRAM",
     "performance": "UNQUALIFIED",
     "reliability": "UNQUALIFIED",
@@ -48,7 +48,7 @@
     "journeys_represented": "PARTIAL",
     "stage_projections_justified": "PROVISIONAL",
     "oracle_design_complete": "PARTIAL",
-    "high_risk_architecture_experimentally_closed": "PARTIAL_ISOLATED_GENERATION_ARCHITECTURE_SUPPORTED_RUNTIME_INTEGRATION_OPEN",
+    "high_risk_architecture_experimentally_closed": "PARTIAL_SDK_GENERATION_ARCHITECTURE_SUPPORTED_GAME_RUNTIME_AND_CONSUMER_MATERIALIZATION_OPEN",
     "implementation_mapping_complete": "OPEN",
     "traceability_structurally_valid": "NOT_VALIDATED",
     "registry_repo_truth_agree": "OPEN_HISTORICAL_CONTRADICTIONS",
@@ -69,7 +69,10 @@
     "Full source/history/SOTA/license denominator and independent fresh review remain open",
     "Licensed DINO host journey not executed",
     "Production reload path has three candidate-bound reproduced generation failures",
-    "Runtime consumer rebind/materialization and licensed-host journey remain unqualified"
+    "Runtime consumer rebind/materialization and licensed-host journey remain unqualified",
+    "Recent self-hosted Game Launch / E2E schedules are cancelled before steps; no recent admissible native-game execution",
+    "GitHub-hosted Real Game Launch Validation can succeed with game absent and all game steps skipped",
+    "Game Automation Tests explicitly creates a mock executable when game is absent and is not native-product evidence"
   ],
   "next_bounded_work": [
     "Rerun corrected fresh-generation patch prototype and require all architecture-prototype cases green while production red controls remain red",
@@ -114,5 +117,53 @@
       "licensed host gameplay journey",
       "complete runtime consumer denominator"
     ]
+  },
+  "native_game_evidence": {
+    "self_hosted_workflow": ".github/workflows/game-launch.yml",
+    "recent_runs": [
+      {
+        "run_id": 36415112957,
+        "date": "2026-09-28",
+        "conclusion": "cancelled",
+        "steps_executed": false
+      },
+      {
+        "run_id": 35588105879,
+        "date": "2026-09-21",
+        "conclusion": "cancelled",
+        "steps_executed": false
+      },
+      {
+        "run_id": 34832072673,
+        "date": "2026-09-14",
+        "conclusion": "cancelled",
+        "steps_executed": false
+      },
+      {
+        "run_id": 34108316258,
+        "date": "2026-09-07",
+        "conclusion": "cancelled"
+      },
+      {
+        "run_id": 33386127802,
+        "date": "2026-08-31",
+        "conclusion": "cancelled"
+      },
+      {
+        "run_id": 32693826847,
+        "date": "2026-08-24",
+        "conclusion": "cancelled"
+      }
+    ],
+    "github_hosted_validation_false_green": {
+      "run_id": 34687636798,
+      "candidate": "17119051e782b32615413049c1c3cd207f0b540e",
+      "workflow_conclusion": "success",
+      "game_available": false,
+      "game_test_step": "skipped",
+      "qualification_credit": false
+    },
+    "mock_capable_automation_workflow": ".github/workflows/game-automation.yml",
+    "qualification": "NOT_QUALIFIED"
   }
 }
