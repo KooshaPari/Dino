@@ -8,6 +8,25 @@ namespace DINOForge.Tests
     public sealed class GenerationStoreIntegrationCandidateTests
     {
         [Fact]
+        public void PackRootResolver_RequestedRootWinsAndIsCanonical()
+        {
+            string configured = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "configured-packs");
+            string requested = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "requested-packs", "..", "requested-packs");
+
+            string resolved = PackRootResolver.Resolve(configured, requested);
+
+            resolved.Should().Be(System.IO.Path.GetFullPath(requested));
+            resolved.Should().NotBe(System.IO.Path.GetFullPath(configured));
+        }
+
+        [Fact]
+        public void PackRootResolver_MissingRequestUsesConfiguredRoot()
+        {
+            string configured = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "configured-packs");
+            PackRootResolver.Resolve(configured, null).Should().Be(System.IO.Path.GetFullPath(configured));
+        }
+
+        [Fact]
         public void ReloadResult_CanBindRequestedAndResolvedPathAndGenerationTruth()
         {
             var result = new DINOForge.Bridge.Protocol.ReloadResult
