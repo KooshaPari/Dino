@@ -72,6 +72,55 @@ namespace DINOForge.Tests
         }
     }
 
+    internal sealed class RecoveryActivationCoordinator
+    {
+        private readonly System.Collections.Generic.HashSet<string> _required;
+        private readonly System.Collections.Generic.HashSet<string> _acks = new();
+        private readonly System.Collections.Generic.Dictionary<string, string> _nacks = new();
+
+        public RecoveryGenerationPrototype.Generation? Desired { get; private set; }
+        public RecoveryGenerationPrototype.Generation? Active { get; private set; }
+
+        public RecoveryActivationCoordinator(System.Collections.Generic.IEnumerable<string> requiredConsumers)
+        {
+            _required = new System.Collections.Generic.HashSet<string>(requiredConsumers, StringComparer.Ordinal);
+        }
+
+        public void Propose(RecoveryGenerationPrototype.Generation generation)
+        {
+            Desired = generation;
+            _acks.Clear();
+            _nacks.Clear();
+        }
+
+        public bool Ack(string consumer, string generationId)
+        {
+            if (Desired == null || !_required.Contains(consumer) ||
+                !string.Equals(Desired.Id, generationId, StringComparison.Ordinal))
+                return false;
+            _nacks.Remove(consumer);
+            _acks.Add(consumer);
+            if (_required.SetEquals(_acks))
+                Active = Desired;
+            return true;
+        }
+
+        public bool Nack(string consumer, string generationId, string reason)
+        {
+            if (Desired == null || !_required.Contains(consumer) ||
+                !string.Equals(Desired.Id, generationId, StringComparison.Ordinal))
+                return false;
+            _acks.Remove(consumer);
+            _nacks[consumer] = reason;
+            return true;
+        }
+
+        public bool IsFullyActive => Desired != null && Active != null &&
+            string.Equals(Desired.Id, Active.Id, StringComparison.Ordinal) && _required.SetEquals(_acks);
+
+        public System.Collections.Generic.IReadOnlyDictionary<string, string> Nacks => _nacks;
+    }
+
     internal sealed class RecoveryGenerationObservations
     {
         private readonly string _publishedGeneration;
@@ -206,6 +255,38 @@ patches:
             WriteUnits(pack, Unit("id-x", "Identity v2", 11));
             string changed = RecoveryGenerationPrototype.ComputeGenerationId(_root);
             changed.Should().NotBe(a, "candidate identity must change when effective input bytes change");
+        }
+
+        [Fact]
+        public void TwoPhaseActivation_NackKeepsPriorActiveGenerationUntilAllConsumersAck()
+        {
+            string pack = CreatePack("two-phase-pack", "1.0.0");
+            WriteUnits(pack, Unit("phase-x", "Phase v1", 10));
+
+            var builder = new RecoveryGenerationPrototype();
+            var g1 = builder.Build(_root);
+            var coordinator = new RecoveryActivationCoordinator(new[] { "spawner", "build-menu" });
+            coordinator.Propose(g1);
+            coordinator.Ack("spawner", g1.Id).Should().BeTrue();
+            coordinator.IsFullyActive.Should().BeFalse();
+            coordinator.Ack("build-menu", g1.Id).Should().BeTrue();
+            coordinator.Active!.Id.Should().Be(g1.Id);
+
+            WriteUnits(pack, Unit("phase-x", "Phase v2", 20));
+            var g2 = builder.Build(_root);
+            g2.Id.Should().NotBe(g1.Id);
+            coordinator.Propose(g2);
+
+            coordinator.Ack("spawner", g2.Id).Should().BeTrue();
+            coordinator.Nack("build-menu", g2.Id, "cannot apply live").Should().BeTrue();
+            coordinator.Active!.Id.Should().Be(g1.Id,
+                "a NACKed desired generation must not become the fully active generation");
+            coordinator.IsFullyActive.Should().BeFalse();
+            coordinator.Nacks.Should().ContainKey("build-menu");
+
+            coordinator.Ack("build-menu", g2.Id).Should().BeTrue();
+            coordinator.Active!.Id.Should().Be(g2.Id);
+            coordinator.IsFullyActive.Should().BeTrue();
         }
 
         [Fact]
