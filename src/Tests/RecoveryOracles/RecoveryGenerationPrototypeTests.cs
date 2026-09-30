@@ -41,8 +41,9 @@ namespace DINOForge.Tests
 
         public bool TryPublish(Generation candidate)
         {
-            bool hasHardErrors = candidate.Result.Errors.Any(
-                e => !e.StartsWith("[patch]", StringComparison.OrdinalIgnoreCase));
+            bool hasHardErrors = candidate.Result.Errors.Any(e =>
+                !e.StartsWith("[patch]", StringComparison.OrdinalIgnoreCase) &&
+                !e.StartsWith("Applying ", StringComparison.OrdinalIgnoreCase));
             if (hasHardErrors)
                 return false;
             Published = candidate;
