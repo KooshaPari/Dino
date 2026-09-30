@@ -54,3 +54,17 @@ ModPlatform reanchors a configured packs path to the running installation, but t
 ## Acquisition limitations
 
 No dotnet executable, no installed licensed DINO host, and no native suite/runtime execution in this environment. GitHub code reads are source observations, not gameplay proof. All current-state statuses must preserve these distinctions. Resolving this ledger requires follow-up inspection, not simply generating requirements from the rows.
+
+
+## Pass 13-16 ledger continuation
+
+| ID | Source | Classification | Resolution / consequence | Status |
+|---|---|---|---|---|
+| D-S25 | Prior conversations Mar8/10/12 recovered2026-09-30 | USER INTENT + assistant proposals separated | Framework-first/full DINO modding, agent-driven validation, reusable/adapted assets and provenance are user anchors; Foundation Spec topology remains proposal unless corroborated | Partial corpus recovered; more history open |
+| D-S26 | Recovery CI runs36628553200,36673414046,36686256615 + artifacts | VERIFIED OBSERVATION on isolated SDK candidate | Removed content stale, identical reload conflict, stale patched YAML all reproduced; exact candidates/artifacts recorded in Pass13/14 | Resolved for exercised SDK subjects; host runtime open |
+| D-S27 | RecoveryGenerationPrototypeTests | EXPERIMENT / architecture candidate | First combined run: fresh-generation removal and failed-candidate-retains-G1 passed; patch prototype fixture failed before architecture conclusion and was corrected | Rerun active |
+| D-S28 | Runtime retained RegistryManager consumers (PackUnitSpawner, WaveInjector, BuildMenuInjector, AerialSpawnSystem, HotReloadBridge, plugins) | CURRENT IMPLEMENTATION | Fresh-manager swap alone would split runtime truth; stable facade/generation handle or explicit rebinding needed | Partial; consumer inventory open |
+
+### D-F01 correction after deeper source/test work
+
+The original null-schema wording is superseded by Pass2: RegistryImportService also calls JsonGuard/IValidatable semantic checks. The unresolved obligation is validation parity by content type/ingress, not blanket absence of runtime validation. Keep the historical finding for provenance but do not quote it as the current model.
