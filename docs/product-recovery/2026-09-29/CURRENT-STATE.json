@@ -3,22 +3,26 @@
   "program_id": "gaming-pair-20260929",
   "product": "DINOForge",
   "repository": "KooshaPari/Dino",
-  "observed_date": "2026-09-29",
+  "observed_date": "2026-09-30",
   "source_snapshot": "17119051e782b32615413049c1c3cd207f0b540e",
   "registry_source_snapshot": "85d7cd00cf59c379c05b740e8130a85b0d5bd31b",
   "registry_research_commit": "7c7c724ebcfd0fa353da6b090c36e66ddb474b03",
   "specification_branch": "spec/mature-recovery-20260929",
-  "implementation_candidate": null,
+  "implementation_candidate": "5727cae4367b805ca813d534324d80a2f9751e48",
   "contract_authority": "RECOVERY_DRAFT_NOT_ACCEPTED",
   "candidate_obligations_eligible_for_grading": false,
   "invalid_or_unreviewed_catalogs_eligible_for_grading": false,
   "specification_design_complete": false,
   "overall_percent": null,
-  "source_denominator": {"family_ledger": "SOURCE-COVERAGE-LEDGER.md", "file_history_conversation_denominator_closed": false, "percentage": null},
+  "source_denominator": {
+    "family_ledger": "SOURCE-COVERAGE-LEDGER.md",
+    "file_history_conversation_denominator_closed": false,
+    "percentage": null
+  },
   "dimensions": {
     "functional_realization": "PARTIALLY_MAPPED_NOT_MEASURED",
     "traceability": "PARTIAL_NOT_VALIDATED",
-    "current_product_evidence": "NATIVE_NOT_RUN",
+    "current_product_evidence": "SDK_RECOVERY_ORACLES_EXECUTED_3_CONFIRMED_BEHAVIORAL_FAILURES_NATIVE_GAME_NOT_RUN",
     "journey_closure": "NOT_DEMONSTRATED_IN_THIS_PROGRAM",
     "performance": "UNQUALIFIED",
     "reliability": "UNQUALIFIED",
@@ -26,7 +30,7 @@
     "accessibility": "UNQUALIFIED",
     "usability": "UNQUALIFIED",
     "external_user_validation": "NOT_ASSESSED",
-    "regression": "NO_COMPARABLE_NATIVE_RUN",
+    "regression": "CANDIDATE_BOUND_SDK_COUNTEREXAMPLES_REPRODUCED",
     "velocity": null,
     "uncertainty": "HIGH_SOURCE_AND_RUNTIME_GAPS",
     "transition_debt": "INVENTORY_STARTED_NOT_QUANTIFIED"
@@ -44,7 +48,7 @@
     "journeys_represented": "PARTIAL",
     "stage_projections_justified": "PROVISIONAL",
     "oracle_design_complete": "PARTIAL",
-    "high_risk_architecture_experimentally_closed": "BLOCKED_NATIVE_EXPERIMENTS_NOT_RUN",
+    "high_risk_architecture_experimentally_closed": "OPEN_GENERATION_PROTOTYPE_PARTIAL_2_OF_3_PASSED_FIRST_RUN",
     "implementation_mapping_complete": "OPEN",
     "traceability_structurally_valid": "NOT_VALIDATED",
     "registry_repo_truth_agree": "OPEN_HISTORICAL_CONTRADICTIONS",
@@ -55,19 +59,22 @@
     "independent_fresh_incompleteness_attack": "NOT_PERFORMED"
   },
   "blockers": [
-    "D-F01: runtime schema-validator boundary and other ingress guard coverage unresolved",
-    "D-F02: install/profile/world identity and scene lifecycle not qualified",
-    "Full source/history/conversation and dependency/license inventory incomplete",
-    "Existing catalogs, tests, mounted CLI/MCP/UI and native evidence not fully mapped",
-    "Licensed host/native toolchain not available in this execution environment",
-    "Alternative stack, quality targets, accepted mature semantics and independent review open"
+    "D-BEH-01 confirmed: removed content remains effective after successful same-pack reload",
+    "D-BEH-02 confirmed: identical reload accumulates a registry conflict",
+    "D-BEH-03 confirmed: removing a patch can reuse stale patched YAML across LoadPacks on persistent loader",
+    "Effective-generation prototype patch fixture needs rerun; 2/3 prototype cases passed first combined run",
+    "Runtime consumer generation publication/acknowledgement not implemented or host-qualified",
+    "D-F01 validation parity by content type/ingress remains incomplete",
+    "D-F02 install/profile/world identity and scene lifecycle not qualified",
+    "Full source/history/SOTA/license denominator and independent fresh review remain open",
+    "Licensed DINO host journey not executed"
   ],
   "next_bounded_work": [
-    "Trace RegistryImportService and all runtime activation/reload callers against exact schemas",
-    "Recover foundation design conversations/docs and invalid registry binding targets",
-    "Enumerate segmented source tree, useful history, tests and host/dependency artifact pins",
-    "Execute D-J01/D-J02/D-J03 on an explicitly qualified licensed host with adversarial fixtures",
-    "Resolve semantic contract/quality/alternative decisions before broad implementation"
+    "Rerun corrected fresh-generation patch prototype and require all architecture-prototype cases green while production red controls remain red",
+    "Prototype stable RegistryManager facade/generation handle so retained runtime consumers do not split truth",
+    "Map lookup-on-demand vs materialized runtime consumers and define observed_generation acknowledgements",
+    "Fix reloadPacks target-path/receipt subject identity in design before autonomous grading",
+    "Execute D-J01/D-J02/D-J03 on licensed host after SDK generation semantics are accepted"
   ],
   "no_third_product_program": true,
   "merge_authorized": false
