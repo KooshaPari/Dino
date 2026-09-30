@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="../../SDK/DINOForge.SDK.csproj" />
     <ProjectReference Include="../../Runtime/DINOForge.Runtime.csproj" />
+    <ProjectReference Include="../../Bridge/DINOForge.Bridge.csproj" />
     <Compile Include="../RecoveryGenerationOracleTests.cs" Link="RecoveryGenerationOracleTests.cs" />
     <!-- Unity/ECS consumers are excluded from Runtime.dll when GameInstalled=false. Keep the source-bound probe for a game-installed/self-hosted runner, but do not fake it in SDK-only CI. -->
     <Compile Remove="RecoveryGenerationRuntimeConsumerTests.cs" />
