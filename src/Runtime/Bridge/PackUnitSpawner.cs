@@ -65,6 +65,30 @@ namespace DINOForge.Runtime.Bridge
         /// Called by ModPlatform during startup.
         /// </summary>
         /// <param name="registry">The RegistryManager containing loaded pack definitions.</param>
+        internal static Generation.GenerationConsumerResult ApplyLookupGeneration(Generation.RuntimeGeneration generation)
+        {
+            try
+            {
+                Initialize(generation.Registries);
+                return new Generation.GenerationConsumerResult(
+                    "pack-unit-spawner",
+                    generation.Id,
+                    Generation.GenerationConsumerDisposition.LookupOnDemand,
+                    Generation.GenerationConsumerStatus.Ack,
+                    observedGeneration: generation.Id,
+                    detail: "future spawn requests resolve against this generation; existing spawned entities are out of scope");
+            }
+            catch (Exception ex)
+            {
+                return new Generation.GenerationConsumerResult(
+                    "pack-unit-spawner",
+                    generation.Id,
+                    Generation.GenerationConsumerDisposition.LookupOnDemand,
+                    Generation.GenerationConsumerStatus.Nack,
+                    detail: ex.Message);
+            }
+        }
+
         public static void Initialize(RegistryManager registry)
         {
             // Iter-144 H9 probe: ENTER/EXIT timing around mod-side pack-recreation entry point.
