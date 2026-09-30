@@ -51,6 +51,29 @@ namespace DINOForge.Tests
         }
     }
 
+    internal sealed class RecoveryGenerationObservations
+    {
+        private readonly string _publishedGeneration;
+        private readonly System.Collections.Generic.HashSet<string> _required;
+        private readonly System.Collections.Generic.HashSet<string> _observed = new();
+
+        public RecoveryGenerationObservations(string publishedGeneration, System.Collections.Generic.IEnumerable<string> requiredConsumers)
+        {
+            _publishedGeneration = publishedGeneration;
+            _required = new System.Collections.Generic.HashSet<string>(requiredConsumers, StringComparer.Ordinal);
+        }
+
+        public bool Acknowledge(string consumer, string generation)
+        {
+            if (!_required.Contains(consumer) || !string.Equals(generation, _publishedGeneration, StringComparison.Ordinal))
+                return false;
+            _observed.Add(consumer);
+            return true;
+        }
+
+        public bool IsFullyObserved => _required.SetEquals(_observed);
+    }
+
     public sealed class RecoveryGenerationPrototypeTests : IDisposable
     {
         private readonly string _root = Path.Combine(
@@ -147,6 +170,30 @@ patches:
             publisher.TryPublish(bad).Should().BeFalse();
             publisher.Published.Should().BeSameAs(accepted);
             publisher.Published!.Registries.Units.Get("safe-x").Should().NotBeNull();
+        }
+
+        [Fact]
+        public void ConsumerAcknowledgement_DistinguishesPublishedFromFullyObservedGeneration()
+        {
+            string pack = CreatePack("ack-pack", "1.0.0");
+            WriteUnits(pack, Unit("ack-x", "Ack", 10));
+
+            var publisher = new RecoveryGenerationPrototype();
+            var g1 = publisher.Build(_root, "g1");
+            publisher.TryPublish(g1).Should().BeTrue();
+
+            var observations = new RecoveryGenerationObservations(
+                g1.Id,
+                new[] { "spawner", "build-menu", "wave-injector" });
+
+            observations.IsFullyObserved.Should().BeFalse();
+            observations.Acknowledge("spawner", g1.Id).Should().BeTrue();
+            observations.Acknowledge("build-menu", "g0").Should().BeFalse(
+                "a consumer acknowledgement for a stale generation must not qualify the published generation");
+            observations.IsFullyObserved.Should().BeFalse();
+            observations.Acknowledge("build-menu", g1.Id).Should().BeTrue();
+            observations.Acknowledge("wave-injector", g1.Id).Should().BeTrue();
+            observations.IsFullyObserved.Should().BeTrue();
         }
 
         private string CreatePack(string id, string version, string extra = "")
