@@ -33,7 +33,7 @@ jobs:
           $receipt | Set-Content recovery-artifacts/receipt.json
       - name: Execute generation replacement oracles
         shell: pwsh
-        run: dotnet test src/Tests/RecoveryOracles/DINOForge.RecoveryOracles.csproj -c Release -p:NoWarn=RS1038 --filter "FullyQualifiedName~RecoveryGenerationOracleTests" --logger "trx;LogFileName=recovery-generation.trx" --results-directory recovery-artifacts
+        run: dotnet test src/Tests/RecoveryOracles/DINOForge.RecoveryOracles.csproj -c Release -p:NoWarn=RS1038 --filter "FullyQualifiedName~RecoveryGeneration" --logger "trx;LogFileName=recovery-generation.trx" --results-directory recovery-artifacts
       - name: Upload raw recovery evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
