@@ -68,3 +68,17 @@ No dotnet executable, no installed licensed DINO host, and no native suite/runti
 ### D-F01 correction after deeper source/test work
 
 The original null-schema wording is superseded by Pass2: RegistryImportService also calls JsonGuard/IValidatable semantic checks. The unresolved obligation is validation parity by content type/ingress, not blanket absence of runtime validation. Keep the historical finding for provenance but do not quote it as the current model.
+
+
+## 2026-10-01 non-execution closure status
+
+The ledger is no longer treated as "open because files remain to be read" generically. Remaining unresolved source families are classified by blocker:
+
+- **AUTHORITY-DECISION**: historical/generated requirement catalogs whose normative status cannot be derived safely.
+- **EXECUTION-DEPENDENT**: real-game host/runtime/materialization/compatibility evidence.
+- **EMPIRICAL-PILOT**: external usability/value/maintenance comparison.
+- **POLICY-DECISION**: supported host/platform/distribution/asset-rights/support commitments.
+
+All other recovered source families feed the mature pillars/journeys/invariants in `NONEXEC-FINAL-CONTRACT-GATE.md`. Runtime-domain reachability is governed by the four-stage realization gate in PASS-44B. SOTA/existence decisions are consolidated in `SOTA-EXISTENCE-GATE-FINAL.md`. Fresh semantic falsification review is `FRESH-ADVERSARIAL-REVIEW.md`.
+
+**Non-execution source-coverage claim:** resolved to a reasonable falsification standard for the current two-repo program, except the named authority/policy decisions. This does not convert execution-dependent rows to green and does not make the overall product specification/design gate 100%.
