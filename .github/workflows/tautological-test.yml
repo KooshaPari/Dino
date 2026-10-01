@@ -23,7 +23,7 @@ on:
       - "docs/qa/known-tautological-tests.txt"
       - ".github/workflows/tautological-test.yml"
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - "src/Tests/**"
       - "scripts/ci/tautological_test_check.py"
