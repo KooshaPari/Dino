@@ -2,7 +2,7 @@ name: Game Automation Tests
 
 on:
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - 'src/**'
       - 'scripts/automation/**'
