@@ -39,7 +39,7 @@ on:
       - "docs/qa/unbounded-constraints-allowlist.txt"
       - ".github/workflows/unbounded-constraints.yml"
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - "**/*.csproj"
       - "**/*.props"
