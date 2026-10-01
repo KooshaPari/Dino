@@ -30,7 +30,7 @@ on:
       - "docs/qa/configureawait-allowlist.txt"
       - ".github/workflows/configureawait.yml"
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - "src/**/*.cs"
       - "scripts/ci/detect_missing_configureawait.py"
