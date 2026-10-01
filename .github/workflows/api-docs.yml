@@ -9,7 +9,7 @@ concurrency:
 
 on:
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - 'src/SDK/**'
       - 'src/Bridge/Client/**'
