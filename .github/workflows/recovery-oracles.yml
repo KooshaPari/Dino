@@ -2,7 +2,7 @@ name: Recovery Oracles
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - 'src/Tests/RecoveryGenerationOracleTests.cs'
       - 'src/Tests/RecoveryOracles/**'
