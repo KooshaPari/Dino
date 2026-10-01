@@ -14,7 +14,7 @@ on:
       - 'docs/user-journeys.md'
       - '.github/workflows/journey-quality-gates.yml'
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
 jobs:
   validate-journeys:
     runs-on: ubuntu-latest
