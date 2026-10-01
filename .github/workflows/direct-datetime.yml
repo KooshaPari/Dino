@@ -29,7 +29,7 @@ on:
       - "docs/qa/direct-datetime-allowlist.txt"
       - ".github/workflows/direct-datetime.yml"
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - "src/**/*.cs"
       - "scripts/ci/detect_direct_datetime.py"
