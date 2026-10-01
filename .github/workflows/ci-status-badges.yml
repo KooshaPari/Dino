@@ -5,7 +5,7 @@ on:
     # Run every 6 hours to keep badges fresh
     - cron: '0 */6 * * *'
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - '.github/workflows/*.yml'
       - 'scripts/ci/generate-badges.py'
