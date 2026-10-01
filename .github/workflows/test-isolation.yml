@@ -20,7 +20,7 @@ on:
       - "docs/qa/test-isolation-policy.md"
       - ".github/workflows/test-isolation.yml"
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - "src/Tests/**"
       - "scripts/ci/detect_global_state_tests.py"
