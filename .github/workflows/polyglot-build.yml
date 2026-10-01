@@ -2,7 +2,7 @@ name: Polyglot Build
 
 on:
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - 'src/Tools/AssetPipelineRust/**'
       - 'src/Tools/DependencyResolver/**'
@@ -10,7 +10,7 @@ on:
       - 'src/Tools/DinoforgeMcp/**'
       - '.github/workflows/polyglot-build.yml'
   pull_request:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
 permissions:
   contents: read
 
