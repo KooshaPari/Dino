@@ -28,7 +28,7 @@ on:
       - "docs/qa/unguarded-deserialize-allowlist.txt"
       - ".github/workflows/unguarded-deserialize.yml"
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - "src/Tools/**/*.cs"
       - "src/Runtime/**/*.cs"
