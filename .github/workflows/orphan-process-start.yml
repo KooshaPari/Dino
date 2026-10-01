@@ -41,7 +41,7 @@ on:
       - "docs/qa/orphan-process-start-allowlist.txt"
       - ".github/workflows/orphan-process-start.yml"
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - "src/**/*.cs"
       - "scripts/ci/detect_orphan_process_start.py"
