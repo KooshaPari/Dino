@@ -2,14 +2,14 @@ name: Build Gate
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - 'src/**'
       - 'packs/**'
       - 'Directory.Build.props'
       - '*.sln'
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - 'src/**'
       - 'packs/**'
