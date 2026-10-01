@@ -63,3 +63,17 @@ An absent-product alternative has not been empirically beaten.
 ## Next work
 
 Only execution/owner-decision/pilot work can materially advance the original overall gate. Further prose expansion without new evidence should be treated as churn.
+
+
+## Pass 44 consumer-denominator amendment
+
+Subsequent source tracing strengthens rather than invalidates the final contract:
+- `WarfareContentLoader` retains typed registries for factions, units, buildings, weapons, projectiles, doctrines, waves and squads; if long-lived across generation replacement it is itself a stale-reference risk, so its lifecycle must be explicit.
+- projectiles have a real runtime materialization path into static/global `BlasterBoltConfig` state and visual material caches; registry G2 is not sufficient.
+- doctrines have concrete warfare validation/calculation consumers, but mounted live-game consequence remains execution evidence.
+- skills declare mappings to DINO ECS skill components, but a mounted applicator has not been proven.
+- squads have loader/model/registry surfaces but no mounted runtime consumer established by the current source pass.
+
+These findings are already represented by the four-stage domain realization gate and D-I08. They therefore do not reopen the non-execution semantic contract; they refine which domain rows remain EXECUTION/REALIZATION blockers.
+
+A fully observed generation remains impossible while any advertised domain is only DEFINITION_ACCEPTED or its retained consumer lifecycle is unknown.
