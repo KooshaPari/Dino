@@ -27,7 +27,7 @@ on:
       - "docs/qa/schema-drift-allowlist.txt"
       - ".github/workflows/schema-drift.yml"
   push:
-    branches: [main]
+    branches: [main, spec/mature-recovery-20260929]
     paths:
       - "schemas/**"
       - "src/**/*.cs"
