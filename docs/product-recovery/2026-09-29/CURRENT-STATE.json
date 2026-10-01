@@ -176,5 +176,27 @@
     },
     "mock_capable_automation_workflow": ".github/workflows/game-automation.yml",
     "qualification": "NOT_QUALIFIED"
+  },
+  "non_execution_closure": {
+    "as_of": "2026-10-01",
+    "status": "STRUCTURALLY_CLOSED_WITH_NAMED_AUTHORITY_POLICY_AND_EXECUTION_BLOCKERS",
+    "contract": "NONEXEC-FINAL-CONTRACT-GATE.md",
+    "sota": "SOTA-EXISTENCE-GATE-FINAL.md",
+    "fresh_review": "FRESH-ADVERSARIAL-REVIEW.md",
+    "source_ledger": "SOURCE-COVERAGE-LEDGER.md",
+    "overall_spec_design_100": false,
+    "reason": "Original completion gate requires experimental closure, implementation mapping/runtime evidence, contradiction closure and independent proof across mounted behavior; named blockers remain and are not paper-completable.",
+    "remaining_authority_policy": [
+      "normative authority of contested historical/generated requirement catalogs",
+      "final supported DINO host/platform/profile matrix",
+      "asset redistribution/distribution policy",
+      "stable support/compatibility commitments"
+    ],
+    "execution_empirical": [
+      "GameInstalled=true consumer/materialization qualification",
+      "path-aware ModPlatform generation coordination",
+      "total-conversion vertical and removal/restart journeys",
+      "external alternative-stack/user pilot"
+    ]
   }
 }
