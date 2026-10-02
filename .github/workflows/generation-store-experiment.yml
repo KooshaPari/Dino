@@ -1,0 +1,57 @@
+name: Generation Store Experiment
+
+on:
+  push:
+    branches: ['experiment/generation-store-20260930']
+  pull_request:
+    branches: ['spec/mature-recovery-20260929']
+    paths:
+      - 'src/Runtime/Generation/**'
+      - 'src/Tests/RecoveryOracles/**'
+      - '.github/workflows/generation-store-experiment.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generation-store:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
+        with:
+          dotnet-version: '11.0.x'
+          global-json-file: global.json
+      - name: Candidate receipt
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force recovery-artifacts | Out-Null
+          $r = @{ repository='${{ github.repository }}'; candidate='${{ github.sha }}'; workflow_run_id='${{ github.run_id }}'; scope='GenerationStoreIntegrationCandidateTests'; product_acceptance_credit=$false } | ConvertTo-Json
+          $r | Set-Content recovery-artifacts/receipt.json
+      - name: Execute integration-candidate tests
+        shell: pwsh
+        run: dotnet test src/Tests/RecoveryOracles/DINOForge.RecoveryOracles.csproj -c Release -p:NoWarn=RS1038 --filter "FullyQualifiedName~GenerationStoreIntegrationCandidateTests" --logger "trx;LogFileName=generation-store.trx" --results-directory recovery-artifacts
+      - name: Upload raw evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: generation-store-${{ github.sha }}
+          path: recovery-artifacts
+          if-no-files-found: warn
+          retention-days: 30
+
+# PASS-25 execution marker: actual PackUnitSpawner/WaveInjector adapters require a fresh candidate-bound run.
+
+# PASS-27 pure-core rerun marker: Runtime CI allowlist now includes GenerationStore.cs.
+
+# PASS-28 comparer/materialized marker: rerun pure core after quality cleanup; game-only materialized adapters remain source-only until host qualification.
+
+# PASS-30 receipt marker: requalify pure GenerationStore after protocol receipt extension; host-only consumers remain separately gated.
+
+# PASS-31 receipt test marker: qualify protocol path/generation identity fields with pure GenerationStore core.
+
+# PASS-33 root resolver marker: qualify canonical requested/default root selection before ModPlatform integration.
+
+# PASS-34 root policy marker

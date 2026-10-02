@@ -57,6 +57,30 @@ namespace DINOForge.Runtime.Bridge
         /// Called by ModPlatform during startup.
         /// </summary>
         /// <param name="registry">The RegistryManager containing loaded pack definitions.</param>
+        internal static Generation.GenerationConsumerResult ApplyLookupGeneration(Generation.RuntimeGeneration generation)
+        {
+            try
+            {
+                SetRegistryManager(generation.Registries);
+                return new Generation.GenerationConsumerResult(
+                    "wave-injector",
+                    generation.Id,
+                    Generation.GenerationConsumerDisposition.LookupOnDemand,
+                    Generation.GenerationConsumerStatus.Ack,
+                    observedGeneration: generation.Id,
+                    detail: "future queued wave definitions resolve against this generation; active waves retain materialized definitions");
+            }
+            catch (Exception ex)
+            {
+                return new Generation.GenerationConsumerResult(
+                    "wave-injector",
+                    generation.Id,
+                    Generation.GenerationConsumerDisposition.LookupOnDemand,
+                    Generation.GenerationConsumerStatus.Nack,
+                    detail: ex.Message);
+            }
+        }
+
         public static void SetRegistryManager(RegistryManager registry)
         {
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));

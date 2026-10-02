@@ -65,6 +65,17 @@ namespace DINOForge.Runtime.Aviation
         /// Call this from ModPlatform after packs have been loaded.
         /// </summary>
         /// <param name="registry">The RegistryManager containing loaded pack definitions.</param>
+        internal static Generation.GenerationConsumerResult AssessBuildingGeneration(Generation.RuntimeGeneration generation)
+        {
+            return new Generation.GenerationConsumerResult(
+                "aerial-building-sweep",
+                generation.Id,
+                Generation.GenerationConsumerDisposition.RestartRequired,
+                Generation.GenerationConsumerStatus.RestartRequired,
+                observedGeneration: generation.Id,
+                detail: "existing AerialSpawnSystem instances perform a one-shot building sweep; registry rebind alone cannot qualify live building materialization");
+        }
+
         public static void Initialize(RegistryManager? registry)
         {
             // Iter-144 H9 probe: ENTER/EXIT timing around mod-side pack-recreation entry point.
