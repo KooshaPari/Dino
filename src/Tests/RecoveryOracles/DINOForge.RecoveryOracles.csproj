@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>DINOForge.Tests</AssemblyName>
+    <RootNamespace>DINOForge.Tests</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);RS1038</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+    <PackageReference Include="xunit" Version="2.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.*">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="FluentAssertions" Version="6.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../SDK/DINOForge.SDK.csproj" />
+    <ProjectReference Include="../../Runtime/DINOForge.Runtime.csproj" />
+    <Compile Include="../RecoveryGenerationOracleTests.cs" Link="RecoveryGenerationOracleTests.cs" />
+    <!-- Unity/ECS consumers are excluded from Runtime.dll when GameInstalled=false. Keep the source-bound probe for a game-installed/self-hosted runner, but do not fake it in SDK-only CI. -->
+    <Compile Remove="RecoveryGenerationRuntimeConsumerTests.cs" />
+  </ItemGroup>
+</Project>

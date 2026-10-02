@@ -1,0 +1,84 @@
+# Dino source-coverage ledger — pass 1
+
+Program: `gaming-pair-20260929`. Observation: 2026-09-29. Source: **17119051e782b32615413049c1c3cd207f0b540e**. Registry: **85d7cd00cf59c379c05b740e8130a85b0d5bd31b**. These are analyzed sources, not the specification branch or a tested implementation candidate. Authority: recovery draft under the current user assignment.
+
+## Denominator and resolution rules
+
+**The file-level denominator is OPEN. No source-coverage percentage is valid.** The table inventories meaningful source families; a sampled family is not exhausted. The recursive tree response was truncated; a network clone failed DNS resolution. Unseen files, branches, deleted paths, and unrendered prompt bindings remain unknown, not irrelevant. Code-search results from another repository must be excluded even when the query requested this repository.
+
+Resolution requires recorded meaning, provenance/authority, contradictions, extracted obligations or explicit non-normative judgment, implementation surfaces, journey/stage consequences, and oracle implications. `read` is acquisition extent; `resolved` is a separate semantic decision. A family's descendants must be enumerated before that family can close. Search hit counts and bound-prompt counts are not a coverage denominator.
+
+## Source families
+
+| ID | Source family and inspected extent | Classification / meaning | Obligations, contradictions and surfaces | Stage / verification consequence | Resolution |
+|---|---|---|---|---|---|
+| D-S01 | Current 2026-09-29 user assignment, full | Normative program policy; exactly Dino and Civis | Mature-first, independent evidence, no target requirement count, no third product, draft-only execution | Every stage; incomplete cannot be green | Resolved for this assignment; later changes version separately |
+| D-S02 | Conversation retrieval: 2026-03-10 framework-first scope; 2026-03-12 content/asset workflow; 2026-03-30 account topology | Retrieval of USER INTENT mixed with explicitly identified ASSISTANT SUGGESTIONS | Broad DINO framework precedes any one warfare/Star Wars pack; proposed repo topology is not accepted implementation | Mature breadth includes domains; first slice must exercise framework rather than one hardcoded pack | Partial: retrieve original messages and subsequent corrections |
+| D-S03 | README.md, architecture/milestone/setup sections sampled | Supporting design + implementation claims | DINOForge is a mod platform; all milestones marked done, but in-game demonstration still described as stub. No completion credit | Pack author/player journeys need live game evidence | Partial: remaining README links and release claims need resolution |
+| D-S04 | AGENTS.md first 200 lines | Contributor policy + historical worker instructions | Schema source of truth, wrap over handroll, agent machine interfaces. Old push-main/coauthor instructions do not override current draft-only user request | Native suites not run; worker convoy state is not product state | Partial: linked CLAUDE/ADRs and current enforcement |
+| D-S05 | Current tree API attempted, response truncated; .gitmodules exact-path read returned 404 | Current implementation inventory; NOT a complete tree or proof of no dependencies | Need segmented directory/tree enumeration, lockfiles, vendored native binaries, package references | Dependency identity gate remains open | Open |
+| D-S06 | src/Runtime/Plugin.cs:1-230, blob 61ade656f02677e91979b384941725fa2ed931fd | Current implementation | BepInEx entry/Awake and scene-resurrection state exist; diagnostic teardown probes disabled. Comments about observed freezes are historical assertions | Boot -> scene transition -> live ECS is a critical journey; no runtime run observed | Partial: follow DeferredAwake/RuntimeDriver and teardown paths |
+| D-S07 | src/Runtime/ModPlatform.cs:1-440, blob e5682b03f27873b756018c83cf0031ce13ef79b0 | Current implementation | Initialize constructs ContentLoader with schemaValidator:null; OnWorldReady attempts ECS registrations and catalog build. Several failures log then continue | Initialization flag and pack count cannot prove host readiness or schema enforcement | Partial; finding D-F01 below |
+| D-S08 | src/SDK/ContentLoader.cs:1-220, blob e6c11ca739cc25e49c18730aef4b3fc7796647eb | Current implementation | Constructor passes optional validator into RegistryImportService; null explicitly skips schema validation. Compatibility and dependency checks still exist; do not say all validation is absent | Compiler acceptance and runtime acceptance need separate evidence | Partial: RegistryImportService, PackLoader, rest of aggregate load/reload paths |
+| D-S09 | Pack manifests, schemas, packs/ and domain modules located via README only | Current implementation / authored content | Enumerate distinct content types, precedence, conflicts, migrations and asset references without treating each pack as a new product | Cross-pack substitution must expose hardcoding | Open |
+| D-S10 | Runtime bridge, IPC, component map and hot reload referenced by source | Current implementation | Need actual request dispatch, host instance identity, main-thread handoff, transaction/rollback semantics and authorization | Wrong instance, stale world, invalid reload, partial dependency failure | Open |
+| D-S11 | CLI, MCP, compiler, installer and companion paths referenced by README | Implementation claims, not mounted proof | Enumerate commands/routers and trace through SDK and real game, including installation target selection | Agent and human paths must close to the same installation/candidate | Open |
+| D-S12 | UI overlay/F9/F10/F11, companion screens and settings referenced in code | Current implementation / historical UX claims | Reachability, focus, input capture, accessibility, status/error semantics and persisted settings not mapped | Mock screen or screenshot without input/outcome identity is insufficient | Open |
+| D-S13 | Persistence/configuration: disabled_packs.json, config bindings observed; save handling not inspected | Current implementation | Explicit install-root recovery exists; canonical path validation and recovery from interrupted writes require inspection | Restart/switch-install and undo/disable journeys | Partial |
+| D-S14 | Asset pipeline/catalog/storage/migrations referenced by README | Supporting claims / current implementation to locate | License/provenance, transformations, formats, compatibility, cache invalidation, source-to-runtime asset identity | Rights-cleared specimen; missing/wrong/unsupported asset must not become silent success | Open |
+| D-S15 | Tests, coverage badges, game evidence commands referenced; no native run | Supporting evidence candidates | Discover assertions, skipped tests, fixture realism, build targets, raw artifacts and exact candidates | SDK green != installed mod green; previous agent statements remain claims | Open |
+| D-S16 | CI, release/deployment/update/security policies not yet enumerated | Implementation / operational policies to inspect | Build provenance, signing, update rollback, dependency support matrix, release channels and human stable approval | No release/stable promotion authorized by this recovery draft | Open |
+| D-S17 | Observability/log/session recorder references in Plugin.cs | Current implementation | Recorded input+frames are useful but collector identity, completeness, privacy and failure behavior need proof | No collector success inferred from configuration default Enabled=true | Partial |
+| D-S18 | PhenoRegistry docs/intent/Dino.md, full; blob b5fa53cf77d93a3af4a2626252fc5ff4a1e47f27 | Non-normative binding index with placeholder intent | 1,228 prompt bindings and 17 responses do not describe accepted obligations; aliases empty. Linked records need independent relevance/authority checks | No requirement may be justified by binding count alone | This file's placeholder meaning resolved; bound corpus OPEN |
+| D-S19 | Registry atlas products/Dino/STATE.md, full; blob 18bd3057cca574c7d86b5a29e971d5bb03ab0348 | Bounded historical assessment at same source commit | Real usable pack is parent outcome; local/branch progress unknown; UnityDoorstop retained dependency not disposable | No native/install/product qualification in that assessment | File resolved as limited supporting evidence; linked atlas OPEN |
+| D-S20 | Registry absorption audits / old product descriptions, search snippets only | Historical and potentially contradictory | Some records describe a Rust utility or absorption into apps, inconsistent with current C# mod platform | Do not authorize absorption/archive from stale snippets | Open |
+| D-S21 | Useful Git history, deleted/renamed paths, issues/PRs, releases and owner worktrees | Historical implementation / decisions / proposals | Default-branch dependency commit inspected; full history and branches NOT exhausted; owner-local work unknown | Preserve history, no supersession by silence | Open |
+| D-S22 | External prior art: BepInEx v5/master docs, UnityDoorstop, Harmony, dno-mods, r2modman | EXTERNAL PRIOR ART; research index in registry | Loader/patching/profile machinery is reusable; DINO support, exact versions/licenses and integration cost still need qualification | No dependency adopted or upgraded by browsing | Partial |
+| D-S23 | Grader/traceability structures and supply-chain standards | Normative current program requirements; existing repo machinery uninspected | Need protected acceptance policy, exact evidence identity and negative controls; distinguish worker/effort/product lifetimes | Empty, skipped, stale, wrong-candidate evidence cannot pass | Open |
+| D-S24 | Documentation/onboarding/support/pack-author examples and external consumer feedback | Product surface not yet fully inventoried | Author-to-player handoff and maintainability matter independently of framework code volume | Real external-user pilot is separate from design qualification | Open |
+
+## D-F01: schema enforcement boundary mismatch
+
+**Observed source fact:** ModPlatform.Initialize passes `schemaValidator: null` to ContentLoader. The ContentLoader constructor passes that argument into RegistryImportService and documents that null skips validation. Other compatibility/dependency checks are present: this is NOT a claim that every validation is missing.
+
+**Interpretation:** compiler/schema-test success cannot establish that directly installed or edited packs are schema-validated in the game runtime. The remaining question is whether another authoritative ingress guard blocks the same invalid content before activation; that guard has not been demonstrated.
+
+**Obligation candidate:** every supported activation ingress must either enforce the accepted schema/semantic contract or verify an exact immutable validation artifact for the bytes being activated. A CLI-only check cannot qualify mutable runtime input.
+
+**Required falsification:** use valid YAML with a schema-invalid field that deserializes successfully; compare compiler, direct runtime load, hot reload, and dependency loads. Observe rejected activation and unchanged previously accepted registry/live state. A parse-error test alone cannot close this finding. Follow RegistryImportService and mounted callers before classifying this as an end-to-end reproduced defect.
+
+## D-F02: installation and scene identity are product boundaries
+
+ModPlatform reanchors a configured packs path to the running installation, but the inspected check is string-prefix based. Plugin maintains persistent root/resurrection flags across Unity scene teardown. These make wrong-install and wrong-world evidence realistic negative controls, not generic checklist items. Canonical-path containment, stale-world handles, and scene recovery remain unverified; a prefix collision is a test candidate, not a reproduced exploit.
+
+## Acquisition limitations
+
+No dotnet executable, no installed licensed DINO host, and no native suite/runtime execution in this environment. GitHub code reads are source observations, not gameplay proof. All current-state statuses must preserve these distinctions. Resolving this ledger requires follow-up inspection, not simply generating requirements from the rows.
+
+
+## Pass 13-16 ledger continuation
+
+| ID | Source | Classification | Resolution / consequence | Status |
+|---|---|---|---|---|
+| D-S25 | Prior conversations Mar8/10/12 recovered2026-09-30 | USER INTENT + assistant proposals separated | Framework-first/full DINO modding, agent-driven validation, reusable/adapted assets and provenance are user anchors; Foundation Spec topology remains proposal unless corroborated | Partial corpus recovered; more history open |
+| D-S26 | Recovery CI runs36628553200,36673414046,36686256615 + artifacts | VERIFIED OBSERVATION on isolated SDK candidate | Removed content stale, identical reload conflict, stale patched YAML all reproduced; exact candidates/artifacts recorded in Pass13/14 | Resolved for exercised SDK subjects; host runtime open |
+| D-S27 | RecoveryGenerationPrototypeTests | EXPERIMENT / architecture candidate | First combined run: fresh-generation removal and failed-candidate-retains-G1 passed; patch prototype fixture failed before architecture conclusion and was corrected | Rerun active |
+| D-S28 | Runtime retained RegistryManager consumers (PackUnitSpawner, WaveInjector, BuildMenuInjector, AerialSpawnSystem, HotReloadBridge, plugins) | CURRENT IMPLEMENTATION | Fresh-manager swap alone would split runtime truth; stable facade/generation handle or explicit rebinding needed | Partial; consumer inventory open |
+
+### D-F01 correction after deeper source/test work
+
+The original null-schema wording is superseded by Pass2: RegistryImportService also calls JsonGuard/IValidatable semantic checks. The unresolved obligation is validation parity by content type/ingress, not blanket absence of runtime validation. Keep the historical finding for provenance but do not quote it as the current model.
+
+
+## 2026-10-01 non-execution closure status
+
+The ledger is no longer treated as "open because files remain to be read" generically. Remaining unresolved source families are classified by blocker:
+
+- **AUTHORITY-DECISION**: historical/generated requirement catalogs whose normative status cannot be derived safely.
+- **EXECUTION-DEPENDENT**: real-game host/runtime/materialization/compatibility evidence.
+- **EMPIRICAL-PILOT**: external usability/value/maintenance comparison.
+- **POLICY-DECISION**: supported host/platform/distribution/asset-rights/support commitments.
+
+All other recovered source families feed the mature pillars/journeys/invariants in `NONEXEC-FINAL-CONTRACT-GATE.md`. Runtime-domain reachability is governed by the four-stage realization gate in PASS-44B. SOTA/existence decisions are consolidated in `SOTA-EXISTENCE-GATE-FINAL.md`. Fresh semantic falsification review is `FRESH-ADVERSARIAL-REVIEW.md`.
+
+**Non-execution source-coverage claim:** resolved to a reasonable falsification standard for the current two-repo program, except the named authority/policy decisions. This does not convert execution-dependent rows to green and does not make the overall product specification/design gate 100%.
