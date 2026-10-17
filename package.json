@@ -12,7 +12,7 @@
   "dependencies": {
     "lodash-es": "^4.18.1",
     "vitepress": "^1.5.0",
-    "vue": "^3.5.42"
+    "vue": "^3.5.43"
   },
   "devDependencies": {
     "mermaid": "^11.17.2",
