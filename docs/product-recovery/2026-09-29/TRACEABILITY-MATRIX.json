@@ -1,0 +1,30 @@
+{
+  "schema": "recovery-trace-v1",
+  "repository": "KooshaPari/Dino",
+  "program": "gaming-pair-20260929",
+  "intent": "General DINO modding platform enabling substantial total conversions without maintaining a game fork solely because required surfaces are closed.",
+  "pillars": ["D-P1","D-P2","D-P3","D-P4","D-P5","D-P6","D-P7","D-P8","D-P9","D-P10"],
+  "journeys": ["D-J01","D-J02","D-J03","D-J04","D-J05","D-J06","D-J07","D-J08"],
+  "design_spine": ["immutable effective candidate generation","explicit consumer disposition","authorized canonical pack root","exact activation receipt"],
+  "realization_rule": "DEFINITION_ACCEPTED -> PRODUCTION_MOUNTED -> RUNTIME_EFFECT_PROVEN -> GENERATION_TRANSITION_PROVEN",
+  "domains": {
+    "Units": "mounted consumers found; host effect/transition open",
+    "Buildings": "BuildMenu/Aerial/ProductionCalculator; mixed materialization; host transition open",
+    "Factions": "FactionSystem materialized owner; host transition open",
+    "Weapons": "definition/loader and retained WarfareContentLoader registry; direct live effect unproven",
+    "Projectiles": "ModPlatform materializes into BlasterBoltConfig static/global visual state; removal/cache transition open",
+    "Doctrines": "DoctrineEngine/BalanceCalculator/WarfarePlugin consumers; mounted host consequence open",
+    "Skills": "declared ECS mapping; mounted applicator unproven",
+    "Waves": "WaveInjector; queued-vs-active host transition open",
+    "Squads": "definition/loader/registry; mounted live consumer unproven",
+    "FactionPatches": "composition/effective-definition semantics; runtime consequence/removal open",
+    "NonCore": "archetypes/assets/overrides/caches remain independent generation surfaces"
+  },
+  "oracle_families": ["G1 realization","G2 change","G2 removal","invalid candidate retains accepted generation","identical reload idempotence","dependency/conflict","existing-object disposition","restart convergence","stale cache/materialization","wrong host/path/world"],
+  "evidence_state": "HOST-INDEPENDENT CANDIDATE SUPPORTED; LICENSED HOST REALIZATION OPEN",
+  "blockers": {
+    "EXECUTION": ["licensed GameInstalled=true host","real materialization/removal/restart/scene journeys","total-conversion vertical"],
+    "AUTHORITY_POLICY": ["supported host/platform/distribution matrix","asset redistribution policy","stable support commitments","contested historical catalog authority"],
+    "EMPIRICAL": ["external author/player usability","maintenance/cost vs alternative stack","total-conversion breadth sufficiency"]
+  }
+}

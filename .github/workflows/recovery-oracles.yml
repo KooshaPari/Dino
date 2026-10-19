@@ -1,0 +1,44 @@
+name: Recovery Oracles
+
+on:
+  pull_request:
+    branches: [main, spec/mature-recovery-20260929]
+    paths:
+      - 'src/Tests/RecoveryGenerationOracleTests.cs'
+      - 'src/Tests/RecoveryOracles/**'
+      - 'src/SDK/**'
+      - '.github/workflows/recovery-oracles.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recovery-generation-oracles:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
+        with:
+          dotnet-version: '11.0.x'
+          global-json-file: global.json
+      - name: Candidate receipt
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force recovery-artifacts | Out-Null
+          $receipt = @{ repository='${{ github.repository }}'; candidate='${{ github.event.pull_request.head.sha || github.sha }}'; workflow_run_id='${{ github.run_id }}'; workflow_attempt='${{ github.run_attempt }}'; runner_os='${{ runner.os }}'; oracle_scope='RecoveryGenerationOracleTests'; product_acceptance_credit=$false } | ConvertTo-Json
+          $receipt | Set-Content recovery-artifacts/receipt.json
+      - name: Execute generation replacement oracles
+        shell: pwsh
+        run: dotnet test src/Tests/RecoveryOracles/DINOForge.RecoveryOracles.csproj -c Release -p:NoWarn=RS1038 --filter "FullyQualifiedName~RecoveryGeneration" --logger "trx;LogFileName=recovery-generation.trx" --results-directory recovery-artifacts
+      - name: Upload raw recovery evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: recovery-generation-${{ github.event.pull_request.head.sha || github.sha }}
+          path: recovery-artifacts
+          if-no-files-found: warn
+          retention-days: 30

@@ -1,0 +1,114 @@
+{
+  "schema_version": "0.1",
+  "observed_source": "17119051e782b32615413049c1c3cd207f0b540e",
+  "authority": "RECOVERY_DRAFT_NON_GRADING",
+  "generation_identity_required": [
+    "pack_id",
+    "declared_version",
+    "artifact_digest",
+    "dependency_graph_digest",
+    "patch_set_digest",
+    "effective_content_digest",
+    "activation_generation",
+    "install_profile",
+    "world_generation"
+  ],
+  "surfaces": [
+    {
+      "id": "core.registry.raw",
+      "owner": "Registry<T>",
+      "identity": [
+        "content_id",
+        "source",
+        "source_pack_id",
+        "priority"
+      ],
+      "cleanup": "no remove-by-pack/generation in inspected API",
+      "publication": "Get/All select top priority",
+      "status": "BLOCKING_GENERATION_REPLACEMENT"
+    },
+    {
+      "id": "core.registry.manager",
+      "owner": "RegistryManager",
+      "identity": [
+        "typed registries"
+      ],
+      "cleanup": "no generation object observed",
+      "publication": "shared long-lived manager",
+      "status": "OPEN"
+    },
+    {
+      "id": "patch.cache",
+      "owner": "RegistryImportService._patchedYamlCache",
+      "identity": [
+        "absolute_path"
+      ],
+      "cleanup": "no clear/reset discovered",
+      "publication": "cached YAML preferred over disk",
+      "status": "BLOCKING_STALE_GENERATION_ORACLE_RUNNING"
+    },
+    {
+      "id": "pack.reload",
+      "owner": "ContentLoader/IPackReloadService",
+      "identity": [
+        "pack_directory"
+      ],
+      "cleanup": "ReloadPack delegates to LoadPack against same registries",
+      "publication": "incremental registration",
+      "status": "BLOCKING_ORACLE_RUNNING"
+    },
+    {
+      "id": "watcher.delta",
+      "owner": "PackFileWatcher",
+      "identity": [
+        "changed_file_paths",
+        "pack_ids"
+      ],
+      "cleanup": "no exact removed semantic IDs",
+      "publication": "UpdatedEntries actually loaded pack IDs",
+      "status": "INSUFFICIENT_EVIDENCE_IDENTITY"
+    },
+    {
+      "id": "runtime.reload.receipt",
+      "owner": "GameBridgeServer",
+      "identity": [
+        "success",
+        "loadedPacks",
+        "errors"
+      ],
+      "cleanup": null,
+      "publication": "calls platform LoadPacks",
+      "status": "INSUFFICIENT_FOR_MACE"
+    },
+    {
+      "id": "runtime.reload.request_path",
+      "owner": "GameBridgeServer.HandleReloadPacks",
+      "identity": [
+        "protocol path parameter"
+      ],
+      "cleanup": null,
+      "publication": "inspected handler ignores parameters and calls default LoadPacks",
+      "status": "SUBJECT_IDENTITY_DEFECT_SOURCE_OBSERVED"
+    },
+    {
+      "id": "runtime.hot_apply",
+      "owner": "HotReloadBridge",
+      "identity": [
+        "HotReloadResult pack IDs"
+      ],
+      "cleanup": "partial failures can still ApplyRuntimeUpdates",
+      "publication": "reapply runtime systems",
+      "status": "PARTIAL_PUBLICATION_POLICY_UNRESOLVED"
+    },
+    {
+      "id": "disabled_pack_hide",
+      "owner": "ModPlatform load path",
+      "identity": [
+        "filesystem pack path"
+      ],
+      "cleanup": "rename back in finally; failure warns",
+      "publication": "temporary .disabled rename",
+      "status": "INTERRUPTION_RECOVERY_OPEN"
+    }
+  ]
+}

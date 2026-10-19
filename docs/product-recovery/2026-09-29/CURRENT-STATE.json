@@ -1,0 +1,210 @@
+{
+  "schema_version": "1.0",
+  "program_id": "gaming-pair-20260929",
+  "product": "DINOForge",
+  "repository": "KooshaPari/Dino",
+  "observed_date": "2026-10-02",
+  "source_snapshot": "17119051e782b32615413049c1c3cd207f0b540e",
+  "registry_source_snapshot": "85d7cd00cf59c379c05b740e8130a85b0d5bd31b",
+  "registry_research_commit": "7c7c724ebcfd0fa353da6b090c36e66ddb474b03",
+  "specification_branch": "spec/mature-recovery-20260929",
+  "implementation_candidate": "50d677b8b1074a4b27f12374cd9b252b14d9b83f",
+  "contract_authority": "RECOVERY_DRAFT_NOT_ACCEPTED",
+  "candidate_obligations_eligible_for_grading": false,
+  "invalid_or_unreviewed_catalogs_eligible_for_grading": false,
+  "specification_design_complete": false,
+  "overall_percent": null,
+  "source_denominator": {
+    "family_ledger": "SOURCE-COVERAGE-LEDGER.md",
+    "file_history_conversation_denominator_closed": "REASONABLE_FALSIFICATION_STANDARD_EXCEPT_NAMED_AUTHORITY_POLICY_EXECUTION_EMPIRICAL_BLOCKERS",
+    "percentage": null
+  },
+  "dimensions": {
+    "functional_realization": "PARTIALLY_MAPPED_NOT_MEASURED",
+    "traceability": "NONEXEC_STRUCTURE_VALIDATED_EXECUTION_EDGES_OPEN",
+    "current_product_evidence": "SDK_BEHAVIORAL_REDS_AND_ARCHITECTURE_GREENS; NATIVE_GAME_NOT_QUALIFIED",
+    "journey_closure": "NOT_DEMONSTRATED_IN_THIS_PROGRAM",
+    "performance": "UNQUALIFIED",
+    "reliability": "UNQUALIFIED",
+    "security": "UNQUALIFIED",
+    "accessibility": "UNQUALIFIED",
+    "usability": "UNQUALIFIED",
+    "external_user_validation": "NOT_ASSESSED",
+    "regression": "CANDIDATE_BOUND_SDK_COUNTEREXAMPLES_REPRODUCED",
+    "velocity": null,
+    "uncertainty": "RUNTIME_HOST_AND_POLICY_DECISIONS_REMAIN",
+    "transition_debt": "INVENTORY_STARTED_NOT_QUANTIFIED"
+  },
+  "gates": {
+    "source_ledger_fully_resolved": "NONEXEC_PASS_EXCEPT_NAMED_AUTHORITY_POLICY_EXECUTION_EMPIRICAL_BLOCKERS",
+    "alias_history_reasonably_exhausted": "REASONABLE_FALSIFICATION_PASS_CURRENT_PROGRAM",
+    "sota_completed": "NONEXEC_PASS_REFRESHED_2026-10-01",
+    "realistic_alternative_stack": "DEFINED",
+    "bootstrap_decisions_recorded": "RECORDED",
+    "differentiation_survives_attack": "PROVISIONAL_PASS_PILOT_REQUIRED",
+    "ontology_reviewed": "NONEXEC_PASS",
+    "all_accepted_obligations_represented": "NONEXEC_SEMANTIC_CONTRACT_PASS_AUTHORITY_DECISIONS_RETAINED",
+    "quality_properties_represented": "NONEXEC_PASS",
+    "journeys_represented": "NONEXEC_PASS",
+    "stage_projections_justified": "NONEXEC_PASS",
+    "oracle_design_complete": "NONEXEC_PASS_EXECUTION_ORACLES_UNRUN",
+    "high_risk_architecture_experimentally_closed": "HOST_INDEPENDENT_GENERATION_RECEIPT_ROOT_SELECTION_AND_AUTHORIZATION_SUPPORTED_GAME_INSTALLED_INTEGRATION_OPEN",
+    "implementation_mapping_complete": "NONEXEC_MAPPING_PASS_RUNTIME_REALIZATION_OPEN",
+    "traceability_structurally_valid": "NONEXEC_PASS_EXECUTION_EVIDENCE_EDGES_OPEN",
+    "registry_repo_truth_agree": "PASS_AFTER_2026_10_01_MACHINE_STATE_RECONCILIATION_EXCEPT_HISTORICAL_SUPERSEDED_RECORDS",
+    "invalid_generated_catalog_excluded": "PASS_QUARANTINED_UNLESS_INDEPENDENTLY_RECOVERED",
+    "no_unexplained_orphans": "NONEXEC_PASS_KNOWN_UNKNOWNS_EXPLICIT",
+    "no_unresolved_contradictions": "NONEXEC_PASS_NAMED_AUTHORITY_ALTERNATIVES_RETAINED",
+    "no_blocking_findings": "FAIL_EXECUTION_AND_AUTHORITY_BLOCKERS_REMAIN",
+    "independent_fresh_incompleteness_attack": "NONEXEC_PASS_2026_10_01"
+  },
+  "blockers": [
+    "D-BEH-01 confirmed: removed content remains effective after successful same-pack reload",
+    "D-BEH-02 confirmed: identical reload accumulates a registry conflict",
+    "D-BEH-03 confirmed: removing a patch can reuse stale patched YAML across LoadPacks on persistent loader",
+    "Runtime consumer generation publication/acknowledgement not implemented or host-qualified",
+    "D-F01 validation parity by content type/ingress remains incomplete",
+    "D-F02 install/profile/world identity and scene lifecycle not qualified",
+    "Licensed DINO host journey not executed",
+    "Production reload path has three candidate-bound reproduced generation failures",
+    "Runtime consumer rebind/materialization and licensed-host journey remain unqualified",
+    "Recent self-hosted Game Launch / E2E schedules are cancelled before steps; no recent admissible native-game execution",
+    "GitHub-hosted Real Game Launch Validation can succeed with game absent and all game steps skipped",
+    "Game Automation Tests explicitly creates a mock executable when game is absent and is not native-product evidence"
+  ],
+  "next_bounded_work": [
+    "Do not expand non-execution prose without new evidence; nonexec finality has passed",
+    "Obtain GameInstalled=true host evidence for path-aware ModPlatform generation coordination and all required consumer/materialization receipts",
+    "Close advertised domain realization rows with mounted effect/removal/restart evidence or explicitly narrow support",
+    "Obtain owner policy decisions for host/platform/distribution/assets/support commitments",
+    "Run external author/player alternative-stack pilot after mounted vertical exists"
+  ],
+  "no_third_product_program": true,
+  "merge_authorized": false,
+  "prototype_architecture_evidence": {
+    "production_reproduced_failures": [
+      "removed content remains effective after successful same-pack reload",
+      "repeated identical reload accumulates equal-priority conflict",
+      "removed patch continues to serve stale patched YAML"
+    ],
+    "production_control_run": {
+      "run_id": 36687869773,
+      "candidate": "a4409d25f71b23d92d51a55c5925bb9e48df1a84",
+      "result": "3 production controls failed",
+      "artifact_id": 11084821466,
+      "artifact_sha256": "4f278d7cb617a30e64716a5c9b385d59d9bfb65f1f88a5bd69dd8ffe7d215126"
+    },
+    "latest_discrimination_run": {
+      "run_id": 36706610552,
+      "candidate": "0124edd7aff871ca63d8f92fc4cd959bd3cbb5f4",
+      "result": "12 recovery tests: 9 generation/coordination/consumer prototype tests passed; 3 unchanged production reload controls failed",
+      "artifact_id": 11091884496,
+      "artifact_sha256": "21578ca478df3651f1911e1d41826c60c9ce39b6c1f4bd5630e949233b186302"
+    },
+    "validated_in_isolation": [
+      "fresh isolated generation removes historical registrations",
+      "fresh isolated generation does not reuse stale patched YAML",
+      "failed candidate preserves prior published generation",
+      "candidate bytes derive stable/change-sensitive generation identity",
+      "consumer ACK/NACK distinguishes desired from fully active",
+      "two-phase activation retains prior active generation until all required consumers ACK",
+      "stale/wrong-generation acknowledgement cannot qualify current generation",
+      "lookup-on-demand consumer can qualify desired generation after registry rebind",
+      "materialized consumer remains unqualified until explicit reconciliation",
+      "restart-required consumer can observe desired generation without falsely qualifying it as materialized"
+    ],
+    "still_unqualified": [
+      "real Runtime static consumer rebinding run queued",
+      "derived ECS/UI/cache materialization across generation change",
+      "licensed host gameplay journey",
+      "complete runtime consumer denominator"
+    ],
+    "latest_integration_candidate_run": {
+      "run_id": 36717763618,
+      "candidate": "50d677b8b1074a4b27f12374cd9b252b14d9b83f",
+      "conclusion": "success",
+      "artifact_id": 11097236544,
+      "artifact_sha256": "00e622ed9936da92b2ac2fe4535adcdb3149b986a139de3292da8d8eb33db23d",
+      "scope": "GenerationStore + receipt contract + canonical pack-root selection + conservative root authorization"
+    }
+  },
+  "native_game_evidence": {
+    "self_hosted_workflow": ".github/workflows/game-launch.yml",
+    "recent_runs": [
+      {
+        "run_id": 36415112957,
+        "date": "2026-09-28",
+        "conclusion": "cancelled",
+        "steps_executed": false
+      },
+      {
+        "run_id": 35588105879,
+        "date": "2026-09-21",
+        "conclusion": "cancelled",
+        "steps_executed": false
+      },
+      {
+        "run_id": 34832072673,
+        "date": "2026-09-14",
+        "conclusion": "cancelled",
+        "steps_executed": false
+      },
+      {
+        "run_id": 34108316258,
+        "date": "2026-09-07",
+        "conclusion": "cancelled"
+      },
+      {
+        "run_id": 33386127802,
+        "date": "2026-08-31",
+        "conclusion": "cancelled"
+      },
+      {
+        "run_id": 32693826847,
+        "date": "2026-08-24",
+        "conclusion": "cancelled"
+      }
+    ],
+    "github_hosted_validation_false_green": {
+      "run_id": 34687636798,
+      "candidate": "17119051e782b32615413049c1c3cd207f0b540e",
+      "workflow_conclusion": "success",
+      "game_available": false,
+      "game_test_step": "skipped",
+      "qualification_credit": false
+    },
+    "mock_capable_automation_workflow": ".github/workflows/game-automation.yml",
+    "qualification": "NOT_QUALIFIED"
+  },
+  "non_execution_closure": {
+    "as_of": "2026-10-01",
+    "status": "STRUCTURALLY_CLOSED_WITH_NAMED_AUTHORITY_POLICY_AND_EXECUTION_BLOCKERS",
+    "contract": "NONEXEC-FINAL-CONTRACT-GATE.md",
+    "sota": "SOTA-EXISTENCE-GATE-FINAL.md",
+    "fresh_review": "FRESH-ADVERSARIAL-REVIEW.md",
+    "source_ledger": "SOURCE-COVERAGE-LEDGER.md",
+    "overall_spec_design_100": false,
+    "reason": "Original completion gate requires experimental closure, implementation mapping/runtime evidence, contradiction closure and independent proof across mounted behavior; named blockers remain and are not paper-completable.",
+    "remaining_authority_policy": [
+      "normative authority of contested historical/generated requirement catalogs",
+      "final supported DINO host/platform/profile matrix",
+      "asset redistribution/distribution policy",
+      "stable support/compatibility commitments"
+    ],
+    "execution_empirical": [
+      "GameInstalled=true consumer/materialization qualification",
+      "path-aware ModPlatform generation coordination",
+      "total-conversion vertical and removal/restart journeys",
+      "external alternative-stack/user pilot"
+    ]
+  },
+  "nonexec_finality": {
+    "status": "PASS_TO_REASONABLE_FALSIFICATION_STANDARD",
+    "date": "2026-10-01",
+    "contract": "NONEXEC-FINAL-CONTRACT-GATE.md",
+    "adversarial_review": "FRESH-ADVERSARIAL-REVIEW.md",
+    "sota_existence_gate": "SOTA-EXISTENCE-GATE-FINAL.md",
+    "meaning": "Specification/documentation/research/trace/oracle-design layers are closed as far as current evidence permits; this is not overall spec/design 100% because execution/empirical/authority blockers remain.",
+    "reopen_rule": "Reopen non-execution contract only for new user intent, contradictory source evidence, a newly discovered owner/domain class, failed fresh-review challenge, or changed SOTA that materially alters build/bootstrap/existence decisions."
+  }
+}
