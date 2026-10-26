@@ -4,11 +4,11 @@
     Minimal live-bridge journey evidence smoke — documents steps when the game bridge responds.
 
 .DESCRIPTION
-    Verifies named pipe, MCP health, GameControlCli status, and (when the bridge answers)
-    captures one in-game screenshot for phenotype journey evidence.
+    Verifies named pipe, MCP health, and GameControlCli status without screen capture.
 
-    - With a live bridge: writes receipt + screenshot under docs/qa/evidence/live-bridge-journey_<date>/
-    - Without DINO_GAME_PATH: still runs bridge/MCP checks; screenshot step is skipped with reason in receipt
+    - Writes a text receipt under docs/qa/evidence/live-bridge-journey_<date>/
+    - Without DINO_GAME_PATH: still runs bridge/MCP checks
+    - Connectivity evidence does not prove installed-pack gameplay or persistence
     - Exit 0 when status check passes; exit 1 when bridge status fails
 
 .EXAMPLE
@@ -87,17 +87,6 @@ $status = Invoke-GameControlCli -Args @('status')
 $statusOk = ($status.ExitCode -eq 0) -and ($status.Output -match 'Connected to game bridge')
 Add-Step -Name 'game_control_cli_status' -Pass $statusOk -Detail $status.Output -Extra @{ exit_code = $status.ExitCode }
 
-# Step 5: Screenshot (only when status passes)
-$screenshotPath = Join-Path $evidenceDir 'bridge-status-screenshot.png'
-if ($statusOk) {
-    $ss = Invoke-GameControlCli -Args @('screenshot', $screenshotPath)
-    $ssOk = ($ss.ExitCode -eq 0) -and (Test-Path -LiteralPath $screenshotPath)
-    Add-Step -Name 'bridge_screenshot' -Pass $ssOk -Detail $(if ($ssOk) { $screenshotPath } else { $ss.Output }) -Extra @{ exit_code = $ss.ExitCode }
-}
-else {
-    Add-Step -Name 'bridge_screenshot' -Pass $false -Detail 'skipped — status check did not pass'
-}
-
 $receipt = [ordered]@{
     schema      = 'dinoforge.live-bridge-journey-smoke/v1'
     observed_at = (Get-Date).ToString('o')
@@ -111,8 +100,5 @@ $receipt | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $receiptPath -Enco
 
 Write-Host "Live bridge journey smoke: overall_pass=$overallPass" -ForegroundColor $(if ($overallPass) { 'Green' } else { 'Red' })
 Write-Host "Receipt: $receiptPath"
-if ($statusOk -and (Test-Path -LiteralPath $screenshotPath)) {
-    Write-Host "Screenshot: $screenshotPath"
-}
 
 exit $(if ($overallPass) { 0 } else { 1 })

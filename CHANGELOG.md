@@ -27,6 +27,7 @@
 - Internationalization framework (i18n.py)
 
 ### Fixed
+- Live bridge journey smoke emits connectivity receipts without requesting screen capture.
 - 20+ CI workflow failures (permissions, lockfile, YAML syntax)
 - ImageSharp commercial license requirement (downgraded to 3.1.6)
 - Broken tools/phenotype-journeys gitlink removed
