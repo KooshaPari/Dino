@@ -418,7 +418,7 @@ Unit Class Distribution (Vanilla-Dino):
 
 ## API Search Execution
 
-**Token**: `df0764455f124549a58f8a156ad8177d`
+**Token**: `<REDACTED-ROTATE-ME>`
 
 **Sketchfab API Endpoint**: `https://api.sketchfab.com/v3/search`
 
@@ -435,7 +435,7 @@ Unit Class Distribution (Vanilla-Dino):
 
 **Date of Execution**: 2026-03-13
 **API Endpoint**: Sketchfab v3 Search API
-**Token**: df0764455f124549a58f8a156ad8177d (Rate limit: ~100 req/min)
+**Token**: <REDACTED-ROTATE-ME> (Rate limit: ~100 req/min)
 **Total Queries Executed**: 8
 **Total Raw Candidates Retrieved**: 40+ models
 

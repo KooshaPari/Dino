@@ -201,7 +201,7 @@ To download more models:
 
 ```bash
 # Set your API token
-export SKETCHFAB_API_TOKEN="df0764455f124549a58f8a156ad8177d"
+export SKETCHFAB_API_TOKEN="<REDACTED-ROTATE-ME>"
 
 # Run the downloader
 cd /path/to/DINOForge

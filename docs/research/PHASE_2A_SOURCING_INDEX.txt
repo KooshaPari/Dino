@@ -2,7 +2,7 @@
 PHASE 2A: INFANTRY SOURCING INDEX
 ================================================================================
 
-SKETCHFAB API TOKEN: df0764455f124549a58f8a156ad8177d
+SKETCHFAB API TOKEN: <REDACTED-ROTATE-ME>
 
 UNIT SOURCING MATRIX:
 ================================================================================
@@ -16,7 +16,7 @@ UNIT SOURCING MATRIX:
    ├─ Asset Dir: packs/warfare-starwars/assets/raw/rep_clone_sharpshooter_sketchfab_001/
    ├─ Metadata: metadata.json (created)
    └─ Download (Phase 2B):
-      curl -H "Authorization: Bearer df0764455f124549a58f8a156ad8177d" \
+      curl -H "Authorization: Bearer <REDACTED-ROTATE-ME>" \
         https://api.sketchfab.com/v3/models/a7fd12dc578d4c729e3930b79666c4ea/download \
         -o packs/warfare-starwars/assets/raw/rep_clone_sharpshooter_sketchfab_001/model.glb
 
@@ -29,7 +29,7 @@ UNIT SOURCING MATRIX:
    ├─ Asset Dir: packs/warfare-starwars/assets/raw/rep_clone_heavy_sketchfab_001/
    ├─ Metadata: metadata.json (created)
    └─ Download (Phase 2B):
-      curl -H "Authorization: Bearer df0764455f124549a58f8a156ad8177d" \
+      curl -H "Authorization: Bearer <REDACTED-ROTATE-ME>" \
         https://api.sketchfab.com/v3/models/f92a5b62741f4f8abe3537353eb36b18/download \
         -o packs/warfare-starwars/assets/raw/rep_clone_heavy_sketchfab_001/model.glb
 
@@ -42,7 +42,7 @@ UNIT SOURCING MATRIX:
    ├─ Asset Dir: packs/warfare-starwars/assets/raw/rep_clone_medic_sketchfab_001/
    ├─ Metadata: metadata.json (created)
    └─ Download (Phase 2B):
-      curl -H "Authorization: Bearer df0764455f124549a58f8a156ad8177d" \
+      curl -H "Authorization: Bearer <REDACTED-ROTATE-ME>" \
         https://api.sketchfab.com/v3/models/e7f2a1fbfdcd41f59ba03fe48ae39004/download \
         -o packs/warfare-starwars/assets/raw/rep_clone_medic_sketchfab_001/model.glb
 
@@ -55,7 +55,7 @@ UNIT SOURCING MATRIX:
    ├─ Asset Dir: packs/warfare-starwars/assets/raw/rep_arf_trooper_sketchfab_001/
    ├─ Metadata: metadata.json (created)
    └─ Download (Phase 2B):
-      curl -H "Authorization: Bearer df0764455f124549a58f8a156ad8177d" \
+      curl -H "Authorization: Bearer <REDACTED-ROTATE-ME>" \
         https://api.sketchfab.com/v3/models/631b759ce00a4496a1960ae0ff49cde0/download \
         -o packs/warfare-starwars/assets/raw/rep_arf_trooper_sketchfab_001/model.glb
 
@@ -68,7 +68,7 @@ UNIT SOURCING MATRIX:
    ├─ Asset Dir: packs/warfare-starwars/assets/raw/rep_clone_militia_sketchfab_001/
    ├─ Metadata: metadata.json (created)
    └─ Download (Phase 2B):
-      curl -H "Authorization: Bearer df0764455f124549a58f8a156ad8177d" \
+      curl -H "Authorization: Bearer <REDACTED-ROTATE-ME>" \
         https://api.sketchfab.com/v3/models/dcc28349c49b40c8be0fd1618fc65e00/download \
         -o packs/warfare-starwars/assets/raw/rep_clone_militia_sketchfab_001/model.glb
 
@@ -81,7 +81,7 @@ UNIT SOURCING MATRIX:
    ├─ Asset Dir: packs/warfare-starwars/assets/raw/rep_clone_engineer_sketchfab_001/
    ├─ Metadata: metadata.json (created)
    └─ Download (Phase 2B):
-      curl -H "Authorization: Bearer df0764455f124549a58f8a156ad8177d" \
+      curl -H "Authorization: Bearer <REDACTED-ROTATE-ME>" \
         https://api.sketchfab.com/v3/models/1fd3c5dfd9864394b1cbaf780e1779bd/download \
         -o packs/warfare-starwars/assets/raw/rep_clone_engineer_sketchfab_001/model.glb
 
