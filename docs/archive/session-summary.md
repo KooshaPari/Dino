@@ -78,7 +78,7 @@
 
 **Usage**:
 ```bash
-export SKETCHFAB_TOKEN=df0764455f124549a58f8a156ad8177d
+export SKETCHFAB_TOKEN=<REDACTED-ROTATE-ME>
 python scripts/download_priority_assets.py
 ```
 

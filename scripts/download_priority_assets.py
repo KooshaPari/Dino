@@ -9,7 +9,7 @@ Automated Sketchfab model acquisition for v0.7.0 release targets.
 - Creates asset manifests with attribution
 - Logs all results for tracking
 
-Requires: SKETCHFAB_TOKEN environment variable (get from df0764455f124549a58f8a156ad8177d)
+Requires: SKETCHFAB_TOKEN environment variable (get from <REDACTED-ROTATE-ME>)
 """
 
 import os

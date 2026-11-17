@@ -196,7 +196,7 @@ Original hardcoded model IDs were invalid:
 ### Download with Python
 ```bash
 cd /path/to/DINOForge
-export SKETCHFAB_API_TOKEN="df0764455f124549a58f8a156ad8177d"
+export SKETCHFAB_API_TOKEN="<REDACTED-ROTATE-ME>"
 python3 packs/warfare-starwars/simple_downloader.py
 ```
 

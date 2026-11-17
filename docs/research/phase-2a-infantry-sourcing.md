@@ -2,7 +2,7 @@
 
 **Status**: Completed - 6 Clone infantry units identified and documented
 **Date**: 2026-03-13
-**Token**: df0764455f124549a58f8a156ad8177d
+**Token**: <REDACTED-ROTATE-ME>
 
 ## Summary
 
@@ -92,7 +92,7 @@ Requirement: Attribution in credits (CREDITS.md updated)
 
 Each model should be downloaded via Sketchfab API using:
 ```bash
-curl -H "Authorization: Bearer df0764455f124549a58f8a156ad8177d" \
+curl -H "Authorization: Bearer <REDACTED-ROTATE-ME>" \
   https://api.sketchfab.com/v3/models/{SKETCHFAB_ID}/download \
   -o models/{VARIANT}/model.glb
 ```

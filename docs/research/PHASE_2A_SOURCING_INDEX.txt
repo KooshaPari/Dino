@@ -2,7 +2,7 @@
 PHASE 2A: INFANTRY SOURCING INDEX
 ================================================================================
 
-SKETCHFAB API TOKEN: df0764455f124549a58f8a156ad8177d
+SKETCHFAB API TOKEN: <REDACTED-ROTATE-ME>
 
 UNIT SOURCING MATRIX:
 ================================================================================
